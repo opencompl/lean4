@@ -115,6 +115,9 @@ section getXsb
 /-- Return the `i`-th most significant bit or `false` if `i ≥ w`. -/
 @[inline] def getMsb (x : BitVec w) (i : Nat) : Bool := i < w && getLsb x (w-1-i)
 
+/-- Return least-significant bit in bitvector. -/
+@[inline] protected def lsb (a : BitVec n) : Bool := getLsb a 0
+
 /-- Return most-significant bit in bitvector. -/
 @[inline] protected def msb (a : BitVec n) : Bool := getMsb a 0
 

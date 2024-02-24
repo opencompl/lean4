@@ -251,6 +251,10 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
   unfold getLsb
   simp [Nat.lt_succ]
 
+@[simp] theorem getLsb_extractLsb' (x : BitVec w) (start len i : Nat) :
+    (x.extractLsb' start len).getLsb i = (decide (i < len) && x.getLsb (i + start)) := by
+  simp [getLsb, Nat.add_comm]
+
 /-! ### allOnes -/
 
 @[simp] theorem toNat_allOnes : (allOnes v).toNat = 2^v - 1 := by
@@ -481,6 +485,10 @@ theorem getLsb_concat (x : BitVec w) (b : Bool) (i : Nat) :
 @[simp] theorem concat_xor_concat (x y : BitVec w) (a b : Bool) :
     (concat x a) ^^^ (concat y b) = concat (x ^^^ y) (xor a b) := by
   ext i; cases i using Fin.succRecOn <;> simp
+
+@[simp] theorem concat_extractLsb'_lsb (x : BitVec (w+1)) :
+    concat (x.extractLsb' 1 w) (x.lsb) = x := by
+  ext i; cases i using Fin.succRecOn <;> simp [BitVec.lsb]
 
 /-! ### add -/
 
