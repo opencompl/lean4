@@ -77,7 +77,8 @@ macro_rules
 example (x : BitVec 2) (y : BitVec 2) : x + y = y + x := by
   blast_bv with a a' b b';
   /-
-  b'ba'a: Bool
-⊢ concat (concat nil a') b' + concat (concat nil a) b = concat (concat nil a) b + concat (concat nil a') b'
+  b' b a' a: Bool
+  ⊢ concat (concat nil a') b' + concat (concat nil a) b
+    = concat (concat nil a) b + concat (concat nil a') b'
   -/
   sorry
