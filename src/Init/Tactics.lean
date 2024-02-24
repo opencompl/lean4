@@ -1095,6 +1095,13 @@ Currently the preprocessor is implemented as `try simp only [bv_toNat] at *`.
 -/
 macro "bv_omega" : tactic => `(tactic| (try simp only [bv_toNat] at *) <;> omega)
 
+syntax (name := blast_bv) "blast_bv" : tactic
+
+macro "bitblast" : tactic => `(tactic|(
+  blast_bv;
+  simp (config := {failIfUnchanged := false}) only [bv_concat]
+))
+
 /-- Implementation of `norm_cast` (the full `norm_cast` calls `trivial` afterwards). -/
 syntax (name := normCast0) "norm_cast0" (location)? : tactic
 

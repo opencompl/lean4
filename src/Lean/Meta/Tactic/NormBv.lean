@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Util
 import Lean.Elab.Tactic
 import Lean.Elab.Tactic.Basic
 import Lean.Meta.Tactic.Apply
+import Init.Tactics
 import Init.Data.BitVec
 import Init.Data.BitVec.Lemmas
 
@@ -57,8 +58,6 @@ def casesBitVec (target : Expr) : TacticM Unit := do
       ElimApp.evalAlts elimInfo result.alts .missing #[] initInfo
           (numEqs := targets.size) (toClear := targetsNew)
 
-syntax (name := blast_bv) "blast_bv" : tactic
-
 @[tactic blast_bv]
 partial def blastBv : Tactic := fun _ => loop where
   loop : TacticM Unit := withMainContext <| do
@@ -85,12 +84,6 @@ macro_rules
       let xs := xs.reverse
       `(tactic| blast_bv; rename_i $[$xs:ident]*)
 
-example (x : BitVec 2) (y : BitVec 2) : x ||| y = y ||| x := by
-  blast_bv with a a' b b';
-  try simp
-  /-
-  b' b a' a: Bool
-  ⊢ concat (concat nil a') b' + concat (concat nil a) b
-    = concat (concat nil a) b + concat (concat nil a') b'
-  -/
-  sorry
+builtin_initialize bitBlastSimpExtension : SimpExtension ←
+  registerSimpAttr `bv_concat
+    "simp lemmas about the distribution of `BitVec.concat`, for the `bitblast` postprocessor"
