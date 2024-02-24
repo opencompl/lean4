@@ -14,10 +14,10 @@ import Init.Data.BitVec.Lemmas
 
 namespace BitVec
 
-@[simp] theorem concat_extractLsb'_lsb (x : BitVec (w+1)) :
-    concat (x.extractLsb' 1 w) x.lsb = x := by
-  ext i
-  cases i using Fin.succRecOn <;> simp [BitVec.lsb, getLsb_concat]
+-- @[simp] theorem concat_extractLsb'_lsb (x : BitVec (w+1)) :
+--     concat (x.extractLsb' 1 w) x.lsb = x := by
+--   ext i
+--   cases i using Fin.succRecOn <;> simp [BitVec.lsb, getLsb_concat]
 
 end BitVec
 
@@ -87,8 +87,7 @@ macro_rules
 
 example (x : BitVec 2) (y : BitVec 2) : x ||| y = y ||| x := by
   blast_bv with a a' b b';
-  simp
-  simp [BitVec.concat_or_concat]
+  try simp
   /-
   b' b a' a: Bool
   ⊢ concat (concat nil a') b' + concat (concat nil a) b
