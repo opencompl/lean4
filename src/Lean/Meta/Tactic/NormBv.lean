@@ -11,6 +11,21 @@ import Lean.Elab.Tactic.Basic
 import Lean.Meta.Tactic.Apply
 import Init.Data.BitVec
 
+namespace Std.BitVec
+
+def lsb (x : BitVec w) := x.getLsb 0
+
+@[simp] theorem getLsb_extractLsb' (x : BitVec w) (start len i : Nat) :
+    (x.extractLsb' start len).getLsb i = (decide (i < len) && x.getLsb (i + start)) := by
+  simp [extractLsb', getLsb, Nat.add_comm]
+
+@[simp] theorem concat_extractLsb_lsb (x : BitVec (w+1)) :
+    concat (x.extractLsb' 1 w) x.lsb = x := by
+  ext i
+  cases i using Fin.succRecOn <;> simp [lsb, getLsb_concat]
+
+end Std.BitVec
+
 namespace Lean.Meta
 
 open Lean.Elab.Tactic
@@ -21,8 +36,9 @@ theorem BitVec.concatCases
     {motive : {w : Nat} → BitVec w → Sort u}
     (nil    : motive BitVec.nil)
     (concat : ∀ {w : Nat} (x : BitVec w) (b : Bool), motive (concat x b) ) :
-    ∀ {w} (x : BitVec w), motive x :=
-  sorry
+    ∀ {w} (x : BitVec w), motive x
+  | 0,   x => cast (by simp) nil
+  | w+1, x => cast (by simp) <| concat (x.extractLsb' 1 w) x.lsb
 
 -- TODO: this is copied from `evalCases`, surely there's a better way to do this
 -- It's just doing the equivalent of `cases $target using BitVec.concatCases`
