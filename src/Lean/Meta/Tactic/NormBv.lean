@@ -10,26 +10,21 @@ import Lean.Elab.Tactic
 import Lean.Elab.Tactic.Basic
 import Lean.Meta.Tactic.Apply
 import Init.Data.BitVec
+import Init.Data.BitVec.Lemmas
 
-namespace Std.BitVec
+namespace BitVec
 
-def lsb (x : BitVec w) := x.getLsb 0
-
-@[simp] theorem getLsb_extractLsb' (x : BitVec w) (start len i : Nat) :
-    (x.extractLsb' start len).getLsb i = (decide (i < len) && x.getLsb (i + start)) := by
-  simp [extractLsb', getLsb, Nat.add_comm]
-
-@[simp] theorem concat_extractLsb_lsb (x : BitVec (w+1)) :
+@[simp] theorem concat_extractLsb'_lsb (x : BitVec (w+1)) :
     concat (x.extractLsb' 1 w) x.lsb = x := by
   ext i
-  cases i using Fin.succRecOn <;> simp [lsb, getLsb_concat]
+  cases i using Fin.succRecOn <;> simp [BitVec.lsb, getLsb_concat]
 
-end Std.BitVec
+end BitVec
 
 namespace Lean.Meta
 
 open Lean.Elab.Tactic
-open Std BitVec
+open BitVec
 
 @[elab_as_elim]
 theorem BitVec.concatCases
@@ -90,8 +85,10 @@ macro_rules
       let xs := xs.reverse
       `(tactic| blast_bv; rename_i $[$xs:ident]*)
 
-example (x : BitVec 2) (y : BitVec 2) : x + y = y + x := by
+example (x : BitVec 2) (y : BitVec 2) : x ||| y = y ||| x := by
   blast_bv with a a' b b';
+  simp
+  simp [BitVec.concat_or_concat]
   /-
   b' b a' a: Bool
   ⊢ concat (concat nil a') b' + concat (concat nil a) b
