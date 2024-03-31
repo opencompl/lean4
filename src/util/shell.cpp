@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <filesystem>
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -45,6 +46,8 @@ Author: Leonardo de Moura
 #include "library/compiler/ir_interpreter.h"
 #include "util/path.h"
 #include "stdlib_flags.h"
+
+namespace fs = std::filesystem;
 
 
 #ifdef LEAN_TRACY
@@ -844,7 +847,16 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         display_cumulative_profiling_times(std::cerr);
 
 
-        const std::string profiling_path = LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH;
+	fs::path profile_filename = std::string(fs::current_path() / *c_output);
+	// replace all '/' with '+' in filepath to avoid creating subdirectories
+	std::replace(profile_filename.begin(), profile_filename.end(), '/', '+');
+	fs::path outdir = LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH;
+	assert(outdir.is_directory() && "LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH must be a directory");
+	assert(outdir.is_absolute() && "LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH must be an absolute path");
+	// make outdir if necessary
+	if (!fs::exists(outdir)) { fs::create_directories(outdir); }
+	fs::path profiling_path = outdir / profile_filename;
+
         if (profiling_path == "") {
           std::cerr << "WARN: LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH ('" << profiling_path << "') is empty";
         } else {
