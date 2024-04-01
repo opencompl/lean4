@@ -31,18 +31,19 @@ KINDS=("reuse" "noreuse")
 run_benchmark_for_kind() {
   # argument: kind
   local kind="$1"
-  local BENCHMARKS=("binarytrees.lean"
-  # binarytrees.st
-    "const_fold.lean"
-    "deriv.lean"
-    "liasolver.lean"
-    # parser.lean
-    # reduceMatch.lean
-    # "qsort.lean"
-    # "rbmap_checkpoint.lean"
-    "rbmap_fbip.lean"
-    "rbmap.lean"
-    "unionfind.lean")
+  local BENCHMARKS=(
+    "rbmap_checkpoint.lean" "2000000 1"
+    "binarytrees.lean" "21"
+    "const_fold.lean" "21"
+    "deriv.lean" "10"
+    "liasolver.lean" ex-50-50-1.leq
+    # "parser.lean"
+    "qsort.lean" "400"
+    #"rbmap_checkpoint.lean" "2000000 1"
+    "rbmap_fbip.lean" "2000000"
+    "rbmap.lean" "2000000"
+    "unionfind.lean" "3000000")
+  local nruns=5
   local outfile="$EXPERIMENTDIR/outputs/benchmarks-allocator-log-$kind.csv"
   local outfile_temp="$outfile.temp"
   rm "$outfile_temp" || true
@@ -57,10 +58,14 @@ run_benchmark_for_kind() {
     cd "$EXPERIMENTDIR/builds-speedcenter/$kind/tests/bench/" || exit 1
     elan override set "$LEAN_TOOLCHAIN" # set override for temci
     mkdir -p "$EXPERIMENTDIR/outputs/"
-    for benchmark in "${BENCHMARKS[@]}"; do
-      RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG=./log.txt ./test_single.sh "${benchmark}"
-      # run benchmark, write result to CSV file.
-      while read -r line; do echo "$benchmark,$line"; done < log.txt >> "$outfile_temp"
+    for ((ix=0; ix<${#BENCHMARKS[@]}; ix+=2)); do
+      benchmark=${BENCHMARKS[ix]}
+      benchmark_input=${BENCHMARKS[ix+1]}
+      ./compile.sh "${benchmark}"
+      for irun in $(seq 1 $nruns); do
+        RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG=./log.txt ./"${benchmark}.out" ${benchmark_input}
+        while read -r line; do echo "$benchmark,$line"; done < log.txt >> "$outfile_temp"
+      done;
     done;
     mv "$outfile_temp" "$outfile"
   fi
