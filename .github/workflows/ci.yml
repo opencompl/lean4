@@ -4,6 +4,7 @@ on:
     branches:
       - 'master'
       - '2024-borrowing-benchmarking'
+      - '2024-borrowing-benchmarking-baseline-branch'
     tags:
       - '*'
   pull_request:
