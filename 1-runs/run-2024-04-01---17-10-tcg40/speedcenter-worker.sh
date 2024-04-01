@@ -24,7 +24,6 @@ else
 fi
 echo "time: $TIME"
 $TIME -v echo "time"
-# rm -i -rf builds-speedcenter/
 
 COMMITS=("$COMMIT_TO_BENCH" "2024-borrowing-benchmarking-baseline-v4")
 KINDS=("reuse" "noreuse")
@@ -55,13 +54,13 @@ run_benchmark_for_kind() {
 
     # TODO: elan does not like '---' in folder name?
     elan toolchain link "$LEAN_TOOLCHAIN" "$EXPERIMENTDIR/builds-speedcenter/$kind/build/release/stage2"
-    cd "$EXPERIMENTDIR/builds-speedcenter/$kind/tests/bench/"
+    cd "$EXPERIMENTDIR/builds-speedcenter/$kind/tests/bench/" || exit 1
     elan override set "$LEAN_TOOLCHAIN" # set override for temci
     mkdir -p "$EXPERIMENTDIR/outputs/"
     for benchmark in "${BENCHMARKS[@]}"; do
       RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG=./log.txt ./test_single.sh "${benchmark}"
       # run benchmark, write result to CSV file.
-      while read -r line; do echo "$benchmark,$line"; done < log.txt >> $outfile_temp
+      while read -r line; do echo "$benchmark,$line"; done < log.txt >> "$outfile_temp"
     done;
     mv "$outfile_temp" "$outfile"
   fi
@@ -69,30 +68,33 @@ run_benchmark_for_kind() {
 
 run_build_for_kind() {
   local kind="$1"
-  mkdir -p ${EXPERIMENTDIR}/builds-speedcenter
+  mkdir -p "${EXPERIMENTDIR}/builds-speedcenter"
   if [ ! -d "${EXPERIMENTDIR}/builds-speedcenter/${KINDS[i]}" ]; then
     git clone --depth 1 git@github.com:opencompl/lean4.git --branch "${COMMITS[i]}" "$EXPERIMENTDIR/builds-speedcenter/${KINDS[i]}"
   fi
   # build
   mkdir -p "$EXPERIMENTDIR/builds-speedcenter/$kind/build/release/"
-  cd "$EXPERIMENTDIR/builds-speedcenter/$kind/build/release/"
+  cd "$EXPERIMENTDIR/builds-speedcenter/$kind/build/release/" || exit 1
   # build stage2, with ccache, since we are only interested in benching the microbenchmarks
-  cmake ../../ \
-    -DCCACHE=ON \
-    -DRUNTIME_STATS=ON \
-    -DCMAKE_BUILD_TYPE=Release
-  make -j30 stage2
+  if [ ! -f "${EXPERIMENTDIR}/builds-speedcenter/$kind/build/release/stage2/bin/lean" ]; then
+    cmake ../../ \
+      -DCCACHE=ON \
+      -DRUNTIME_STATS=ON \
+      -DCMAKE_BUILD_TYPE=Release
+    make -j30 stage2
+  fi
 }
 
 run_ctest_for_kind() {
   # run ctest to make sure our toolchain is legit.
   local kind="$1"
-  mkdir -p $EXPERIMENTDIR/outputs/
+  mkdir -p "$EXPERIMENTDIR/outputs/"
   cd "$EXPERIMENTDIR/builds-speedcenter/$kind/build/release/stage2" && \
     (ctest -E handleLocking -j32 --output-on-failure 2>&1 | tee "$EXPERIMENTDIR/outputs/ctest-speedcenter-$kind-stage2.txt")
 }
 
 run_temci_for_kind() {
+  local kind="$1"
   local outfile="$EXPERIMENTDIR/outputs/${KINDS[i]}.speedcenter.bench.yaml"
   local outfile_temp="$outfile.temp"
   rm "$outfile_temp" || true
@@ -104,11 +106,16 @@ run_temci_for_kind() {
 
     # TODO: elan does not like '---' in folder name?
     elan toolchain link "$LEAN_TOOLCHAIN" "$EXPERIMENTDIR/builds-speedcenter/$kind/build/release/stage2"
-    cd "$EXPERIMENTDIR/builds-speedcenter/$kind/tests/bench/"
+    cd "$EXPERIMENTDIR/builds-speedcenter/$kind/tests/bench/" || exit 1
     elan override set "$LEAN_TOOLCHAIN" # set override for temci
     temci exec --config speedcenter.yaml --out "$outfile_temp" --included_blocks suite # run temci
     mkdir -p "$EXPERIMENTDIR/outputs/"
     mv "$outfile_temp" "$outfile"
+  fi
+  local temci_report_outfile="$EXPERIMENTDIR/outputs/temci-report.txt"
+  if [ ! -f "${temci_report_outfile}" ]; then
+    temci report "$EXPERIMENTDIR/outputs${KINDS[0]}.speedcenter.bench.yaml" \
+      "$EXPERIMENTDIR/outputs${KINDS[1]}.speedcenter.bench.yaml" > "$temci_report_outfile"
   fi
 }
 
@@ -117,7 +124,7 @@ run() {
     curl -d "Start[MICROBENCHMARK-RUNTIME-ALLOCATOR-LOG-${KINDS[i]}]. run:$EXPERIMENTDIR. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
     mkdir -p builds-speedcenter
     # clone
-    run_build_for_kind ${KINDS[i]}
+    run_build_for_kind "${KINDS[i]}"
     run_benchmark_for_kind "${KINDS[i]}"
     run_temci_for_kind "${KINDS[i]}"
     # TODO: add run_temci
