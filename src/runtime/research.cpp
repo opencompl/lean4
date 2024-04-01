@@ -76,7 +76,8 @@ extern "C" {
 // TODO: rename into research_runtime_dump_allocator_log_at_end_of_run();
 void research_dump_allocator_log() {
   const char *envVarName = "RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG";
-  std::string out_path = std::getenv(envVarName);
+  const char *_envVarName = std::getenv(envVarName);
+  std::string out_path(_envVarName ? _envVarName : "");
   if (out_path == "") { return; }
 
   std::ofstream *of = NULL;
