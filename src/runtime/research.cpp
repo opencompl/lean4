@@ -75,18 +75,16 @@ extern "C" {
 // dump allocator info into logfile.
 // TODO: rename into research_runtime_dump_allocator_log_at_end_of_run();
 void research_dump_allocator_log() {
-  const char *envVarName = "RESEARCH_LEAN_PROFILER_CSV_PATH";
-  std::string out_path = getEnvVarString(envVarName);
-  if (out_path == "") {
-    return;
-  }
+  const char *envVarName = "RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG";
+  std::string out_path = std::getenv(envVarName);
+  if (out_path == "") { return; }
 
   std::ofstream *of = NULL;
   std::ostream *o = NULL;
   if (out_path == "-") {
     o = &std::cerr;
   } else {
-    of = new std::ofstream(out_path, std::ios::app);
+    of = new std::ofstream(out_path);
     o = of;
   }
 
