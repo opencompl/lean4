@@ -2,7 +2,7 @@
 set -o xtrace
 set -e
 
-COMMIT_TO_BENCH="2024-03-31---19-38---tcg40"
+COMMIT_TO_BENCH="run-2024-04-01---15-52-tcg40"
 
 # --------
 
@@ -25,9 +25,11 @@ else
 fi
 echo "time: $TIME"
 $TIME -v echo "time"
+rm -I -rf builds-speedcenter/
 
 COMMITS=("2024-borrowing-benchmarking-baseline-v3" "$COMMIT_TO_BENCH")
 KINDS=("noreuse" "reuse")
+
 
 run_benchmark_for_kind() {
   # argument: kind
@@ -66,6 +68,7 @@ for i in {0..1}; do
   # clone
   git clone --depth 1 git@github.com:opencompl/lean4.git --branch "${COMMITS[i]}" "$EXPERIMENTDIR/builds-speedcenter/${KINDS[i]}"
   # build
+  mkdir -p "$EXPERIMENTDIR/builds-speedcenter/${KINDS[i]}/build/release/"
   cd "$EXPERIMENTDIR/builds-speedcenter/${KINDS[i]}/build/release/"
   # build stage2, with ccache, since we are only interested in benching the microbenchmarks
   cmake ../../ \
