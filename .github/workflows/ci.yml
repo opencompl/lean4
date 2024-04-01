@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - 'master'
-      - '2024-borrowing-benchmarking':
+      - '2024-borrowing-benchmarking'
     tags:
       - '*'
   pull_request:
