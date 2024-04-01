@@ -187,12 +187,14 @@ partial def searchAndSpecialize : FnBody → Array FnBody → Array VarId → Ha
       let b ← searchAndSpecialize b #[] (tokens.push x) (subst.insert x y)
       let b ← specializeReset x y mask b
       return reshape bs b
-  -- | FnBody.vdecl z t (Expr.reuse w c u zs) b, bs, tokens, subst => do
-      -- let b ← searchAndSpecialize b #[] tokens subst
-      -- let b ← specializeReuse z w (subst.find! w) c u t zs b
-      -- return reshape bs b
+  | FnBody.vdecl z t (Expr.reuse w c u zs) b, bs, tokens, subst => do
+      let b ← searchAndSpecialize b #[] tokens subst
+      let b ← specializeReuse z w (subst.find! w) c u t zs b
+      return reshape bs b
   | FnBody.dec z n c p b, bs, tokens, subst =>
-      if tokens.contains z then return FnBody.del z b
+      if tokens.contains z then do
+        let b ← searchAndSpecialize b #[] tokens subst
+        return reshape bs (FnBody.del z b)
       else do
         let b ← searchAndSpecialize b #[] tokens subst
         return reshape bs (FnBody.dec z n c p b)
