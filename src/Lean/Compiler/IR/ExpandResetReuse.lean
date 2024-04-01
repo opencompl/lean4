@@ -39,6 +39,13 @@ def mkProjMap (d : Decl) : ProjMap :=
 
 structure Context where
   projMap : ProjMap
+  sizeMap : HashMap VarId Nat
+
+abbrev M := ReaderT Context (StateM Nat)
+  def mkFresh : M VarId :=
+    modifyGet fun n => ({ idx := n }, n + 1)
+  def mkFreshJoinPoint : M JoinPointId :=
+    modifyGet fun n => ({ idx := n }, n + 1)
 
 abbrev Mask := Array (Option VarId)
 
@@ -87,12 +94,6 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (ke
 def eraseProjIncFor (n : Nat) (y : VarId) (bs : Array FnBody) : Array FnBody × Mask :=
   eraseProjIncForAux y bs (mkArray n none) #[]
 
-abbrev M := ReaderT Context (StateM Nat)
-  def mkFresh : M VarId :=
-    modifyGet fun n => ({ idx := n }, n + 1)
-  def mkFreshJoinPoint : M JoinPointId :=
-    modifyGet fun n => ({ idx := n }, n + 1)
-
 /-- If the reused cell is unique, we can reuse its memory.
     Then we have to manually release all fields that are not live. -/
 def releaseUnreadFields (y : VarId) (mask : Mask) : M (FnBody → FnBody) :=
@@ -136,7 +137,14 @@ def null := Expr.lit (LitVal.num 0)
 /-- Create a new join point, where the declaration `v` obtains a function that will generate
     a jump to the join point with the variable as an argument. We optimize the case, where
     the binding is just a return and float it into the declaration. -/
-def mkJoin (x : VarId) (t : IRType) (b : FnBody) (v : (VarId → FnBody) → FnBody) : M FnBody :=
+def mkJoin0  (b : FnBody) (v : FnBody → FnBody) : M FnBody :=
+  match b with
+  | FnBody.ret x => return v (FnBody.ret x)
+  | _ => do
+    let j ← mkFreshJoinPoint
+    return FnBody.jdecl j #[] b (v (mkJmp j #[]))
+
+def mkJoin1 (x : VarId) (t : IRType) (b : FnBody) (v : (VarId → FnBody) → FnBody) : M FnBody :=
   match b with
   | FnBody.ret _ =>
       return v fun z => FnBody.ret (Arg.var z)
@@ -152,7 +160,7 @@ def specializeReuse (reused token oldAlloc : VarId) (c : CtorInfo) (u : Bool) (t
   let ctx ← read
   let null? ← mkFresh
   let newAlloc ← mkFresh
-  mkJoin reused t b fun jmp =>
+  mkJoin1 reused t b fun jmp =>
     (FnBody.vdecl null? IRType.uint8 (Expr.isNull token)
       (mkIf null?
         (FnBody.vdecl newAlloc t (Expr.ctor c xs)
@@ -168,18 +176,30 @@ def adjustReferenceCountsSlowPath (y : VarId) (mask : Mask) (b : FnBody) :=
       | some z => FnBody.inc z 1 true false b
       | none   => b
 
-/- Drop specialization -/
+/-- Reset specialization -/
 def specializeReset (token oldAlloc : VarId) (mask : Mask) (b : FnBody) : M FnBody := do
   let shared? ← mkFresh
   let z2 ← mkFresh
   let fastPath ← releaseUnreadFields oldAlloc mask
-  mkJoin token IRType.object b fun jmp =>
+  mkJoin1 token IRType.object b fun jmp =>
     (FnBody.vdecl shared? IRType.uint8 (Expr.isShared oldAlloc)
       (mkIf shared?
         (adjustReferenceCountsSlowPath oldAlloc mask
           (FnBody.vdecl z2 IRType.object null
             (jmp z2)))
         (fastPath (jmp oldAlloc))))
+
+/-- Drop specialization -/
+def specializeDrop (oldAlloc : VarId) (mask : Mask) (b : FnBody) : M FnBody := do
+  let shared? ← mkFresh
+  let fastPath ← releaseUnreadFields oldAlloc mask
+  mkJoin0 b fun jmp =>
+    (FnBody.vdecl shared? IRType.uint8 (Expr.isShared oldAlloc)
+      (mkIf shared?
+        (adjustReferenceCountsSlowPath oldAlloc mask
+          jmp)
+        (fastPath
+          (FnBody.del oldAlloc jmp))))
 
 partial def searchAndSpecialize : FnBody → Array FnBody → Array VarId → HashMap VarId VarId → M FnBody
   | FnBody.vdecl x _ (Expr.reset n y) b, bs, tokens, subst => do
@@ -196,14 +216,31 @@ partial def searchAndSpecialize : FnBody → Array FnBody → Array VarId → Ha
         let b ← searchAndSpecialize b #[] tokens subst
         return reshape bs (FnBody.del z b)
       else do
-        let b ← searchAndSpecialize b #[] tokens subst
-        return reshape bs (FnBody.dec z n c p b)
+        let ctx ← read
+        match ctx.sizeMap.find? z with
+        | none =>
+          let b ← searchAndSpecialize b #[] tokens subst
+          return reshape bs (FnBody.dec z n c p b)
+        | some size =>
+          let (bs, mask) := eraseProjIncFor size z bs
+          -- Do not specialize if there is no benefit:
+          if p || mask.all (fun m => m == none) then
+            let b ← searchAndSpecialize b #[] tokens subst
+            return reshape bs (FnBody.dec z n c p b)
+          else do
+            let b ← searchAndSpecialize b #[] tokens subst
+            let b ← specializeDrop z mask b
+            return reshape bs b
   | FnBody.jdecl j xs v b, bs, tokens, subst => do
     let v ← searchAndSpecialize v #[] tokens subst
     let b ← searchAndSpecialize b #[] tokens subst
     return reshape bs (FnBody.jdecl j xs v b)
   | FnBody.case tid x xType alts, bs, tokens, subst => do
-    let alts ← alts.mapM fun alt => alt.mmodifyBody fun b => searchAndSpecialize b #[] tokens subst
+    let alts ← alts.mapM fun alt => alt.mmodifyBody fun b => do
+      withReader (fun ctx => match alt with
+        | .ctor info _ => { ctx with sizeMap := ctx.sizeMap.insert x info.size }
+        | _ => ctx) do
+        searchAndSpecialize b #[] tokens subst
     return reshape bs (FnBody.case tid x xType alts)
   | b, bs, tokens, subst =>
     if b.isTerminal then return reshape bs b
@@ -214,13 +251,13 @@ def main (d : Decl) : Decl :=
   | .fdecl (body := b) .. =>
     let m := mkProjMap d
     let nextIdx := d.maxIndex + 1
-    let bNew := (searchAndSpecialize b #[] #[] HashMap.empty { projMap := m }).run' nextIdx
+    let bNew := (searchAndSpecialize b #[] #[] HashMap.empty { projMap := m, sizeMap := HashMap.empty }).run' nextIdx
     d.updateBody! bNew
   | d => d
 
 end ExpandResetReuse
 
-/-- (Try to) expand `reset` and `reuse` instructions. -/
+/-- Perform drop-, reset- and reuse-specialization. -/
 def Decl.expandResetReuse (d : Decl) : Decl :=
   (ExpandResetReuse.main d).normalizeIds
 
