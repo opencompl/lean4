@@ -26,7 +26,7 @@ fi
 echo "time: $TIME"
 $TIME -v echo "time"
 
-COMMITS=("2024-borrowing-benching-baseline" "$COMMIT_TO_BENCH")
+COMMITS=("2024-borrowing-benchmarking-baseline-v3" "$COMMIT_TO_BENCH")
 KINDS=("noreuse" "reuse")
 
 run_benchmark_for_kind() {
@@ -78,5 +78,6 @@ for i in {0..1}; do
     (ctest -E handleLocking -j32 --output-on-failure 2>&1 | tee "$EXPERIMENTDIR/outputs/ctest-speedcenter-${KINDS[i]}-stage2.txt")
   run_benchmark_for_kind "${KINDS[i]}"
 
+  # TODO: add run_temci
   curl -d "Done[MICROBENCHMARK-RUNTIME-ALLOCATOR-LOG-${KINDS[i]}]. run:$EXPERIMENTDIR. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
 done;
