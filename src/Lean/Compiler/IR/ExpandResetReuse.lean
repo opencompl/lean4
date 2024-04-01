@@ -113,12 +113,6 @@ def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=
     | _ => false
   | _ => false
 
-/-- Set fields of `y` to `zs`. We avoid assignments that are already set. -/
-def setFields (ctx : Context) (y oldAlloc : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
-  zs.size.fold (init := b) fun i b =>
-    if isSelfSet ctx oldAlloc i (zs.get! i) then b
-    else FnBody.set y i (zs.get! i) b
-
 /-- Given `uset x[i] := y`, return true iff `y := uproj[i] x` -/
 def isSelfUSet (ctx : Context) (x : VarId) (i : Nat) (y : VarId) : Bool :=
   match ctx.projMap.find? y with
@@ -130,6 +124,15 @@ def isSelfSSet (ctx : Context) (x : VarId) (n : Nat) (i : Nat) (y : VarId) : Boo
   match ctx.projMap.find? y with
   | some (Expr.sproj m j w) => n == m && j == i && w == x
   | _                       => false
+
+/-- Set fields of `y` to `zs`. We avoid assignments that are already set. -/
+def setFields (ctx : Context) (y oldAlloc : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
+  zs.size.fold (init := b) fun i b =>
+    if isSelfSet ctx oldAlloc i (zs.get! i) then b
+    else FnBody.set y i (zs.get! i) b
+
+def anyAlreadySet (ctx : Context) (oldAlloc : VarId) (zs : Array Arg) : Bool :=
+  zs.size.any fun i => isSelfSet ctx oldAlloc i (zs.get! i)
 
 /-- The empty reuse token returned for non-unique cells. -/
 def null := Expr.lit (LitVal.num 0)
@@ -208,9 +211,14 @@ partial def searchAndSpecialize : FnBody → Array FnBody → Array VarId → Ha
       let b ← specializeReset x y mask b
       return reshape bs b
   | FnBody.vdecl z t (Expr.reuse w c u zs) b, bs, tokens, subst => do
-      let b ← searchAndSpecialize b #[] tokens subst
-      let b ← specializeReuse z w (subst.find! w) c u t zs b
-      return reshape bs b
+      let ctx ← read
+      if anyAlreadySet ctx (subst.find! w) zs then do
+        let b ← searchAndSpecialize b #[] tokens subst
+        let b ← specializeReuse z w (subst.find! w) c u t zs b
+        return reshape bs b
+      else do
+        let b ← searchAndSpecialize b #[] tokens subst
+        return reshape bs (FnBody.vdecl z t (Expr.reuse w c u zs) b)
   | FnBody.dec z n c p b, bs, tokens, subst =>
       if tokens.contains z then do
         let b ← searchAndSpecialize b #[] tokens subst
