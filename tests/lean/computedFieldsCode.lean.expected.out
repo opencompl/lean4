@@ -12,12 +12,20 @@ def Exp.casesOn._override._rarg (x_1 : obj) (x_2 : obj) (x_3 : obj) (x_4 : @& ob
   Exp.app._impl →
     dec x_2;
     let x_12 : obj := proj[0] x_1;
-    inc x_12;
     let x_13 : obj := proj[1] x_1;
-    inc x_13;
-    dec x_1;
-    let x_14 : obj := app x_3 x_12 x_13;
-    ret x_14
+    block_15 :=
+      let x_14 : obj := app x_3 x_12 x_13;
+      ret x_14;
+    let x_16 : u8 := isShared x_1;
+    case x_16 : u8 of
+    Bool.false →
+      del x_1;
+      jmp block_15
+    Bool.true →
+      inc x_13;
+      inc x_12;
+      dec x_1;
+      jmp block_15
   Exp.a1._impl →
     dec x_3;
     dec x_2;
