@@ -47,7 +47,7 @@ Author: Leonardo de Moura
 #include "util/path.h"
 #include "stdlib_flags.h"
 
-namespace fs = std::filesystem;
+namespace fs = std::__fs::filesystem;
 
 
 #ifdef LEAN_TRACY
@@ -847,15 +847,23 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         display_cumulative_profiling_times(std::cerr);
 
 
-	fs::path profile_filename = std::string(fs::current_path() / *c_output);
+	// take the output C path, normalize it, and use the normalized path for dumping CSV info.
+	const fs::path canonical_c_outpath = [&]() {
+	    fs::path c_outpath = fs::absolute(fs::current_path() / (std::string(*c_output)));
+	    std::error_code ec;
+	    fs::path out = fs::canonical(c_outpath, ec);
+	    if (ec) { return c_outpath; }
+	    return out;
+	}
+	std::string profile_filename(std::string(canonical_c_outpath) + ".profile.csv");
 	// replace all '/' with '+' in filepath to avoid creating subdirectories
 	std::replace(profile_filename.begin(), profile_filename.end(), '/', '+');
-	fs::path outdir = LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH;
+	const fs::path outdir(LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH);
 	assert(outdir.is_directory() && "LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH must be a directory");
 	assert(outdir.is_absolute() && "LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH must be an absolute path");
 	// make outdir if necessary
 	if (!fs::exists(outdir)) { fs::create_directories(outdir); }
-	fs::path profiling_path = outdir / profile_filename;
+	const fs::path profiling_path = outdir / profile_filename;
 
         if (profiling_path == "") {
           std::cerr << "WARN: LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH ('" << profiling_path << "') is empty";
@@ -863,7 +871,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
           if (profiling_path == "-") {
 	          profiler.write_profiling_times(mod_fn, profiling_path, std::cerr, c_output);
           } else {
-            std::ofstream profiler_out_file(profiling_path, std::ios::app);
+            std::ofstream profiler_out_file(profiling_path);
 	          profiler.write_profiling_times(mod_fn, profiling_path, profiler_out_file, c_output);
           }
         }
