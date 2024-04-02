@@ -361,9 +361,9 @@ def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit := do
   else do
     emitAllocCtor c; emitCtorSetArgs z ys
 
-def emitReset (z : VarId) (n : Nat) (x : VarId) : M Unit := do
+def emitReset (z : VarId) (c : CtorInfo) (x : VarId) : M Unit := do
   emit "if (lean_is_exclusive("; emit x; emitLn ")) {";
-  n.forM fun i => do
+  c.size.forM fun i => do
     emit " lean_ctor_release("; emit x; emit ", "; emit i; emitLn ");"
   emit " "; emitLhs z; emit x; emitLn ";";
   emitLn "} else {";
@@ -504,7 +504,7 @@ def emitLit (z : VarId) (t : IRType) (v : LitVal) : M Unit := do
 def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
   match v with
   | Expr.ctor c ys      => emitCtor z c ys
-  | Expr.reset n x      => emitReset z n x
+  | Expr.reset c x      => emitReset z c x
   | Expr.reuse x c u ys => emitReuse z x c u ys
   | Expr.proj i x       => emitProj z i x
   | Expr.uproj i x      => emitUProj z i x

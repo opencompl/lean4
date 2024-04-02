@@ -62,7 +62,7 @@ private def tryS (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody := do
   let w ← mkFresh
   let b' := S w c b
   if b == b' then pure b
-  else pure $ FnBody.vdecl w IRType.object (Expr.reset c.size x) b'
+  else pure $ FnBody.vdecl w IRType.object (Expr.reset c x) b'
 
 private def Dfinalize (x : VarId) (c : CtorInfo) : FnBody × Bool → M FnBody
   | (b, true)  => pure b
