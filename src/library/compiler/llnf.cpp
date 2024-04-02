@@ -152,8 +152,12 @@ bool is_llnf_reuse(expr const & e, unsigned & cidx, unsigned & num_usizes, unsig
     return r;
 }
 
-expr mk_llnf_reset(unsigned n) { return mk_constant(name(*g_reset, n)); }
-bool is_llnf_reset(expr const & e, unsigned & n) { return is_llnf_unary_primitive(e, *g_reset, n); }
+expr mk_llnf_reset(unsigned cidx, unsigned num_usizes, unsigned num_bytes) {
+    return mk_constant(name(name(name(*g_reset, cidx), num_usizes), num_bytes));
+}
+bool is_llnf_reset(expr const & e, unsigned & cidx, unsigned & num_usizes, unsigned & num_bytes) {
+    return is_llnf_ternary_primitive(e, *g_reset, cidx, num_usizes, num_bytes);
+}
 
 /* The `_sset.<sz>.<n>.<offset>` instruction sets a scalar value of size `sz` (in bytes) at offset `sizeof(void*)*n + offset`. The value `n` is the number of pointer and `usize` fields. */
 expr mk_llnf_sset(unsigned sz, unsigned n, unsigned offset) { return mk_constant(name(name(name(*g_sset, sz), n), offset)); }
