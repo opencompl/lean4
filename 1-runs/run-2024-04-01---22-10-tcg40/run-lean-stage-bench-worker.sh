@@ -136,7 +136,7 @@ build_stage3() {
   ntfysh "done stage3 $kind"
 }
 
-build_stage3_stdlib() {
+build_stage1_stdlib() {
   ntfysh "starting stage3 stdlib $kind"
   local kind="$1"
   mkdir -p "$EXPERIMENTDIR/outputs"
@@ -144,11 +144,11 @@ build_stage3_stdlib() {
   if [ ! -f "${EXPERIMENTDIR}/outputs/${kind}-stdlib-compile-profile.csv" ]; then
     cd "$EXPERIMENTDIR/builds/${kind}/build/release/"
     touch ../../src/Init/Prelude.lean
-    make -j40 stage2
+    make -j40 stage0
 
     rm "/tmp/profile.csv" || true
     mkdir -p "$EXPERIMENTDIR/outputs/"
-    $TIME -v make -j4 stage3 2>&1 | tee "$EXPERIMENTDIR/outputs/time-${kind}-stdlib.txt"
+    $TIME -v make -j4 stage1 2>&1 | tee "$EXPERIMENTDIR/outputs/time-${kind}-stdlib.txt"
     cp "/tmp/profile.csv" "$EXPERIMENTDIR/outputs/${kind}-stdlib-compile-profile.csv"
   fi
   ntfysh "done stage3 stdlib $kind"
@@ -180,7 +180,7 @@ done;
 
 
 for i in {0..1}; do
-  build_stage3_stdlib "${KINDS[i]}"
+  build_stage1_stdlib "${KINDS[i]}"
 done;
 
 
