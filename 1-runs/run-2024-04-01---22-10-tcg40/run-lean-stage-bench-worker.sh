@@ -2,6 +2,18 @@
 set -o xtrace
 set -e
 
+# HERE BE DRAGONS!
+# ~~~~~~~~~~~~~~~~~
+# Manually changed things:
+# Need to set options "hardcoded" in stage0 CmakeLists, because
+# for whatever reason, it does not carry over options:
+# So for now, I manually set PROFILE_PATH=/tmp/profile.csv and RUNTIME_STATS=ON.
+# This should be improved in the next iteration of this benchmark script.
+# # Furthermore, the Lean build system is even more schizo: It seems to want these options
+# # set in `src/CMakeLists.txt`.
+# # In an abundance of caution, I also set them in `stage0/src/CMakeLists.txt`. I am
+# # not sure this is necessary, but it's totally opaque to me how options get forwarded.
+
 COMMIT_TO_BENCH="2024-04-01---22-10-tcg40"
 
 if [[  $PWD  != *$COMMIT_TO_BENCH* ]]; then
@@ -137,21 +149,26 @@ build_stage3() {
 }
 
 build_stage1_stdlib() {
-  ntfysh "starting stage3 stdlib $kind"
+  ntfysh "starting stage1 stdlib $kind"
   local kind="$1"
   mkdir -p "$EXPERIMENTDIR/outputs"
 
   if [ ! -f "${EXPERIMENTDIR}/outputs/${kind}-stdlib-compile-profile.csv" ]; then
-    cd "$EXPERIMENTDIR/builds/${kind}/build/release/"
-    touch ../../src/Init/Prelude.lean
-    make -j40 stage0
+    cd "$EXPERIMENTDIR/builds/${kind}"
+    rm -rf build/release || true
+    mkdir -p build/release
+    cd build/release
+    cmake ../../ -DCCACHE=OFF -DRUNTIME_STATS=ON -DCMAKE_BUILD_TYPE=Release -DLEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH="/tmp/profile.csv"
+    make -j40 stage1 # build stage1
+    touch ../../src/Init/Prelude.lean # touch stdlib
+    make -j40 stage0 # rebuild stage0
 
     rm "/tmp/profile.csv" || true
     mkdir -p "$EXPERIMENTDIR/outputs/"
-    $TIME -v make -j4 stage1 2>&1 | tee "$EXPERIMENTDIR/outputs/time-${kind}-stdlib.txt"
-    cp "/tmp/profile.csv" "$EXPERIMENTDIR/outputs/${kind}-stdlib-compile-profile.csv"
+    $TIME -v make -j4 stage1 2>&1 | tee "$EXPERIMENTDIR/outputs/time-${kind}-stdlib.txt" # bench build stage1
+    cp "/tmp/profile.csv" "$EXPERIMENTDIR/outputs/${kind}-stdlib-compile-profile.csv" # save script.
   fi
-  ntfysh "done stage3 stdlib $kind"
+  ntfysh "done stage1 stdlib $kind"
 }
 
 
@@ -162,21 +179,21 @@ for i in {0..1}; do
 done;
 
 
-for i in {0..1}; do
-  build_stage0 "${KINDS[i]}"
-done;
-
-for i in {0..1}; do
-  build_stage1 "${KINDS[i]}"
-done;
-
-for i in {0..1}; do
-  build_stage2 "${KINDS[i]}"
-done;
+# for i in {0..1}; do
+#   build_stage0 "${KINDS[i]}"
+# done;
 #
-for i in {0..1}; do
-  build_stage3 "${KINDS[i]}"
-done;
+# for i in {0..1}; do
+#   build_stage1 "${KINDS[i]}"
+# done;
+#
+# for i in {0..1}; do
+#   build_stage2 "${KINDS[i]}"
+# done;
+#
+# for i in {0..1}; do
+#   build_stage3 "${KINDS[i]}"
+# done;
 
 
 for i in {0..1}; do
