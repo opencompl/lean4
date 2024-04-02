@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -o xtrace
 
-COMMIT_TO_BENCH="2024-04-01---22-10-tcg40"
+COMMIT_TO_BENCH=8fccb29eb4852bb4b54ce9ae5d7ba175074c022e
 
 # --------
+COMMIT_PRETTY_NAME=$(git name-rev --name-only $COMMIT_TO_BENCH)
 
 EXPERIMENTDIR=$(pwd)
 echo "pwd: $EXPERIMENTDIR"
@@ -62,8 +63,8 @@ run_benchmark_for_kind() {
       benchmark=${BENCHMARKS[ix]}
       benchmark_input=${BENCHMARKS[ix+1]}
       ./compile.sh "${benchmark}"
-      for irun in $(seq 1 $nruns); do
-        RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG=./log.txt ./"${benchmark}.out" ${benchmark_input}
+      for _irun in $(seq 1 $nruns); do
+        RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG=./log.txt ./"${benchmark}.out" "${benchmark_input}"
         while read -r line; do echo "$benchmark,$line"; done < log.txt >> "$outfile_temp"
       done;
     done;
@@ -126,15 +127,11 @@ run_temci_for_kind() {
 
 run() {
   for i in {0..1}; do
-    curl -d "Start[MICROBENCHMARK-RUNTIME-ALLOCATOR-LOG-${KINDS[i]}]. run:$EXPERIMENTDIR. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
+    # curl -d "Start[MICROBENCHMARK-LOG-${KINDS[i]}]. run:$COMMIT_PRETTY_NAME. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
     mkdir -p builds-speedcenter
-    # clone
     run_build_for_kind "${KINDS[i]}"
     run_benchmark_for_kind "${KINDS[i]}"
     run_temci_for_kind "${KINDS[i]}"
-    # TODO: add run_temci
-    curl -d "Done[MICROBENCHMARK-RUNTIME-ALLOCATOR-LOG-${KINDS[i]}]. run:$EXPERIMENTDIR. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
+    # curl -d "Done[MICROBENCHMARK-LOG-${KINDS[i]}]. run:$COMMIT_PRETTY_NAME. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
   done;
 }
-
-run
