@@ -202,8 +202,8 @@ def specializeDrop (oldAlloc : VarId) (mask : Mask) (b : FnBody) : M FnBody := d
           (FnBody.del oldAlloc jmp))))
 
 partial def searchAndSpecialize : FnBody → Array FnBody → Array VarId → HashMap VarId VarId → M FnBody
-  | FnBody.vdecl x _ (Expr.reset n y) b, bs, tokens, subst => do
-      let (bs, mask) := eraseProjIncFor n y bs
+  | FnBody.vdecl x _ (Expr.reset c y) b, bs, tokens, subst => do
+      let (bs, mask) := eraseProjIncFor c.size y bs
       let b ← searchAndSpecialize b #[] (tokens.push x) (subst.insert x y)
       let b ← specializeReset x y mask b
       return reshape bs b
