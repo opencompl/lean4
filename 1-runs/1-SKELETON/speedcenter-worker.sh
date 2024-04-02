@@ -76,18 +76,15 @@ run_build_for_kind() {
   local kind="$1"
   mkdir -p "${EXPERIMENTDIR}/builds-speedcenter"
   if [ ! -d "${EXPERIMENTDIR}/builds-speedcenter/${KINDS[i]}" ]; then
-    git clone --depth 1 git@github.com:opencompl/lean4.git --branch "${COMMITS[i]}" "$EXPERIMENTDIR/builds-speedcenter/${KINDS[i]}"
+    git clone --depth 1 https://github.com/opencompl/lean4.git --branch "${COMMITS[i]}" "$EXPERIMENTDIR/builds-speedcenter/${KINDS[i]}"
   fi
   # build
   mkdir -p "$EXPERIMENTDIR/builds-speedcenter/$kind/build/release/"
   cd "$EXPERIMENTDIR/builds-speedcenter/$kind/build/release/" || exit 1
   # build stage2, with ccache, since we are only interested in benching the microbenchmarks
   if [ ! -f "${EXPERIMENTDIR}/builds-speedcenter/$kind/build/release/stage2/bin/lean" ]; then
-    cmake ../../ \
-      -DCCACHE=ON \
-      -DRUNTIME_STATS=ON \
-      -DCMAKE_BUILD_TYPE=Release
-    make -j30 stage2
+    cmake ../../ -DCCACHE=ON -DRUNTIME_STATS=ON -DCMAKE_BUILD_TYPE=Release
+    make -j4 stage2
   fi
 }
 

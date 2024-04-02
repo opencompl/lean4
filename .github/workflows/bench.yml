@@ -3,7 +3,7 @@ name: Bench
 on: push
 
 jobs:
-  build:
+  bench:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -22,14 +22,17 @@ jobs:
           curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf > elan.sh
           chmod +x elan.sh
           ./elan.sh -y
+          export PATH=$HOME/.local/bin:$HOME/.elan/bin:$PATH
 
       - name: Run Benchmarking Suite
         run: |
+          export PATH=$HOME/.local/bin:$HOME/.elan/bin:$PATH
           cd 1-runs/1-SKELETON
           bash ci-worker.sh
 
       - name: Show Temci Report
         run: |
+          export PATH=$HOME/.local/bin:$HOME/.elan/bin:$PATH
           cat 1-runs/1-SKELETON/outputs/temci-report.txt
 
       - name: Release
