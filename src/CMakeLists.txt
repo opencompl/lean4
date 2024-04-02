@@ -41,7 +41,7 @@ enable_testing()
 # Lean research options
 set (LEAN_RESEARCH_IS_REUSE_ACROSS_CONSTRUCTORS_ENABLED "0" CACHE STRING "research: enable reuse across constructors")
 message(STATUS "Research: reuse across ctor LEAN_RESEARCH_IS_REUSE_ACROSS_CONSTRUCTORS_ENABLED(${LEAN_RESEARCH_IS_REUSE_ACROSS_CONSTRUCTORS_ENABLED})")
-set (LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH "/tmp/profile-baseline.csv" CACHE STRING "research: path where compiler dumps info")
+set (LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH "/tmp/profile.csv" CACHE STRING "research: path where compiler dumps info")
 message(STATUS "Research: compiler profile CSV path LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH(${LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH})")
 
 option(MULTI_THREAD       "MULTI_THREAD"       ON)
@@ -74,7 +74,7 @@ option(SAVE_INFO           "SAVE_INFO" ON)
 option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
 option(MMAP                "MMAP" ON)
 option(LAZY_RC             "LAZY_RC" OFF)
-option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
+option(RUNTIME_STATS       "RUNTIME_STATS" ON)
 option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
 option(USE_GMP "USE_GMP" ON)
 
