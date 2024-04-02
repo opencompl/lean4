@@ -196,7 +196,7 @@ inductive Expr where
   This instruction is also used to creat `struct` and `union` return values.
   For `union`, only `i.cidx` is relevant. For `struct`, `i` is irrelevant. -/
   | ctor (i : CtorInfo) (ys : Array Arg)
-  | reset (n : Nat) (x : VarId)
+  | reset (c : CtorInfo) (x : VarId)
   /-- `reuse x in ctor_i ys` instruction in the paper. -/
   | reuse (x : VarId) (i : CtorInfo) (updtHeader : Bool) (ys : Array Arg)
   /-- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`.
