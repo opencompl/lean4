@@ -4,7 +4,7 @@ set -e
 
 COMMIT_TO_BENCH="2024-04-01---22-10-tcg40"
 
-if [[  $COMMIT_TO_BENCH != *$PWD* ]]; then
+if [[  $PWD  != *$COMMIT_TO_BENCH* ]]; then
   echo "The commit to bench '${COMMIT_TO_BENCH}' is not contained in PWD '${PWD}'."
   read -p "Do you want to proceed? (y/n)" -n 1 -r
   echo    # Move to a new line
@@ -87,10 +87,17 @@ build_stage0() {
       -DCCACHE=OFF \
       -DRUNTIME_STATS=ON \
       -DCMAKE_BUILD_TYPE=Release \
-      -DLEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH="$EXPERIMENTDIR/${kind}.stage3.compile.csv"
-    make update-stage0
+      -DLEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH="$EXPERIMENTDIR/builds/${kind}/build/release/profile.csv"
+    make update-stage0 -j20
     rm -rf ../../src/; cp -r "$EXPERIMENTDIR/builds/baseline-src-code/src" ../../
+    cd ../../; rm -rf build; mkdir -p build/release; cd build/release
     git checkout -- ../../src/runtime ../../src/include/lean/lean.h ../../src/library/compiler/ir_interpreter.h
+    # TODO: replace LEAN_PROFILER_... with /tmp/profile.csv (hardcoded).
+    cmake ../../ \
+      -DCCACHE=OFF \
+      -DRUNTIME_STATS=ON \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DLEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH="/tmp/profile.csv"
   fi
   ntfysh "done stage0 $kind"
 }
@@ -100,7 +107,7 @@ build_stage1() {
   local kind="$1"
   if [ ! -f "${EXPERIMENTDIR}/builds/${kind}/build/release/stage1/bin/lean" ]; then
     cd "$EXPERIMENTDIR/builds/${kind}/build/release/"
-    make -j stage1
+    make -j20 stage1
   fi
   ntfysh "done stage1 $kind"
 }
@@ -110,7 +117,7 @@ build_stage2() {
   local kind="$1"
   if [ ! -f "${EXPERIMENTDIR}/builds/${kind}/build/release/stage2/bin/lean" ]; then
     cd "$EXPERIMENTDIR/builds/${kind}/build/release/"
-    make -j stage2
+    make -j20 stage2
   fi
   ntfysh "done stage2 $kind"
 }
@@ -119,13 +126,32 @@ build_stage3() {
   ntfysh "starting stage3 $kind"
   local kind="$1"
   mkdir -p "$EXPERIMENTDIR/outputs"
-  if [ ! -f "${EXPERIMENTDIR}/outputs/${kind}.stage3.compile.csv" ]; then
-    rm "$EXPERIMENTDIR/${kind}.stage3.compile.csv"
-    mkdir -p "$EXPERIMENTDIR/outputs/${kind}"
-    $TIME -v make -j10 stage3 2>&1 | tee "$EXPERIMENTDIR/outputs/time-${kind}-stage3.txt"
-    mv "$EXPERIMENTDIR/${kind}.stage3.compile.csv" "$EXPERIMENTDIR/outputs/${kind}.stage3.compile.csv"
+  if [ ! -f "${EXPERIMENTDIR}/outputs/${kind}.stage3-compile-profile.csv" ]; then
+    cd "$EXPERIMENTDIR/builds/${kind}/build/release/"
+    make -j40 stage2 # just to check that stage2 is completed.
+    rm "/tmp/profile.csv" || true
+    $TIME -v make -j4 stage3 2>&1 | tee "$EXPERIMENTDIR/outputs/time-${kind}-stage3.txt"
+    cp "/tmp/profile.csv" "$EXPERIMENTDIR/outputs/${kind}.stage3-compile-profile.csv"
   fi
   ntfysh "done stage3 $kind"
+}
+
+build_stage3_stdlib() {
+  ntfysh "starting stage3 stdlib $kind"
+  local kind="$1"
+  mkdir -p "$EXPERIMENTDIR/outputs"
+
+  if [ ! -f "${EXPERIMENTDIR}/outputs/${kind}-stdlib-compile-profile.csv" ]; then
+    cd "$EXPERIMENTDIR/builds/${kind}/build/release/"
+    touch ../../src/Init/Prelude.lean
+    make -j40 stage2
+
+    rm "/tmp/profile.csv" || true
+    mkdir -p "$EXPERIMENTDIR/outputs/"
+    $TIME -v make -j4 stage3 2>&1 | tee "$EXPERIMENTDIR/outputs/time-${kind}-stdlib.txt"
+    cp "/tmp/profile.csv" "$EXPERIMENTDIR/outputs/${kind}-stdlib-compile-profile.csv"
+  fi
+  ntfysh "done stage3 stdlib $kind"
 }
 
 
@@ -147,10 +173,22 @@ done;
 for i in {0..1}; do
   build_stage2 "${KINDS[i]}"
 done;
-
+#
 for i in {0..1}; do
   build_stage3 "${KINDS[i]}"
 done;
+
+
+for i in {0..1}; do
+  build_stage3_stdlib "${KINDS[i]}"
+done;
+
+
+
+
+
+
+
 
 #   echo "@@@ ${KINDS[i]} BUILD @@@"
 #   curl -d "Started[Stage3-Bench-${KINDS[i]}]. run:$EXPERIMENTDIR. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
