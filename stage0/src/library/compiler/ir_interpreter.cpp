@@ -83,11 +83,11 @@ static inline bool get_bool_field(object * o, unsigned num_obj_fields) {
     return cnstr_get_uint8(o, sizeof(void*)*num_obj_fields);
 }
 
-enum class expr_kind { Ctor, Reset, Reuse, Proj, UProj, SProj, FAp, PAp, Ap, Box, Unbox, Lit, IsShared, IsTaggedPtr };
+enum class expr_kind { Ctor, Reset, Reuse, Proj, UProj, SProj, FAp, PAp, Ap, Box, Unbox, Lit, IsShared, IsNull, IsTaggedPtr };
 expr_kind expr_tag(expr const & e) { return static_cast<expr_kind>(cnstr_tag(e.raw())); }
 ctor_info const & expr_ctor_info(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Ctor); return cnstr_get_ref_t<ctor_info>(e, 0); }
 array_ref<arg> const & expr_ctor_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Ctor); return cnstr_get_ref_t<array_ref<arg>>(e, 1); }
-nat const & expr_reset_num_objs(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reset); return cnstr_get_ref_t<nat>(e, 0); }
+ctor_info const & expr_reset_info(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reset); return cnstr_get_ref_t<ctor_info>(e, 0); }
 var_id const & expr_reset_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reset); return cnstr_get_ref_t<var_id>(e, 1); }
 var_id const & expr_reuse_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return cnstr_get_ref_t<var_id>(e, 0); }
 ctor_info const & expr_reuse_ctor(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return cnstr_get_ref_t<ctor_info>(e, 1); }
@@ -111,6 +111,7 @@ var_id const & expr_box_obj(expr const & e) { lean_assert(expr_tag(e) == expr_ki
 var_id const & expr_unbox_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Unbox); return cnstr_get_ref_t<var_id>(e, 0); }
 lit_val const & expr_lit_val(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Lit); return cnstr_get_ref_t<lit_val>(e, 0); }
 var_id const & expr_is_shared_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::IsShared); return cnstr_get_ref_t<var_id>(e, 0); }
+var_id const & expr_is_null_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::IsNull); return cnstr_get_ref_t<var_id>(e, 0); }
 var_id const & expr_is_tagged_ptr_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::IsTaggedPtr); return cnstr_get_ref_t<var_id>(e, 0); }
 
 typedef object_ref param;
@@ -435,7 +436,8 @@ private:
             case expr_kind::Reset: { // release fields if unique reference in preparation for `Reuse` below
                 object * o = var(expr_reset_obj(e)).m_obj;
                 if (is_exclusive(o)) {
-                    for (size_t i = 0; i < expr_reset_num_objs(e).get_small_value(); i++) {
+                    size_t size = ctor_info_size(expr_reset_info(e)).get_small_value();
+                    for (size_t i = 0; i < size; i++) {
                         cnstr_release(o, i);
                     }
                     return o;
@@ -551,6 +553,8 @@ private:
                 break;
             case expr_kind::IsShared:
                 return !is_exclusive(var(expr_is_shared_obj(e)).m_obj);
+            case expr_kind::IsNull:
+                return is_null(var(expr_is_null_obj(e)).m_obj);
             case expr_kind::IsTaggedPtr:
                 return !is_scalar(var(expr_is_tagged_ptr_obj(e)).m_obj);
         }
@@ -679,7 +683,7 @@ private:
                     break;
                 }
                 case fn_body_kind::Del: // delete object of unique reference
-                    lean_free_object(var(fn_body_del_var(b)).m_obj);
+                    lean_free_token(var(fn_body_del_var(b)).m_obj);
                     b = fn_body_del_cont(b);
                     break;
                 case fn_body_kind::MData: // metadata; no-op
