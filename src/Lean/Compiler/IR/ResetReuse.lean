@@ -30,11 +30,11 @@ namespace Lean.IR.ResetReuse
 -/
 
 private def mayReuse (c₁ c₂ : CtorInfo) : Bool :=
-  c₁.size == c₂.size && c₁.usize == c₂.usize && c₁.ssize == c₂.ssize &&
+  c₁.size == c₂.size && c₁.usize == c₂.usize && c₁.ssize == c₂.ssize -- &&
   /- The following condition is a heuristic.
      We don't want to reuse cells from different types even when they are compatible
      because it produces counterintuitive behavior. -/
-  c₁.name.getPrefix == c₂.name.getPrefix
+  -- c₁.name.getPrefix == c₂.name.getPrefix
 
 private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
   | FnBody.vdecl x t v@(Expr.ctor c' ys) b   =>
@@ -86,8 +86,9 @@ private def isConsuming (b : FnBody) (x : VarId) (env : Environment) : Bool :=
   match b with
   | (FnBody.vdecl _ _ (Expr.ctor _ ys) _) => argsContainsVar ys x
   | (FnBody.vdecl _ _ (Expr.reuse _ _ _ ys) _) => argsContainsVar ys x
+  | (FnBody.vdecl _ _ (Expr.reset _ y) _) => x == y
   | (FnBody.vdecl _ _ (Expr.pap _ ys) _) => argsContainsVar ys x
-  | (FnBody.vdecl _ _ (Expr.ap _ ys) _) => argsContainsVar ys x
+  | (FnBody.vdecl _ _ (Expr.ap y ys) _) => x == y || argsContainsVar ys x
   | (FnBody.vdecl _ _ (Expr.fap fn ys) _) =>
       -- If x is passed to a function, it is consumed if it is not borrowed:
       match findEnvDecl env fn with
