@@ -68,14 +68,13 @@ namespace InitParamMap
 def initBorrow (ps : Array Param) : Array Param :=
   ps.map fun p => { p with borrow := p.ty.isObj }
 
-/-- We do perform borrow inference for constants marked as `export`.
+/-- We do not perform borrow inference for constants marked as `export`.
    Reason: we current write wrappers in C++ for using exported functions.
    These wrappers use smart pointers such as `object_ref`.
-   When writing a new wrapper we need to know whether an argument is a borrow
-   inference or not.
-   We can revise this decision when we implement code for generating
+   When writing a new wrapper we need to know whether an argument is borrowed
+   or not. We can revise this decision when we implement code for generating
    the wrappers automatically. -/
-def initBorrowIfNotExported (exported : Bool) (ps : Array Param) : Array Param :=
+def initBorrowUnlessExported (exported : Bool) (ps : Array Param) : Array Param :=
   if exported then ps else initBorrow ps
 
 partial def visitFnBody (fnid : FunId) : FnBody → StateM ParamMap Unit
@@ -93,7 +92,7 @@ def visitDecls (env : Environment) (decls : Array Decl) : StateM ParamMap Unit :
   decls.forM fun decl => match decl with
     | .fdecl (f := f) (xs := xs) (body := b) .. => do
       let exported := isExport env f
-      modify fun m => m.insert (ParamMap.Key.decl f) (initBorrowIfNotExported exported xs)
+      modify fun m => m.insert (ParamMap.Key.decl f) (initBorrowUnlessExported exported xs)
       visitFnBody f b
     | _ => pure ()
 end InitParamMap
