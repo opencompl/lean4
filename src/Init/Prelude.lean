@@ -3496,13 +3496,20 @@ inductive Name where
   ```
   -/
   | num (pre : Name) (i : Nat)
-with
-  /-- A hash function for names, which is stored inside the name itself as a
-  computed field. -/
-  @[computed_field] hash : Name → UInt64
-    | .anonymous => .ofNatCore 1723 (by decide)
-    | .str p s => mixHash p.hash s.hash
-    | .num p v => mixHash p.hash (dite (LT.lt v UInt64.size) (fun h => UInt64.ofNatCore v h) (fun _ => UInt64.ofNatCore 17 (by decide)))
+-- with
+--   /-- A hash function for names, which is stored inside the name itself as a
+--   computed field. -/
+--   @[computed_field] hash : Name → UInt64
+--     | .anonymous => .ofNatCore 1723 (by decide)
+--     | .str p s => mixHash p.hash s.hash
+--     | .num p v => mixHash p.hash (dite (LT.lt v UInt64.size) (fun h => UInt64.ofNatCore v h) (fun _ => UInt64.ofNatCore 17 (by decide)))
+
+/-- A hash function for names, which is stored inside the name itself as a
+computed field. -/
+def Name.hash : Name → UInt64
+| .anonymous => .ofNatCore 1723 (by decide)
+| .str p s => mixHash p.hash s.hash
+| .num p v => mixHash p.hash (dite (LT.lt v UInt64.size) (fun h => UInt64.ofNatCore v h) (fun _ => UInt64.ofNatCore 17 (by decide)))
 
 instance : Inhabited Name where
   default := Name.anonymous
