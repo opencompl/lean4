@@ -224,7 +224,16 @@ a `NameGenerator`.
 -/
 structure FVarId where
   name : Name
-  deriving Inhabited, BEq, Hashable
+  deriving Inhabited, BEq
+
+
+def Name.slowHash : Name → UInt64
+| .anonymous => .ofNatCore 1723 (by decide)
+| .str p s => mixHash p.slowHash s.hash
+| .num p v => mixHash p.slowHash (dite (LT.lt v UInt64.size) (fun h => UInt64.ofNatCore v h) (fun _ => UInt64.ofNatCore 17 (by decide)))
+
+instance : Hashable FVarId where
+  hash fvar := Name.slowHash fvar.name
 
 instance : Repr FVarId where
   reprPrec n p := reprPrec n.name p
