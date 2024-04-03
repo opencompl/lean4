@@ -150,9 +150,9 @@ end ResetReuse
 open ResetReuse
 
 def Decl.insertResetReuse (d : Decl) : Decl :=
-  if d.name.toString == "Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce"
-  then d
-  else
+  -- if d.name.toString == "Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce"
+  -- then d
+  -- else
     match d with
     | .fdecl (body := b) ..=>
       let nextIndex := d.maxIndex + 1
