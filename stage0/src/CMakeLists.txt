@@ -38,14 +38,8 @@ endif()
 set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
 
-# Lean research options
-set (LEAN_RESEARCH_IS_REUSE_ACROSS_CONSTRUCTORS_ENABLED "0" CACHE STRING "research: enable reuse across constructors")
-message(STATUS "Research: reuse across ctor LEAN_RESEARCH_IS_REUSE_ACROSS_CONSTRUCTORS_ENABLED(${LEAN_RESEARCH_IS_REUSE_ACROSS_CONSTRUCTORS_ENABLED})")
-set (LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH "/tmp/profile.csv" CACHE STRING "research: path where compiler dumps info")
-message(STATUS "Research: compiler profile CSV path LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH(${LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH})")
-
 option(MULTI_THREAD       "MULTI_THREAD"       ON)
-option(CCACHE             "use ccache"         OFF)
+option(CCACHE             "use ccache"         ON)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 # When OFF we disable LLVM support
 option(LLVM               "LLVM"               OFF)
@@ -57,7 +51,6 @@ option(INSTALL_LICENSE "INSTALL_LICENSE" ON)
 # When ON thread storage is automatically finalized, it assumes platform support pthreads.
 # This option is important when using Lean as library that is invoked from a different programming language (e.g., Haskell).
 option(AUTO_THREAD_FINALIZATION "AUTO_THREAD_FINALIZATION" ON)
-
 
 # FLAGS for disabling optimizations and debugging
 option(FREE_VAR_RANGE_OPT  "FREE_VAR_RANGE_OPT"   ON)
@@ -74,7 +67,7 @@ option(SAVE_INFO           "SAVE_INFO" ON)
 option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
 option(MMAP                "MMAP" ON)
 option(LAZY_RC             "LAZY_RC" OFF)
-option(RUNTIME_STATS       "RUNTIME_STATS" ON)
+option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
 option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
 option(USE_GMP "USE_GMP" ON)
 
@@ -83,6 +76,10 @@ option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current ver
 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(LEANC_CC              ${CMAKE_C_COMPILER}          CACHE STRING "C compiler to use in `leanc`")
+
+if ("${LAZY_RC}" MATCHES "ON")
+  set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")
+endif()
 
 if ("${SMALL_ALLOCATOR}" MATCHES "ON")
   set(LEAN_SMALL_ALLOCATOR "#define LEAN_SMALL_ALLOCATOR")

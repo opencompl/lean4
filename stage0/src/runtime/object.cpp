@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "runtime/buffer.h"
 #include "runtime/io.h"
 #include "runtime/hash.h"
-#include "runtime/research.h"
 
 #ifdef __GLIBC__
 #include <execinfo.h>
@@ -892,7 +891,6 @@ extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
         delete g_task_manager;
         g_task_manager = nullptr;
     }
-    research_dump_allocator_log();
 }
 
 scoped_task_manager::scoped_task_manager(unsigned num_workers) {

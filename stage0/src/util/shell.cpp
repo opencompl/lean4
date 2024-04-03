@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <signal.h>
@@ -14,11 +13,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include <set>
-#include <chrono>
-#include "runtime/alloc.h"
-#include "runtime/research.h"
 #include "runtime/stackinfo.h"
-#include "runtime/optional.h"
 #include "runtime/interrupt.h"
 #include "runtime/memory.h"
 #include "runtime/thread.h"
@@ -27,7 +22,6 @@ Author: Leonardo de Moura
 #include "runtime/load_dynlib.h"
 #include "runtime/array_ref.h"
 #include "runtime/object_ref.h"
-#include "runtime/memory.h"
 #include "util/timer.h"
 #include "util/macros.h"
 #include "util/io.h"
@@ -45,13 +39,6 @@ Author: Leonardo de Moura
 #include "library/compiler/ir_interpreter.h"
 #include "util/path.h"
 #include "stdlib_flags.h"
-
-
-#ifdef LEAN_TRACY
-#define TRACY_ENABLE
-#include "tracy/Tracy.hpp"
-#endif
-
 #ifdef _MSC_VER
 #include <io.h>
 #define STDOUT_FILENO 1
@@ -69,21 +56,6 @@ Author: Leonardo de Moura
 #else
 #include <dlfcn.h>
 #endif
-
-std::streampos fileSize(const char* filePath) {
-
-    std::streampos fsize = 0;
-    std::ifstream file( filePath, std::ios::binary );
-
-    fsize = file.tellg();
-    file.seekg( 0, std::ios::end );
-    fsize = file.tellg() - fsize;
-    file.close();
-
-    return fsize;
-}
-
-
 
 #ifdef _MSC_VER
 // extremely simple implementation of getopt.h
@@ -460,65 +432,7 @@ void check_optarg(char const * option_name) {
 
 extern "C" object * lean_enable_initializer_execution(object * w);
 
-struct Profiler {
-  std::chrono::time_point<std::chrono::high_resolution_clock> time_start;
-  Profiler() {
-      time_start = std::chrono::high_resolution_clock::now();
-  };
-
-  bool isReuseEnabled() {
-    return research_isReuseAcrossConstructorsEnabled(lean_box(-1));
-  }
-
-  template <typename T>
-  void write_file_identifier(std::ostream &o, std::string file_path,
-                             std::string name, T val) {
-    o << file_path << ", "
-      << (isReuseEnabled() ? "reuse_across_ctor_enabled"
-                        : "reuse_across_ctor_disabled")
-      << "," << name << ", " << val << "\n";
-  }
-  void write_profiling_times(std::string src_path, std::string out_path, std::ostream &o, optional<std::string> c_file_path) {
-    // if (research_isResearchLogVerbose()) {
-    //   std::cerr << "writing profiling information "
-    //             << "[reuseEnabled=" << (isReuseEnabled() ? "true" : "false")
-    //             << "]"
-    //             << " of '" << src_path << "'"
-    //             << " to file '" << out_path << "'"
-    //             << "\n";
-    // }
-    const auto time_end = std::chrono::high_resolution_clock::now();
-    const auto time_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_end - time_start).count();
-
-    write_file_identifier<uint64_t>(o, src_path, "rss", lean::get_peak_rss());
-#ifdef LEAN_RUNTIME_STATS
-    write_file_identifier<uint64_t>(o, src_path, "num_alloc",
-                                    lean::allocator::get_num_alloc());
-    write_file_identifier<uint64_t>(o, src_path, "num_small_alloc",
-                                    lean::allocator::get_num_small_alloc());
-    write_file_identifier<uint64_t>(o, src_path, "num_dealloc",
-                                    lean::allocator::get_num_dealloc());
-    write_file_identifier<uint64_t>(o, src_path, "num_small_dealloc",
-                                    lean::allocator::get_num_small_dealloc());
-    write_file_identifier<uint64_t>(o, src_path, "num_segments",
-                                    lean::allocator::get_num_segments());
-    write_file_identifier<uint64_t>(o, src_path, "num_pages",
-                                    lean::allocator::get_num_pages());
-    write_file_identifier<uint64_t>(o, src_path, "num_exports",
-                                    lean::allocator::get_num_exports());
-    write_file_identifier<uint64_t>(o, src_path, "num_recycled_pages",
-                                    lean::allocator::get_num_recycled_pages());
-#endif
-    if (c_file_path) {
-       write_file_identifier<uint64_t>(o, src_path, "c_file_size", uint64_t(fileSize((*c_file_path).c_str())));
-    }
-    write_file_identifier<uint64_t>(o, src_path, "time_elapsed_ms", time_elapsed_ms);
-  }
-};
-
-
 extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
-    Profiler profiler;
 #ifdef LEAN_EMSCRIPTEN
     // When running in command-line mode under Node.js, we make system directories available in the virtual filesystem.
     // This mode is used to compile 32-bit oleans.
@@ -843,18 +757,6 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         display_cumulative_profiling_times(std::cerr);
 
-
-        const std::string profiling_path = LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH;
-        if (profiling_path == "") {
-          std::cerr << "WARN: LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH ('" << profiling_path << "') is empty";
-        } else {
-          if (profiling_path == "-") {
-	          profiler.write_profiling_times(mod_fn, profiling_path, std::cerr, c_output);
-          } else {
-            std::ofstream profiler_out_file(profiling_path, std::ios::app);
-	          profiler.write_profiling_times(mod_fn, profiling_path, profiler_out_file, c_output);
-          }
-        }
 #ifdef LEAN_SMALL_ALLOCATOR
         // If the small allocator is not enabled, then we assume we are not using the sanitizer.
         // Thus, we interrupt execution without garbage collecting.
