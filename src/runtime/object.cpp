@@ -21,6 +21,13 @@ Author: Leonardo de Moura
 #include "runtime/buffer.h"
 #include "runtime/io.h"
 #include "runtime/hash.h"
+#include <iostream>
+#include <vector>
+#include <map>
+#include <unordered_set>
+#include <unordered_map>
+#include <set>
+#include <fstream>
 
 #ifdef __GLIBC__
 #include <execinfo.h>
@@ -2320,4 +2327,44 @@ void finalize_object() {
     delete g_ext_classes;
     delete g_ext_classes_mutex;
 }
+}
+
+
+// ======================================================
+// Research code
+
+extern "C" uint8_t lean_research_log(lean_object *_fileName, lean_object *_str) {
+  static std::unordered_map<std::string, std::unordered_set<std::string>> fname2data;
+
+  const char *str = lean::string_cstr(_str);
+  const char *fileName = lean::string_cstr(_fileName);
+  // static so we don't repeatedly reload the same file.
+
+  const std::string isFilteringEnvVar = std::string(fileName) + "_FILTER";
+  const char *isFiltering = std::getenv(isFilteringEnvVar.c_str());
+  // we don't have the env var, so we are writing data into the file.
+  const std::string fpath = std::string("/tmp/") + fileName + ".csv";
+  if (!isFiltering) {
+    std::cerr <<  "+" << str << "\n";
+    std::ofstream of(fpath, std::ios::app);
+    of << str << "\n";
+    return true;
+  } else {
+    // we have the env var, so we are binary searching.
+    if (fname2data.count(fileName) == 0) {
+      std::ifstream input(fpath);
+      std::string line;
+      while (std::getline(input, line)) {
+        fname2data[fileName].insert(line);
+      }
+    }
+    auto it = fname2data.find(fileName);
+    assert(it != fname2data.end());
+    const std::unordered_set<std::string> &set = it->second;
+    bool out = set.count(str) > 0;
+    if (out) { std::cerr <<  "?+" << str << "\n"; }
+    else { std::cerr <<  "?-" << str << "\n"; }
+    return out;
+  }
+  assert (false && "unreachable");
 }

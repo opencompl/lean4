@@ -26,18 +26,28 @@ namespace Lean.IR.ResetReuse
     does not occur in a function body. See example at `livevars.lean`.
 -/
 
+@[extern "lean_research_log"]
+opaque researchLog (fileName : @&String) (str : @&String) : Bool
+
 private def mayReuse (c₁ c₂ : CtorInfo) : Bool :=
-  c₁.size == c₂.size && c₁.usize == c₂.usize && c₁.ssize == c₂.ssize &&
+  c₁.size == c₂.size && c₁.usize == c₂.usize && c₁.ssize == c₂.ssize /- &&
   /- The following condition is a heuristic.
      We don't want to reuse cells from different types even when they are compatible
      because it produces counterintuitive behavior. -/
-  c₁.name.getPrefix == c₂.name.getPrefix
+  c₁.name.getPrefix == c₂.name.getPrefix -/
 
 private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
   | FnBody.vdecl x t v@(Expr.ctor c' ys) b   =>
     if mayReuse c c' then
       let updtCidx := c.cidx != c'.cidx
-      FnBody.vdecl x t (Expr.reuse w c' updtCidx ys) b
+      let out := FnBody.vdecl x t (Expr.reuse w c' updtCidx ys) b
+      if c.name.getPrefix != c'.name.getPrefix
+      then
+        if researchLog "REUSECTOR" s!"{c.name.toString}, {c'.name.toString}, {c.size}, {c.usize}, {c.ssize}"
+        then out
+        else FnBody.vdecl x t v (S w c b)
+      else out
+
     else
       FnBody.vdecl x t v (S w c b)
   | FnBody.jdecl j ys v b   =>
@@ -149,12 +159,15 @@ end ResetReuse
 
 open ResetReuse
 
-def Decl.insertResetReuse (d : Decl) : Decl :=
-  match d with
-  | .fdecl (body := b) ..=>
-    let nextIndex := d.maxIndex + 1
-    let bNew      := (R b {}).run' nextIndex
-    d.updateBody! bNew
-  | other => other
 
+
+def Decl.insertResetReuse (d : Decl) : Decl :=
+  if researchLog "DECLNAME" d.name.toString then
+    match d with
+    | .fdecl (body := b) ..=>
+      let nextIndex := d.maxIndex + 1
+      let bNew      := (R b {}).run' nextIndex
+      d.updateBody! bNew
+    | other => other
+  else d
 end Lean.IR
