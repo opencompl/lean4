@@ -1,0 +1,1416 @@
+def Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce (x_1 : obj) (x_2 : obj) (x_3 : obj) (x_4 : obj) (x_5 : obj) (x_6 : obj) (x_7 : obj) : obj :=
+  case x_1 : obj of
+  Lean.Compiler.LCNF.Code.let →
+    let x_8 : obj := proj[0] x_1;
+    inc x_8;
+    let x_9 : obj := proj[1] x_1;
+    inc x_9;
+    inc x_9;
+    let x_10 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce x_9 x_2 x_3 x_4 x_5 x_6 x_7;
+    case x_10 : obj of
+    EStateM.Result.ok →
+      let x_11 : u8 := isShared x_10;
+      case x_11 : u8 of
+      Bool.false →
+        let x_12 : obj := proj[0] x_10;
+        let x_13 : obj := proj[1] x_10;
+        let x_14 : usize := ptrAddrUnsafe ◾ x_9;
+        dec x_9;
+        let x_15 : usize := ptrAddrUnsafe ◾ x_12;
+        let x_16 : u8 := USize.decEq x_14 x_15;
+        case x_16 : u8 of
+        Bool.false →
+          let x_17 : u8 := isShared x_1;
+          case x_17 : u8 of
+          Bool.false →
+            let x_18 : obj := proj[1] x_1;
+            dec x_18;
+            let x_19 : obj := proj[0] x_1;
+            dec x_19;
+            set x_10[1] := x_12;
+            set x_10[0] := x_8;
+            set x_1[1] := x_13;
+            set x_1[0] := x_10;
+            ret x_1
+          Bool.true →
+            dec x_1;
+            set x_10[1] := x_12;
+            set x_10[0] := x_8;
+            let x_20 : obj := ctor_0[EStateM.Result.ok] x_10 x_13;
+            ret x_20
+        Bool.true →
+          let x_21 : usize := ptrAddrUnsafe ◾ x_8;
+          let x_22 : u8 := USize.decEq x_21 x_21;
+          case x_22 : u8 of
+          Bool.false →
+            let x_23 : u8 := isShared x_1;
+            case x_23 : u8 of
+            Bool.false →
+              let x_24 : obj := proj[1] x_1;
+              dec x_24;
+              let x_25 : obj := proj[0] x_1;
+              dec x_25;
+              set x_10[1] := x_12;
+              set x_10[0] := x_8;
+              set x_1[1] := x_13;
+              set x_1[0] := x_10;
+              ret x_1
+            Bool.true →
+              dec x_1;
+              set x_10[1] := x_12;
+              set x_10[0] := x_8;
+              let x_26 : obj := ctor_0[EStateM.Result.ok] x_10 x_13;
+              ret x_26
+          Bool.true →
+            dec x_12;
+            dec x_8;
+            set x_10[0] := x_1;
+            ret x_10
+      Bool.true →
+        let x_27 : obj := proj[0] x_10;
+        let x_28 : obj := proj[1] x_10;
+        inc x_28;
+        inc x_27;
+        dec x_10;
+        let x_29 : usize := ptrAddrUnsafe ◾ x_9;
+        dec x_9;
+        let x_30 : usize := ptrAddrUnsafe ◾ x_27;
+        let x_31 : u8 := USize.decEq x_29 x_30;
+        case x_31 : u8 of
+        Bool.false →
+          let x_32 : obj := reset[2] x_1;
+          let x_33 : obj := ctor_0[Lean.Compiler.LCNF.Code.let] x_8 x_27;
+          let x_34 : obj := reuse x_32 in ctor_0[EStateM.Result.ok] x_33 x_28;
+          ret x_34
+        Bool.true →
+          let x_35 : usize := ptrAddrUnsafe ◾ x_8;
+          let x_36 : u8 := USize.decEq x_35 x_35;
+          case x_36 : u8 of
+          Bool.false →
+            let x_37 : obj := reset[2] x_1;
+            let x_38 : obj := ctor_0[Lean.Compiler.LCNF.Code.let] x_8 x_27;
+            let x_39 : obj := reuse x_37 in ctor_0[EStateM.Result.ok] x_38 x_28;
+            ret x_39
+          Bool.true →
+            dec x_27;
+            dec x_8;
+            let x_40 : obj := ctor_0[EStateM.Result.ok] x_1 x_28;
+            ret x_40
+    EStateM.Result.error →
+      dec x_9;
+      dec x_8;
+      dec x_1;
+      let x_41 : u8 := isShared x_10;
+      case x_41 : u8 of
+      Bool.false →
+        ret x_10
+      Bool.true →
+        let x_42 : obj := proj[0] x_10;
+        let x_43 : obj := proj[1] x_10;
+        inc x_43;
+        inc x_42;
+        dec x_10;
+        let x_44 : obj := ctor_1[EStateM.Result.error] x_42 x_43;
+        ret x_44
+  Lean.Compiler.LCNF.Code.fun →
+    let x_45 : obj := proj[0] x_1;
+    inc x_45;
+    let x_46 : obj := proj[1] x_1;
+    inc x_46;
+    let x_47 : obj := proj[4] x_45;
+    inc x_47;
+    inc x_6;
+    inc x_5;
+    inc x_4;
+    inc x_3;
+    inc x_2;
+    let x_48 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce x_47 x_2 x_3 x_4 x_5 x_6 x_7;
+    case x_48 : obj of
+    EStateM.Result.ok →
+      let x_49 : obj := proj[0] x_48;
+      inc x_49;
+      let x_50 : obj := proj[1] x_48;
+      inc x_50;
+      dec x_48;
+      let x_51 : obj := proj[3] x_45;
+      inc x_51;
+      let x_52 : obj := proj[2] x_45;
+      inc x_52;
+      inc x_45;
+      let x_53 : obj := _private.Lean.Compiler.LCNF.CompilerM.0.Lean.Compiler.LCNF.updateFunDeclImp x_45 x_51 x_52 x_49 x_3 x_4 x_5 x_6 x_50;
+      let x_54 : u8 := isShared x_53;
+      case x_54 : u8 of
+      Bool.false →
+        let x_55 : obj := proj[0] x_53;
+        let x_56 : obj := proj[1] x_53;
+        inc x_46;
+        let x_57 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce x_46 x_2 x_3 x_4 x_5 x_6 x_56;
+        case x_57 : obj of
+        EStateM.Result.ok →
+          let x_58 : u8 := isShared x_57;
+          case x_58 : u8 of
+          Bool.false →
+            let x_59 : obj := proj[0] x_57;
+            let x_60 : obj := proj[1] x_57;
+            let x_61 : usize := ptrAddrUnsafe ◾ x_46;
+            dec x_46;
+            let x_62 : usize := ptrAddrUnsafe ◾ x_59;
+            let x_63 : u8 := USize.decEq x_61 x_62;
+            case x_63 : u8 of
+            Bool.false →
+              dec x_45;
+              dec x_1;
+              setTag x_57 := 1;
+              set x_57[1] := x_59;
+              set x_57[0] := x_55;
+              set x_53[1] := x_60;
+              set x_53[0] := x_57;
+              ret x_53
+            Bool.true →
+              let x_64 : usize := ptrAddrUnsafe ◾ x_45;
+              dec x_45;
+              let x_65 : usize := ptrAddrUnsafe ◾ x_55;
+              let x_66 : u8 := USize.decEq x_64 x_65;
+              case x_66 : u8 of
+              Bool.false →
+                dec x_1;
+                setTag x_57 := 1;
+                set x_57[1] := x_59;
+                set x_57[0] := x_55;
+                set x_53[1] := x_60;
+                set x_53[0] := x_57;
+                ret x_53
+              Bool.true →
+                dec x_59;
+                del x_53;
+                dec x_55;
+                set x_57[0] := x_1;
+                ret x_57
+          Bool.true →
+            let x_67 : obj := proj[0] x_57;
+            let x_68 : obj := proj[1] x_57;
+            inc x_68;
+            inc x_67;
+            dec x_57;
+            let x_69 : usize := ptrAddrUnsafe ◾ x_46;
+            dec x_46;
+            let x_70 : usize := ptrAddrUnsafe ◾ x_67;
+            let x_71 : u8 := USize.decEq x_69 x_70;
+            case x_71 : u8 of
+            Bool.false →
+              dec x_45;
+              dec x_1;
+              let x_72 : obj := ctor_1[Lean.Compiler.LCNF.Code.fun] x_55 x_67;
+              set x_53[1] := x_68;
+              set x_53[0] := x_72;
+              ret x_53
+            Bool.true →
+              let x_73 : usize := ptrAddrUnsafe ◾ x_45;
+              dec x_45;
+              let x_74 : usize := ptrAddrUnsafe ◾ x_55;
+              let x_75 : u8 := USize.decEq x_73 x_74;
+              case x_75 : u8 of
+              Bool.false →
+                dec x_1;
+                let x_76 : obj := ctor_1[Lean.Compiler.LCNF.Code.fun] x_55 x_67;
+                set x_53[1] := x_68;
+                set x_53[0] := x_76;
+                ret x_53
+              Bool.true →
+                dec x_67;
+                del x_53;
+                dec x_55;
+                let x_77 : obj := ctor_0[EStateM.Result.ok] x_1 x_68;
+                ret x_77
+        EStateM.Result.error →
+          del x_53;
+          dec x_55;
+          dec x_46;
+          dec x_45;
+          dec x_1;
+          let x_78 : u8 := isShared x_57;
+          case x_78 : u8 of
+          Bool.false →
+            ret x_57
+          Bool.true →
+            let x_79 : obj := proj[0] x_57;
+            let x_80 : obj := proj[1] x_57;
+            inc x_80;
+            inc x_79;
+            dec x_57;
+            let x_81 : obj := ctor_1[EStateM.Result.error] x_79 x_80;
+            ret x_81
+      Bool.true →
+        let x_82 : obj := proj[0] x_53;
+        let x_83 : obj := proj[1] x_53;
+        inc x_83;
+        inc x_82;
+        dec x_53;
+        inc x_46;
+        let x_84 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce x_46 x_2 x_3 x_4 x_5 x_6 x_83;
+        case x_84 : obj of
+        EStateM.Result.ok →
+          let x_85 : obj := proj[0] x_84;
+          inc x_85;
+          let x_86 : obj := proj[1] x_84;
+          inc x_86;
+          let x_87 : obj := reset[2] x_84;
+          let x_88 : usize := ptrAddrUnsafe ◾ x_46;
+          dec x_46;
+          let x_89 : usize := ptrAddrUnsafe ◾ x_85;
+          let x_90 : u8 := USize.decEq x_88 x_89;
+          case x_90 : u8 of
+          Bool.false →
+            dec x_45;
+            dec x_1;
+            let x_91 : obj := reuse! x_87 in ctor_1[Lean.Compiler.LCNF.Code.fun] x_82 x_85;
+            let x_92 : obj := ctor_0[EStateM.Result.ok] x_91 x_86;
+            ret x_92
+          Bool.true →
+            let x_93 : usize := ptrAddrUnsafe ◾ x_45;
+            dec x_45;
+            let x_94 : usize := ptrAddrUnsafe ◾ x_82;
+            let x_95 : u8 := USize.decEq x_93 x_94;
+            case x_95 : u8 of
+            Bool.false →
+              dec x_1;
+              let x_96 : obj := reuse! x_87 in ctor_1[Lean.Compiler.LCNF.Code.fun] x_82 x_85;
+              let x_97 : obj := ctor_0[EStateM.Result.ok] x_96 x_86;
+              ret x_97
+            Bool.true →
+              dec x_85;
+              dec x_82;
+              let x_98 : obj := reuse x_87 in ctor_0[EStateM.Result.ok] x_1 x_86;
+              ret x_98
+        EStateM.Result.error →
+          dec x_82;
+          dec x_46;
+          dec x_45;
+          dec x_1;
+          let x_99 : obj := proj[0] x_84;
+          inc x_99;
+          let x_100 : obj := proj[1] x_84;
+          inc x_100;
+          let x_101 : obj := reset[2] x_84;
+          let x_102 : obj := reuse x_101 in ctor_1[EStateM.Result.error] x_99 x_100;
+          ret x_102
+    EStateM.Result.error →
+      dec x_46;
+      dec x_45;
+      dec x_6;
+      dec x_5;
+      dec x_4;
+      dec x_3;
+      dec x_2;
+      dec x_1;
+      let x_103 : u8 := isShared x_48;
+      case x_103 : u8 of
+      Bool.false →
+        ret x_48
+      Bool.true →
+        let x_104 : obj := proj[0] x_48;
+        let x_105 : obj := proj[1] x_48;
+        inc x_105;
+        inc x_104;
+        dec x_48;
+        let x_106 : obj := ctor_1[EStateM.Result.error] x_104 x_105;
+        ret x_106
+  Lean.Compiler.LCNF.Code.jp →
+    let x_107 : obj := proj[0] x_1;
+    inc x_107;
+    let x_108 : obj := proj[1] x_1;
+    inc x_108;
+    let x_109 : obj := proj[0] x_107;
+    inc x_109;
+    let x_110 : obj := Lean.RBNode.find._at.Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goAnalyze._spec_1 x_2 x_109;
+    dec x_109;
+    case x_110 : obj of
+    Option.none →
+      inc x_108;
+      let x_111 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce x_108 x_2 x_3 x_4 x_5 x_6 x_7;
+      case x_111 : obj of
+      EStateM.Result.ok →
+        let x_112 : u8 := isShared x_111;
+        case x_112 : u8 of
+        Bool.false →
+          let x_113 : obj := proj[0] x_111;
+          let x_114 : obj := proj[1] x_111;
+          let x_115 : usize := ptrAddrUnsafe ◾ x_108;
+          dec x_108;
+          let x_116 : usize := ptrAddrUnsafe ◾ x_113;
+          let x_117 : u8 := USize.decEq x_115 x_116;
+          case x_117 : u8 of
+          Bool.false →
+            let x_118 : u8 := isShared x_1;
+            case x_118 : u8 of
+            Bool.false →
+              let x_119 : obj := proj[1] x_1;
+              dec x_119;
+              let x_120 : obj := proj[0] x_1;
+              dec x_120;
+              setTag x_111 := 2;
+              set x_111[1] := x_113;
+              set x_111[0] := x_107;
+              setTag x_1 := 0;
+              set x_1[1] := x_114;
+              set x_1[0] := x_111;
+              ret x_1
+            Bool.true →
+              dec x_1;
+              setTag x_111 := 2;
+              set x_111[1] := x_113;
+              set x_111[0] := x_107;
+              let x_121 : obj := ctor_0[EStateM.Result.ok] x_111 x_114;
+              ret x_121
+          Bool.true →
+            let x_122 : usize := ptrAddrUnsafe ◾ x_107;
+            let x_123 : u8 := USize.decEq x_122 x_122;
+            case x_123 : u8 of
+            Bool.false →
+              let x_124 : u8 := isShared x_1;
+              case x_124 : u8 of
+              Bool.false →
+                let x_125 : obj := proj[1] x_1;
+                dec x_125;
+                let x_126 : obj := proj[0] x_1;
+                dec x_126;
+                setTag x_111 := 2;
+                set x_111[1] := x_113;
+                set x_111[0] := x_107;
+                setTag x_1 := 0;
+                set x_1[1] := x_114;
+                set x_1[0] := x_111;
+                ret x_1
+              Bool.true →
+                dec x_1;
+                setTag x_111 := 2;
+                set x_111[1] := x_113;
+                set x_111[0] := x_107;
+                let x_127 : obj := ctor_0[EStateM.Result.ok] x_111 x_114;
+                ret x_127
+            Bool.true →
+              dec x_113;
+              dec x_107;
+              set x_111[0] := x_1;
+              ret x_111
+        Bool.true →
+          let x_128 : obj := proj[0] x_111;
+          let x_129 : obj := proj[1] x_111;
+          inc x_129;
+          inc x_128;
+          dec x_111;
+          let x_130 : usize := ptrAddrUnsafe ◾ x_108;
+          dec x_108;
+          let x_131 : usize := ptrAddrUnsafe ◾ x_128;
+          let x_132 : u8 := USize.decEq x_130 x_131;
+          case x_132 : u8 of
+          Bool.false →
+            let x_133 : obj := reset[2] x_1;
+            let x_134 : obj := ctor_2[Lean.Compiler.LCNF.Code.jp] x_107 x_128;
+            let x_135 : obj := reuse! x_133 in ctor_0[EStateM.Result.ok] x_134 x_129;
+            ret x_135
+          Bool.true →
+            let x_136 : usize := ptrAddrUnsafe ◾ x_107;
+            let x_137 : u8 := USize.decEq x_136 x_136;
+            case x_137 : u8 of
+            Bool.false →
+              let x_138 : obj := reset[2] x_1;
+              let x_139 : obj := ctor_2[Lean.Compiler.LCNF.Code.jp] x_107 x_128;
+              let x_140 : obj := reuse! x_138 in ctor_0[EStateM.Result.ok] x_139 x_129;
+              ret x_140
+            Bool.true →
+              dec x_128;
+              dec x_107;
+              let x_141 : obj := ctor_0[EStateM.Result.ok] x_1 x_129;
+              ret x_141
+      EStateM.Result.error →
+        dec x_108;
+        dec x_107;
+        dec x_1;
+        let x_142 : u8 := isShared x_111;
+        case x_142 : u8 of
+        Bool.false →
+          ret x_111
+        Bool.true →
+          let x_143 : obj := proj[0] x_111;
+          let x_144 : obj := proj[1] x_111;
+          inc x_144;
+          inc x_143;
+          dec x_111;
+          let x_145 : obj := ctor_1[EStateM.Result.error] x_143 x_144;
+          ret x_145
+    Option.some →
+      let x_146 : obj := proj[0] x_110;
+      inc x_146;
+      dec x_110;
+      let x_147 : obj := proj[2] x_107;
+      inc x_147;
+      let x_148 : obj := Array.size ◾ x_147;
+      let x_149 : obj := 0;
+      let x_150 : u8 := Nat.decLt x_149 x_148;
+      case x_150 : u8 of
+      Bool.false →
+        dec x_147;
+        let x_151 : obj := proj[4] x_107;
+        inc x_151;
+        inc x_6;
+        inc x_5;
+        inc x_4;
+        inc x_3;
+        inc x_2;
+        let x_152 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce x_151 x_2 x_3 x_4 x_5 x_6 x_7;
+        case x_152 : obj of
+        EStateM.Result.ok →
+          let x_153 : obj := proj[0] x_152;
+          inc x_153;
+          let x_154 : obj := proj[1] x_152;
+          inc x_154;
+          dec x_152;
+          let x_155 : u8 := 0;
+          inc x_6;
+          inc x_5;
+          inc x_4;
+          inc x_3;
+          let x_156 : obj := Lean.Compiler.LCNF.normCodeImp x_155 x_153 x_146 x_3 x_4 x_5 x_6 x_154;
+          case x_156 : obj of
+          EStateM.Result.ok →
+            let x_157 : obj := proj[0] x_156;
+            inc x_157;
+            let x_158 : obj := proj[1] x_156;
+            inc x_158;
+            dec x_156;
+            let x_159 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._closed_2;
+            let x_160 : u8 := Nat.beq x_159 x_148;
+            dec x_148;
+            dec x_159;
+            case x_160 : u8 of
+            Bool.false →
+              inc x_6;
+              inc x_5;
+              inc x_4;
+              inc x_3;
+              inc x_157;
+              let x_161 : obj := Lean.Compiler.LCNF.Code.inferType x_157 x_3 x_4 x_5 x_6 x_158;
+              case x_161 : obj of
+              EStateM.Result.ok →
+                let x_162 : obj := proj[0] x_161;
+                inc x_162;
+                let x_163 : obj := proj[1] x_161;
+                inc x_163;
+                dec x_161;
+                let x_164 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._closed_1;
+                inc x_6;
+                inc x_5;
+                inc x_4;
+                inc x_3;
+                inc x_164;
+                let x_165 : obj := Lean.Compiler.LCNF.mkForallParams x_164 x_162 x_3 x_4 x_5 x_6 x_163;
+                case x_165 : obj of
+                EStateM.Result.ok →
+                  let x_166 : obj := proj[0] x_165;
+                  inc x_166;
+                  let x_167 : obj := proj[1] x_165;
+                  inc x_167;
+                  dec x_165;
+                  let x_168 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._lambda_1 x_108 x_107 x_164 x_157 x_1 x_166 x_2 x_3 x_4 x_5 x_6 x_167;
+                  ret x_168
+                EStateM.Result.error →
+                  dec x_164;
+                  dec x_157;
+                  dec x_108;
+                  dec x_107;
+                  dec x_6;
+                  dec x_5;
+                  dec x_4;
+                  dec x_3;
+                  dec x_2;
+                  dec x_1;
+                  let x_169 : u8 := isShared x_165;
+                  case x_169 : u8 of
+                  Bool.false →
+                    ret x_165
+                  Bool.true →
+                    let x_170 : obj := proj[0] x_165;
+                    let x_171 : obj := proj[1] x_165;
+                    inc x_171;
+                    inc x_170;
+                    dec x_165;
+                    let x_172 : obj := ctor_1[EStateM.Result.error] x_170 x_171;
+                    ret x_172
+              EStateM.Result.error →
+                dec x_157;
+                dec x_108;
+                dec x_107;
+                dec x_6;
+                dec x_5;
+                dec x_4;
+                dec x_3;
+                dec x_2;
+                dec x_1;
+                let x_173 : u8 := isShared x_161;
+                case x_173 : u8 of
+                Bool.false →
+                  ret x_161
+                Bool.true →
+                  let x_174 : obj := proj[0] x_161;
+                  let x_175 : obj := proj[1] x_161;
+                  inc x_175;
+                  inc x_174;
+                  dec x_161;
+                  let x_176 : obj := ctor_1[EStateM.Result.error] x_174 x_175;
+                  ret x_176
+            Bool.true →
+              let x_177 : obj := proj[3] x_107;
+              inc x_177;
+              let x_178 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._closed_1;
+              let x_179 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._lambda_1 x_108 x_107 x_178 x_157 x_1 x_177 x_2 x_3 x_4 x_5 x_6 x_158;
+              ret x_179
+          EStateM.Result.error →
+            dec x_148;
+            dec x_108;
+            dec x_107;
+            dec x_6;
+            dec x_5;
+            dec x_4;
+            dec x_3;
+            dec x_2;
+            dec x_1;
+            let x_180 : u8 := isShared x_156;
+            case x_180 : u8 of
+            Bool.false →
+              ret x_156
+            Bool.true →
+              let x_181 : obj := proj[0] x_156;
+              let x_182 : obj := proj[1] x_156;
+              inc x_182;
+              inc x_181;
+              dec x_156;
+              let x_183 : obj := ctor_1[EStateM.Result.error] x_181 x_182;
+              ret x_183
+        EStateM.Result.error →
+          dec x_148;
+          dec x_146;
+          dec x_108;
+          dec x_107;
+          dec x_6;
+          dec x_5;
+          dec x_4;
+          dec x_3;
+          dec x_2;
+          dec x_1;
+          let x_184 : u8 := isShared x_152;
+          case x_184 : u8 of
+          Bool.false →
+            ret x_152
+          Bool.true →
+            let x_185 : obj := proj[0] x_152;
+            let x_186 : obj := proj[1] x_152;
+            inc x_186;
+            inc x_185;
+            dec x_152;
+            let x_187 : obj := ctor_1[EStateM.Result.error] x_185 x_186;
+            ret x_187
+      Bool.true →
+        let x_188 : u8 := Nat.decLe x_148 x_148;
+        case x_188 : u8 of
+        Bool.false →
+          dec x_147;
+          let x_189 : obj := proj[4] x_107;
+          inc x_189;
+          inc x_6;
+          inc x_5;
+          inc x_4;
+          inc x_3;
+          inc x_2;
+          let x_190 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce x_189 x_2 x_3 x_4 x_5 x_6 x_7;
+          case x_190 : obj of
+          EStateM.Result.ok →
+            let x_191 : obj := proj[0] x_190;
+            inc x_191;
+            let x_192 : obj := proj[1] x_190;
+            inc x_192;
+            dec x_190;
+            let x_193 : u8 := 0;
+            inc x_6;
+            inc x_5;
+            inc x_4;
+            inc x_3;
+            let x_194 : obj := Lean.Compiler.LCNF.normCodeImp x_193 x_191 x_146 x_3 x_4 x_5 x_6 x_192;
+            case x_194 : obj of
+            EStateM.Result.ok →
+              let x_195 : obj := proj[0] x_194;
+              inc x_195;
+              let x_196 : obj := proj[1] x_194;
+              inc x_196;
+              dec x_194;
+              let x_197 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._closed_2;
+              let x_198 : u8 := Nat.beq x_197 x_148;
+              dec x_148;
+              dec x_197;
+              case x_198 : u8 of
+              Bool.false →
+                inc x_6;
+                inc x_5;
+                inc x_4;
+                inc x_3;
+                inc x_195;
+                let x_199 : obj := Lean.Compiler.LCNF.Code.inferType x_195 x_3 x_4 x_5 x_6 x_196;
+                case x_199 : obj of
+                EStateM.Result.ok →
+                  let x_200 : obj := proj[0] x_199;
+                  inc x_200;
+                  let x_201 : obj := proj[1] x_199;
+                  inc x_201;
+                  dec x_199;
+                  let x_202 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._closed_1;
+                  inc x_6;
+                  inc x_5;
+                  inc x_4;
+                  inc x_3;
+                  inc x_202;
+                  let x_203 : obj := Lean.Compiler.LCNF.mkForallParams x_202 x_200 x_3 x_4 x_5 x_6 x_201;
+                  case x_203 : obj of
+                  EStateM.Result.ok →
+                    let x_204 : obj := proj[0] x_203;
+                    inc x_204;
+                    let x_205 : obj := proj[1] x_203;
+                    inc x_205;
+                    dec x_203;
+                    let x_206 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._lambda_1 x_108 x_107 x_202 x_195 x_1 x_204 x_2 x_3 x_4 x_5 x_6 x_205;
+                    ret x_206
+                  EStateM.Result.error →
+                    dec x_202;
+                    dec x_195;
+                    dec x_108;
+                    dec x_107;
+                    dec x_6;
+                    dec x_5;
+                    dec x_4;
+                    dec x_3;
+                    dec x_2;
+                    dec x_1;
+                    let x_207 : u8 := isShared x_203;
+                    case x_207 : u8 of
+                    Bool.false →
+                      ret x_203
+                    Bool.true →
+                      let x_208 : obj := proj[0] x_203;
+                      let x_209 : obj := proj[1] x_203;
+                      inc x_209;
+                      inc x_208;
+                      dec x_203;
+                      let x_210 : obj := ctor_1[EStateM.Result.error] x_208 x_209;
+                      ret x_210
+                EStateM.Result.error →
+                  dec x_195;
+                  dec x_108;
+                  dec x_107;
+                  dec x_6;
+                  dec x_5;
+                  dec x_4;
+                  dec x_3;
+                  dec x_2;
+                  dec x_1;
+                  let x_211 : u8 := isShared x_199;
+                  case x_211 : u8 of
+                  Bool.false →
+                    ret x_199
+                  Bool.true →
+                    let x_212 : obj := proj[0] x_199;
+                    let x_213 : obj := proj[1] x_199;
+                    inc x_213;
+                    inc x_212;
+                    dec x_199;
+                    let x_214 : obj := ctor_1[EStateM.Result.error] x_212 x_213;
+                    ret x_214
+              Bool.true →
+                let x_215 : obj := proj[3] x_107;
+                inc x_215;
+                let x_216 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._closed_1;
+                let x_217 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._lambda_1 x_108 x_107 x_216 x_195 x_1 x_215 x_2 x_3 x_4 x_5 x_6 x_196;
+                ret x_217
+            EStateM.Result.error →
+              dec x_148;
+              dec x_108;
+              dec x_107;
+              dec x_6;
+              dec x_5;
+              dec x_4;
+              dec x_3;
+              dec x_2;
+              dec x_1;
+              let x_218 : u8 := isShared x_194;
+              case x_218 : u8 of
+              Bool.false →
+                ret x_194
+              Bool.true →
+                let x_219 : obj := proj[0] x_194;
+                let x_220 : obj := proj[1] x_194;
+                inc x_220;
+                inc x_219;
+                dec x_194;
+                let x_221 : obj := ctor_1[EStateM.Result.error] x_219 x_220;
+                ret x_221
+          EStateM.Result.error →
+            dec x_148;
+            dec x_146;
+            dec x_108;
+            dec x_107;
+            dec x_6;
+            dec x_5;
+            dec x_4;
+            dec x_3;
+            dec x_2;
+            dec x_1;
+            let x_222 : u8 := isShared x_190;
+            case x_222 : u8 of
+            Bool.false →
+              ret x_190
+            Bool.true →
+              let x_223 : obj := proj[0] x_190;
+              let x_224 : obj := proj[1] x_190;
+              inc x_224;
+              inc x_223;
+              dec x_190;
+              let x_225 : obj := ctor_1[EStateM.Result.error] x_223 x_224;
+              ret x_225
+        Bool.true →
+          let x_226 : usize := 0;
+          let x_227 : usize := USize.ofNat x_148;
+          let x_228 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._closed_1;
+          let x_229 : obj := Array.foldlMUnsafe.fold._at.Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._spec_2 x_146 x_147 x_226 x_227 x_228 x_2 x_3 x_4 x_5 x_6 x_7;
+          dec x_147;
+          let x_230 : obj := proj[0] x_229;
+          inc x_230;
+          let x_231 : obj := proj[1] x_229;
+          inc x_231;
+          dec x_229;
+          let x_232 : obj := proj[4] x_107;
+          inc x_232;
+          inc x_6;
+          inc x_5;
+          inc x_4;
+          inc x_3;
+          inc x_2;
+          let x_233 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce x_232 x_2 x_3 x_4 x_5 x_6 x_231;
+          case x_233 : obj of
+          EStateM.Result.ok →
+            let x_234 : obj := proj[0] x_233;
+            inc x_234;
+            let x_235 : obj := proj[1] x_233;
+            inc x_235;
+            dec x_233;
+            let x_236 : u8 := 0;
+            inc x_6;
+            inc x_5;
+            inc x_4;
+            inc x_3;
+            let x_237 : obj := Lean.Compiler.LCNF.normCodeImp x_236 x_234 x_146 x_3 x_4 x_5 x_6 x_235;
+            case x_237 : obj of
+            EStateM.Result.ok →
+              let x_238 : obj := proj[0] x_237;
+              inc x_238;
+              let x_239 : obj := proj[1] x_237;
+              inc x_239;
+              dec x_237;
+              let x_240 : obj := Array.size ◾ x_230;
+              let x_241 : u8 := Nat.beq x_240 x_148;
+              dec x_148;
+              dec x_240;
+              case x_241 : u8 of
+              Bool.false →
+                inc x_6;
+                inc x_5;
+                inc x_4;
+                inc x_3;
+                inc x_238;
+                let x_242 : obj := Lean.Compiler.LCNF.Code.inferType x_238 x_3 x_4 x_5 x_6 x_239;
+                case x_242 : obj of
+                EStateM.Result.ok →
+                  let x_243 : obj := proj[0] x_242;
+                  inc x_243;
+                  let x_244 : obj := proj[1] x_242;
+                  inc x_244;
+                  dec x_242;
+                  inc x_6;
+                  inc x_5;
+                  inc x_4;
+                  inc x_3;
+                  inc x_230;
+                  let x_245 : obj := Lean.Compiler.LCNF.mkForallParams x_230 x_243 x_3 x_4 x_5 x_6 x_244;
+                  case x_245 : obj of
+                  EStateM.Result.ok →
+                    let x_246 : obj := proj[0] x_245;
+                    inc x_246;
+                    let x_247 : obj := proj[1] x_245;
+                    inc x_247;
+                    dec x_245;
+                    let x_248 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._lambda_1 x_108 x_107 x_230 x_238 x_1 x_246 x_2 x_3 x_4 x_5 x_6 x_247;
+                    ret x_248
+                  EStateM.Result.error →
+                    dec x_238;
+                    dec x_230;
+                    dec x_108;
+                    dec x_107;
+                    dec x_6;
+                    dec x_5;
+                    dec x_4;
+                    dec x_3;
+                    dec x_2;
+                    dec x_1;
+                    let x_249 : u8 := isShared x_245;
+                    case x_249 : u8 of
+                    Bool.false →
+                      ret x_245
+                    Bool.true →
+                      let x_250 : obj := proj[0] x_245;
+                      let x_251 : obj := proj[1] x_245;
+                      inc x_251;
+                      inc x_250;
+                      dec x_245;
+                      let x_252 : obj := ctor_1[EStateM.Result.error] x_250 x_251;
+                      ret x_252
+                EStateM.Result.error →
+                  dec x_238;
+                  dec x_230;
+                  dec x_108;
+                  dec x_107;
+                  dec x_6;
+                  dec x_5;
+                  dec x_4;
+                  dec x_3;
+                  dec x_2;
+                  dec x_1;
+                  let x_253 : u8 := isShared x_242;
+                  case x_253 : u8 of
+                  Bool.false →
+                    ret x_242
+                  Bool.true →
+                    let x_254 : obj := proj[0] x_242;
+                    let x_255 : obj := proj[1] x_242;
+                    inc x_255;
+                    inc x_254;
+                    dec x_242;
+                    let x_256 : obj := ctor_1[EStateM.Result.error] x_254 x_255;
+                    ret x_256
+              Bool.true →
+                let x_257 : obj := proj[3] x_107;
+                inc x_257;
+                let x_258 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._lambda_1 x_108 x_107 x_230 x_238 x_1 x_257 x_2 x_3 x_4 x_5 x_6 x_239;
+                ret x_258
+            EStateM.Result.error →
+              dec x_230;
+              dec x_148;
+              dec x_108;
+              dec x_107;
+              dec x_6;
+              dec x_5;
+              dec x_4;
+              dec x_3;
+              dec x_2;
+              dec x_1;
+              let x_259 : u8 := isShared x_237;
+              case x_259 : u8 of
+              Bool.false →
+                ret x_237
+              Bool.true →
+                let x_260 : obj := proj[0] x_237;
+                let x_261 : obj := proj[1] x_237;
+                inc x_261;
+                inc x_260;
+                dec x_237;
+                let x_262 : obj := ctor_1[EStateM.Result.error] x_260 x_261;
+                ret x_262
+          EStateM.Result.error →
+            dec x_230;
+            dec x_148;
+            dec x_146;
+            dec x_108;
+            dec x_107;
+            dec x_6;
+            dec x_5;
+            dec x_4;
+            dec x_3;
+            dec x_2;
+            dec x_1;
+            let x_263 : u8 := isShared x_233;
+            case x_263 : u8 of
+            Bool.false →
+              ret x_233
+            Bool.true →
+              let x_264 : obj := proj[0] x_233;
+              let x_265 : obj := proj[1] x_233;
+              inc x_265;
+              inc x_264;
+              dec x_233;
+              let x_266 : obj := ctor_1[EStateM.Result.error] x_264 x_265;
+              ret x_266
+  Lean.Compiler.LCNF.Code.jmp →
+    let x_267 : obj := proj[0] x_1;
+    inc x_267;
+    let x_268 : obj := proj[1] x_1;
+    inc x_268;
+    block_333 (x_269 : obj) (x_270 : obj) (x_271 : obj) :=
+      block_320 (x_272 : obj) :=
+        case x_1 : obj of
+        Lean.Compiler.LCNF.Code.let →
+          dec x_272;
+          dec x_267;
+          let x_273 : u8 := isShared x_1;
+          case x_273 : u8 of
+          Bool.false →
+            let x_274 : obj := proj[1] x_1;
+            dec x_274;
+            let x_275 : obj := proj[0] x_1;
+            dec x_275;
+            let x_276 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._closed_5;
+            let x_277 : obj := panic._at._private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateAltsImp._spec_1 x_276;
+            set x_1[1] := x_271;
+            set x_1[0] := x_277;
+            ret x_1
+          Bool.true →
+            dec x_1;
+            let x_278 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._closed_5;
+            let x_279 : obj := panic._at._private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateAltsImp._spec_1 x_278;
+            let x_280 : obj := ctor_0[EStateM.Result.ok] x_279 x_271;
+            ret x_280
+        Lean.Compiler.LCNF.Code.jmp →
+          let x_281 : obj := proj[0] x_1;
+          inc x_281;
+          let x_282 : obj := proj[1] x_1;
+          inc x_282;
+          let x_283 : obj := Array.size ◾ x_272;
+          let x_284 : usize := USize.ofNat x_283;
+          dec x_283;
+          let x_285 : usize := 0;
+          let x_286 : obj := Array.mapMUnsafe.map._at.Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._spec_3 x_284 x_285 x_272;
+          let x_287 : u8 := Lean.Name.beq x_281 x_267;
+          dec x_281;
+          case x_287 : u8 of
+          Bool.false →
+            dec x_282;
+            let x_288 : u8 := isShared x_1;
+            case x_288 : u8 of
+            Bool.false →
+              let x_289 : obj := proj[1] x_1;
+              dec x_289;
+              let x_290 : obj := proj[0] x_1;
+              dec x_290;
+              let x_291 : u8 := isShared x_1;
+              case x_291 : u8 of
+              Bool.false →
+                let x_292 : obj := proj[1] x_1;
+                dec x_292;
+                let x_293 : obj := proj[0] x_1;
+                dec x_293;
+                set x_1[1] := x_286;
+                setTag x_1 := 0;
+                set x_1[1] := x_271;
+                set x_1[0] := x_1;
+                ret x_1
+              Bool.true →
+                dec x_1;
+                set x_1[1] := x_286;
+                let x_294 : obj := ctor_0[EStateM.Result.ok] x_1 x_271;
+                ret x_294
+            Bool.true →
+              dec x_1;
+              let x_295 : obj := reset[2] x_1;
+              let x_296 : obj := ctor_3[Lean.Compiler.LCNF.Code.jmp] x_267 x_286;
+              let x_297 : obj := reuse! x_295 in ctor_0[EStateM.Result.ok] x_296 x_271;
+              ret x_297
+          Bool.true →
+            let x_298 : usize := ptrAddrUnsafe ◾ x_282;
+            dec x_282;
+            let x_299 : usize := ptrAddrUnsafe ◾ x_286;
+            let x_300 : u8 := USize.decEq x_298 x_299;
+            case x_300 : u8 of
+            Bool.false →
+              let x_301 : u8 := isShared x_1;
+              case x_301 : u8 of
+              Bool.false →
+                let x_302 : obj := proj[1] x_1;
+                dec x_302;
+                let x_303 : obj := proj[0] x_1;
+                dec x_303;
+                let x_304 : u8 := isShared x_1;
+                case x_304 : u8 of
+                Bool.false →
+                  let x_305 : obj := proj[1] x_1;
+                  dec x_305;
+                  let x_306 : obj := proj[0] x_1;
+                  dec x_306;
+                  set x_1[1] := x_286;
+                  setTag x_1 := 0;
+                  set x_1[1] := x_271;
+                  set x_1[0] := x_1;
+                  ret x_1
+                Bool.true →
+                  dec x_1;
+                  set x_1[1] := x_286;
+                  let x_307 : obj := ctor_0[EStateM.Result.ok] x_1 x_271;
+                  ret x_307
+              Bool.true →
+                dec x_1;
+                let x_308 : obj := reset[2] x_1;
+                let x_309 : obj := ctor_3[Lean.Compiler.LCNF.Code.jmp] x_267 x_286;
+                let x_310 : obj := reuse! x_308 in ctor_0[EStateM.Result.ok] x_309 x_271;
+                ret x_310
+            Bool.true →
+              dec x_286;
+              dec x_267;
+              let x_311 : obj := ctor_0[EStateM.Result.ok] x_1 x_271;
+              ret x_311
+        default →
+          dec x_272;
+          dec x_267;
+          let x_312 : u8 := isShared x_1;
+          case x_312 : u8 of
+          Bool.false →
+            let x_313 : obj := proj[1] x_1;
+            dec x_313;
+            let x_314 : obj := proj[0] x_1;
+            dec x_314;
+            let x_315 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._closed_5;
+            let x_316 : obj := panic._at._private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateAltsImp._spec_1 x_315;
+            setTag x_1 := 0;
+            set x_1[1] := x_271;
+            set x_1[0] := x_316;
+            ret x_1
+          Bool.true →
+            dec x_1;
+            let x_317 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._closed_5;
+            let x_318 : obj := panic._at._private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateAltsImp._spec_1 x_317;
+            let x_319 : obj := ctor_0[EStateM.Result.ok] x_318 x_271;
+            ret x_319;
+      let x_321 : obj := proj[2] x_270;
+      inc x_321;
+      dec x_270;
+      let x_322 : obj := Array.zip._rarg x_321 x_268;
+      dec x_268;
+      dec x_321;
+      let x_323 : obj := Array.size ◾ x_322;
+      let x_324 : obj := 0;
+      let x_325 : u8 := Nat.decLt x_324 x_323;
+      case x_325 : u8 of
+      Bool.false →
+        dec x_323;
+        dec x_322;
+        dec x_269;
+        let x_326 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._closed_1;
+        jmp block_320 x_326
+      Bool.true →
+        let x_327 : u8 := Nat.decLe x_323 x_323;
+        case x_327 : u8 of
+        Bool.false →
+          dec x_323;
+          dec x_322;
+          dec x_269;
+          let x_328 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._closed_1;
+          jmp block_320 x_328
+        Bool.true →
+          let x_329 : usize := 0;
+          let x_330 : usize := USize.ofNat x_323;
+          dec x_323;
+          let x_331 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._closed_1;
+          let x_332 : obj := Array.foldlMUnsafe.fold._at.Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._spec_4 x_269 x_322 x_329 x_330 x_331;
+          dec x_322;
+          dec x_269;
+          jmp block_320 x_332;
+    inc x_267;
+    let x_334 : obj := Lean.Compiler.LCNF.getFunDecl x_267 x_3 x_4 x_5 x_6 x_7;
+    dec x_6;
+    dec x_5;
+    dec x_4;
+    dec x_3;
+    let x_335 : obj := Lean.RBNode.find._at.Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goAnalyze._spec_1 x_2 x_267;
+    dec x_2;
+    case x_335 : obj of
+    Option.none →
+      case x_334 : obj of
+      EStateM.Result.ok →
+        let x_336 : obj := proj[0] x_334;
+        inc x_336;
+        let x_337 : obj := proj[1] x_334;
+        inc x_337;
+        dec x_334;
+        let x_338 : obj := Lean.Compiler.LCNF.JoinPointCommonArgs.isInJpScope._closed_3;
+        let x_339 : obj := panic._at.Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._spec_5 x_338;
+        jmp block_333 x_339 x_336 x_337
+      EStateM.Result.error →
+        dec x_268;
+        dec x_267;
+        dec x_1;
+        let x_340 : u8 := isShared x_334;
+        case x_340 : u8 of
+        Bool.false →
+          ret x_334
+        Bool.true →
+          let x_341 : obj := proj[0] x_334;
+          let x_342 : obj := proj[1] x_334;
+          inc x_342;
+          inc x_341;
+          dec x_334;
+          let x_343 : obj := ctor_1[EStateM.Result.error] x_341 x_342;
+          ret x_343
+    Option.some →
+      case x_334 : obj of
+      EStateM.Result.ok →
+        let x_344 : obj := proj[0] x_335;
+        inc x_344;
+        dec x_335;
+        let x_345 : obj := proj[0] x_334;
+        inc x_345;
+        let x_346 : obj := proj[1] x_334;
+        inc x_346;
+        dec x_334;
+        jmp block_333 x_344 x_345 x_346
+      EStateM.Result.error →
+        dec x_335;
+        dec x_268;
+        dec x_267;
+        dec x_1;
+        let x_347 : u8 := isShared x_334;
+        case x_347 : u8 of
+        Bool.false →
+          ret x_334
+        Bool.true →
+          let x_348 : obj := proj[0] x_334;
+          let x_349 : obj := proj[1] x_334;
+          inc x_349;
+          inc x_348;
+          dec x_334;
+          let x_350 : obj := ctor_1[EStateM.Result.error] x_348 x_349;
+          ret x_350
+  Lean.Compiler.LCNF.Code.cases →
+    let x_351 : obj := proj[0] x_1;
+    inc x_351;
+    let x_352 : u8 := isShared x_351;
+    case x_352 : u8 of
+    Bool.false →
+      let x_353 : obj := proj[0] x_351;
+      let x_354 : obj := proj[1] x_351;
+      let x_355 : obj := proj[2] x_351;
+      let x_356 : obj := proj[3] x_351;
+      let x_357 : obj := Array.size ◾ x_356;
+      let x_358 : usize := USize.ofNat x_357;
+      dec x_357;
+      let x_359 : usize := 0;
+      inc x_356;
+      let x_360 : obj := Array.mapMUnsafe.map._at.Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._spec_7 x_358 x_359 x_356 x_2 x_3 x_4 x_5 x_6 x_7;
+      case x_360 : obj of
+      EStateM.Result.ok →
+        let x_361 : u8 := isShared x_360;
+        case x_361 : u8 of
+        Bool.false →
+          let x_362 : obj := proj[0] x_360;
+          let x_363 : usize := ptrAddrUnsafe ◾ x_356;
+          dec x_356;
+          let x_364 : usize := ptrAddrUnsafe ◾ x_362;
+          let x_365 : u8 := USize.decEq x_363 x_364;
+          case x_365 : u8 of
+          Bool.false →
+            let x_366 : u8 := isShared x_1;
+            case x_366 : u8 of
+            Bool.false →
+              let x_367 : obj := proj[0] x_1;
+              dec x_367;
+              set x_351[3] := x_362;
+              set x_360[0] := x_1;
+              ret x_360
+            Bool.true →
+              dec x_1;
+              set x_351[3] := x_362;
+              let x_368 : obj := ctor_4[Lean.Compiler.LCNF.Code.cases] x_351;
+              set x_360[0] := x_368;
+              ret x_360
+          Bool.true →
+            let x_369 : usize := ptrAddrUnsafe ◾ x_354;
+            let x_370 : u8 := USize.decEq x_369 x_369;
+            case x_370 : u8 of
+            Bool.false →
+              let x_371 : u8 := isShared x_1;
+              case x_371 : u8 of
+              Bool.false →
+                let x_372 : obj := proj[0] x_1;
+                dec x_372;
+                set x_351[3] := x_362;
+                set x_360[0] := x_1;
+                ret x_360
+              Bool.true →
+                dec x_1;
+                set x_351[3] := x_362;
+                let x_373 : obj := ctor_4[Lean.Compiler.LCNF.Code.cases] x_351;
+                set x_360[0] := x_373;
+                ret x_360
+            Bool.true →
+              let x_374 : u8 := Lean.Name.beq x_355 x_355;
+              case x_374 : u8 of
+              Bool.false →
+                let x_375 : u8 := isShared x_1;
+                case x_375 : u8 of
+                Bool.false →
+                  let x_376 : obj := proj[0] x_1;
+                  dec x_376;
+                  set x_351[3] := x_362;
+                  set x_360[0] := x_1;
+                  ret x_360
+                Bool.true →
+                  dec x_1;
+                  set x_351[3] := x_362;
+                  let x_377 : obj := ctor_4[Lean.Compiler.LCNF.Code.cases] x_351;
+                  set x_360[0] := x_377;
+                  ret x_360
+              Bool.true →
+                dec x_362;
+                del x_351;
+                dec x_355;
+                dec x_354;
+                dec x_353;
+                set x_360[0] := x_1;
+                ret x_360
+        Bool.true →
+          let x_378 : obj := proj[0] x_360;
+          let x_379 : obj := proj[1] x_360;
+          inc x_379;
+          inc x_378;
+          dec x_360;
+          let x_380 : usize := ptrAddrUnsafe ◾ x_356;
+          dec x_356;
+          let x_381 : usize := ptrAddrUnsafe ◾ x_378;
+          let x_382 : u8 := USize.decEq x_380 x_381;
+          case x_382 : u8 of
+          Bool.false →
+            let x_383 : obj := reset[1] x_1;
+            set x_351[3] := x_378;
+            let x_384 : obj := reuse x_383 in ctor_4[Lean.Compiler.LCNF.Code.cases] x_351;
+            let x_385 : obj := ctor_0[EStateM.Result.ok] x_384 x_379;
+            ret x_385
+          Bool.true →
+            let x_386 : usize := ptrAddrUnsafe ◾ x_354;
+            let x_387 : u8 := USize.decEq x_386 x_386;
+            case x_387 : u8 of
+            Bool.false →
+              let x_388 : obj := reset[1] x_1;
+              set x_351[3] := x_378;
+              let x_389 : obj := reuse x_388 in ctor_4[Lean.Compiler.LCNF.Code.cases] x_351;
+              let x_390 : obj := ctor_0[EStateM.Result.ok] x_389 x_379;
+              ret x_390
+            Bool.true →
+              let x_391 : u8 := Lean.Name.beq x_355 x_355;
+              case x_391 : u8 of
+              Bool.false →
+                let x_392 : obj := reset[1] x_1;
+                set x_351[3] := x_378;
+                let x_393 : obj := reuse x_392 in ctor_4[Lean.Compiler.LCNF.Code.cases] x_351;
+                let x_394 : obj := ctor_0[EStateM.Result.ok] x_393 x_379;
+                ret x_394
+              Bool.true →
+                dec x_378;
+                del x_351;
+                dec x_355;
+                dec x_354;
+                dec x_353;
+                let x_395 : obj := ctor_0[EStateM.Result.ok] x_1 x_379;
+                ret x_395
+      EStateM.Result.error →
+        del x_351;
+        dec x_356;
+        dec x_355;
+        dec x_354;
+        dec x_353;
+        dec x_1;
+        let x_396 : u8 := isShared x_360;
+        case x_396 : u8 of
+        Bool.false →
+          ret x_360
+        Bool.true →
+          let x_397 : obj := proj[0] x_360;
+          let x_398 : obj := proj[1] x_360;
+          inc x_398;
+          inc x_397;
+          dec x_360;
+          let x_399 : obj := ctor_1[EStateM.Result.error] x_397 x_398;
+          ret x_399
+    Bool.true →
+      let x_400 : obj := proj[0] x_351;
+      let x_401 : obj := proj[1] x_351;
+      let x_402 : obj := proj[2] x_351;
+      let x_403 : obj := proj[3] x_351;
+      inc x_403;
+      inc x_402;
+      inc x_401;
+      inc x_400;
+      dec x_351;
+      let x_404 : obj := Array.size ◾ x_403;
+      let x_405 : usize := USize.ofNat x_404;
+      dec x_404;
+      let x_406 : usize := 0;
+      inc x_403;
+      let x_407 : obj := Array.mapMUnsafe.map._at.Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._spec_7 x_405 x_406 x_403 x_2 x_3 x_4 x_5 x_6 x_7;
+      case x_407 : obj of
+      EStateM.Result.ok →
+        let x_408 : obj := proj[0] x_407;
+        inc x_408;
+        let x_409 : obj := proj[1] x_407;
+        inc x_409;
+        let x_410 : obj := reset[2] x_407;
+        let x_411 : usize := ptrAddrUnsafe ◾ x_403;
+        dec x_403;
+        let x_412 : usize := ptrAddrUnsafe ◾ x_408;
+        let x_413 : u8 := USize.decEq x_411 x_412;
+        case x_413 : u8 of
+        Bool.false →
+          let x_414 : obj := reset[1] x_1;
+          let x_415 : obj := ctor_0[Lean.Compiler.LCNF.CasesCore.mk] x_400 x_401 x_402 x_408;
+          let x_416 : obj := reuse x_414 in ctor_4[Lean.Compiler.LCNF.Code.cases] x_415;
+          let x_417 : obj := reuse x_410 in ctor_0[EStateM.Result.ok] x_416 x_409;
+          ret x_417
+        Bool.true →
+          let x_418 : usize := ptrAddrUnsafe ◾ x_401;
+          let x_419 : u8 := USize.decEq x_418 x_418;
+          case x_419 : u8 of
+          Bool.false →
+            let x_420 : obj := reset[1] x_1;
+            let x_421 : obj := ctor_0[Lean.Compiler.LCNF.CasesCore.mk] x_400 x_401 x_402 x_408;
+            let x_422 : obj := reuse x_420 in ctor_4[Lean.Compiler.LCNF.Code.cases] x_421;
+            let x_423 : obj := reuse x_410 in ctor_0[EStateM.Result.ok] x_422 x_409;
+            ret x_423
+          Bool.true →
+            let x_424 : u8 := Lean.Name.beq x_402 x_402;
+            case x_424 : u8 of
+            Bool.false →
+              let x_425 : obj := reset[1] x_1;
+              let x_426 : obj := ctor_0[Lean.Compiler.LCNF.CasesCore.mk] x_400 x_401 x_402 x_408;
+              let x_427 : obj := reuse x_425 in ctor_4[Lean.Compiler.LCNF.Code.cases] x_426;
+              let x_428 : obj := reuse x_410 in ctor_0[EStateM.Result.ok] x_427 x_409;
+              ret x_428
+            Bool.true →
+              dec x_408;
+              dec x_402;
+              dec x_401;
+              dec x_400;
+              let x_429 : obj := reuse x_410 in ctor_0[EStateM.Result.ok] x_1 x_409;
+              ret x_429
+      EStateM.Result.error →
+        dec x_403;
+        dec x_402;
+        dec x_401;
+        dec x_400;
+        dec x_1;
+        let x_430 : obj := proj[0] x_407;
+        inc x_430;
+        let x_431 : obj := proj[1] x_407;
+        inc x_431;
+        let x_432 : obj := reset[2] x_407;
+        let x_433 : obj := reuse x_432 in ctor_1[EStateM.Result.error] x_430 x_431;
+        ret x_433
+  default →
+    dec x_6;
+    dec x_5;
+    dec x_4;
+    dec x_3;
+    dec x_2;
+    let x_434 : obj := ctor_0[EStateM.Result.ok] x_1 x_7;
+    ret x_434
+def Lean.HashMapImp.contains._at.Lean.Compiler.LCNF.JoinPointCommonArgs.reduce.goReduce._spec_1._boxed (x_1 : obj) (x_2 : obj) : obj :=
