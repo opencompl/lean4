@@ -2,6 +2,7 @@
 Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
+-- src/Lean/Compiler/LCNF/JoinPoints.lean
 -/
 prelude
 import Lean.Compiler.LCNF.CompilerM
@@ -472,7 +473,8 @@ def isInJpScope (jp : FVarId) (var : FVarId) : ReduceAnalysisM Bool := do
 open ScopeM
 
 
-set_option trace.compiler.ir.result true in
+-- set_option trace.compiler.ir.result true in
+set_option trace.compiler.ir.reset_reuse true in
 partial def reduce (decl : Decl) : CompilerM Decl := do
   let (_, analysis) ← goAnalyze decl.value |>.run {} |>.run {} |>.run' {}
   let newValue ← goReduce decl.value |>.run analysis
