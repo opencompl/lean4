@@ -96,7 +96,7 @@ build_stage0() {
     # output log name from stage3 build.
 
     cmake ../../ \
-      -DCCACHE=ON \ # fast build of stage0 so we can update-stage0.
+      -DCCACHE=ON \
       -DRUNTIME_STATS=ON \
       -DCMAKE_BUILD_TYPE=Release \
       -DLEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH="/tmp/profile.csv"
