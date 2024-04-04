@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - 'master'
+      - '2024-borrowing-baseline-NOBENCH'
     tags:
       - '*'
   pull_request:
