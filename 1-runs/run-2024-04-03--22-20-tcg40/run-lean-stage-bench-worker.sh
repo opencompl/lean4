@@ -65,7 +65,7 @@ clone_baseline() {
   if [ ! -d "${EXPERIMENTDIR}/builds/baseline-src-code" ]; then
     git clone git@github.com:opencompl/lean4.git \
       --depth 1 \
-      --branch 2024-borrowing-benching-baseline-v5 \
+      --branch 2024-borrowing-benchmarking-baseline-v5 \
       "$EXPERIMENTDIR/builds/baseline-src-code"
   fi
   ntfysh "done cloning baseline"
