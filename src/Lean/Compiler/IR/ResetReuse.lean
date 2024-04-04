@@ -12,7 +12,7 @@ import Lean.Compiler.IR.Borrow
 namespace Lean.IR.ResetReuse
 /-! Remark: the insertResetReuse transformation is applied before we have
    inserted `inc/dec` instructions, and performed lower level optimizations
-   that introduce the instructions `release` and `set`. -/
+   that introduce the instructions `del` and `set`. -/
 
 /-! Remark: the functions `S`, `D` and `R` defined here implement the
   corresponding functions in the paper "Counting Immutable Beans"
@@ -30,11 +30,7 @@ namespace Lean.IR.ResetReuse
 -/
 
 private def mayReuse (c₁ c₂ : CtorInfo) : Bool :=
-  c₁.size == c₂.size && c₁.usize == c₂.usize && c₁.ssize == c₂.ssize -- &&
-  /- The following condition is a heuristic.
-     We don't want to reuse cells from different types even when they are compatible
-     because it produces counterintuitive behavior. -/
-  -- c₁.name.getPrefix == c₂.name.getPrefix
+  c₁.size == c₂.size && c₁.usize == c₂.usize && c₁.ssize == c₂.ssize
 
 private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
   | FnBody.vdecl x t v@(Expr.ctor c' ys) b   =>
@@ -127,21 +123,21 @@ private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × B
       pure (e, e.hasLiveVar ctx.localctx x)
     else do
       let (instr, b) := e.split
-      if isConsuming instr x ctx.env then
+      let (b, found) ← Dmain x c b
+      if found || isConsuming instr x ctx.env then
         /- If the scrutinee `x` (the one that is providing memory) is being
-           stored in a constructor, pap or passed to a function as owned,
-           then reuse will probably not be able to reuse memory at runtime.
-           It may work only if the new cell is consumed, but we ignore this case. -/
-        pure (e, true)
+            stored in a constructor, pap or passed to a function as owned,
+            then reuse will probably not be able to reuse memory at runtime.
+            It may work only if the new cell is consumed, but we ignore this case. -/
+        pure (instr.setBody b, true)
       else
-        let (b, found) ← Dmain x c b
-        /- Remark: it is fine to use `hasFreeVar` instead of `hasLiveVar`
-           since `instr` is not a `FnBody.jmp` (it is not a terminal) nor it is a `FnBody.jdecl`. -/
-        if found || !instr.hasFreeVar x then
-          pure (instr.setBody b, found)
-        else
+        if instr.hasFreeVar x then do
+          /- Borrowed use, drop after borrow -/
           let b ← tryS x c b
           pure (instr.setBody b, true)
+        else do
+          /- No use, keep going up -/
+          pure (instr.setBody b, false)
 
 private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
   Dmain x c b >>= Dfinalize x c
