@@ -248,9 +248,9 @@ partial def expand (mainFn : FnBody → Array FnBody → M FnBody)
   return reshape bs b
 
 partial def searchAndExpand : FnBody → Array FnBody → M FnBody
-  | d@(FnBody.vdecl x _ (Expr.reset n y) b), bs =>
+  | d@(FnBody.vdecl x _ (Expr.reset c y) b), bs =>
     if consumed x b then do
-      expand searchAndExpand bs x n y b
+      expand searchAndExpand bs x c.size y b
     else
       searchAndExpand b (push bs d)
   | FnBody.jdecl j xs v b,   bs => do
