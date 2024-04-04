@@ -50,7 +50,7 @@ fi
 echo "time: $TIME"
 $TIME -v echo "time"
 
-COMMITS=("$COMMIT_TO_BENCH" "2024-borrowing-benching-baseline" )
+COMMITS=("$COMMIT_TO_BENCH" "2024-borrowing-benchmarking-baseline-v5" )
 KINDS=("reuse" "noreuse")
 
 
@@ -96,7 +96,7 @@ build_stage0() {
     # output log name from stage3 build.
 
     cmake ../../ \
-      -DCCACHE=OFF \
+      -DCCACHE=ON \ # fast build of stage0 so we can update-stage0.
       -DRUNTIME_STATS=ON \
       -DCMAKE_BUILD_TYPE=Release \
       -DLEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH="/tmp/profile.csv"
@@ -104,12 +104,6 @@ build_stage0() {
     rm -rf ../../src/; cp -r "$EXPERIMENTDIR/builds/baseline-src-code/src" ../../
     cd ../../; rm -rf build; mkdir -p build/release; cd build/release
     git checkout -- ../../src/runtime ../../src/include/lean/lean.h ../../src/library/compiler/ir_interpreter.h
-    # TODO: replace LEAN_PROFILER_... with /tmp/profile.csv (hardcoded).
-    cmake ../../ \
-      -DCCACHE=OFF \
-      -DRUNTIME_STATS=ON \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DLEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH="/tmp/profile.csv"
   fi
   ntfysh "done stage0 $kind"
 }
@@ -124,11 +118,13 @@ build_stage1_stdlib() {
     rm -rf build/release || true
     mkdir -p build/release
     cd build/release
+    # ensure ccache is off.
     cmake ../../ -DCCACHE=OFF -DRUNTIME_STATS=ON -DCMAKE_BUILD_TYPE=Release -DLEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH="/tmp/profile.csv"
     make -j40 stage1 # ensure stage1
     touch ../../src/Init/Prelude.lean # touch stdlib
     make -j40 stage0 # rebuild stage0
 
+    # time stage1.
     rm "/tmp/profile.csv" || true
     mkdir -p "$EXPERIMENTDIR/outputs/"
     $TIME -v make -j4 stage1 2>&1 | tee "$EXPERIMENTDIR/outputs/time-${kind}-stdlib.txt" # bench build stage1
