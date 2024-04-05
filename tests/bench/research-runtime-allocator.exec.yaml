@@ -1,0 +1,30 @@
+- attributes:
+    description: binarytrees
+  build_config:
+    cmd: ./compile.sh binarytrees.lean 2>/dev/null
+  run_config:
+    cmd: |
+      bash -c 'temi-RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-binarytrees.txt" ./binarytrees.lean.out 20 2>/dev/null 1>/dev/null; 
+      cat temci-binarytrees.txt'
+    max_runs: 3
+    parse_output: true
+- attributes:
+    description: binarytrees.st
+  run_config:
+    cmd: |
+      bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-binarytrees.st.txt" ./binarytrees.st.lean.out 20 2>/dev/null 1>/dev/null;
+      cat temci-binarytrees.st.txt'
+  build_config:
+    cmd: ./compile.sh binarytrees.st.lean
+    max_runs: 3
+    parse_output: true
+- attributes:
+    description: const_fold
+  run_config:
+    cmd: |
+      bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-const_fold.txt" ./const_fold.lean.out 16 2>/dev/null 1>/dev/null;
+      cat temci-const_fold.txt'
+    max_runs: 3
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh const_fold.lean

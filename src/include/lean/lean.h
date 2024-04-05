@@ -91,6 +91,13 @@ static inline bool lean_is_big_object_tag(uint8_t tag) {
 
 LEAN_CASSERT(sizeof(size_t) == sizeof(void*));
 
+#ifdef LEAN_RUNTIME_STATS
+extern "C" void increment_lean_num_inc_1();
+extern "C" void increment_lean_num_inc_n();
+extern "C" void increment_lean_num_dec();
+extern "C" void increment_lean_num_is_shared();
+#endif
+
 /*
 Lean object header.
 
@@ -420,6 +427,9 @@ LEAN_EXPORT void lean_inc_ref_cold(lean_object * o);
 LEAN_EXPORT void lean_inc_ref_n_cold(lean_object * o, unsigned n);
 
 static inline void lean_inc_ref(lean_object * o) {
+#ifdef LEAN_RUNTIME_STATS
+    increment_lean_num_inc_1();
+#endif
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_rc++;
     } else if (o->m_rc != 0) {
@@ -428,6 +438,9 @@ static inline void lean_inc_ref(lean_object * o) {
 }
 
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
+#ifdef LEAN_RUNTIME_STATS
+    increment_lean_num_inc_n();
+#endif
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_rc += n;
     } else if (o->m_rc != 0) {
@@ -438,6 +451,9 @@ static inline void lean_inc_ref_n(lean_object * o, size_t n) {
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
 
 static inline void lean_dec_ref(lean_object * o) {
+#ifdef LEAN_RUNTIME_STATS
+    increment_lean_num_dec();
+#endif
     if (LEAN_LIKELY(o->m_rc > 1)) {
         o->m_rc--;
     } else if (o->m_rc != 0) {
@@ -485,6 +501,9 @@ static inline bool lean_is_exclusive(lean_object * o) {
 }
 
 static inline bool lean_is_shared(lean_object * o) {
+#ifdef LEAN_RUNTIME_STATS
+    increment_lean_num_is_shared();
+#endif
     if (LEAN_LIKELY(lean_is_st(o))) {
         return o->m_rc > 1;
     } else {

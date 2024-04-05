@@ -6,3 +6,6 @@
 *.cmi
 *.cmx
 *.o
+temci-*.txt
+*.erroneous.yaml
+run_output.yaml

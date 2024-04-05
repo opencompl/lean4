@@ -71,12 +71,14 @@ std::string getEnvVarString(const char *name) {
   }
 }
 
+
 extern "C" {
+const char *g_ResearchAllocatorLogEnvVarName = "RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG";
+
 // dump allocator info into logfile.
 // TODO: rename into research_runtime_dump_allocator_log_at_end_of_run();
 void research_dump_allocator_log() {
-  const char *envVarName = "RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG";
-  const char *_envVarName = std::getenv(envVarName);
+  const char *_envVarName = std::getenv(g_ResearchAllocatorLogEnvVarName);
   std::string out_path(_envVarName ? _envVarName : "");
   if (out_path == "") { return; }
 
@@ -91,17 +93,17 @@ void research_dump_allocator_log() {
 
   assert(o);
 
-  (*o << "rss, " << lean::get_peak_rss()) << "\n";
+  (*o << "rss: " << lean::get_peak_rss()) << "\n";
 #ifdef LEAN_RUNTIME_STATS
-  (*o << "num_alloc, " << lean::allocator::get_num_alloc()) << "\n";
-  (*o << "num_small_alloc, " << lean::allocator::get_num_small_alloc()) << "\n";
-  (*o << "num_dealloc, " << lean::allocator::get_num_dealloc()) << "\n";
-  (*o << "num_small_dealloc, " << lean::allocator::get_num_small_dealloc())
+  (*o << "num_alloc: " << lean::allocator::get_num_alloc()) << "\n";
+  (*o << "num_small_alloc: " << lean::allocator::get_num_small_alloc()) << "\n";
+  (*o << "num_dealloc: " << lean::allocator::get_num_dealloc()) << "\n";
+  (*o << "num_small_dealloc: " << lean::allocator::get_num_small_dealloc())
       << "\n";
-  (*o << "num_segments, " << lean::allocator::get_num_segments()) << "\n";
-  (*o << "num_pages, " << lean::allocator::get_num_pages()) << "\n";
-  (*o << "num_exports, " << lean::allocator::get_num_exports()) << "\n";
-  (*o << "num_recycled_pages, " << lean::allocator::get_num_recycled_pages())
+  (*o << "num_segments: " << lean::allocator::get_num_segments()) << "\n";
+  (*o << "num_pages: " << lean::allocator::get_num_pages()) << "\n";
+  (*o << "num_exports: " << lean::allocator::get_num_exports()) << "\n";
+  (*o << "num_recycled_pages: " << lean::allocator::get_num_recycled_pages())
       << "\n";
 #endif
   if (of) {
