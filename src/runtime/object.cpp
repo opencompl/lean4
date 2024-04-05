@@ -21,6 +21,8 @@ Author: Leonardo de Moura
 #include "runtime/buffer.h"
 #include "runtime/io.h"
 #include "runtime/hash.h"
+#include <fstream>
+#include <iostream>
 
 #ifdef __GLIBC__
 #include <execinfo.h>
@@ -2309,6 +2311,7 @@ extern "C" LEAN_EXPORT lean_external_class * lean_register_external_class(lean_e
 }
 
 void initialize_object() {
+    { std::ofstream out("/tmp/stage1-runtime-marker.txt", std::ios::app); out << "x"; }
     g_ext_classes       = new std::vector<external_object_class*>();
     g_ext_classes_mutex = new mutex();
     g_array_empty       = lean_alloc_array(0, 0);
