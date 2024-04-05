@@ -47,9 +47,6 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include "util/nat.h"
 #include "util/option_declarations.h"
 
-#include <iostream>
-#include <fstream>
-
 #ifndef LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE
 #define LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE true
 #endif
@@ -432,7 +429,6 @@ private:
     }
 
     value eval_expr(expr const & e, type t) {
-	{ std::ofstream out("/tmp/stage0-interpret-marker.txt", std::ios::app); out << "x"; }
         switch (expr_tag(e)) {
             case expr_kind::Ctor:
                 return value { alloc_ctor(expr_ctor_info(e), expr_ctor_args(e)) };
