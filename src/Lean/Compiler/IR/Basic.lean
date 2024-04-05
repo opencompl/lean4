@@ -196,7 +196,7 @@ inductive Expr where
   This instruction is also used to creat `struct` and `union` return values.
   For `union`, only `i.cidx` is relevant. For `struct`, `i` is irrelevant. -/
   | ctor (i : CtorInfo) (ys : Array Arg)
-  | reset (c : CtorInfo) (x : VarId)
+  | reset (n : Nat) (x : VarId)
   /-- `reuse x in ctor_i ys` instruction in the paper. -/
   | reuse (x : VarId) (i : CtorInfo) (updtHeader : Bool) (ys : Array Arg)
   /-- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`.
@@ -539,7 +539,7 @@ instance: AlphaEqv (Array Arg) := ⟨args.alphaEqv⟩
 
 def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
   | Expr.ctor i₁ ys₁,        Expr.ctor i₂ ys₂        => i₁ == i₂ && aeqv ρ ys₁ ys₂
-  | Expr.reset c₁ x₁,        Expr.reset c₂ x₂        => c₁ == c₂ && aeqv ρ x₁ x₂
+  | Expr.reset n₁ x₁,        Expr.reset n₂ x₂        => n₁ == n₂ && aeqv ρ x₁ x₂
   | Expr.reuse x₁ i₁ u₁ ys₁, Expr.reuse x₂ i₂ u₂ ys₂ => aeqv ρ x₁ x₂ && i₁ == i₂ && u₁ == u₂ && aeqv ρ ys₁ ys₂
   | Expr.proj i₁ x₁,         Expr.proj i₂ x₂         => i₁ == i₂ && aeqv ρ x₁ x₂
   | Expr.uproj i₁ x₁,        Expr.uproj i₂ x₂        => i₁ == i₂ && aeqv ρ x₁ x₂

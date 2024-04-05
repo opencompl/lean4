@@ -113,6 +113,12 @@ def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=
     | _ => false
   | _ => false
 
+/-- Set fields of `y` to `zs`. We avoid assignments that are already set. -/
+def setFields (ctx : Context) (y oldAlloc : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
+  zs.size.fold (init := b) fun i b =>
+    if isSelfSet ctx oldAlloc i (zs.get! i) then b
+    else FnBody.set y i (zs.get! i) b
+
 /-- Given `uset x[i] := y`, return true iff `y := uproj[i] x` -/
 def isSelfUSet (ctx : Context) (x : VarId) (i : Nat) (y : VarId) : Bool :=
   match ctx.projMap.find? y with
@@ -124,30 +130,6 @@ def isSelfSSet (ctx : Context) (x : VarId) (n : Nat) (i : Nat) (y : VarId) : Boo
   match ctx.projMap.find? y with
   | some (Expr.sproj m j w) => n == m && j == i && w == x
   | _                       => false
-
-/-- Set fields of `y` to `zs`. We avoid assignments that are already set. -/
-def setFields (ctx : Context) (y oldAlloc : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
-  zs.size.fold (init := b) fun i b =>
-    if isSelfSet ctx oldAlloc i (zs.get! i) then b
-    else FnBody.set y i (zs.get! i) b
-
-def createProj (oldAlloc : VarId) (fields : Array VarId) (b : FnBody) : FnBody :=
-  fields.size.fold (init := b) fun i b =>
-    FnBody.vdecl (fields.get! i) IRType.object (Expr.proj i oldAlloc) b
-
-def anyAlreadySet (ctx : Context) (oldAlloc : VarId) (zs : Array Arg) : Bool :=
-  zs.size.any fun i => isSelfSet ctx oldAlloc i (zs.get! i)
-
-/-- Is the token certainly going to be reused (or may it be deallocated?) -/
-partial def isCertainlyReused (token : VarId) : FnBody → Bool
-| FnBody.vdecl _ _ (Expr.reuse w _ _ _) b => w == token || isCertainlyReused token b
-| FnBody.dec w _ _ _ b => w != token && isCertainlyReused token b
-| FnBody.jdecl _ _ v b =>
-    isCertainlyReused token v || isCertainlyReused token b
-| FnBody.case _ _ _ alts =>
-    alts.all fun alt => isCertainlyReused token alt.body
-| b => if b.isTerminal then false
-       else isCertainlyReused token b.body
 
 /-- The empty reuse token returned for non-unique cells. -/
 def null := Expr.lit (LitVal.num 0)
@@ -174,22 +156,18 @@ def mkJoin1 (x : VarId) (t : IRType) (b : FnBody) (v : (VarId → FnBody) → Fn
       (v (fun z => mkJmp j #[Arg.var z]))
 
 /-- Reuse specialization. -/
-def specializeReuse (reused token oldAlloc : VarId) (isCertainlyReused : Bool) (c : CtorInfo) (u : Bool) (t : IRType) (xs : Array Arg) (b : FnBody) : M FnBody := do
+def specializeReuse (reused token oldAlloc : VarId) (c : CtorInfo) (u : Bool) (t : IRType) (xs : Array Arg) (b : FnBody) : M FnBody := do
   let ctx ← read
   let null? ← mkFresh
   let newAlloc ← mkFresh
-  let fastPath := fun b =>
-    (if u then FnBody.setTag token c.cidx else id)
-    (setFields ctx token oldAlloc xs b)
-  if isCertainlyReused then do
-    return fastPath (b.replaceVar reused token)
-   else do
-      mkJoin1 reused t b fun jmp =>
-        (FnBody.vdecl null? IRType.uint8 (Expr.isNull token)
-          (mkIf null?
-            (FnBody.vdecl newAlloc t (Expr.ctor c xs)
-              (jmp newAlloc))
-            (fastPath (jmp token))))
+  mkJoin1 reused t b fun jmp =>
+    (FnBody.vdecl null? IRType.uint8 (Expr.isNull token)
+      (mkIf null?
+        (FnBody.vdecl newAlloc t (Expr.ctor c xs)
+          (jmp newAlloc))
+        ((if u then FnBody.setTag token c.cidx else id)
+          (setFields ctx token oldAlloc xs
+            (jmp token)))))
 
 /-- Increment all live children and decrement y. -/
 def adjustReferenceCountsSlowPath (y : VarId) (mask : Mask) (b : FnBody) :=
@@ -199,20 +177,16 @@ def adjustReferenceCountsSlowPath (y : VarId) (mask : Mask) (b : FnBody) :=
       | none   => b
 
 /-- Reset specialization -/
-def specializeReset (token oldAlloc : VarId) (isCertainlyReused : Bool) (c : CtorInfo) (mask : Mask) (b : FnBody) : M FnBody := do
+def specializeReset (token oldAlloc : VarId) (mask : Mask) (b : FnBody) : M FnBody := do
   let shared? ← mkFresh
   let z2 ← mkFresh
-  let zs ← mask.mapM (fun _ => mkFresh)
   let fastPath ← releaseUnreadFields oldAlloc mask
   mkJoin1 token IRType.object b fun jmp =>
     (FnBody.vdecl shared? IRType.uint8 (Expr.isShared oldAlloc)
       (mkIf shared?
         (adjustReferenceCountsSlowPath oldAlloc mask
-          (if isCertainlyReused
-             then createProj oldAlloc zs
-              (FnBody.vdecl z2 IRType.object (Expr.ctor c (zs.map Arg.var))
-                (jmp z2))
-             else FnBody.vdecl z2 IRType.object null (jmp z2)))
+          (FnBody.vdecl z2 IRType.object null
+            (jmp z2)))
         (fastPath (jmp oldAlloc))))
 
 /-- Drop specialization -/
@@ -227,65 +201,57 @@ def specializeDrop (oldAlloc : VarId) (mask : Mask) (b : FnBody) : M FnBody := d
         (fastPath
           (FnBody.del oldAlloc jmp))))
 
-/-- Recursively search for reset, reuse and dec instructions to be specialized.
-    We keep a 'tokens' map associating each reuse token with a boolean indicating
-    whether it is certainly reused and the VarId it has reset. -/
-partial def searchAndSpecialize : FnBody → Array FnBody → HashMap VarId (Bool × VarId) → M FnBody
-  | FnBody.vdecl x _ (Expr.reset c y) b, bs, tokens => do
-      let (bs, mask) := eraseProjIncFor c.size y bs
-      let cr := isCertainlyReused x b
-      let b ← searchAndSpecialize b #[] (tokens.insert x (cr, y))
-      let b ← specializeReset x y cr c mask b
+partial def searchAndSpecialize : FnBody → Array FnBody → Array VarId → HashMap VarId VarId → M FnBody
+  | FnBody.vdecl x _ (Expr.reset n y) b, bs, tokens, subst => do
+      let (bs, mask) := eraseProjIncFor n y bs
+      let b ← searchAndSpecialize b #[] (tokens.push x) (subst.insert x y)
+      let b ← specializeReset x y mask b
       return reshape bs b
-  | FnBody.vdecl z t (Expr.reuse w c u zs) b, bs, tokens => do
-      let ctx ← read
-      if (tokens.find! w).fst || anyAlreadySet ctx (tokens.find! w).snd zs
-      then do let b ← searchAndSpecialize b #[] tokens
-              let b ← specializeReuse z w (tokens.find! w).snd (tokens.find! w).fst c u t zs b
-              return reshape bs b
-      else do let b ← searchAndSpecialize b #[] tokens
-              return reshape bs (FnBody.vdecl z t (Expr.reuse w c u zs) b)
-  | FnBody.dec z n c p b, bs, tokens =>
+  | FnBody.vdecl z t (Expr.reuse w c u zs) b, bs, tokens, subst => do
+      let b ← searchAndSpecialize b #[] tokens subst
+      let b ← specializeReuse z w (subst.find! w) c u t zs b
+      return reshape bs b
+  | FnBody.dec z n c p b, bs, tokens, subst =>
       if tokens.contains z then do
-        let b ← searchAndSpecialize b #[] tokens
+        let b ← searchAndSpecialize b #[] tokens subst
         return reshape bs (FnBody.del z b)
       else do
         let ctx ← read
         match ctx.sizeMap.find? z with
         | none =>
-          let b ← searchAndSpecialize b #[] tokens
+          let b ← searchAndSpecialize b #[] tokens subst
           return reshape bs (FnBody.dec z n c p b)
         | some size =>
           let (bs, mask) := eraseProjIncFor size z bs
           -- Do not specialize if there is no benefit:
           if p || mask.all (fun m => m == none) then
-            let b ← searchAndSpecialize b #[] tokens
+            let b ← searchAndSpecialize b #[] tokens subst
             return reshape bs (FnBody.dec z n c p b)
           else do
-            let b ← searchAndSpecialize b #[] tokens
+            let b ← searchAndSpecialize b #[] tokens subst
             let b ← specializeDrop z mask b
             return reshape bs b
-  | FnBody.jdecl j xs v b, bs, tokens => do
-    let v ← searchAndSpecialize v #[] tokens
-    let b ← searchAndSpecialize b #[] tokens
+  | FnBody.jdecl j xs v b, bs, tokens, subst => do
+    let v ← searchAndSpecialize v #[] tokens subst
+    let b ← searchAndSpecialize b #[] tokens subst
     return reshape bs (FnBody.jdecl j xs v b)
-  | FnBody.case tid x xType alts, bs, tokens => do
+  | FnBody.case tid x xType alts, bs, tokens, subst => do
     let alts ← alts.mapM fun alt => alt.mmodifyBody fun b => do
       withReader (fun ctx => match alt with
         | .ctor info _ => { ctx with sizeMap := ctx.sizeMap.insert x info.size }
         | _ => ctx) do
-        searchAndSpecialize b #[] tokens
+        searchAndSpecialize b #[] tokens subst
     return reshape bs (FnBody.case tid x xType alts)
-  | b, bs, tokens =>
+  | b, bs, tokens, subst =>
     if b.isTerminal then return reshape bs b
-    else searchAndSpecialize b.body (push bs b) tokens
+    else searchAndSpecialize b.body (push bs b) tokens subst
 
 def main (d : Decl) : Decl :=
   match d with
   | .fdecl (body := b) .. =>
     let m := mkProjMap d
     let nextIdx := d.maxIndex + 1
-    let bNew := (searchAndSpecialize b #[] HashMap.empty { projMap := m, sizeMap := HashMap.empty }).run' nextIdx
+    let bNew := (searchAndSpecialize b #[] #[] HashMap.empty { projMap := m, sizeMap := HashMap.empty }).run' nextIdx
     d.updateBody! bNew
   | d => d
 

@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "runtime/buffer.h"
 #include "runtime/io.h"
 #include "runtime/hash.h"
-#include "runtime/research.h"
 
 #ifdef __GLIBC__
 #include <execinfo.h>
@@ -159,12 +158,6 @@ static inline void lean_dealloc(lean_object * o, size_t sz) {
 #else
     free(o);
 #endif
-}
-
-extern "C" LEAN_EXPORT void lean_free_token(lean_object * o) {
-    if (lean_is_scalar(o))
-        return;
-    return lean_free_small_object(o);
 }
 
 extern "C" LEAN_EXPORT void lean_free_object(lean_object * o) {
@@ -892,7 +885,6 @@ extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
         delete g_task_manager;
         g_task_manager = nullptr;
     }
-    research_dump_allocator_log();
 }
 
 scoped_task_manager::scoped_task_manager(unsigned num_workers) {

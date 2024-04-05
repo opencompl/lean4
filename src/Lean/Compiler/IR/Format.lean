@@ -37,7 +37,7 @@ instance : ToFormat CtorInfo := ⟨formatCtorInfo⟩
 
 private def formatExpr : Expr → Format
   | Expr.ctor i ys      => format i ++ formatArray ys
-  | Expr.reset c x      => "reset[" ++ format c.size ++ "] " ++ format x
+  | Expr.reset n x      => "reset[" ++ format n ++ "] " ++ format x
   | Expr.reuse x i u ys => "reuse" ++ (if u then "!" else "") ++ " " ++ format x ++ " in " ++ format i ++ formatArray ys
   | Expr.proj i x       => "proj[" ++ format i ++ "] " ++ format x
   | Expr.uproj i x      => "uproj[" ++ format i ++ "] " ++ format x

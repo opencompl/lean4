@@ -199,8 +199,7 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
       let ysx := ys.push (Arg.var x) -- TODO: avoid temporary array allocation
       addIncBeforeConsumeAll ctx ysx (FnBody.vdecl z t v b) bLiveVars
     | (Expr.unbox x)         => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
-    | (Expr.reset _ x)       => addIncBeforeConsumeAll ctx #[Arg.var x] (FnBody.vdecl z t v b) bLiveVars
-    | _                      => FnBody.vdecl z t v b  -- Expr.box, Expr.lit are handled here
+    | _                      => FnBody.vdecl z t v b  -- Expr.reset, Expr.box, Expr.lit are handled here
   let liveVars := updateLiveVars v bLiveVars
   let liveVars := liveVars.erase z
   (b, liveVars)

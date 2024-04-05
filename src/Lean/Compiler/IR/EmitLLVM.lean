@@ -931,14 +931,14 @@ def emitUnbox (builder : LLVM.Builder llvmctx)
     else pure zval
   emitLhsSlotStore builder z zval
 
-def emitReset (builder : LLVM.Builder llvmctx) (z : VarId) (c : CtorInfo) (x : VarId) : M llvmctx Unit := do
+def emitReset (builder : LLVM.Builder llvmctx) (z : VarId) (n : Nat) (x : VarId) : M llvmctx Unit := do
   let xv ← emitLhsVal builder x
   let isExclusive ← callLeanIsExclusive builder xv
   let isExclusive ← buildLeanBoolTrue? builder isExclusive
   buildIfThenElse_ builder "isExclusive" isExclusive
    (fun builder => do
      let xv ← emitLhsVal builder x
-     c.size.forM fun i => do
+     n.forM fun i => do
          callLeanCtorRelease builder xv (← constIntUnsigned i)
      emitLhsSlotStore builder z xv
      return ShouldForwardControlFlow.yes
@@ -975,7 +975,7 @@ def emitReuse (builder : LLVM.Builder llvmctx)
 def emitVDecl (builder : LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : Expr) : M llvmctx Unit := do
   match v with
   | Expr.ctor c ys      => emitCtor builder z c ys
-  | Expr.reset c x      => emitReset builder z c x
+  | Expr.reset n x      => emitReset builder z n x
   | Expr.reuse x c u ys => emitReuse builder z x c u ys
   | Expr.proj i x       => emitProj builder z i x
   | Expr.uproj i x      => emitUProj builder z i x

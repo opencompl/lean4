@@ -378,7 +378,6 @@ static inline void lean_free_small_object(lean_object * o) {
 }
 
 LEAN_EXPORT lean_object * lean_alloc_object(size_t sz);
-LEAN_EXPORT void lean_free_token(lean_object * o);
 LEAN_EXPORT void lean_free_object(lean_object * o);
 
 static inline uint8_t lean_ptr_tag(lean_object * o) {
@@ -483,10 +482,6 @@ static inline bool lean_is_exclusive(lean_object * o) {
     } else {
         return false;
     }
-}
-
-static inline bool lean_is_null(lean_object * a1) {
-    return lean_is_scalar(a1);
 }
 
 static inline bool lean_is_shared(lean_object * o) {

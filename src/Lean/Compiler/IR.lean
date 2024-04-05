@@ -38,7 +38,7 @@ private def compileAux (decls : Array Decl) : CompilerM Unit := do
   decls := decls.map Decl.pushProj
   logDecls `push_proj decls
   if compiler.reuse.get (← read) then
-    decls ← inferReuse decls
+    decls := decls.map Decl.insertResetReuse
     logDecls `reset_reuse decls
   decls := decls.map Decl.elimDead
   logDecls `elim_dead decls

@@ -7,12 +7,11 @@ prelude
 import Lean.Compiler.IR.Basic
 import Lean.Compiler.IR.LiveVars
 import Lean.Compiler.IR.Format
-import Lean.Compiler.IR.Borrow
 
 namespace Lean.IR.ResetReuse
 /-! Remark: the insertResetReuse transformation is applied before we have
    inserted `inc/dec` instructions, and performed lower level optimizations
-   that introduce the instructions `del` and `set`. -/
+   that introduce the instructions `release` and `set`. -/
 
 /-! Remark: the functions `S`, `D` and `R` defined here implement the
   corresponding functions in the paper "Counting Immutable Beans"
@@ -25,12 +24,14 @@ namespace Lean.IR.ResetReuse
     the last occurrence of the variable `x`.
   - Because we have join points in the actual implementation, a variable may be live even if it
     does not occur in a function body. See example at `livevars.lean`.
-  - We do not reuse a cell that is passed to a function or stored in a closure
-    This makes our implementation drop-guided (See "Reference Counting with Frame Limited Reuse")
 -/
 
 private def mayReuse (c₁ c₂ : CtorInfo) : Bool :=
-  c₁.size == c₂.size && c₁.usize == c₂.usize && c₁.ssize == c₂.ssize
+  c₁.size == c₂.size && c₁.usize == c₂.usize && c₁.ssize == c₂.ssize &&
+  /- The following condition is a heuristic.
+     We don't want to reuse cells from different types even when they are compatible
+     because it produces counterintuitive behavior. -/
+  c₁.name.getPrefix == c₂.name.getPrefix
 
 private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
   | FnBody.vdecl x t v@(Expr.ctor c' ys) b   =>
@@ -52,12 +53,8 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
       (instr, b) := b.split
       instr.setBody (S w c b)
 
-structure ResetReuseCtx where
-  env      : Environment
-  localctx : LocalContext
-
 /-- We use `Context` to track join points in scope. -/
-abbrev M := ReaderT ResetReuseCtx (StateT Index Id)
+abbrev M := ReaderT LocalContext (StateT Index Id)
 
 private def mkFresh : M VarId := do
   let idx ← getModify (fun n => n + 1)
@@ -67,7 +64,7 @@ private def tryS (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody := do
   let w ← mkFresh
   let b' := S w c b
   if b == b' then pure b
-  else pure $ FnBody.vdecl w IRType.object (Expr.reset c x) b'
+  else pure $ FnBody.vdecl w IRType.object (Expr.reset c.size x) b'
 
 private def Dfinalize (x : VarId) (c : CtorInfo) : FnBody × Bool → M FnBody
   | (b, true)  => pure b
@@ -78,21 +75,9 @@ private def argsContainsVar (ys : Array Arg) (x : VarId) : Bool :=
     | Arg.var y => x == y
     | _         => false
 
-private def isConsuming (b : FnBody) (x : VarId) (env : Environment) : Bool :=
+private def isCtorUsing (b : FnBody) (x : VarId) : Bool :=
   match b with
   | (FnBody.vdecl _ _ (Expr.ctor _ ys) _) => argsContainsVar ys x
-  | (FnBody.vdecl _ _ (Expr.reuse _ _ _ ys) _) => argsContainsVar ys x
-  | (FnBody.vdecl _ _ (Expr.reset _ y) _) => x == y
-  | (FnBody.vdecl _ _ (Expr.pap _ ys) _) => argsContainsVar ys x
-  | (FnBody.vdecl _ _ (Expr.ap y ys) _) => x == y || argsContainsVar ys x
-  | (FnBody.vdecl _ _ (Expr.fap fn ys) _) =>
-      -- If x is passed to a function, it is consumed if it is not borrowed:
-      match findEnvDecl env fn with
-      | some decl => (ys.zip decl.params).any fun arg => match arg with
-        | (Arg.var y, ⟨ _, isBorrowed, _ ⟩) => x == y && !isBorrowed
-      -- If we have no borrowing information, we assume x is passed as owned:
-        | _  => argsContainsVar ys x
-      | none => argsContainsVar ys x
   | _ => false
 
 /-- Given `Dmain b`, the resulting pair `(new_b, flag)` contains the new body `new_b`,
@@ -104,13 +89,13 @@ private def isConsuming (b : FnBody) (x : VarId) (env : Environment) : Bool :=
 private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × Bool)
   | e@(FnBody.case tid y yType alts) => do
     let ctx ← read
-    if e.hasLiveVar ctx.localctx x then do
+    if e.hasLiveVar ctx x then do
       /- If `x` is live in `e`, we recursively process each branch. -/
       let alts ← alts.mapM fun alt => alt.mmodifyBody fun b => Dmain x c b >>= Dfinalize x c
       pure (FnBody.case tid y yType alts, true)
     else pure (e, false)
   | FnBody.jdecl j ys v b   => do
-    let (b, found) ← withReader (fun ctx => { ctx with localctx := ctx.localctx.addJP j ys v }) (Dmain x c b)
+    let (b, found) ← withReader (fun ctx => ctx.addJP j ys v) (Dmain x c b)
     let (v, _ /- found' -/) ← Dmain x c v
     /- If `found' == true`, then `Dmain b` must also have returned `(b, true)` since
        we assume the IR does not have dead join points. So, if `x` is live in `j` (i.e., `v`),
@@ -120,24 +105,23 @@ private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × B
   | e => do
     let ctx ← read
     if e.isTerminal then
-      pure (e, e.hasLiveVar ctx.localctx x)
+      pure (e, e.hasLiveVar ctx x)
     else do
       let (instr, b) := e.split
-      let (b, found) ← Dmain x c b
-      if found || isConsuming instr x ctx.env then
+      if isCtorUsing instr x then
         /- If the scrutinee `x` (the one that is providing memory) is being
-            stored in a constructor, pap or passed to a function as owned,
-            then reuse will probably not be able to reuse memory at runtime.
-            It may work only if the new cell is consumed, but we ignore this case. -/
-        pure (instr.setBody b, true)
+           stored in a constructor, then reuse will probably not be able to reuse memory at runtime.
+           It may work only if the new cell is consumed, but we ignore this case. -/
+        pure (e, true)
       else
-        if instr.hasFreeVar x then do
-          /- Borrowed use, drop after borrow -/
+        let (b, found) ← Dmain x c b
+        /- Remark: it is fine to use `hasFreeVar` instead of `hasLiveVar`
+           since `instr` is not a `FnBody.jmp` (it is not a terminal) nor it is a `FnBody.jdecl`. -/
+        if found || !instr.hasFreeVar x then
+          pure (instr.setBody b, found)
+        else
           let b ← tryS x c b
           pure (instr.setBody b, true)
-        else do
-          /- No use, keep going up -/
-          pure (instr.setBody b, false)
 
 private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
   Dmain x c b >>= Dfinalize x c
@@ -154,7 +138,7 @@ partial def R : FnBody → M FnBody
       pure $ FnBody.case tid x xType alts
   | FnBody.jdecl j ys v b   => do
     let v ← R v
-    let b ← withReader (fun ctx => { ctx with localctx := ctx.localctx.addJP j ys v }) (R b)
+    let b ← withReader (fun ctx => ctx.addJP j ys v) (R b)
     pure $ FnBody.jdecl j ys v b
   | e => do
     if e.isTerminal then pure e
@@ -167,16 +151,12 @@ end ResetReuse
 
 open ResetReuse
 
-def Decl.insertResetReuse (d : Decl) (env : Environment) : Decl :=
+def Decl.insertResetReuse (d : Decl) : Decl :=
   match d with
   | .fdecl (body := b) ..=>
     let nextIndex := d.maxIndex + 1
-    let bNew      := (R b { env := env, localctx := {} }).run' nextIndex
+    let bNew      := (R b {}).run' nextIndex
     d.updateBody! bNew
   | other => other
-
-def inferReuse (decls : Array Decl) : CompilerM (Array Decl) := do
-  let env ← getEnv
-  pure $ decls.map fun decl => decl.insertResetReuse env
 
 end Lean.IR
