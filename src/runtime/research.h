@@ -2,12 +2,10 @@
 #include "util/io.h"
 #include "runtime/optional.h"
 
-
-
-// std::string getEnvVarString(const char *name);
-// bool research_isResearchLogVerbose();
-
 extern "C" {
-uint8_t research_isReuseAcrossConstructorsEnabled(lean_object *);
-void research_dump_allocator_log();
+  uint8_t research_isReuseAcrossConstructorsEnabled(lean_object *);
+  void research_dump_allocator_log();
+  extern const char *g_ResearchAllocatorLogEnvVarName;
 }
+
+

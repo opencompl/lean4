@@ -50,6 +50,10 @@ static atomic<uint64_t> g_num_segments(0);
 static atomic<uint64_t> g_num_pages(0);
 static atomic<uint64_t> g_num_exports(0);
 static atomic<uint64_t> g_num_recycled_pages(0);
+static std::atomic<uint64_t> g_num_inc_1(0);
+static std::atomic<uint64_t> g_num_inc_n(0);
+static std::atomic<uint64_t> g_num_dec(0);
+static std::atomic<uint64_t> g_num_is_shared(0);
 
 uint64_t get_num_alloc() { return g_num_alloc; }
 uint64_t get_num_small_alloc () { return g_num_small_alloc; }
@@ -60,6 +64,12 @@ uint64_t get_num_pages() { return g_num_pages; }
 uint64_t get_num_exports() { return g_num_exports; }
 uint64_t get_num_recycled_pages() { return g_num_recycled_pages; }
 
+extern "C" {
+  void increment_lean_num_inc_1() { g_num_inc_1++; };
+  void increment_lean_num_inc_n() { g_num_inc_n++; };
+  void increment_lean_num_dec() { g_num_dec++; };
+  void increment_lean_num_is_shared() { g_num_is_shared++; };
+}
 
 struct alloc_stats {
     ~alloc_stats() {
@@ -71,6 +81,11 @@ struct alloc_stats {
         // std::cerr << "num. pages:          " << g_num_pages << "\n";
         // std::cerr << "num. recycled pages: " << g_num_recycled_pages << "\n";
         // std::cerr << "num. exports:        " << g_num_exports << "\n";
+        // std::cerr << "num. inc. 1:         " << g_num_inc_1 << "\n";
+        // std::cerr << "num. inc. n:         " << g_num_inc_n << "\n";
+        // std::cerr << "num. inc. (total):   " << g_num_inc_1 + g_num_inc_n << "\n";
+        // std::cerr << "num. dec.:           " << g_num_dec << "\n";
+        // std::cerr << "num. is_shared.:     " << g_num_is_shared << "\n";
     }
 };
 static alloc_stats g_alloc_stats;
