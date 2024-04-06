@@ -9489,7 +9489,7 @@ x_12 = lean_ctor_get(x_2, 0);
 x_13 = lean_ctor_get(x_2, 1);
 x_14 = lean_ctor_get(x_3, 0);
 x_15 = lean_ctor_get(x_3, 1);
-x_16 = lean_nat_dec_eq(x_12, x_14);
+x_16 = l_Lean_IR_CtorInfo_beq(x_12, x_14);
 if (x_16 == 0)
 {
 uint8_t x_17; 

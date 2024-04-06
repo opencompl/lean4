@@ -25,13 +25,11 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_ResetReuse_R___spec
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_D___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ResetReuse_R(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_isCtorUsing(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_mkFresh___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_mayReuse___boxed(lean_object*, lean_object*);
@@ -586,26 +584,25 @@ lean_inc(x_3);
 x_10 = l_Lean_IR_FnBody_beq(x_3, x_9);
 if (x_10 == 0)
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 lean_dec(x_3);
-x_11 = lean_ctor_get(x_2, 2);
-lean_inc(x_11);
-x_12 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_1);
-x_13 = lean_box(7);
-x_14 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_14, 0, x_8);
-lean_ctor_set(x_14, 1, x_13);
-lean_ctor_set(x_14, 2, x_12);
-lean_ctor_set(x_14, 3, x_9);
-lean_ctor_set(x_6, 0, x_14);
+x_11 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_11, 0, x_2);
+lean_ctor_set(x_11, 1, x_1);
+x_12 = lean_box(7);
+x_13 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_13, 0, x_8);
+lean_ctor_set(x_13, 1, x_12);
+lean_ctor_set(x_13, 2, x_11);
+lean_ctor_set(x_13, 3, x_9);
+lean_ctor_set(x_6, 0, x_13);
 return x_6;
 }
 else
 {
 lean_dec(x_9);
 lean_dec(x_8);
+lean_dec(x_2);
 lean_dec(x_1);
 lean_ctor_set(x_6, 0, x_3);
 return x_6;
@@ -613,48 +610,47 @@ return x_6;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
-x_15 = lean_ctor_get(x_6, 0);
-x_16 = lean_ctor_get(x_6, 1);
-lean_inc(x_16);
+lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+x_14 = lean_ctor_get(x_6, 0);
+x_15 = lean_ctor_get(x_6, 1);
 lean_inc(x_15);
+lean_inc(x_14);
 lean_dec(x_6);
 lean_inc(x_3);
-lean_inc(x_15);
-x_17 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S(x_15, x_2, x_3);
-lean_inc(x_17);
+lean_inc(x_14);
+x_16 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S(x_14, x_2, x_3);
+lean_inc(x_16);
 lean_inc(x_3);
-x_18 = l_Lean_IR_FnBody_beq(x_3, x_17);
-if (x_18 == 0)
+x_17 = l_Lean_IR_FnBody_beq(x_3, x_16);
+if (x_17 == 0)
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec(x_3);
-x_19 = lean_ctor_get(x_2, 2);
-lean_inc(x_19);
-x_20 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_20, 0, x_19);
-lean_ctor_set(x_20, 1, x_1);
-x_21 = lean_box(7);
-x_22 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_22, 0, x_15);
-lean_ctor_set(x_22, 1, x_21);
-lean_ctor_set(x_22, 2, x_20);
-lean_ctor_set(x_22, 3, x_17);
-x_23 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_23, 0, x_22);
-lean_ctor_set(x_23, 1, x_16);
-return x_23;
+x_18 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_18, 0, x_2);
+lean_ctor_set(x_18, 1, x_1);
+x_19 = lean_box(7);
+x_20 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_20, 0, x_14);
+lean_ctor_set(x_20, 1, x_19);
+lean_ctor_set(x_20, 2, x_18);
+lean_ctor_set(x_20, 3, x_16);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_15);
+return x_21;
 }
 else
 {
-lean_object* x_24; 
-lean_dec(x_17);
-lean_dec(x_15);
+lean_object* x_22; 
+lean_dec(x_16);
+lean_dec(x_14);
+lean_dec(x_2);
 lean_dec(x_1);
-x_24 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_24, 0, x_3);
-lean_ctor_set(x_24, 1, x_16);
-return x_24;
+x_22 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_22, 0, x_3);
+lean_ctor_set(x_22, 1, x_15);
+return x_22;
 }
 }
 }
@@ -665,7 +661,6 @@ _start:
 lean_object* x_6; 
 x_6 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_tryS(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 return x_6;
 }
 }
@@ -689,6 +684,7 @@ return x_9;
 else
 {
 uint8_t x_10; 
+lean_dec(x_2);
 lean_dec(x_1);
 x_10 = !lean_is_exclusive(x_3);
 if (x_10 == 0)
@@ -719,7 +715,6 @@ _start:
 lean_object* x_6; 
 x_6 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dfinalize(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 return x_6;
 }
 }
@@ -872,6 +867,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; 
 lean_dec(x_6);
+lean_dec(x_2);
 lean_dec(x_1);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_5);
@@ -893,6 +889,7 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; size_t x_21; size_t x_22; lean_object* x_23; 
 x_14 = lean_ctor_get(x_10, 1);
 lean_inc(x_6);
+lean_inc(x_2);
 lean_inc(x_1);
 x_15 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain(x_1, x_2, x_14, x_6, x_7);
 x_16 = lean_ctor_get(x_15, 0);
@@ -900,6 +897,7 @@ lean_inc(x_16);
 x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
 lean_dec(x_15);
+lean_inc(x_2);
 lean_inc(x_1);
 x_18 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dfinalize(x_1, x_2, x_16, x_6, x_17);
 x_19 = lean_ctor_get(x_18, 0);
@@ -925,6 +923,7 @@ lean_inc(x_26);
 lean_inc(x_25);
 lean_dec(x_10);
 lean_inc(x_6);
+lean_inc(x_2);
 lean_inc(x_1);
 x_27 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain(x_1, x_2, x_26, x_6, x_7);
 x_28 = lean_ctor_get(x_27, 0);
@@ -932,6 +931,7 @@ lean_inc(x_28);
 x_29 = lean_ctor_get(x_27, 1);
 lean_inc(x_29);
 lean_dec(x_27);
+lean_inc(x_2);
 lean_inc(x_1);
 x_30 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dfinalize(x_1, x_2, x_28, x_6, x_29);
 x_31 = lean_ctor_get(x_30, 0);
@@ -960,6 +960,7 @@ if (x_38 == 0)
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; size_t x_46; size_t x_47; lean_object* x_48; 
 x_39 = lean_ctor_get(x_10, 0);
 lean_inc(x_6);
+lean_inc(x_2);
 lean_inc(x_1);
 x_40 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain(x_1, x_2, x_39, x_6, x_7);
 x_41 = lean_ctor_get(x_40, 0);
@@ -967,6 +968,7 @@ lean_inc(x_41);
 x_42 = lean_ctor_get(x_40, 1);
 lean_inc(x_42);
 lean_dec(x_40);
+lean_inc(x_2);
 lean_inc(x_1);
 x_43 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dfinalize(x_1, x_2, x_41, x_6, x_42);
 x_44 = lean_ctor_get(x_43, 0);
@@ -990,6 +992,7 @@ x_50 = lean_ctor_get(x_10, 0);
 lean_inc(x_50);
 lean_dec(x_10);
 lean_inc(x_6);
+lean_inc(x_2);
 lean_inc(x_1);
 x_51 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain(x_1, x_2, x_50, x_6, x_7);
 x_52 = lean_ctor_get(x_51, 0);
@@ -997,6 +1000,7 @@ lean_inc(x_52);
 x_53 = lean_ctor_get(x_51, 1);
 lean_inc(x_53);
 lean_dec(x_51);
+lean_inc(x_2);
 lean_inc(x_1);
 x_54 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dfinalize(x_1, x_2, x_52, x_6, x_53);
 x_55 = lean_ctor_get(x_54, 0);
@@ -1038,6 +1042,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_4);
 x_11 = l_Lean_IR_LocalContext_addJP(x_4, x_7, x_8, x_9);
+lean_inc(x_2);
 lean_inc(x_1);
 x_12 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain(x_1, x_2, x_10, x_11, x_5);
 x_13 = lean_ctor_get(x_12, 0);
@@ -1134,6 +1139,7 @@ lean_inc(x_32);
 lean_inc(x_31);
 lean_inc(x_4);
 x_35 = l_Lean_IR_LocalContext_addJP(x_4, x_31, x_32, x_33);
+lean_inc(x_2);
 lean_inc(x_1);
 x_36 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain(x_1, x_2, x_34, x_35, x_5);
 x_37 = lean_ctor_get(x_36, 0);
@@ -1215,6 +1221,7 @@ lean_dec(x_52);
 lean_dec(x_51);
 lean_dec(x_50);
 lean_dec(x_4);
+lean_dec(x_2);
 lean_dec(x_1);
 x_56 = 0;
 x_57 = lean_box(x_56);
@@ -1341,6 +1348,7 @@ if (x_97 == 0)
 lean_object* x_98; lean_object* x_99; lean_object* x_100; uint8_t x_101; 
 lean_dec(x_3);
 lean_inc(x_4);
+lean_inc(x_2);
 lean_inc(x_1);
 x_98 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain(x_1, x_2, x_94, x_4, x_5);
 x_99 = lean_ctor_get(x_98, 0);
@@ -1371,6 +1379,7 @@ if (x_108 == 0)
 {
 lean_object* x_109; 
 lean_dec(x_4);
+lean_dec(x_2);
 lean_dec(x_1);
 x_109 = l_Lean_IR_FnBody_setBody(x_96, x_106);
 lean_ctor_set(x_99, 0, x_109);
@@ -1430,6 +1439,7 @@ if (x_124 == 0)
 {
 lean_object* x_125; lean_object* x_126; 
 lean_dec(x_4);
+lean_dec(x_2);
 lean_dec(x_1);
 x_125 = l_Lean_IR_FnBody_setBody(x_96, x_123);
 x_126 = lean_alloc_ctor(0, 2, 0);
@@ -1496,6 +1506,7 @@ if (x_139 == 0)
 {
 lean_object* x_140; lean_object* x_141; lean_object* x_142; 
 lean_dec(x_4);
+lean_dec(x_2);
 lean_dec(x_1);
 x_140 = l_Lean_IR_FnBody_setBody(x_96, x_137);
 if (lean_is_scalar(x_138)) {
@@ -1553,6 +1564,7 @@ else
 {
 uint8_t x_152; 
 lean_dec(x_4);
+lean_dec(x_2);
 lean_dec(x_1);
 x_152 = !lean_is_exclusive(x_98);
 if (x_152 == 0)
@@ -1622,6 +1634,7 @@ uint8_t x_167; lean_object* x_168; lean_object* x_169; lean_object* x_170;
 lean_dec(x_96);
 lean_dec(x_94);
 lean_dec(x_4);
+lean_dec(x_2);
 lean_dec(x_1);
 x_167 = 1;
 x_168 = lean_box(x_167);
@@ -1637,6 +1650,7 @@ return x_170;
 else
 {
 lean_object* x_171; uint8_t x_172; lean_object* x_173; lean_object* x_174; lean_object* x_175; 
+lean_dec(x_2);
 lean_inc(x_3);
 x_171 = l_Lean_IR_FnBody_hasLiveVar(x_3, x_4, x_1);
 lean_dec(x_1);
@@ -1664,17 +1678,7 @@ lean_dec(x_3);
 x_9 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_10 = l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain___spec__1(x_1, x_2, x_8, x_9, x_5, x_6, x_7);
-lean_dec(x_2);
 return x_10;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_2);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_D(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1682,6 +1686,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 lean_inc(x_4);
+lean_inc(x_2);
 lean_inc(x_1);
 x_6 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain(x_1, x_2, x_3, x_4, x_5);
 x_7 = lean_ctor_get(x_6, 0);
@@ -1692,15 +1697,6 @@ lean_dec(x_6);
 x_9 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dfinalize(x_1, x_2, x_7, x_4, x_8);
 lean_dec(x_4);
 return x_9;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_D___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_D(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_2);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_ResetReuse_R___spec__1(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -1749,6 +1745,7 @@ if (x_18 == 0)
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; size_t x_23; size_t x_24; lean_object* x_25; 
 lean_dec(x_9);
 lean_inc(x_5);
+lean_inc(x_13);
 lean_inc(x_1);
 x_19 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_D(x_1, x_13, x_16, x_5, x_17);
 x_20 = lean_ctor_get(x_19, 0);
@@ -1807,6 +1804,7 @@ if (x_37 == 0)
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; size_t x_42; size_t x_43; lean_object* x_44; 
 lean_dec(x_36);
 lean_inc(x_5);
+lean_inc(x_31);
 lean_inc(x_1);
 x_38 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_D(x_1, x_31, x_34, x_5, x_35);
 x_39 = lean_ctor_get(x_38, 0);
