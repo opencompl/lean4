@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+set -o xtrace
+
+# latest commit in lean-benchmarking-rebase that equalizes lean with koka algorithmically.
+COMMIT_TO_BENCH=run-2024-04-06--17-36-tcg40
+
+# --------
+COMMIT_PRETTY_NAME=$(git name-rev --name-only $COMMIT_TO_BENCH)
+
+EXPERIMENTDIR=$(pwd)
+echo "pwd: $EXPERIMENTDIR"
+DATE=$(date)
+echo "date: $DATE"
+MACHINE=$(uname -a)
+echo "machine: $MACHINE"
+echo "git status: $(git status --short)"
+echo "git commit: $(git rev-parse HEAD)"
+ROOT=$(git rev-parse --show-toplevel)
+echo "root folder: $ROOT"
+echo "out folder: $OUTFOLDER"
+
+if [ "$(uname -s)" = "Darwin" ]; then
+    TIME="gtime"
+else
+    TIME="command time"
+fi
+echo "time: $TIME"
+$TIME -v echo "time"
+
+COMMITS=("$COMMIT_TO_BENCH" "2024-borrowing-benchmarking-baseline-v4")
+KINDS=("reuse" "noreuse")
+
+run_benchmark_for_kind() {
+  # argument: kind
+  local kind="$1"
+  local BENCHMARKS=(
+    "rbmap_checkpoint.lean" "2000000 1"
+    "binarytrees.lean" "21"
+    "const_fold.lean" "19"
+    "deriv.lean" "10"
+    "liasolver.lean" ex-50-50-1.leq
+    # "parser.lean"
+    "qsort.lean" "400"
+    #"rbmap_checkpoint.lean" "2000000 1"
+    "rbmap_fbip.lean" "2000000"
+    "rbmap.lean" "2000000"
+    "unionfind.lean" "3000000")
+  local nruns=5
+  local outfile="$EXPERIMENTDIR/outputs/benchmarks-allocator-log-$kind.csv"
+  local outfile_temp="$outfile.temp"
+  rm "$outfile_temp" || true
+  if [ ! -f "${outfile}" ]; then
+    # link lean tooolchain
+    # # https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/elan.20toolchain.20link.3A.20three.20hyphens.20becomes.20colon.3F/near/430447189
+    # # Lean toolchain does not like having three dash, so for now, just name it based on KINDS.
+    LEAN_TOOLCHAIN="$kind"
+
+    # TODO: elan does not like '---' in folder name?
+    elan toolchain link "$LEAN_TOOLCHAIN" "$EXPERIMENTDIR/builds-speedcenter/$kind/build/release/stage2"
+    cd "$EXPERIMENTDIR/builds-speedcenter/$kind/tests/bench/" || exit 1
+    elan override set "$LEAN_TOOLCHAIN" # set override for temci
+    mkdir -p "$EXPERIMENTDIR/outputs/"
+    for ((ix=0; ix<${#BENCHMARKS[@]}; ix+=2)); do
+      benchmark=${BENCHMARKS[ix]}
+      benchmark_input=${BENCHMARKS[ix+1]}
+      ./compile.sh "${benchmark}"
+      for _irun in $(seq 1 $nruns); do
+        RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG=./log.txt ./"${benchmark}.out" "${benchmark_input}"
+        while read -r line; do echo "$benchmark,$line"; done < log.txt >> "$outfile_temp"
+      done;
+    done;
+    mv "$outfile_temp" "$outfile"
+  fi
+}
+
+run_build_for_kind() {
+  local kind="$1"
+  mkdir -p "${EXPERIMENTDIR}/builds-speedcenter"
+  if [ ! -d "${EXPERIMENTDIR}/builds-speedcenter/${KINDS[i]}" ]; then
+    git clone --depth 1 https://github.com/opencompl/lean4.git --branch "${COMMITS[i]}" "$EXPERIMENTDIR/builds-speedcenter/${KINDS[i]}"
+  fi
+  # build
+  mkdir -p "$EXPERIMENTDIR/builds-speedcenter/$kind/build/release/"
+  cd "$EXPERIMENTDIR/builds-speedcenter/$kind/build/release/" || exit 1
+  # build stage2, with ccache, since we are only interested in benching the microbenchmarks
+  if [ ! -f "${EXPERIMENTDIR}/builds-speedcenter/$kind/build/release/stage2/bin/lean" ]; then
+    cmake ../../ -DCCACHE=ON -DRUNTIME_STATS=ON -DCMAKE_BUILD_TYPE=Release
+    make -j4 stage2
+  fi
+}
+
+run_ctest_for_kind() {
+  # run ctest to make sure our toolchain is legit.
+  local kind="$1"
+  mkdir -p "$EXPERIMENTDIR/outputs/"
+  cd "$EXPERIMENTDIR/builds-speedcenter/$kind/build/release/stage2" && \
+    (ctest -E handleLocking -j32 --output-on-failure 2>&1 | tee "$EXPERIMENTDIR/outputs/ctest-speedcenter-$kind-stage2.txt")
+}
+
+run_temci_for_kind() {
+  local kind="$1"
+  local outfile="$EXPERIMENTDIR/outputs/${KINDS[i]}.speedcenter.bench.yaml"
+  local outfile_temp="$outfile.temp"
+  rm "$outfile_temp" || true
+  if [ ! -f "${outfile}" ]; then
+    # link lean tooolchain
+    # # https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/elan.20toolchain.20link.3A.20three.20hyphens.20becomes.20colon.3F/near/430447189
+    # # Lean toolchain does not like having three dash, so for now, just name it based on KINDS.
+    LEAN_TOOLCHAIN="$kind"
+
+    # TODO: elan does not like '---' in folder name?
+    elan toolchain link "$LEAN_TOOLCHAIN" "$EXPERIMENTDIR/builds-speedcenter/$kind/build/release/stage2"
+    cd "$EXPERIMENTDIR/builds-speedcenter/$kind/tests/bench/" || exit 1
+    elan override set "$LEAN_TOOLCHAIN" # set override for temci
+    temci exec --config speedcenter.yaml --out "$outfile_temp" --included_blocks suite # run temci
+    mkdir -p "$EXPERIMENTDIR/outputs/"
+    mv "$outfile_temp" "$outfile"
+  fi
+  local temci_report_outfile="$EXPERIMENTDIR/outputs/temci-report.txt"
+  if [ ! -f "${temci_report_outfile}" ]; then
+    temci report "$EXPERIMENTDIR/outputs${KINDS[0]}.speedcenter.bench.yaml" \
+      "$EXPERIMENTDIR/outputs${KINDS[1]}.speedcenter.bench.yaml" > "$temci_report_outfile"
+  fi
+}
+
+run() {
+  for i in {0..1}; do
+    # curl -d "Start[MICROBENCHMARK-LOG-${KINDS[i]}]. run:$COMMIT_PRETTY_NAME. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
+    mkdir -p builds-speedcenter
+    run_build_for_kind "${KINDS[i]}"
+    run_benchmark_for_kind "${KINDS[i]}"
+    run_temci_for_kind "${KINDS[i]}"
+    # curl -d "Done[MICROBENCHMARK-LOG-${KINDS[i]}]. run:$COMMIT_PRETTY_NAME. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
+  done;
+}
+
+run
