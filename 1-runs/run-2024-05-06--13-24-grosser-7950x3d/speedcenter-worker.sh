@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -o xtrace
 
-COMMIT_TO_BENCH=8fccb29eb4852bb4b54ce9ae5d7ba175074c022e
+COMMIT_TO_BENCH=6639fae
 
 # --------
 COMMIT_PRETTY_NAME=$(git name-rev --name-only $COMMIT_TO_BENCH)
@@ -133,3 +133,5 @@ run() {
     # curl -d "Done[MICROBENCHMARK-LOG-${KINDS[i]}]. run:$COMMIT_PRETTY_NAME. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
   done;
 }
+
+run 
