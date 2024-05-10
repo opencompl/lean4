@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 set -o xtrace
 
-COMMIT_TO_BENCH=6639fae
+TAG_TO_BENCH=run-2024-05-06--13-24-grosser-7950x3d
 
-# --------
-COMMIT_PRETTY_NAME=$(git name-rev --name-only $COMMIT_TO_BENCH)
 
 EXPERIMENTDIR=$(pwd)
 echo "pwd: $EXPERIMENTDIR"
@@ -26,7 +24,7 @@ fi
 echo "time: $TIME"
 $TIME -v echo "time"
 
-COMMITS=("$COMMIT_TO_BENCH" "2024-borrowing-benchmarking-baseline-v4")
+COMMITS=("$TAG_TO_BENCH" "2024-borrowing-benchmarking-baseline-v6")
 KINDS=("reuse" "noreuse")
 
 run_benchmark_for_kind() {
@@ -125,12 +123,12 @@ run_temci_for_kind() {
 
 run() {
   for i in {0..1}; do
-    # curl -d "Start[MICROBENCHMARK-LOG-${KINDS[i]}]. run:$COMMIT_PRETTY_NAME. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
+    curl -d "Start[MICROBENCHMARK-LOG-${KINDS[i]}]. run:$TAG_TO_BENCH. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
     mkdir -p builds-speedcenter
     run_build_for_kind "${KINDS[i]}"
     run_benchmark_for_kind "${KINDS[i]}"
     run_temci_for_kind "${KINDS[i]}"
-    # curl -d "Done[MICROBENCHMARK-LOG-${KINDS[i]}]. run:$COMMIT_PRETTY_NAME. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
+    curl -d "Done[MICROBENCHMARK-LOG-${KINDS[i]}]. run:$TAG_TO_BENCH. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
   done;
 }
 
