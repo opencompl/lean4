@@ -140,6 +140,7 @@ theorem ofBool_eq_iff_eq : ∀(b b' : Bool), BitVec.ofBool b = BitVec.ofBool b' 
 @[simp, bv_toNat] theorem toNat_ofNat (x w : Nat) : (x#w).toNat = x % 2^w := by
   simp [BitVec.toNat, BitVec.ofNat, Fin.ofNat']
 
+
 -- Remark: we don't use `[simp]` here because simproc` subsumes it for literals.
 -- If `x` and `n` are not literals, applying this theorem eagerly may not be a good idea.
 theorem getLsb_ofNat (n : Nat) (x : Nat) (i : Nat) :
@@ -260,11 +261,54 @@ theorem toInt_ofNat {n : Nat} (x : Nat) :
   (BitVec.ofNat n x).toInt = (x : Int).bmod (2^n) := by
   simp [toInt_eq_toNat_bmod]
 
-@[simp] theorem toInt_ofInt {n : Nat} (i : Int) :
-  (BitVec.ofInt n i).toInt = i.bmod (2^n) := by
-  have _ := Nat.two_pow_pos n
-  have p : 0 ≤ i % (2^n : Nat) := by omega
-  simp [toInt_eq_toNat_bmod, Int.toNat_of_nonneg p]
+/-- 'BitVec.ofInt' only cares about values upto `emod`. -/
+@[simp] theorem ofInt_eq_ofInt_emod {n : Nat} (i : Int) :
+  (BitVec.ofInt n i) = BitVec.ofInt n (i % (2^n)) := by
+  apply BitVec.eq_of_toNat_eq
+  simp only [toNat_ofInt]
+  congr 1
+  have h2n : (2 : Int)^n = (((2 : Nat)^(n : Nat) : Nat) : Int) := by
+    rw [Int.natCast_pow]
+    rfl
+  rw [h2n, Int.emod_emod]
+
+-- /- A variant of emod that knows that the output is a natural number. -/
+-- abbrev Int.emod' (i : Int) (n : Nat) : Nat :=
+--   (Int.emod i n).toNat
+
+/-- Write ofInt in terms of `ofNat`
+of the canonical natural number between 0 and 2^n.-/
+@[simp] theorem ofInt_eq_ofNat_emod {n : Nat} (i : Int) :
+  (BitVec.ofInt n i) = BitVec.ofNat n (i % (2^n)).toNat := by
+  have h2n : (2 : Int)^n = (((2 : Nat)^(n : Nat) : Nat) : Int) := by
+    rw [Int.natCast_pow]
+    rfl
+  apply BitVec.eq_of_toNat_eq
+  simp
+  conv => lhs; simp [(· % ·), Mod.mod]
+  rw [Nat.mod_eq_of_lt]
+  rw [h2n]
+  congr 1
+  · apply Int.emod_emod
+  · have hlt : (i % 2^n) < 2^n := by
+      apply Int.emod_lt_of_pos
+      rw [h2n]
+      norm_cast
+      apply Nat.pow_pos
+      decide
+    rw [Int.toNat_lt]
+    · rw [h2n]
+      apply Int.emod_lt_of_pos
+      rw [Int.natCast_pow]
+      /- (0 : Int) < ↑2 ^ n -/
+      clear hlt h2n
+      apply Lean.Omega.Int.pos_pow_of_pos
+      decide
+    · apply Int.emod_nonneg
+      /- (2 : Int) ^ n ≠ (0 : Int) -/
+      apply Int.ne_of_gt
+      apply Lean.Omega.Int.pos_pow_of_pos
+      decide
 
 /-! ### zeroExtend and truncate -/
 
@@ -627,6 +671,99 @@ theorem BitVec.shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
 @[simp] theorem getLsb_ushiftRight (x : BitVec n) (i j : Nat) :
     getLsb (x >>> i) j = getLsb x (i+j) := by
   unfold getLsb ; simp
+
+/-! ### sshiftRight-/
+
+theorem sshiftRight_eq {x : BitVec n} {i : Nat} :
+    x.sshiftRight i = BitVec.ofInt n (x.toInt >>> i) := by
+  apply BitVec.eq_of_toInt_eq
+  simp [BitVec.sshiftRight]
+
+
+theorem BitVec.toInt_eq_toNat_of_toInt_pos {x : BitVec n} (hx: x.toInt ≥ 0) :
+    x.toInt = ↑ (x.toNat) := by
+  rw [toInt_eq_toNat_cond]
+  simp
+  intros hx'
+  simp [BitVec.toInt] at hx
+  split at hx <;> omega
+
+
+@[simp] theorem sshiftRight_eq_ushiftRight_of_pos {x : BitVec n} (hx: x.toInt ≥ 0) :
+  x.sshiftRight i = x.ushiftRight i := by
+  rw [sshiftRight_eq, BitVec.ofInt_eq_ofNat_emod]
+  rw [BitVec.toInt_eq_toNat_of_toInt_pos hx]
+  rw [ushiftRight_eq]
+  rw [Int.emod_eq_of_lt]
+  · norm_cast
+    sorry
+  · /- need norm_num-/
+    sorry
+  · have ⟨x', hx'lt⟩ := x
+    simp
+    /- ↑x' >>> i < 2 ^ n -/
+    /- need norm_num -/
+    sorry
+-- @[simp] theorem getLsb_sshiftRight (x : BitVec n) (s i : Nat) :
+--   getLsb (x.sshiftRight s) i = if i ≥ n then false
+--     else if (s + i) < n then getLsb x (s + i)
+--     else getMsb x (n - 1) := by
+--   simp
+--   rw [sshiftRight_eq]
+--   rw [ofInt_eq_ofNat_emod]
+--   rw [getLsb_ofNat]
+--   rw [testBit_toNat]
+--   by_cases hinonneg : x.toInt ≥ 0
+--   case pos =>
+--     rw [Int.emod_eq_of_lt]
+--     sorry
+--   case neg =>
+--     sorry
+
+
+/-- The MSB of a bitvector is `false` iff its integer interpretetation is greater than or equal to zero. -/
+theorem msb_eq_false_iff_toInt_geq_zero (x : BitVec w)
+  : x.msb = false ↔ x.toInt ≥ 0 := by
+  rcases w with rfl | w <;> simp
+  · rw [Subsingleton.elim x (0#0)]
+    simp
+  rw [BitVec.toInt_eq_toNat_cond]
+  constructor
+  · intro h
+    split
+    case inl hpos =>
+      apply Int.ofNat_nonneg
+    case inr hneg =>
+      exfalso
+      rw [BitVec.msb_eq_decide] at h
+      simp at h
+      omega
+  · intro h
+    rw [BitVec.msb_eq_decide]
+    simp
+    omega
+
+/-- The MSB of a bitvector is `true` iff its integer interpretetation is greater than or equal to zero. -/
+theorem msb_eq_true_iff_toInt_le_zero (x : BitVec w)
+    : x.msb = true ↔ x.toInt < 0 := by
+  rcases w with rfl | w <;> try simp <;> try omega
+  · rw [Subsingleton.elim x (0#0)]
+    simp
+  rw [BitVec.toInt_eq_toNat_cond]
+  constructor
+  · intro h
+    split
+    case inl hpos =>
+      rw [BitVec.msb_eq_decide] at h
+      simp at h
+      omega
+    case inr hneg =>
+      simp_all
+      omega
+  · intro h
+    rw [BitVec.msb_eq_decide]
+    simp
+    omega
 
 /-! ### append -/
 
