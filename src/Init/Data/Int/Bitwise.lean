@@ -37,7 +37,7 @@ complement and shifts the value to the right.
 ```lean
 ( 0b0111:Int) >>> 1 =  0b0011
 ( 0b1000:Int) >>> 1 =  0b0100
-(-0b1000:Int) >>> 1 = -0b0100
+(-0b1000:Int) >>> 1 = -0b010
 (-0b0111:Int) >>> 1 = -0b0100
 ```
 -/
