@@ -261,14 +261,8 @@ theorem toInt_ofNat {n : Nat} (x : Nat) :
   (BitVec.ofNat n x).toInt = (x : Int).bmod (2^n) := by
   simp [toInt_eq_toNat_bmod]
 
-@[simp] theorem toInt_ofInt {n : Nat} (i : Int) :
-  (BitVec.ofInt n i).toInt = i.bmod (2^n) := by
-  have _ := Nat.two_pow_pos n
-  have p : 0 ≤ i % (2^n : Nat) := by omega
-  simp [toInt_eq_toNat_bmod, Int.toNat_of_nonneg p]
-
 /-- 'BitVec.ofInt' only cares about values upto `emod`. -/
-theorem ofInt_eq_ofInt_emod {n : Nat} (i : Int) :
+@[simp] theorem ofInt_eq_ofInt_emod {n : Nat} (i : Int) :
   (BitVec.ofInt n i) = BitVec.ofInt n (i % (2^n)) := by
   apply BitVec.eq_of_toNat_eq
   simp only [toNat_ofInt]
@@ -284,13 +278,13 @@ theorem ofInt_eq_ofInt_emod {n : Nat} (i : Int) :
 
 /-- Write ofInt in terms of `ofNat`
 of the canonical natural number between 0 and 2^n.-/
-theorem ofInt_eq_ofNat_emod {n : Nat} (i : Int) :
+@[simp] theorem ofInt_eq_ofNat_emod {n : Nat} (i : Int) :
   (BitVec.ofInt n i) = BitVec.ofNat n (i % (2^n)).toNat := by
   have h2n : (2 : Int)^n = (((2 : Nat)^(n : Nat) : Nat) : Int) := by
     rw [Int.natCast_pow]
     rfl
   apply BitVec.eq_of_toNat_eq
-  simp only [ofInt_eq_ofInt_emod, Int.emod_emod, toNat_ofInt, toNat_ofNat]
+  simp
   conv => lhs; simp [(· % ·), Mod.mod]
   rw [Nat.mod_eq_of_lt]
   rw [h2n]
@@ -695,7 +689,7 @@ theorem BitVec.toInt_eq_toNat_of_toInt_pos {x : BitVec n} (hx: x.toInt ≥ 0) :
   split at hx <;> omega
 
 
-theorem sshiftRight_eq_ushiftRight_of_pos {x : BitVec n} (hx: x.toInt ≥ 0) :
+@[simp] theorem sshiftRight_eq_ushiftRight_of_pos {x : BitVec n} (hx: x.toInt ≥ 0) :
   x.sshiftRight i = x.ushiftRight i := by
   rw [sshiftRight_eq, BitVec.ofInt_eq_ofNat_emod]
   rw [BitVec.toInt_eq_toNat_of_toInt_pos hx]
@@ -710,6 +704,22 @@ theorem sshiftRight_eq_ushiftRight_of_pos {x : BitVec n} (hx: x.toInt ≥ 0) :
     /- ↑x' >>> i < 2 ^ n -/
     /- need norm_num -/
     sorry
+-- @[simp] theorem getLsb_sshiftRight (x : BitVec n) (s i : Nat) :
+--   getLsb (x.sshiftRight s) i = if i ≥ n then false
+--     else if (s + i) < n then getLsb x (s + i)
+--     else getMsb x (n - 1) := by
+--   simp
+--   rw [sshiftRight_eq]
+--   rw [ofInt_eq_ofNat_emod]
+--   rw [getLsb_ofNat]
+--   rw [testBit_toNat]
+--   by_cases hinonneg : x.toInt ≥ 0
+--   case pos =>
+--     rw [Int.emod_eq_of_lt]
+--     sorry
+--   case neg =>
+--     sorry
+
 
 /-- The MSB of a bitvector is `false` iff its integer interpretetation is greater than or equal to zero. -/
 theorem msb_eq_false_iff_toInt_geq_zero (x : BitVec w)
@@ -734,7 +744,7 @@ theorem msb_eq_false_iff_toInt_geq_zero (x : BitVec w)
     omega
 
 /-- The MSB of a bitvector is `true` iff its integer interpretetation is greater than or equal to zero. -/
-theorem msb_eq_true_iff_toInt_lt_zero (x : BitVec w)
+theorem msb_eq_true_iff_toInt_le_zero (x : BitVec w)
     : x.msb = true ↔ x.toInt < 0 := by
   rcases w with rfl | w <;> try simp <;> try omega
   · rw [Subsingleton.elim x (0#0)]
@@ -754,49 +764,6 @@ theorem msb_eq_true_iff_toInt_lt_zero (x : BitVec w)
     rw [BitVec.msb_eq_decide]
     simp
     omega
-
-#check Int.shiftRight
-theorem getLsb_sshiftRight (x : BitVec n) (s i : Nat) :
-  getLsb (x.sshiftRight s) i = if i ≥ n then false
-    else if (s + i) < n then getLsb x (s + i)
-    else x.msb := by
-  simp
-  by_cases hxpos : (x.toInt ≥ 0)
-  -- If x ≥ 0, then arithmetic = logical shift right.
-  case pos =>
-    rw [sshiftRight_eq_ushiftRight_of_pos hxpos]
-    rw [(msb_eq_false_iff_toInt_geq_zero x).mpr hxpos]
-    by_cases h₁ : s + i < n;
-    · simp only [ushiftRight_eq, getLsb_ushiftRight, h₁, ↓reduceIte, Bool.iff_and_self,
-      Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_le]; omega
-    · simp only [ushiftRight_eq, getLsb_ushiftRight, h₁, ↓reduceIte, Bool.and_false]
-      apply getLsb_ge
-      omega
-  case neg =>
-    -- if x < 0, then msb = true
-    rw [(msb_eq_true_iff_toInt_lt_zero x).mpr (by omega)]
-    simp
-    by_cases h₁ : n ≤ i <;> simp [h₁]
-    by_cases h₂ : s + i < n;
-    case pos =>
-      simp [h₂]
-      rw [sshiftRight_eq]
-      -- the meat and potatoes case.
-      sorry
-    case neg =>
-      simp [h₂]
-      -- n ≥ i
-      -- s + i > n
-      rw [sshiftRight_eq]
-      rw [BitVec.ofInt_eq_ofNat_emod]
-      rw [BitVec.getLsb_ofNat]
-      simp [h₁]
-      sorry
-
-  -- rw [sshiftRight_eq]
-  -- rw [ofInt_eq_ofNat_emod]
-  -- rw [getLsb_ofNat]
-
 
 /-! ### append -/
 
