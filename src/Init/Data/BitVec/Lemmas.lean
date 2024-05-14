@@ -711,43 +711,21 @@ theorem BitVec.toInt_eq_toNat_of_toInt_pos {x : BitVec n} (hx: x.toInt ≥ 0) :
   split at hx <;> omega
 
 
-theorem sshiftRight_eq_ushiftRight_of_pos {x : BitVec n} (hx: x.toInt ≥ 0) :
-  x.sshiftRight i = x.ushiftRight i := by
-  rw [sshiftRight_eq, BitVec.ofInt_eq_ofNat_emod]
-  rw [BitVec.toInt_eq_toNat_of_toInt_pos hx]
-  rw [ushiftRight_eq]
-  rw [Int.emod_eq_of_lt]
-  · norm_cast
-    sorry
-  · /- need norm_num-/
-    sorry
-  · have ⟨x', hx'lt⟩ := x
-    simp
-    /- ↑x' >>> i < 2 ^ n -/
-    /- need norm_num -/
-    sorry
-
-/-- The MSB of a bitvector is `false` iff its integer interpretetation is greater than or equal to zero. -/
-theorem msb_eq_false_iff_toInt_geq_zero (x : BitVec w)
-  : x.msb = false ↔ x.toInt ≥ 0 := by
-  rcases w with rfl | w <;> simp
-  · rw [Subsingleton.elim x (0#0)]
-    simp
-  rw [BitVec.toInt_eq_toNat_cond]
-  constructor
-  · intro h
-    split
-    case inl hpos =>
-      apply Int.ofNat_nonneg
-    case inr hneg =>
-      exfalso
-      rw [BitVec.msb_eq_decide] at h
-      simp at h
-      omega
-  · intro h
-    rw [BitVec.msb_eq_decide]
-    simp
-    omega
+-- theorem sshiftRight_eq_ushiftRight_of_pos {x : BitVec n} (hx: x.toInt ≥ 0) :
+--   x.sshiftRight i = x.ushiftRight i := by
+--   rw [sshiftRight_eq, BitVec.ofInt_eq_ofNat_emod]
+--   rw [BitVec.toInt_eq_toNat_of_toInt_pos hx]
+--   rw [ushiftRight_eq]
+--   rw [Int.emod_eq_of_lt]
+--   · norm_cast
+--     sorry
+--   · /- need norm_num-/
+--     sorry
+--   · have ⟨x', hx'lt⟩ := x
+--     simp
+--     /- ↑x' >>> i < 2 ^ n -/
+--     /- need norm_num -/
+--     sorry
 
 /-- The MSB of a bitvector is `true` iff its integer interpretetation is greater than or equal to zero. -/
 theorem msb_eq_true_iff_toInt_lt_zero (x : BitVec w)
@@ -770,6 +748,54 @@ theorem msb_eq_true_iff_toInt_lt_zero (x : BitVec w)
     rw [BitVec.msb_eq_decide]
     simp
     omega
+
+/-- The MSB of a bitvector is `true` iff its numerical value is larger than half the bitwidth. -/
+theorem msb_eq_true_iff_large (x : BitVec w)
+    : x.msb = true ↔ 2 * x.toNat ≥ 2^w  := by
+  rcases w with rfl | w <;> try simp <;> try omega
+  constructor
+  · intro h
+    rw [BitVec.msb_eq_decide] at h
+    simp at h
+    omega
+  · intro h
+    rw [BitVec.msb_eq_decide]
+    simp
+    omega
+/-- The MSB of a bitvector is `false` iff its numerical value is smaller than half the bitwidth. -/
+theorem msb_eq_false_iff_small {x : BitVec w}
+    : x.msb = false ↔ 2 * x.toNat < 2^w  := by
+  rcases w with rfl | w <;> try simp <;> try omega
+  constructor
+  · intro h
+    rw [BitVec.msb_eq_decide] at h
+    simp at h
+    omega
+  · intro h
+    rw [BitVec.msb_eq_decide]
+    simp
+    omega
+
+-- /-- The MSB of a bitvector is `false` iff its integer interpretetation is greater than or equal to zero. -/
+-- theorem msb_eq_false_iff_toInt_geq_zero (x : BitVec w)
+--   : x.msb = false ↔ x.toInt ≥ 0 := by
+--   constructor
+--   · intro h
+--     rw [toInt_eq_toNat_cond]
+--     have hsize := msb_eq_false_iff_small.mp h
+--     split <;> omega
+--   · intro h
+--     have hx : x.toNat < 2^w := by exact isLt x
+--     rw [BitVec.msb_eq_decide]
+--     simp
+--     rw [BitVec.toInt_eq_toNat_cond] at h
+--     split at h <;> try omega
+--     case inl hsz =>
+--       -- we need integer omega here it looks likke?
+--       norm_cast
+--       simp_all
+--       sorry
+
 
 /-! ### append -/
 
@@ -1186,6 +1212,8 @@ theorem toNat_intMax_eq : (intMax w).toNat = 2^w - 1 := by
   simp [getMsb_eq_getLsb]
 
 
+-- PROOF SKETCH --
+
 @[simp] theorem ofInt_negSucc (w n : Nat) :
   BitVec.ofInt w (Int.negSucc n) = ~~~ (BitVec.ofNat w n) := by
   apply BitVec.eq_of_toNat_eq
@@ -1196,30 +1224,69 @@ theorem toNat_intMax_eq : (intMax w).toNat = 2^w - 1 := by
   getLsb (BitVec.ofInt n x) i = (i < n && x.testBit i) := by
   cases x
   case ofNat x =>
-    simp
-    simp [getLsb_ofNat]
+    simp only [Int.ofNat_eq_coe, ofInt_natCast, getLsb_ofNat, Int.testBit_natCast]
   case negSucc x =>
-    simp [Int.testBit]
-    simp [getLsb_ofNat]
+    simp only [ofInt_negSucc, getLsb_not, getLsb_ofNat, Bool.not_and, Int.testBit]
     cases decide (i < n) <;> simp
 
 @[simp] theorem toInt_sshiftRight (x : BitVec n) (i : Nat) :
     (x.sshiftRight i).toInt = (x.toInt >>> i).bmod (2^n) := by
   rw [sshiftRight_eq, BitVec.toInt_ofInt]
 
--- theorem testBit_toInt (x : BitVec w) :
---   x.toInt.testBit i = x.getLsb i := rfl
+-- If the index is larger than the bitwidth and the integer is negative,
+-- then the left hand side gives '1' and the right hand side gives '0'.
+theorem testBit_toInt_eq_testBit_toNat {x : BitVec w} (hi : i < w):
+    x.toInt.testBit i = x.toNat.testBit i := by
+  simp only [toInt_eq_toNat_cond]
+  split
+  case inl => simp only [Int.testBit_natCast]
+  case inr h =>
+    sorry
 
-#check Int.testBit_shiftRight
+theorem testBit_toInt_eq_getLsb {x : BitVec w} (hi : i < w) :
+    x.toInt.testBit i = x.getLsb i := by
+  rw [testBit_toInt_eq_testBit_toNat hi]
+  rfl
+
+theorem testBit_toInt_eq_msb {x : BitVec w} (hi : i ≥ w) :
+  x.toInt.testBit i = x.msb := by
+rw [BitVec.toInt]
+split
+case inl h =>
+  rw [msb_eq_false_iff_small.mpr h]
+  simp only [Int.testBit_natCast]
+  rw [testBit_toNat]
+  exact getLsb_ge x i hi
+case inr h =>
+  rw [Int.testBit]
+  split
+  case h_1 a b c d e =>
+    simp at e
+    have h : x.toNat - 2^w < 0 := by omega
+    sorry -- show that if < 0, then cannot be .ofNat
+  case h_2 a b c d e =>
+    -- we know that d.testBit = false from 'e'
+    -- we know that x.msb = true by 'h'.
+    sorry
+
 theorem getLsb_sshiftRight (x : BitVec n) (s i : Nat) :
-  getLsb (x.sshiftRight s) i = if i ≥ n then false
+  getLsb (x.sshiftRight s) i =
+    if i ≥ n then false
     else if (s + i) < n then getLsb x (s + i)
     else x.msb := by
-
   rw [sshiftRight_eq]
   rw [getLsb_ofInt]
   rw [Int.testBit_shiftRight]
   by_cases h₁:i < n <;> simp [h₁]
-
+  by_cases h₂:(s + i < n) <;> simp [h₂]
+  case pos =>
+    rw [testBit_toInt_eq_getLsb (by assumption)]
+    simp only [Bool.iff_and_self, Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_le, h₁,
+      implies_true]
+  case neg =>
+    rw [testBit_toInt_eq_msb]
+    · simp only [Bool.iff_and_self, Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_le]
+      omega
+    · omega
 
 end BitVec
