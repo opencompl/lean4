@@ -47,4 +47,17 @@ protected def shiftRight : Int → Nat → Int
 
 instance : HShiftRight Int Nat Int := ⟨.shiftRight⟩
 
+/-
+### testBit
+We define an operation for testing individual bits in the binary representation
+of a number.
+-/
+
+-- -m = !m + 1
+-- -(m + 1) = -m - 1 = !m
+/-- `testBit m n` returns whether the `(n+1)` least significant bit is `1` or `0`-/
+def testBit : Int → Nat → Bool
+  | .ofNat m, n => Nat.testBit m n
+  | .negSucc m, n => !(Nat.testBit m n)
+
 end Int

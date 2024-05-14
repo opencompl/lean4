@@ -9,6 +9,8 @@ import Init.Data.Bool
 import Init.Data.BitVec.Basic
 import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
+import Init.Data.Int.Bitwise.Lemmas
+import Init.Data.BitVec.Basic
 
 namespace BitVec
 
@@ -146,6 +148,7 @@ theorem ofBool_eq_iff_eq : ∀(b b' : Bool), BitVec.ofBool b = BitVec.ofBool b' 
 theorem getLsb_ofNat (n : Nat) (x : Nat) (i : Nat) :
   getLsb (x#n) i = (i < n && x.testBit i) := by
   simp [getLsb, BitVec.ofNat, Fin.val_ofNat']
+
 
 @[simp, deprecated toNat_ofNat] theorem toNat_zero (n : Nat) : (0#n).toNat = 0 := by trivial
 
@@ -315,6 +318,19 @@ theorem ofInt_eq_ofNat_emod {n : Nat} (i : Int) :
       apply Int.ne_of_gt
       apply Lean.Omega.Int.pos_pow_of_pos
       decide
+
+@[simp]
+theorem Int.testBit_natCast (n : Nat) : (n : Int).testBit i = n.testBit i := rfl
+
+theorem Int.natCast_mod_natCast (n m : Nat) : (n : Int) % (m : Int) = ((n % m : Nat) : Int) := rfl
+
+theorem Int.negSucc_mod_natCast (n m : Nat) :
+  (Int.negSucc m) % (n : Int) = n - ((m % n) + 1) := rfl
+
+@[simp] theorem Int.toNat_natCast (n : Nat) : (n : Int).toNat = n := rfl
+
+@[simp] theorem ofInt_natCast (w n : Nat) :
+  BitVec.ofInt w n = BitVec.ofNat w n := rfl
 
 /-! ### zeroExtend and truncate -/
 
@@ -755,49 +771,6 @@ theorem msb_eq_true_iff_toInt_lt_zero (x : BitVec w)
     simp
     omega
 
-#check Int.shiftRight
-theorem getLsb_sshiftRight (x : BitVec n) (s i : Nat) :
-  getLsb (x.sshiftRight s) i = if i ≥ n then false
-    else if (s + i) < n then getLsb x (s + i)
-    else x.msb := by
-  simp
-  by_cases hxpos : (x.toInt ≥ 0)
-  -- If x ≥ 0, then arithmetic = logical shift right.
-  case pos =>
-    rw [sshiftRight_eq_ushiftRight_of_pos hxpos]
-    rw [(msb_eq_false_iff_toInt_geq_zero x).mpr hxpos]
-    by_cases h₁ : s + i < n;
-    · simp only [ushiftRight_eq, getLsb_ushiftRight, h₁, ↓reduceIte, Bool.iff_and_self,
-      Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_le]; omega
-    · simp only [ushiftRight_eq, getLsb_ushiftRight, h₁, ↓reduceIte, Bool.and_false]
-      apply getLsb_ge
-      omega
-  case neg =>
-    -- if x < 0, then msb = true
-    rw [(msb_eq_true_iff_toInt_lt_zero x).mpr (by omega)]
-    simp
-    by_cases h₁ : n ≤ i <;> simp [h₁]
-    by_cases h₂ : s + i < n;
-    case pos =>
-      simp [h₂]
-      rw [sshiftRight_eq]
-      -- the meat and potatoes case.
-      sorry
-    case neg =>
-      simp [h₂]
-      -- n ≥ i
-      -- s + i > n
-      rw [sshiftRight_eq]
-      rw [BitVec.ofInt_eq_ofNat_emod]
-      rw [BitVec.getLsb_ofNat]
-      simp [h₁]
-      sorry
-
-  -- rw [sshiftRight_eq]
-  -- rw [ofInt_eq_ofNat_emod]
-  -- rw [getLsb_ofNat]
-
-
 /-! ### append -/
 
 theorem append_def (x : BitVec v) (y : BitVec w) :
@@ -1211,5 +1184,42 @@ theorem toNat_intMax_eq : (intMax w).toNat = 2^w - 1 := by
 @[simp] theorem getMsb_ofBoolListLE :
     (ofBoolListLE bs).getMsb i = (decide (i < bs.length) && bs.getD (bs.length - 1 - i) false) := by
   simp [getMsb_eq_getLsb]
+
+
+@[simp] theorem ofInt_negSucc (w n : Nat) :
+  BitVec.ofInt w (Int.negSucc n) = ~~~ (BitVec.ofNat w n) := by
+  apply BitVec.eq_of_toNat_eq
+  simp
+  sorry
+
+@[simp] theorem getLsb_ofInt (n : Nat) (x : Int) (i : Nat) :
+  getLsb (BitVec.ofInt n x) i = (i < n && x.testBit i) := by
+  cases x
+  case ofNat x =>
+    simp
+    simp [getLsb_ofNat]
+  case negSucc x =>
+    simp [Int.testBit]
+    simp [getLsb_ofNat]
+    cases decide (i < n) <;> simp
+
+@[simp] theorem toInt_sshiftRight (x : BitVec n) (i : Nat) :
+    (x.sshiftRight i).toInt = (x.toInt >>> i).bmod (2^n) := by
+  rw [sshiftRight_eq, BitVec.toInt_ofInt]
+
+-- theorem testBit_toInt (x : BitVec w) :
+--   x.toInt.testBit i = x.getLsb i := rfl
+
+#check Int.testBit_shiftRight
+theorem getLsb_sshiftRight (x : BitVec n) (s i : Nat) :
+  getLsb (x.sshiftRight s) i = if i ≥ n then false
+    else if (s + i) < n then getLsb x (s + i)
+    else x.msb := by
+
+  rw [sshiftRight_eq]
+  rw [getLsb_ofInt]
+  rw [Int.testBit_shiftRight]
+  by_cases h₁:i < n <;> simp [h₁]
+
 
 end BitVec

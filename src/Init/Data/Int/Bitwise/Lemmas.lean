@@ -16,8 +16,10 @@ import Init.Data.Nat.Lemmas
 import Init.Omega.Int
 
 namespace Int
+
 theorem shiftRight_eq (n : Int) (s : Nat) : n >>> s = Int.shiftRight n s := rfl
-theorem shiftRight_ofNat (n s : Nat) : Int.ofNat n >>> s = Int.ofNat (n >>> s) := rfl
+@[simp]
+theorem shiftRight_ofNat (n s : Nat) : (n : Int) >>> s = Int.ofNat (n >>> s) := rfl
 theorem natCast_shiftRight (n s : Nat) : ((↑n) : Int) >>> s = n >>> s := rfl
 
 @[simp]
@@ -49,3 +51,26 @@ theorem shiftRight_eq_div_pow (m : Int) (n : Nat) : m >>> n = m / ((((2 : Nat) ^
 @[simp]
 theorem zero_shiftRight (n : Nat) : (0 : Int) >>> n = 0 := by
   simp [Int.shiftRight_eq_div_pow]
+
+@[simp] theorem zero_testBit (i : Nat) : Int.testBit 0 i = false := by
+  simp only [testBit, zero_shiftRight, Nat.zero_and, bne_self_eq_false, Nat.zero_testBit i]
+
+-- @[simp] theorem testBit_zero (x : Int) : Int.testBit x 0 = decide (x % 2 = 1) := by
+--   unfold testBit
+--   cases x <;> simp [Nat.testBit_zero]
+--   case ofNat x =>
+--     omega
+
+@[simp] theorem testBit_succ (x : Int) (i : Nat) : Int.testBit x (Nat.succ i) = testBit (x/2) i := by
+  unfold testBit
+  cases x <;> simp <;> rfl
+
+theorem toNat_testBit (x i : Nat) :
+    (x.testBit i).toNat = x / 2 ^ i % 2 := by
+  rw [Nat.testBit_to_div_mod]
+  rcases Nat.mod_two_eq_zero_or_one (x / 2^i) <;> simp_all
+
+@[simp] theorem testBit_shiftRight (x : Int) (i j : Nat) : testBit (x >>> i) j = testBit x (i+j) := by
+  cases x <;> simp [testBit]
+
+end Int
