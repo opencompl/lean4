@@ -1117,6 +1117,11 @@ theorem neg_eq_not_add (x : BitVec w) : -x = ~~~x + 1 := by
   have hx : x.toNat < 2^w := x.isLt
   rw [Nat.sub_sub, Nat.add_comm 1 x.toNat, ← Nat.sub_sub, Nat.sub_add_cancel (by omega)]
 
+-- @[simp, bv_toNat] theorem toInt_sub (x y : BitVec w) :
+--   (x - y).toInt = ((x.toNat + (((2 : Nat) ^ w : Nat) - y.toNat)) : Int).bmod (2 ^ w) := by
+--   simp [toInt_eq_toNat_bmod]
+--   norm_cast
+--   simp
 /-! ### mul -/
 
 theorem mul_def {n} {x y : BitVec n} : x * y = (ofFin <| x.toFin * y.toFin) := by rfl
@@ -1211,23 +1216,40 @@ theorem toNat_intMax_eq : (intMax w).toNat = 2^w - 1 := by
     (ofBoolListLE bs).getMsb i = (decide (i < bs.length) && bs.getD (bs.length - 1 - i) false) := by
   simp [getMsb_eq_getLsb]
 
+theorem Int.negSucc_div_ofNat (a b : Nat) (hb : b ≠ 0)  :
+  (Int.negSucc a) / (Int.ofNat b) = Int.negSucc (((a / b) : Nat)) := by
+  rcases b with rfl | b
+  · contradiction
+  · norm_cast
 
--- PROOF SKETCH --
+#check Int.ediv
+#reduce (Int.negSucc 4) % (Int.ofNat 1) -- 0
+#reduce (Int.negSucc 4) % (Int.ofNat 1) -- 0
+#reduce (Int.negSucc 4) % (Int.ofNat 1) -- 0
+#reduce (Int.negSucc 4) % (Int.ofNat 1) -- 0
+#reduce (Int.negSucc 4) % (Int.ofNat 1) -- 0
 
-@[simp] theorem ofInt_negSucc (w n : Nat) :
-  BitVec.ofInt w (Int.negSucc n) = ~~~ (BitVec.ofNat w n) := by
-  apply BitVec.eq_of_toNat_eq
-  simp
-  sorry
+#reduce (Int.negSucc 0) % (Int.ofNat 8) -- 7
+#reduce (Int.negSucc 1) % (Int.ofNat 8) -- 6
+#reduce (Int.negSucc 2) % (Int.ofNat 8) -- 5
+#reduce (Int.negSucc 3) % (Int.ofNat 8) -- 4
+#reduce (Int.negSucc 4) % (Int.ofNat 8) -- 3
+#reduce (Int.negSucc 5) % (Int.ofNat 8) -- 2
+#reduce (Int.negSucc 6) % (Int.ofNat 8) -- 1
+#reduce (Int.negSucc 7) % (Int.ofNat 8) -- 0
+#reduce (Int.negSucc 8) % (Int.ofNat 8) -- 7
+#reduce (Int.negSucc 9) % (Int.ofNat 8) -- 6
+#reduce (Int.negSucc 10) % (Int.ofNat 8) -- 5
+#reduce (Int.negSucc 11) % (Int.ofNat 8) -- 4
+#reduce (Int.negSucc 12) % (Int.ofNat 8) -- 3
+#reduce (Int.negSucc 13) % (Int.ofNat 8) -- 2
+#reduce (Int.negSucc 14) % (Int.ofNat 8) -- 1
+#reduce (Int.negSucc 15) % (Int.ofNat 8) -- 0
+#reduce (Int.negSucc 16) % (Int.ofNat 8) -- 1
+#reduce (Int.negSucc 17) % (Int.ofNat 8) -- 2
+#reduce (Int.negSucc 18) % (Int.ofNat 8)
 
-@[simp] theorem getLsb_ofInt (n : Nat) (x : Int) (i : Nat) :
-  getLsb (BitVec.ofInt n x) i = (i < n && x.testBit i) := by
-  cases x
-  case ofNat x =>
-    simp only [Int.ofNat_eq_coe, ofInt_natCast, getLsb_ofNat, Int.testBit_natCast]
-  case negSucc x =>
-    simp only [ofInt_negSucc, getLsb_not, getLsb_ofNat, Bool.not_and, Int.testBit]
-    cases decide (i < n) <;> simp
+#check Nat.emod_pos_of_not_dvd
 
 @[simp] theorem toInt_sshiftRight (x : BitVec n) (i : Nat) :
     (x.sshiftRight i).toInt = (x.toInt >>> i).bmod (2^n) := by
@@ -1267,6 +1289,30 @@ case inr h =>
   case h_2 a b c d e =>
     -- we know that d.testBit = false from 'e'
     -- we know that x.msb = true by 'h'.
+    sorry
+
+@[simp]
+theorem toInt_zero : (0#w).toInt = 0 := by
+  simp [toInt_eq_toNat_bmod]
+
+@[simp]
+theorem toInt_neg (x : BitVec w) :
+  (-x).toInt = (((((2 : Nat) ^ w) - x.toNat) : Nat) : Int).bmod (2 ^ w) := by
+  simp [toInt_eq_toNat_bmod]
+
+
+theorem ofInt_ofNat (n : Nat) : BitVec.ofInt w (Int.ofNat n) = n#w := by
+  apply eq_of_toNat_eq
+  simp
+
+@[simp] theorem getLsb_ofInt (n : Nat) (x : Int) (i : Nat) :
+  getLsb (BitVec.ofInt n x) i = (i < n && x.testBit i) := by
+  cases x
+  case ofNat x =>
+    rw [ofInt_ofNat]
+    simp
+    rw [getLsb_ofNat]
+  case negSucc x =>
     sorry
 
 theorem getLsb_sshiftRight (x : BitVec n) (s i : Nat) :
