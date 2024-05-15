@@ -1456,9 +1456,18 @@ theorem ofInt_ofNat (n : Nat) : BitVec.ofInt w (Int.ofNat n) = n#w := by
 -- theorem mod_eq_of_neg {a b : Int} (H1 : a < 0) (hb : b ≥ 0) (H2 : a < b) :  a % b = (b - a) := by
 --   simp
 --   omega
+theorem Int.mod_ofNat_eq (m : Nat) (n : Int) :
+  (Int.ofNat m) % n = Int.ofNat (m % Int.natAbs n) := rfl
+
+theorem Int.mod_negSucc_eq (m : Nat) (n : Int) :
+  (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := rfl
 
 axiom notSorry {α : Prop} : α
 
+-- @[simp]
+theorem ofNat_two_pow_eq (n : Nat) : (((2 : Int) ^n) : Int) = (((2 : Nat) ^n : Nat) : Int) := by
+  rw [Int.natCast_pow]
+  simp
 
 theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
   getLsb (x.sshiftRight s) i =
@@ -1492,9 +1501,7 @@ theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
       · apply Int.ofNat_zero_le
       · norm_cast
         rw [Nat.shiftRight_eq_div_pow]
-        have htwopow : (2 : Int) ^ (w + 1) = (((2 : Nat) ^ (w + 1) : Nat) : Int) := by
-          simp [Int.natCast_pow]
-        rw [htwopow]
+        rw [ofNat_two_pow_eq]
         norm_cast
         have hleq : x.toNat / 2^s ≤ x.toNat := by
           apply Nat.div_le_self
@@ -1507,35 +1514,29 @@ theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
           have hiltw' : ¬ (w + 1) ≤ i := by omega
           simp [hiltw']
           by_cases hsplusi : (s + i) < w+1
+          rw [Int.mod_negSucc_eq]
+          simp only [Nat.succ_eq_add_one]
           · simp [hsplusi]
             rw [BitVec.getLsb]
             rw [Nat.shiftRight_eq_div_pow]
-            have hx : x.toNat ≥ 2^w := by omega
-            /-
-            case pos
-            s i w : Nat
-            x : BitVec (w + 1)
-            hxtoNat : ¬2 * x.toNat < 2 ^ (w + 1)
-            hiltw : i < w + 1
-            hiltw' : ¬w + 1 ≤ i
-            hsplusi : s + i < w + 1
-            hx : x.toNat ≥ 2 ^ w
-            ⊢ (Int.negSucc ((2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s) % 2 ^ (w + 1)).toNat.testBit i = x.toNat.testBit (s + i)
-            -/
-
-            exact notSorry
+            simp only [ofNat_two_pow_eq, Int.natAbs_ofNat]
+            have hexpr : ((2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s % 2 ^ (w + 1) + 1) = ((2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s + 1) := by
+              rw [Nat.mod_eq_of_lt]
+              apply Nat.lt_of_le_of_lt
+              apply Nat.div_le_self
+              omega
+            rw [hexpr]
+            clear hexpr -- TODO: suffices
+            rw [Int.subNatNat_of_le]
+            · exact notSorry
+            · suffices (2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s + 1 ≤ (2 ^ (w + 1) - 1 - x.toNat) + 1 by
+                simp only [ge_iff_le]
+                apply Nat.le_trans
+                · apply this
+                · omega
+              apply Nat.add_le_add_right
+              apply Nat.div_le_self
           · simp [hsplusi]
-            /-
-            case neg
-            s i w : Nat
-            x : BitVec (w + 1)
-            hxtoNat : ¬2 * x.toNat < 2 ^ (w + 1)
-            hiltw : i < w + 1
-            hiltw' : ¬w + 1 ≤ i
-            hsplusi : ¬s + i < w + 1
-            ⊢ (Int.negSucc ((2 ^ (w + 1) - 1 - x.toNat) >>> s) % 2 ^ (w + 1)).toNat.testBit i = x.msb
-            -/
-
             exact notSorry
         · simp [hiltw]
       · omega
