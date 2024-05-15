@@ -1502,16 +1502,42 @@ theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
     · simp [hxtoNat]
       rw [Int.toNat_sub_toNat_eq_negSucc_ofLt]
       · simp [Int.shiftRight_negSucc]
-        -- hard case
-        /-
-        case neg
-        s i w : Nat
-        x : BitVec (w + 1)
-        hxtoNat : ¬2 * x.toNat < 2 ^ (w + 1)
-        ⊢ (decide (i < w + 1) && (Int.negSucc ((2 ^ (w + 1) - 1 - x.toNat) >>> s) % 2 ^ (w + 1)).toNat.testBit i) =
-          (!decide (w + 1 ≤ i) && if s + i < w + 1 then x.getLsb (s + i) else x.msb)
-        -/
-        exact notSorry
+        by_cases hiltw:(i < w + 1)
+        · simp [hiltw]
+          have hiltw' : ¬ (w + 1) ≤ i := by omega
+          simp [hiltw']
+          by_cases hsplusi : (s + i) < w+1
+          · simp [hsplusi]
+            rw [BitVec.getLsb]
+            rw [Nat.shiftRight_eq_div_pow]
+            have hx : x.toNat ≥ 2^w := by omega
+            /-
+            case pos
+            s i w : Nat
+            x : BitVec (w + 1)
+            hxtoNat : ¬2 * x.toNat < 2 ^ (w + 1)
+            hiltw : i < w + 1
+            hiltw' : ¬w + 1 ≤ i
+            hsplusi : s + i < w + 1
+            hx : x.toNat ≥ 2 ^ w
+            ⊢ (Int.negSucc ((2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s) % 2 ^ (w + 1)).toNat.testBit i = x.toNat.testBit (s + i)
+            -/
+
+            exact notSorry
+          · simp [hsplusi]
+            /-
+            case neg
+            s i w : Nat
+            x : BitVec (w + 1)
+            hxtoNat : ¬2 * x.toNat < 2 ^ (w + 1)
+            hiltw : i < w + 1
+            hiltw' : ¬w + 1 ≤ i
+            hsplusi : ¬s + i < w + 1
+            ⊢ (Int.negSucc ((2 ^ (w + 1) - 1 - x.toNat) >>> s) % 2 ^ (w + 1)).toNat.testBit i = x.msb
+            -/
+
+            exact notSorry
+        · simp [hiltw]
       · omega
 
 /--
