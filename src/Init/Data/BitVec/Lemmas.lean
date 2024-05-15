@@ -1255,16 +1255,44 @@ theorem Int.negSucc_div_ofNat (a b : Nat) (hb : b ≠ 0)  :
     (x.sshiftRight i).toInt = (x.toInt >>> i).bmod (2^n) := by
   rw [sshiftRight_eq, BitVec.toInt_ofInt]
 
+private theorem Int.sub_sub_ofNat_implies_geq {x y : Nat}
+  (h : (x : Int) - (y : Int) = Int.ofNat z) : x ≥ y := by
+  simp at h
+  omega
+
 -- If the index is larger than the bitwidth and the integer is negative,
 -- then the left hand side gives '1' and the right hand side gives '0'.
 theorem testBit_toInt_eq_testBit_toNat {x : BitVec w} (hi : i < w):
     x.toInt.testBit i = x.toNat.testBit i := by
-  simp only [toInt_eq_toNat_cond]
-  split
-  case inl => simp only [Int.testBit_natCast]
-  case inr h =>
-    sorry
-
+  rcases w with rfl | w
+  case zero =>
+    simp [toInt_eq_toNat_bmod]
+  case succ =>
+    simp only [toInt_eq_toNat_cond]
+    split
+    case inl => simp only [Int.testBit_natCast]
+    case inr h =>
+      -- ¬ ((2 * x.toNat) < 2^(w+1))
+      have hx : x.toNat ≥ 2^w := by omega
+      have hx' : x.toNat < 2^(w+1) := by omega
+      -- ((x.toNat) ≥ 2^(w))
+      rw [Int.testBit]
+      split
+      case h_1 a b c d e =>
+        simp at e
+        have hcontra := Int.sub_sub_ofNat_implies_geq e
+        omega
+      case h_2 a b c d e =>
+        rw [Nat.testBit]
+        rw [BitVec.testBit_toNat]
+        have he : ∀ (i : Nat), ((x.toNat : Int) - ((((2 : Nat) ^ (w + 1) : Nat) : Int))).testBit i =
+          (Int.negSucc d).testBit i := by
+          intros i
+          rw [← e]
+        -- HERE HERE HERE
+        sorry
+        -- rw [Int.testBit] at he
+        -- omega
 theorem testBit_toInt_eq_getLsb {x : BitVec w} (hi : i < w) :
     x.toInt.testBit i = x.getLsb i := by
   rw [testBit_toInt_eq_testBit_toNat hi]
@@ -1299,7 +1327,6 @@ theorem toInt_zero : (0#w).toInt = 0 := by
 theorem toInt_neg (x : BitVec w) :
   (-x).toInt = (((((2 : Nat) ^ w) - x.toNat) : Nat) : Int).bmod (2 ^ w) := by
   simp [toInt_eq_toNat_bmod]
-
 
 theorem ofInt_ofNat (n : Nat) : BitVec.ofInt w (Int.ofNat n) = n#w := by
   apply eq_of_toNat_eq

@@ -14,6 +14,9 @@ import Init.Data.Bool
 import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Omega.Int
+import Init.Data.Int.DivMod
+import Init.Data.Int.Order
+import Init.Data.Nat.Dvd
 
 namespace Int
 
@@ -55,11 +58,28 @@ theorem zero_shiftRight (n : Nat) : (0 : Int) >>> n = 0 := by
 @[simp] theorem zero_testBit (i : Nat) : Int.testBit 0 i = false := by
   simp only [testBit, zero_shiftRight, Nat.zero_and, bne_self_eq_false, Nat.zero_testBit i]
 
--- @[simp] theorem testBit_zero (x : Int) : Int.testBit x 0 = decide (x % 2 = 1) := by
---   unfold testBit
---   cases x <;> simp [Nat.testBit_zero]
---   case ofNat x =>
---     omega
+
+private theorem Nat.mod2_cases (x : Nat) : (x % 2 = 0) ∨ (x % 2 = 1) := by omega
+private theorem Int.mod2_cases (x : Int) : (x % 2 = 0) ∨ (x % 2 = 1) := by omega
+
+@[simp] theorem Int.mod2_ofNat_eq (x : Nat) : (Int.ofNat x % 2) = (x % 2) := by
+  simp [Int.mod_def']
+
+@[simp]  theorem Int.mod2_negSucc_eq (x : Nat) : (Int.negSucc x % 2) = (1 - x % 2) := by
+  simp only [mod_def']
+  unfold Int.emod
+  simp only [subNatNat, Int.reduceAbs, Nat.succ_eq_add_one, Nat.reduceSubDiff, ofNat_eq_coe,
+    ofNat_emod, Nat.cast_ofNat_Int]
+  split <;> omega
+
+@[simp] theorem testBit_ofNat (x : Nat) (i : Nat) : (x : Int).testBit i = x.testBit i := rfl
+@[simp] theorem testBit_negSucc (x : Nat) (i : Nat) : (Int.negSucc x).testBit i = !(x.testBit i) := rfl
+
+@[simp] theorem testBit_zero (x : Int) : Int.testBit x 0 = decide (x % 2 = 1) := by
+  rcases x with x | x
+  · simp only [ofNat_eq_coe, testBit_ofNat, Nat.testBit_zero, decide_eq_decide]; omega
+  · simp only [testBit_negSucc, Nat.testBit_zero, Int.mod2_negSucc_eq]
+    rcases (Nat.mod2_cases x) with h | h <;> simp_all <;> omega
 
 @[simp] theorem testBit_succ (x : Int) (i : Nat) : Int.testBit x (Nat.succ i) = testBit (x/2) i := by
   unfold testBit
