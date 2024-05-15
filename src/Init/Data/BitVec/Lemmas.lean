@@ -1469,6 +1469,9 @@ theorem ofNat_two_pow_eq (n : Nat) : (((2 : Int) ^n) : Int) = (((2 : Nat) ^n : N
   rw [Int.natCast_pow]
   simp
 
+theorem Nat.sub_add_comm' {a b c : Nat} (h : a ≥ b + c) : a - (b + c) = (a - c) - b:= by
+  omega
+
 theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
   getLsb (x.sshiftRight s) i =
     if i ≥ w then false
@@ -1508,54 +1511,58 @@ theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
         omega
     · simp [hxtoNat]
       rw [Int.toNat_sub_toNat_eq_negSucc_ofLt]
-      · simp [Int.shiftRight_negSucc]
+      rw [Int.shiftRight_negSucc]
+      rw [Int.mod_negSucc_eq]
+      simp only [Nat.succ_eq_add_one]
+      rw [BitVec.getLsb]
+      rw [Nat.shiftRight_eq_div_pow]
+      simp only [ofNat_two_pow_eq, Int.natAbs_ofNat]
+      have hexpr : ((2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s % 2 ^ (w + 1) + 1) = ((2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s + 1) := by
+        rw [Nat.mod_eq_of_lt]
+        apply Nat.lt_of_le_of_lt
+        apply Nat.div_le_self
+        omega
+      rw [hexpr]
+      clear hexpr
+      rw [Int.subNatNat_of_le]
+      · simp only [Int.toNat_ofNat]
         by_cases hiltw:(i < w + 1)
         · simp [hiltw]
           have hiltw' : ¬ (w + 1) ≤ i := by omega
           simp [hiltw']
-          by_cases hsplusi : (s + i) < w+1
-          rw [Int.mod_negSucc_eq]
-          simp only [Nat.succ_eq_add_one]
-          · simp [hsplusi]
-            rw [BitVec.getLsb]
-            rw [Nat.shiftRight_eq_div_pow]
-            simp only [ofNat_two_pow_eq, Int.natAbs_ofNat]
-            have hexpr : ((2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s % 2 ^ (w + 1) + 1) = ((2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s + 1) := by
-              rw [Nat.mod_eq_of_lt]
-              apply Nat.lt_of_le_of_lt
-              apply Nat.div_le_self
-              omega
-            rw [hexpr]
-            clear hexpr -- TODO: suffices
-            rw [Int.subNatNat_of_le]
-            · exact notSorry
-            · suffices (2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s + 1 ≤ (2 ^ (w + 1) - 1 - x.toNat) + 1 by
-                simp only [ge_iff_le]
-                apply Nat.le_trans
-                · apply this
-                · omega
-              apply Nat.add_le_add_right
-              apply Nat.div_le_self
-          · simp [hsplusi]
-            exact notSorry
+          rw [← Nat.shiftRight_eq_div_pow]
+          -- repeat rw [Nat.testBit]
+          rw [← toNat_allOnes]
+          have hx : (BitVec.allOnes (w + 1)).toNat - x.toNat = (~~~ x).toNat := by simp
+          rw [hx]; clear hx
+          have hx {k : Nat} (x : BitVec k) (i : Nat) : x.toNat >>> i = (x.ushiftRight i).toNat := rfl
+          rw [hx]
+          rw [Nat.sub_add_comm']
+          rw [← toNat_allOnes]
+          have hx : (allOnes (w + 1)).toNat - ((~~~x).ushiftRight s).toNat =
+              (~~~(((~~~x).ushiftRight s))).toNat := by simp
+          rw [hx]; clear hx
+          rw [← getLsb]
+          simp
+          have hi : i < w + 1 := by omega
+          simp [hi]; clear hi
+          by_cases hs : (s + i) < (w + 1)
+          · simp [hs]
+            rfl
+          · simp [hs]
+            apply msb_eq_true_iff_large.mpr
+            omega
+          omega
         · simp [hiltw]
+      · have hexpr : (2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s + 1 ≤ (2 ^ (w + 1) - 1 - x.toNat)  + 1 := by
+          apply Nat.add_le_add_right
+          apply Nat.div_le_self
+        apply Nat.le_trans
+        exact hexpr
+        omega
       · omega
 
-/--
-info: 'BitVec.getLsb_sshiftRight' depends on axioms: [propext, Classical.choice, Quot.sound, BitVec.notSorry]
--/
+/-- info: 'BitVec.getLsb_sshiftRight' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms getLsb_sshiftRight
-/-
-  by_cases h₁:i < n <;> simp [h₁]
-  by_cases h₂:(s + i < n) <;> simp [h₂]
-  case pos =>
-    rw [testBit_toInt_eq_getLsb (by assumption)]
-    simp only [Bool.iff_and_self, Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_le, h₁,
-      implies_true]
-  case neg =>
-    rw [testBit_toInt_eq_msb]
-    · simp only [Bool.iff_and_self, Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_le]
-      omega
-    · omega
--/
+
 end BitVec
