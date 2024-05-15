@@ -1226,51 +1226,14 @@ theorem Int.negSucc_div_ofNat (a b : Nat) (hb : b ≠ 0)  :
   · contradiction
   · norm_cast
 
-#check Int.ediv
-#reduce (Int.negSucc 4) % (Int.ofNat 1) -- 0
-#reduce (Int.negSucc 4) % (Int.ofNat 1) -- 0
-#reduce (Int.negSucc 4) % (Int.ofNat 1) -- 0
-#reduce (Int.negSucc 4) % (Int.ofNat 1) -- 0
-#reduce (Int.negSucc 4) % (Int.ofNat 1) -- 0
-
-#reduce (Int.negSucc 0) % (Int.ofNat 8) -- 7
-#reduce (Int.negSucc 1) % (Int.ofNat 8) -- 6
-#reduce (Int.negSucc 2) % (Int.ofNat 8) -- 5
-#reduce (Int.negSucc 3) % (Int.ofNat 8) -- 4
-#reduce (Int.negSucc 4) % (Int.ofNat 8) -- 3
-#reduce (Int.negSucc 5) % (Int.ofNat 8) -- 2
-#reduce (Int.negSucc 6) % (Int.ofNat 8) -- 1
-#reduce (Int.negSucc 7) % (Int.ofNat 8) -- 0
-#reduce (Int.negSucc 8) % (Int.ofNat 8) -- 7
-#reduce (Int.negSucc 9) % (Int.ofNat 8) -- 6
-#reduce (Int.negSucc 10) % (Int.ofNat 8) -- 5
-#reduce (Int.negSucc 11) % (Int.ofNat 8) -- 4
-#reduce (Int.negSucc 12) % (Int.ofNat 8) -- 3
-#reduce (Int.negSucc 13) % (Int.ofNat 8) -- 2
-#reduce (Int.negSucc 14) % (Int.ofNat 8) -- 1
-#reduce (Int.negSucc 15) % (Int.ofNat 8) -- 0
-#reduce (Int.negSucc 16) % (Int.ofNat 8) -- 1
-#reduce (Int.negSucc 17) % (Int.ofNat 8) -- 2
-#reduce (Int.negSucc 18) % (Int.ofNat 8)
-
-#check Nat.emod_pos_of_not_dvd
-
 @[simp] theorem toInt_sshiftRight (x : BitVec n) (i : Nat) :
     (x.sshiftRight i).toInt = (x.toInt >>> i).bmod (2^n) := by
   rw [sshiftRight_eq, BitVec.toInt_ofInt]
 
-/-- info: 'BitVec.toInt_sshiftRight' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in #print axioms toInt_sshiftRight
 @[simp] private theorem Int.ofNat_sub_ofNat_eq_ofNat_implies_eq_ofNat_sub {x y : Nat}
   (h : (x : Int) - (y : Int) = Int.ofNat z) : (x : Int) - (y : Int) = ((x - y : Nat) : Int) := by
   simp at h
   omega
-/--
-info: '_private.Init.Data.BitVec.Lemmas.0.BitVec.Int.ofNat_sub_ofNat_eq_ofNat_implies_eq_ofNat_sub' depends on axioms: [propext,
- Classical.choice,
- Quot.sound]
--/
-#guard_msgs in #print axioms Int.ofNat_sub_ofNat_eq_ofNat_implies_eq_ofNat_sub
 /-- (n₁ : Int) - (n₂ : Int) = (n₃ : Int) for n₁, n₂, n₃ naturals iff n₁ ≥ n₂ -/
 private theorem Int.sub_sub_eq_ofNat_iff_geq {x y : Nat} :
   (∃ (z : Nat), (x : Int) - (y : Int) = Int.ofNat z) ↔ x ≥ y := by
@@ -1283,13 +1246,6 @@ private theorem Int.sub_sub_eq_ofNat_iff_geq {x y : Nat} :
     simp only [Int.ofNat_eq_coe]
     omega
 
-/--
-info: '_private.Init.Data.BitVec.Lemmas.0.BitVec.Int.sub_sub_eq_ofNat_iff_geq' depends on axioms: [propext,
- Classical.choice,
- Quot.sound]
--/
-#guard_msgs in #print axioms Int.sub_sub_eq_ofNat_iff_geq
-
 /-- (n₁ : Int) - (n₂ : Int) = (negSucc n₃) for n₁, n₂, n₃ naturals iff n₁ < n₂ -/
 private theorem Int.sub_sub_eq_negSucc_implies_le {x y : Nat}
   (h : ∃ (z : Nat), (x : Int) - (y : Int) = Int.negSucc z) : x < y := by
@@ -1301,24 +1257,33 @@ private theorem Int.sub_sub_eq_negSucc_implies_le {x y : Nat}
     obtain ⟨w, hw⟩ := h
     contradiction
 
-/--
-info: '_private.Init.Data.BitVec.Lemmas.0.BitVec.Int.sub_sub_eq_negSucc_implies_le' depends on axioms: [propext,
- Classical.choice,
- Quot.sound]
--/
-#guard_msgs in #print axioms Int.sub_sub_eq_negSucc_implies_le
-
 theorem Int.toNat_sub_toNat_eq_negSucc_ofLt {n m : Nat} (hlt : n < m) :
   (n : Int) - (m : Int) = (Int.negSucc (m - 1 - n)) := by
   rw [Int.negSucc_eq] -- TODO: consider adding this to omega cleanup set.
   omega
 
-/--
-info: 'BitVec.Int.toNat_sub_toNat_eq_negSucc_ofLt' depends on axioms: [propext, Classical.choice, Quot.sound]
--/
-#guard_msgs in #print axioms Int.toNat_sub_toNat_eq_negSucc_ofLt
+/-- Testing the ith bit of `x.toInt` is the same as testing `x.toNat`-/
+theorem testBit_toInt_eq_testBit_toNat {x : BitVec w} (hi : i < w) :
+  x.toInt.testBit i = x.toNat.testBit i := by
+rw [BitVec.toInt]
+rcases w with rfl | w
+· omega
+· by_cases hx : x.toNat < 2^w
+  · have hx' : 2 * x.toNat < 2 ^ (w + 1) := by omega
+    simp [hx']
+  · have hx' : ¬ (2 * x.toNat < 2 ^ (w + 1)) := by omega
+    simp [hx']
+    rw [Int.toNat_sub_toNat_eq_negSucc_ofLt (by omega)]
+    simp
+    suffices 2 ^ (w + 1) - 1 - x.toNat = (~~~ x).toNat by
+      rw [this]
+      rw [← getLsb]
+      simp [hi]
+      rfl
+    simp
 
-
+/-- the value of testBit of the integer value,
+  when the index being tested is larger or equal to the bitwidth is the msb of the bitvector. -/
 theorem testBit_toInt_eq_msb {x : BitVec w} (hi : i ≥ w) :
   x.toInt.testBit i = x.msb := by
 rw [BitVec.toInt]
@@ -1352,217 +1317,73 @@ info: 'BitVec.testBit_toInt_eq_msb' depends on axioms: [propext, Classical.choic
 #guard_msgs in #print axioms testBit_toInt_eq_msb
 
 
-
-/-!
-# Theorems that need sorry below
--/
-
--- If the index is larger than the bitwidth and the integer is negative,
--- then the left hand side gives '1' and the right hand side gives '0'.
-theorem toInt_testBit_eq_toNat_testBit {x : BitVec w} (hi : i < w):
-    x.toInt.testBit i = x.toNat.testBit i := by
-  rcases w with rfl | w
-  case zero =>
-    simp [toInt_eq_toNat_bmod]
-  case succ =>
-    simp only [toInt_eq_toNat_cond]
-    split
-    case inl => simp only [Int.testBit_natCast]
-    case inr h =>
-      rw [Int.testBit]
-      split
-      case h_1 a b c d e =>
-        simp at e
-        omega
-      case h_2 a b c d e =>
-        have hcontra : x.toNat ≥ 2 ^ w := by omega
-        have hcontra' : x.toNat < 2^(w + 1) := by omega
-        have hd := Int.toNat_sub_toNat_eq_negSucc_ofLt hcontra'
-        rw [hd] at e
-        simp at e
-        rw [← e]
-        sorry
-        -- simp [Nat.testBit]
-        -- rw [Nat.shiftRight_eq_div_pow]
-
-/--
-info: 'BitVec.toInt_testBit_eq_toNat_testBit' depends on axioms: [propext, Classical.choice, Quot.sound, sorryAx]
--/
-#guard_msgs in #print axioms toInt_testBit_eq_toNat_testBit
-
-theorem testBit_toInt_eq_getLsb {x : BitVec w} (hi : i < w) :
-    x.toInt.testBit i = x.getLsb i := by
-  rw [toInt_testBit_eq_toNat_testBit hi]
-  rfl
-
-/--
-info: 'BitVec.testBit_toInt_eq_getLsb' depends on axioms: [propext, Classical.choice, Quot.sound, sorryAx]
--/
-#guard_msgs in #print axioms testBit_toInt_eq_getLsb
-
-
-    -- rw [Int.testBit]
-
-@[simp]
-theorem toInt_zero : (0#w).toInt = 0 := by
-  simp [toInt_eq_toNat_bmod]
-
-@[simp]
-theorem toInt_neg (x : BitVec w) :
-  (-x).toInt = (((((2 : Nat) ^ w) - x.toNat) : Nat) : Int).bmod (2 ^ w) := by
-  simp [toInt_eq_toNat_bmod]
-
-theorem ofInt_ofNat (n : Nat) : BitVec.ofInt w (Int.ofNat n) = n#w := by
-  apply eq_of_toNat_eq
-  simp
-
-
-@[simp] theorem getLsb_ofInt (w : Nat) (x : Int) (i : Nat) :
-  getLsb (BitVec.ofInt w x) i = (i < w && x.testBit i) := by
-  rcases w with rfl | w
-  · simp only [Nat.zero_le, getLsb_ge, Bool.false_eq, Bool.and_eq_false_imp, decide_eq_true_eq]
-    intros Hcontra
-    omega
-  · by_cases (i < w + 1)
-    case pos h =>
-      simp [h];
-      rw [BitVec.ofInt]
-      simp
-      generalize hx':(x % (((2 : Nat)^(w + 1) : Nat) : Int)) = x'
-      rw [Int.toNat]
-      rcases x' with x' | x'
-      case ofNat =>
-        simp
-        sorry
-      case negSucc  =>
-        simp
-        sorry
-    case neg h =>
-      simp [h]
-      apply getLsb_ge
-      omega
-
-
--- #reduce (-1 : Int) % 7
--- #reduce (-2 : Int) % 7
--- #reduce (-3 : Int) % 7
--- #reduce (-4 : Int) % 7
--- #reduce (-5 : Int) % 7
--- #reduce (-6 : Int) % 7
--- #reduce (-7 : Int) % 7
--- #reduce (-8 : Int) % 7
-
--- #check Int.mod_eq_emod
--- theorem mod_eq_of_neg {a b : Int} (H1 : a < 0) (hb : b ≥ 0) (H2 : a < b) :  a % b = (b - a) := by
---   simp
---   omega
-theorem Int.mod_ofNat_eq (m : Nat) (n : Int) :
+private theorem Int.mod_ofNat_eq (m : Nat) (n : Int) :
   (Int.ofNat m) % n = Int.ofNat (m % Int.natAbs n) := rfl
 
-theorem Int.mod_negSucc_eq (m : Nat) (n : Int) :
+private theorem Int.mod_negSucc_eq (m : Nat) (n : Int) :
   (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := rfl
 
-axiom notSorry {α : Prop} : α
+/-- if the msb is false, the arithmetic shift right equals logical shift right -/
+theorem sshiftRight_eq_of_msb_false {x : BitVec w} {s : Nat} (h : x.msb = false) :
+    (x.sshiftRight s) = x.ushiftRight s := by
+  rcases w with rfl | w
+  · rw [Subsingleton.elim x (0#0)]
+    simp [ushiftRight, sshiftRight]
+    rfl
+  · apply BitVec.eq_of_toNat_eq
+    rw [BitVec.sshiftRight_eq]
+    rw [BitVec.toInt_eq_toNat_cond]
+    have hxbound : 2 * x.toNat < 2 ^ (w + 1) := BitVec.msb_eq_false_iff_small.mp h
+    simp [hxbound]
+    rw [Nat.mod_eq_of_lt]
+    rw [Nat.shiftRight_eq_div_pow]
+    suffices x.toNat / 2^s ≤ x.toNat by
+      apply Nat.lt_of_le_of_lt this x.isLt
+    apply Nat.div_le_self
 
--- @[simp]
-theorem ofNat_two_pow_eq (n : Nat) : (((2 : Int) ^n) : Int) = (((2 : Nat) ^n : Nat) : Int) := by
-  rw [Int.natCast_pow]
-  simp
-
-theorem Nat.sub_add_comm' {a b c : Nat} (h : a ≥ b + c) : a - (b + c) = (a - c) - b:= by
-  omega
+/-- if the msb is true, the arithmetic shift right equals negating, the logical shifting right, then negating again -/
+theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
+    (x.sshiftRight s) = ~~~((~~~x).ushiftRight s) := by
+  rcases w with rfl | w
+  · apply BitVec.eq_of_toNat_eq
+    simp
+  · apply BitVec.eq_of_toNat_eq
+    rw [BitVec.sshiftRight_eq]
+    rw [BitVec.toInt_eq_toNat_cond]
+    have hxbound : (2 * x.toNat ≥ 2 ^ (w + 1)) := BitVec.msb_eq_true_iff_large.mp h
+    have hxbound' : ¬ (2 * x.toNat < 2 ^ (w + 1)) := by omega
+    simp [hxbound']
+    rw [Int.toNat_sub_toNat_eq_negSucc_ofLt (by omega)]
+    rw [Int.shiftRight_negSucc]
+    rw [Int.mod_negSucc_eq]
+    simp only [Int.natAbs_ofNat, Nat.succ_eq_add_one]
+    rw [Int.subNatNat_of_le]
+    simp
+    rw [Nat.mod_eq_of_lt]
+    omega
+    rw [Nat.shiftRight_eq_div_pow]
+    suffices (2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s < 2 ^ (w + 1) - 1 by
+      omega
+    apply Nat.lt_of_le_of_lt (Nat.div_le_self _ _) (by omega)
+    omega
 
 theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
   getLsb (x.sshiftRight s) i =
     if i ≥ w then false
     else if (s + i) < w then getLsb x (s + i)
     else x.msb := by
-  rw [sshiftRight_eq]
-  rw [BitVec.ofInt_eq_ofNat_emod]
-  rw [BitVec.getLsb]
-  simp
-  rw [BitVec.toInt]
-  rcases w with rfl | w
-  · simp
-  · by_cases hxtoNat:(2 * x.toNat < 2 ^ (w + 1))
-    · simp [hxtoNat]
-      rw [Int.emod_eq_of_lt]
-      simp only [Int.toNat_ofNat, Nat.testBit_shiftRight]
-      by_cases hiltw:(i < w + 1)
-      have hiltw' : ¬ (w + 1) ≤ i := by omega
-      simp only [hiltw', decide_False, Bool.not_false, Bool.true_and]
-      by_cases hsplusi : (s + i) < w+1
-      · simp only [hsplusi, ↓reduceIte]
-        rw [BitVec.getLsb]
-        simp only [hiltw, decide_True, Bool.true_and]
-      · simp only [hiltw, decide_True, Bool.true_and, hsplusi, ↓reduceIte]
-        rw [testBit_toNat]
-        rw [msb_eq_false_iff_small.mpr (by omega)]
-        rw [getLsb_ge]
-        omega
-      · simp [hiltw]
-      · apply Int.ofNat_zero_le
-      · norm_cast
-        rw [Nat.shiftRight_eq_div_pow]
-        rw [ofNat_two_pow_eq]
-        norm_cast
-        have hleq : x.toNat / 2^s ≤ x.toNat := by
-          apply Nat.div_le_self
-        omega
-    · simp [hxtoNat]
-      rw [Int.toNat_sub_toNat_eq_negSucc_ofLt]
-      rw [Int.shiftRight_negSucc]
-      rw [Int.mod_negSucc_eq]
-      simp only [Nat.succ_eq_add_one]
-      rw [BitVec.getLsb]
-      rw [Nat.shiftRight_eq_div_pow]
-      simp only [ofNat_two_pow_eq, Int.natAbs_ofNat]
-      have hexpr : ((2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s % 2 ^ (w + 1) + 1) = ((2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s + 1) := by
-        rw [Nat.mod_eq_of_lt]
-        apply Nat.lt_of_le_of_lt
-        apply Nat.div_le_self
-        omega
-      rw [hexpr]
-      clear hexpr
-      rw [Int.subNatNat_of_le]
-      · simp only [Int.toNat_ofNat]
-        by_cases hiltw:(i < w + 1)
-        · simp [hiltw]
-          have hiltw' : ¬ (w + 1) ≤ i := by omega
-          simp [hiltw']
-          rw [← Nat.shiftRight_eq_div_pow]
-          -- repeat rw [Nat.testBit]
-          rw [← toNat_allOnes]
-          have hx : (BitVec.allOnes (w + 1)).toNat - x.toNat = (~~~ x).toNat := by simp
-          rw [hx]; clear hx
-          have hx {k : Nat} (x : BitVec k) (i : Nat) : x.toNat >>> i = (x.ushiftRight i).toNat := rfl
-          rw [hx]
-          rw [Nat.sub_add_comm']
-          rw [← toNat_allOnes]
-          have hx : (allOnes (w + 1)).toNat - ((~~~x).ushiftRight s).toNat =
-              (~~~(((~~~x).ushiftRight s))).toNat := by simp
-          rw [hx]; clear hx
-          rw [← getLsb]
-          simp
-          have hi : i < w + 1 := by omega
-          simp [hi]; clear hi
-          by_cases hs : (s + i) < (w + 1)
-          · simp [hs]
-            rfl
-          · simp [hs]
-            apply msb_eq_true_iff_large.mpr
-            omega
-          omega
-        · simp [hiltw]
-      · have hexpr : (2 ^ (w + 1) - 1 - x.toNat) / 2 ^ s + 1 ≤ (2 ^ (w + 1) - 1 - x.toNat)  + 1 := by
-          apply Nat.add_le_add_right
-          apply Nat.div_le_self
-        apply Nat.le_trans
-        exact hexpr
-        omega
-      · omega
+  rcases hmsb:x.msb with rfl | rfl
+  · simp [sshiftRight_eq_of_msb_false hmsb]
+    by_cases hi : i ≥ w <;> simp [hi]
+    · apply getLsb_ge
+      omega
+    · intros hlsb
+      apply BitVec.lt_of_getLsb _ _ hlsb
+  · by_cases hi:(i ≥ w)
+    · simp [hi]
+    · simp [hi, sshiftRight_eq_of_msb_true hmsb] <;> omega
 
-/-- info: 'BitVec.getLsb_sshiftRight' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'BitVec.getLsb_sshiftRight' depends on axioms: [propext, Quot.sound, Classical.choice] -/
 #guard_msgs in #print axioms getLsb_sshiftRight
 
 end BitVec
