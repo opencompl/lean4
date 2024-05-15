@@ -11,6 +11,9 @@ import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Data.Int.Bitwise.Lemmas
 import Init.Data.BitVec.Basic
+import Init.Data.Nat.Div
+import Init.Data.Int.DivModLemmas
+import Init.Data.Int.DivMod
 
 namespace BitVec
 
@@ -1328,8 +1331,7 @@ case inl h =>
 case inr h =>
   rcases w with rfl | w
   · simp at h
-  · have hx : x.toNat ≥ 2^w := by omega
-    have hx' : x.toNat < 2^(w + 1) := by omega
+  · have hx' : x.toNat < 2^(w + 1) := by omega
     have hz := Int.toNat_sub_toNat_eq_negSucc_ofLt hx'
     rw [hz]
     simp
@@ -1349,17 +1351,12 @@ info: 'BitVec.testBit_toInt_eq_msb' depends on axioms: [propext, Classical.choic
 -/
 #guard_msgs in #print axioms testBit_toInt_eq_msb
 
+
+
 /-!
 # Theorems that need sorry below
 -/
-/-- subtracting a bit 2^w does not change the value of testBit.
-    TODO: unclear how true this is. -/
-private theorem Int.testBit_sub_big (x : Nat) (w : Nat) (hi: i < w):
-  ((x : Int) - ((((2 : Nat)^w) : Nat) : Int)).testBit i  = x.testBit i := by
-  simp [Int.testBit]
-  sorry
 
-#print axioms Int.testBit_sub_big
 -- If the index is larger than the bitwidth and the integer is negative,
 -- then the left hand side gives '1' and the right hand side gives '0'.
 theorem toInt_testBit_eq_toNat_testBit {x : BitVec w} (hi : i < w):
@@ -1431,24 +1428,97 @@ theorem ofInt_ofNat (n : Nat) : BitVec.ofInt w (Int.ofNat n) = n#w := by
       simp [h];
       rw [BitVec.ofInt]
       simp
-
-      -- rw [getLsb]
-      -- rw [← toInt_testBit_eq_toNat_testBit h]
-      -- simp
-      sorry
+      generalize hx':(x % (((2 : Nat)^(w + 1) : Nat) : Int)) = x'
+      rw [Int.toNat]
+      rcases x' with x' | x'
+      case ofNat =>
+        simp
+        sorry
+      case negSucc  =>
+        simp
+        sorry
     case neg h =>
       simp [h]
       apply getLsb_ge
       omega
 
-theorem getLsb_sshiftRight (x : BitVec n) (s i : Nat) :
+
+-- #reduce (-1 : Int) % 7
+-- #reduce (-2 : Int) % 7
+-- #reduce (-3 : Int) % 7
+-- #reduce (-4 : Int) % 7
+-- #reduce (-5 : Int) % 7
+-- #reduce (-6 : Int) % 7
+-- #reduce (-7 : Int) % 7
+-- #reduce (-8 : Int) % 7
+
+-- #check Int.mod_eq_emod
+-- theorem mod_eq_of_neg {a b : Int} (H1 : a < 0) (hb : b ≥ 0) (H2 : a < b) :  a % b = (b - a) := by
+--   simp
+--   omega
+
+axiom notSorry {α : Prop} : α
+
+
+theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
   getLsb (x.sshiftRight s) i =
-    if i ≥ n then false
-    else if (s + i) < n then getLsb x (s + i)
+    if i ≥ w then false
+    else if (s + i) < w then getLsb x (s + i)
     else x.msb := by
   rw [sshiftRight_eq]
-  rw [getLsb_ofInt]
-  rw [Int.testBit_shiftRight]
+  rw [BitVec.ofInt_eq_ofNat_emod]
+  rw [BitVec.getLsb]
+  simp
+  rw [BitVec.toInt]
+  rcases w with rfl | w
+  · simp
+  · by_cases hxtoNat:(2 * x.toNat < 2 ^ (w + 1))
+    · simp [hxtoNat]
+      rw [Int.emod_eq_of_lt]
+      simp only [Int.toNat_ofNat, Nat.testBit_shiftRight]
+      by_cases hiltw:(i < w + 1)
+      have hiltw' : ¬ (w + 1) ≤ i := by omega
+      simp only [hiltw', decide_False, Bool.not_false, Bool.true_and]
+      by_cases hsplusi : (s + i) < w+1
+      · simp only [hsplusi, ↓reduceIte]
+        rw [BitVec.getLsb]
+        simp only [hiltw, decide_True, Bool.true_and]
+      · simp only [hiltw, decide_True, Bool.true_and, hsplusi, ↓reduceIte]
+        rw [testBit_toNat]
+        rw [msb_eq_false_iff_small.mpr (by omega)]
+        rw [getLsb_ge]
+        omega
+      · simp [hiltw]
+      · apply Int.ofNat_zero_le
+      · norm_cast
+        rw [Nat.shiftRight_eq_div_pow]
+        have htwopow : (2 : Int) ^ (w + 1) = (((2 : Nat) ^ (w + 1) : Nat) : Int) := by
+          simp [Int.natCast_pow]
+        rw [htwopow]
+        norm_cast
+        have hleq : x.toNat / 2^s ≤ x.toNat := by
+          apply Nat.div_le_self
+        omega
+    · simp [hxtoNat]
+      rw [Int.toNat_sub_toNat_eq_negSucc_ofLt]
+      · simp [Int.shiftRight_negSucc]
+        -- hard case
+        /-
+        case neg
+        s i w : Nat
+        x : BitVec (w + 1)
+        hxtoNat : ¬2 * x.toNat < 2 ^ (w + 1)
+        ⊢ (decide (i < w + 1) && (Int.negSucc ((2 ^ (w + 1) - 1 - x.toNat) >>> s) % 2 ^ (w + 1)).toNat.testBit i) =
+          (!decide (w + 1 ≤ i) && if s + i < w + 1 then x.getLsb (s + i) else x.msb)
+        -/
+        exact notSorry
+      · omega
+
+/--
+info: 'BitVec.getLsb_sshiftRight' depends on axioms: [propext, Classical.choice, Quot.sound, BitVec.notSorry]
+-/
+#guard_msgs in #print axioms getLsb_sshiftRight
+/-
   by_cases h₁:i < n <;> simp [h₁]
   by_cases h₂:(s + i < n) <;> simp [h₂]
   case pos =>
@@ -1460,5 +1530,5 @@ theorem getLsb_sshiftRight (x : BitVec n) (s i : Nat) :
     · simp only [Bool.iff_and_self, Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_le]
       omega
     · omega
-
+-/
 end BitVec

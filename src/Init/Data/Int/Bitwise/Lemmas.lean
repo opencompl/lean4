@@ -85,12 +85,14 @@ private theorem Int.mod2_cases (x : Int) : (x % 2 = 0) ∨ (x % 2 = 1) := by ome
   unfold testBit
   cases x <;> simp <;> rfl
 
-theorem toNat_testBit (x i : Nat) :
-    (x.testBit i).toNat = x / 2 ^ i % 2 := by
-  rw [Nat.testBit_to_div_mod]
-  rcases Nat.mod_two_eq_zero_or_one (x / 2^i) <;> simp_all
+
+-- theorem toNat_testBit (x i : Nat) :
+--     (x.testBit i).toNat = x / 2 ^ i % 2 := by
+--   rw [Nat.testBit_to_div_mod]
+--   rcases Nat.mod_two_eq_zero_or_one (x / 2^i) <;> simp_all
 
 @[simp] theorem testBit_shiftRight (x : Int) (i j : Nat) : testBit (x >>> i) j = testBit x (i+j) := by
   cases x <;> simp [testBit]
+
 
 end Int
