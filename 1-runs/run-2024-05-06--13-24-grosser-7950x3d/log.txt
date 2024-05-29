@@ -1,0 +1,490 @@
++ TAG_TO_BENCH=run-2024-05-06--13-24-grosser-7950x3d
+++ pwd
++ EXPERIMENTDIR=/local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d
++ echo 'pwd: /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d'
+pwd: /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d
+++ date
++ DATE='Mon 27 May 17:57:50 BST 2024'
++ echo 'date: Mon 27 May 17:57:50 BST 2024'
+date: Mon 27 May 17:57:50 BST 2024
+++ uname -a
++ MACHINE='Linux grosser-7950x3d.cl.cam.ac.uk 6.5.0-35-generic #35~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue May  7 09:00:52 UTC 2 x86_64 x86_64 x86_64 GNU/Linux'
++ echo 'machine: Linux grosser-7950x3d.cl.cam.ac.uk 6.5.0-35-generic #35~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue May  7 09:00:52 UTC 2 x86_64 x86_64 x86_64 GNU/Linux'
+machine: Linux grosser-7950x3d.cl.cam.ac.uk 6.5.0-35-generic #35~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue May  7 09:00:52 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+++ git status --short
++ echo 'git status:  M speedcenter-worker.sh
+?? builds-speedcenter/
+?? log.txt'
+git status:  M speedcenter-worker.sh
+?? builds-speedcenter/
+?? log.txt
+++ git rev-parse HEAD
++ echo 'git commit: 0ec86ecdd25053acd26d2338b466017cb002d0ba'
+git commit: 0ec86ecdd25053acd26d2338b466017cb002d0ba
+++ git rev-parse --show-toplevel
++ ROOT=/local/scratch/bollu/2024-borrowing/lean4
++ echo 'root folder: /local/scratch/bollu/2024-borrowing/lean4'
+root folder: /local/scratch/bollu/2024-borrowing/lean4
++ echo 'out folder: '
+out folder: 
+++ uname -s
++ '[' Linux = Darwin ']'
++ TIME='command time'
++ echo 'time: command time'
+time: command time
++ command time -v echo time
+time
+	Command being timed: "echo time"
+	User time (seconds): 0.00
+	System time (seconds): 0.00
+	Percent of CPU this job got: 90%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.00
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1792
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 91
+	Voluntary context switches: 1
+	Involuntary context switches: 0
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
++ COMMITS=("$TAG_TO_BENCH" "2024-borrowing-benchmarking-baseline-v6")
++ KINDS=("reuse" "noreuse")
++ run
++ for i in {0..1}
+++ uname -a
++ curl -d 'Start[MICROBENCHMARK-LOG-reuse]. run:run-2024-05-06--13-24-grosser-7950x3d. machine:Linux grosser-7950x3d.cl.cam.ac.uk 6.5.0-35-generic #35~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue May  7 09:00:52 UTC 2 x86_64 x86_64 x86_64 GNU/Linux.' ntfy.sh/xISSztEV8EoOchM2
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   583  100   351  100   232   2238   1479 --:--:-- --:--:-- --:--:--  3713
+{"id":"l4BPi6DpWS06","time":1716829070,"expires":1716872270,"event":"message","topic":"xISSztEV8EoOchM2","message":"Start[MICROBENCHMARK-LOG-reuse]. run:run-2024-05-06--13-24-grosser-7950x3d. machine:Linux grosser-7950x3d.cl.cam.ac.uk 6.5.0-35-generic #35~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue May  7 09:00:52 UTC 2 x86_64 x86_64 x86_64 GNU/Linux."}
++ mkdir -p builds-speedcenter
++ run_build_for_kind reuse
++ local kind=reuse
++ mkdir -p /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter
++ '[' '!' -d /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter/reuse ']'
++ mkdir -p /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter/reuse/build/release/
++ cd /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter/reuse/build/release/
++ '[' '!' -f /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter/reuse/build/release/stage2/bin/lean ']'
++ run_temci_for_kind reuse
++ local kind=reuse
++ local outfile=/local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/reuse.speedcenter.bench.yaml
++ local outfile_temp=/local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/reuse.speedcenter.bench.yaml.temp
++ rm /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/reuse.speedcenter.bench.yaml.temp
+rm: cannot remove '/local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/reuse.speedcenter.bench.yaml.temp': No such file or directory
++ true
++ '[' '!' -f /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/reuse.speedcenter.bench.yaml ']'
++ LEAN_TOOLCHAIN=reuse
++ elan toolchain link reuse /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter/reuse/build/release/stage2
++ cd /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter/reuse/tests/bench/
++ elan override set reuse
+info: override toolchain for '/local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter/reuse/tests/bench' set to 'reuse'
++ taskset -c 0 temci exec --config speedcenter.yaml --out /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/reuse.speedcenter.bench.yaml.temp --included_blocks suite
+[2024-05-27 17:57:50,795] Note: NumExpr detected 32 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+[2024-05-27 17:57:50,795] NumExpr defaulting to 8 threads.
+[2024-05-27 17:57:51,240] Start building 13 block(s)
+[2024-05-27 17:57:51,241] Build binarytrees
+[2024-05-27 17:57:51,242] Thread 0: Building block 'binarytrees'
+[2024-05-27 17:57:52,656] Finished building
+[2024-05-27 17:57:52,656] Build binarytrees.st
+[2024-05-27 17:57:52,660] Thread 0: Building block 'binarytrees.st'
+[2024-05-27 17:57:54,077] Finished building
+[2024-05-27 17:57:54,077] Build const_fold
+[2024-05-27 17:57:54,081] Thread 0: Building block 'const_fold'
+[2024-05-27 17:57:55,568] Finished building
+[2024-05-27 17:57:55,568] Build deriv
+[2024-05-27 17:57:55,571] Thread 0: Building block 'deriv'
+[2024-05-27 17:57:57,313] Finished building
+[2024-05-27 17:57:57,313] Build liasolver
+[2024-05-27 17:57:57,316] Thread 0: Building block 'liasolver'
+[2024-05-27 17:58:00,977] Finished building
+[2024-05-27 17:58:00,977] Build parser
+[2024-05-27 17:58:00,980] Thread 0: Building block 'parser'
+[2024-05-27 17:58:02,769] Finished building
+[2024-05-27 17:58:02,769] Build qsort
+[2024-05-27 17:58:02,772] Thread 0: Building block 'qsort'
+[2024-05-27 17:58:04,353] Finished building
+[2024-05-27 17:58:04,353] Build rbmap
+[2024-05-27 17:58:04,356] Thread 0: Building block 'rbmap'
+[2024-05-27 17:58:05,909] Finished building
+[2024-05-27 17:58:05,909] Build rbmap_1
+[2024-05-27 17:58:05,912] Thread 0: Building block 'rbmap_1'
+[2024-05-27 17:58:07,527] Finished building
+[2024-05-27 17:58:07,528] Build rbmap_10
+[2024-05-27 17:58:07,531] Thread 0: Building block 'rbmap_10'
+[2024-05-27 17:58:09,135] Finished building
+[2024-05-27 17:58:09,136] Build rbmap_fbip
+[2024-05-27 17:58:09,139] Thread 0: Building block 'rbmap_fbip'
+[2024-05-27 17:58:10,557] Finished building
+[2024-05-27 17:58:10,557] Build rbmap_library
+[2024-05-27 17:58:10,560] Thread 0: Building block 'rbmap_library'
+[2024-05-27 17:58:12,436] Finished building
+[2024-05-27 17:58:12,436] Build unionfind
+[2024-05-27 17:58:12,439] Thread 0: Building block 'unionfind'
+[2024-05-27 17:58:14,236] Finished building
+Benchmark 10 to 10 times        
+Benchmark 1 out of 10 to 10     
+Benchmark 1 out of 10 to 10     
+Benchmark 2 out of 10 to 10     
+Benchmark 3 out of 10 to 10     
+Benchmark 4 out of 10 to 10     
+Benchmark 5 out of 10 to 10     
+Benchmark 6 out of 10 to 10     
+Benchmark 7 out of 10 to 10     
+Benchmark 8 out of 10 to 10     
+Benchmark 9 out of 10 to 10     
+Benchmark 10 out of 10 to 10    
+Report for single runs
+binarytrees          (   10 single benchmarks)
+	 branch-misses mean =  12601142.6(00), deviation =    0.52861%
+	 branches      mean = 9944377563.9000, deviation =    0.00157%
+	 instructions  mean = 44101939956.1000, deviation =    0.00116%
+	 maxrss        mean =      180224.000, deviation =    0.00000%
+	 task-clock    mean =         2.6(25), deviation =    1.23626%
+	 wall-clock    mean =         2.6(26), deviation =    1.23269%
+
+binarytrees.st       (   10 single benchmarks)
+	 branch-misses mean =   9387209.0(00), deviation =    4.48588%
+	 branches      mean = 9919526472.6000, deviation =    0.00122%
+	 instructions  mean = 43932469579.8000, deviation =    0.00097%
+	 maxrss        mean =    121483.20(0), deviation =    0.13493%
+	 task-clock    mean =         2.54(3), deviation =    0.48126%
+	 wall-clock    mean =         2.54(5), deviation =    0.47398%
+
+const_fold           (   10 single benchmarks)
+	 branch-misses mean = 112401607.6(00), deviation =    0.63868%
+	 branches      mean = 2455058073.90(0), deviation =    0.16350%
+	 instructions  mean = 12122645084.70(0), deviation =    0.10360%
+	 maxrss        mean =     1828505.600, deviation =    0.00686%
+	 task-clock    mean =         2.4(14), deviation =    0.67561%
+	 wall-clock    mean =         2.4(15), deviation =    0.67912%
+
+deriv                (   10 single benchmarks)
+	 branch-misses mean =  18201237.80(0), deviation =    0.24551%
+	 branches      mean =  1755976706.400, deviation =    0.03952%
+	 instructions  mean =  7193825796.800, deviation =    0.03198%
+	 maxrss        mean =      441984.000, deviation =    0.02896%
+	 task-clock    mean =         0.84(1), deviation =    0.45928%
+	 wall-clock    mean =         0.84(2), deviation =    0.46127%
+
+liasolver            (   10 single benchmarks)
+	 branch-misses mean =   4595002.(400), deviation =   12.21973%
+	 branches      mean =  943662536.7000, deviation =    0.00438%
+	 instructions  mean = 4384706916.5000, deviation =    0.00461%
+	 maxrss        mean =    121483.20(0), deviation =    0.13493%
+	 task-clock    mean =         0.2(61), deviation =    1.36748%
+	 wall-clock    mean =         0.2(62), deviation =    1.40970%
+
+parser               (   10 single benchmarks)
+	 branch-misses mean =  84360867.6(00), deviation =    1.62372%
+	 branches      mean = 8842349131.5000, deviation =    0.00116%
+	 instructions  mean = 38037502043.8000, deviation =    0.00117%
+	 maxrss        mean =    121483.20(0), deviation =    0.13493%
+	 task-clock    mean =         3.04(5), deviation =    0.40120%
+	 wall-clock    mean =         3.04(7), deviation =    0.40178%
+
+qsort                (   10 single benchmarks)
+	 branch-misses mean = 128399463.20(0), deviation =    0.45199%
+	 branches      mean = 4208576186.0000, deviation =    0.00051%
+	 instructions  mean = 19131728996.1000, deviation =    0.00055%
+	 maxrss        mean =    121483.20(0), deviation =    0.13493%
+	 task-clock    mean =         1.4(46), deviation =    0.81025%
+	 wall-clock    mean =         1.4(46), deviation =    0.81339%
+
+rbmap                (   10 single benchmarks)
+	 branch-misses mean =  11960354.30(0), deviation =    0.19564%
+	 branches      mean =  1171142265.600, deviation =    0.00840%
+	 instructions  mean =  5296659292.400, deviation =    0.00599%
+	 maxrss        mean =    121483.20(0), deviation =    0.13493%
+	 task-clock    mean =         0.3(38), deviation =    0.59260%
+	 wall-clock    mean =         0.3(38), deviation =    0.57490%
+
+rbmap_1              (   10 single benchmarks)
+	 branch-misses mean =  98496306.70(0), deviation =    0.13758%
+	 branches      mean = 3664037531.50(0), deviation =    0.10420%
+	 instructions  mean = 16768315680.00(0), deviation =    0.07484%
+	 maxrss        mean =     2371481.600, deviation =    0.00529%
+	 task-clock    mean =         1.9(37), deviation =    0.62577%
+	 wall-clock    mean =         1.9(38), deviation =    0.62055%
+
+rbmap_10             (   10 single benchmarks)
+	 branch-misses mean =  21006353.80(0), deviation =    0.10760%
+	 branches      mean =  1462094809.000, deviation =    0.04116%
+	 instructions  mean =  6603785673.800, deviation =    0.02980%
+	 maxrss        mean =      321945.600, deviation =    0.03895%
+	 task-clock    mean =         0.57(6), deviation =    0.33729%
+	 wall-clock    mean =         0.57(7), deviation =    0.34344%
+
+rbmap_fbip           (   10 single benchmarks)
+	 branch-misses mean =   6734537.(200), deviation =    7.45185%
+	 branches      mean =   839707813.900, deviation =    0.01524%
+	 instructions  mean =  3346491510.400, deviation =    0.01268%
+	 maxrss        mean =    121483.20(0), deviation =    0.13493%
+	 task-clock    mean =         0.2(21), deviation =    1.17429%
+	 wall-clock    mean =         0.2(22), deviation =    1.23921%
+
+rbmap_library        (   10 single benchmarks)
+	 branch-misses mean =  13053697.90(0), deviation =    0.29877%
+	 branches      mean = 1144189442.3000, deviation =    0.00369%
+	 instructions  mean = 5626079242.6000, deviation =    0.00365%
+	 maxrss        mean =    143104.00(0), deviation =    0.39193%
+	 task-clock    mean =         0.3(69), deviation =    0.98619%
+	 wall-clock    mean =         0.3(70), deviation =    0.97528%
+
+reduceMatch          (   10 single benchmarks)
+	 branch-misses mean =  38675055.8(00), deviation =    0.62124%
+	 branches      mean = 4914423013.7000, deviation =    0.00278%
+	 instructions  mean = 20406338104.3000, deviation =    0.00231%
+	 maxrss        mean =    523790.00000, deviation =    0.00038%
+	 task-clock    mean =         1.75(9), deviation =    0.14162%
+	 wall-clock    mean =         1.76(2), deviation =    0.14482%
+
+unionfind            (   10 single benchmarks)
+	 branch-misses mean =   4825968.80(0), deviation =    0.14186%
+	 branches      mean = 6346498381.0000, deviation =    0.00085%
+	 instructions  mean = 28089774807.9000, deviation =    0.00087%
+	 maxrss        mean =    121483.20(0), deviation =    0.13493%
+	 task-clock    mean =         1.(659), deviation =    8.40687%
+	 wall-clock    mean =         1.(660), deviation =    8.40081%
+
+workspaceSymbols     (   10 single benchmarks)
+	 branch-misses mean =  81687236.2(00), deviation =    0.71570%
+	 branches      mean = 30753519597.70000, deviation =    0.00031%
+	 instructions  mean = 135870099258.70000, deviation =    0.00023%
+	 maxrss        mean =    501261.20000, deviation =    0.00037%
+	 task-clock    mean =         7.3(21), deviation =    0.52719%
+	 wall-clock    mean =         7.3(23), deviation =    0.52887%
+
++ mkdir -p /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/
++ mv /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/reuse.speedcenter.bench.yaml.temp /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/reuse.speedcenter.bench.yaml
+++ uname -a
++ curl -d 'Done[MICROBENCHMARK-LOG-reuse]. run:run-2024-05-06--13-24-grosser-7950x3d. machine:Linux grosser-7950x3d.cl.cam.ac.uk 6.5.0-35-generic #35~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue May  7 09:00:52 UTC 2 x86_64 x86_64 x86_64 GNU/Linux.' ntfy.sh/xISSztEV8EoOchM2
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   581  100   350  100   231   2237   1477 --:--:-- --:--:-- --:--:--  3724
+{"id":"oueByLqHb71O","time":1716829379,"expires":1716872579,"event":"message","topic":"xISSztEV8EoOchM2","message":"Done[MICROBENCHMARK-LOG-reuse]. run:run-2024-05-06--13-24-grosser-7950x3d. machine:Linux grosser-7950x3d.cl.cam.ac.uk 6.5.0-35-generic #35~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue May  7 09:00:52 UTC 2 x86_64 x86_64 x86_64 GNU/Linux."}
++ for i in {0..1}
+++ uname -a
++ curl -d 'Start[MICROBENCHMARK-LOG-noreuse]. run:run-2024-05-06--13-24-grosser-7950x3d. machine:Linux grosser-7950x3d.cl.cam.ac.uk 6.5.0-35-generic #35~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue May  7 09:00:52 UTC 2 x86_64 x86_64 x86_64 GNU/Linux.' ntfy.sh/xISSztEV8EoOchM2
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   587  100   353  100   234   2184   1448 --:--:-- --:--:-- --:--:--  3645
+{"id":"Qui7WPTmEurf","time":1716829379,"expires":1716872579,"event":"message","topic":"xISSztEV8EoOchM2","message":"Start[MICROBENCHMARK-LOG-noreuse]. run:run-2024-05-06--13-24-grosser-7950x3d. machine:Linux grosser-7950x3d.cl.cam.ac.uk 6.5.0-35-generic #35~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue May  7 09:00:52 UTC 2 x86_64 x86_64 x86_64 GNU/Linux."}
++ mkdir -p builds-speedcenter
++ run_build_for_kind noreuse
++ local kind=noreuse
++ mkdir -p /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter
++ '[' '!' -d /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter/noreuse ']'
++ mkdir -p /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter/noreuse/build/release/
++ cd /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter/noreuse/build/release/
++ '[' '!' -f /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter/noreuse/build/release/stage2/bin/lean ']'
++ run_temci_for_kind noreuse
++ local kind=noreuse
++ local outfile=/local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/noreuse.speedcenter.bench.yaml
++ local outfile_temp=/local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/noreuse.speedcenter.bench.yaml.temp
++ rm /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/noreuse.speedcenter.bench.yaml.temp
+rm: cannot remove '/local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/noreuse.speedcenter.bench.yaml.temp': No such file or directory
++ true
++ '[' '!' -f /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/noreuse.speedcenter.bench.yaml ']'
++ LEAN_TOOLCHAIN=noreuse
++ elan toolchain link noreuse /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter/noreuse/build/release/stage2
++ cd /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter/noreuse/tests/bench/
++ elan override set noreuse
+info: override toolchain for '/local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/builds-speedcenter/noreuse/tests/bench' set to 'noreuse'
++ taskset -c 0 temci exec --config speedcenter.yaml --out /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/noreuse.speedcenter.bench.yaml.temp --included_blocks suite
+[2024-05-27 18:03:00,435] Note: NumExpr detected 32 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+[2024-05-27 18:03:00,435] NumExpr defaulting to 8 threads.
+[2024-05-27 18:03:01,006] Start building 13 block(s)
+[2024-05-27 18:03:01,006] Build binarytrees
+[2024-05-27 18:03:01,009] Thread 0: Building block 'binarytrees'
+[2024-05-27 18:03:02,425] Finished building
+[2024-05-27 18:03:02,425] Build binarytrees.st
+[2024-05-27 18:03:02,427] Thread 0: Building block 'binarytrees.st'
+[2024-05-27 18:03:03,847] Finished building
+[2024-05-27 18:03:03,847] Build const_fold
+[2024-05-27 18:03:03,850] Thread 0: Building block 'const_fold'
+[2024-05-27 18:03:05,391] Finished building
+[2024-05-27 18:03:05,391] Build deriv
+[2024-05-27 18:03:05,393] Thread 0: Building block 'deriv'
+[2024-05-27 18:03:07,171] Finished building
+[2024-05-27 18:03:07,171] Build liasolver
+[2024-05-27 18:03:07,173] Thread 0: Building block 'liasolver'
+[2024-05-27 18:03:11,085] Finished building
+[2024-05-27 18:03:11,085] Build parser
+[2024-05-27 18:03:11,087] Thread 0: Building block 'parser'
+[2024-05-27 18:03:12,899] Finished building
+[2024-05-27 18:03:12,899] Build qsort
+[2024-05-27 18:03:12,901] Thread 0: Building block 'qsort'
+[2024-05-27 18:03:14,485] Finished building
+[2024-05-27 18:03:14,485] Build rbmap
+[2024-05-27 18:03:14,487] Thread 0: Building block 'rbmap'
+[2024-05-27 18:03:16,283] Finished building
+[2024-05-27 18:03:16,283] Build rbmap_1
+[2024-05-27 18:03:16,286] Thread 0: Building block 'rbmap_1'
+[2024-05-27 18:03:18,130] Finished building
+[2024-05-27 18:03:18,131] Build rbmap_10
+[2024-05-27 18:03:18,133] Thread 0: Building block 'rbmap_10'
+[2024-05-27 18:03:19,978] Finished building
+[2024-05-27 18:03:19,979] Build rbmap_fbip
+[2024-05-27 18:03:19,982] Thread 0: Building block 'rbmap_fbip'
+[2024-05-27 18:03:21,397] Finished building
+[2024-05-27 18:03:21,397] Build rbmap_library
+[2024-05-27 18:03:21,400] Thread 0: Building block 'rbmap_library'
+[2024-05-27 18:03:23,536] Finished building
+[2024-05-27 18:03:23,537] Build unionfind
+[2024-05-27 18:03:23,539] Thread 0: Building block 'unionfind'
+[2024-05-27 18:03:25,490] Finished building
+Benchmark 10 to 10 times        
+Benchmark 1 out of 10 to 10     
+Benchmark 1 out of 10 to 10     
+Benchmark 2 out of 10 to 10     
+Benchmark 3 out of 10 to 10     
+Benchmark 4 out of 10 to 10     
+Benchmark 5 out of 10 to 10     
+Benchmark 6 out of 10 to 10     
+Benchmark 7 out of 10 to 10     
+Benchmark 8 out of 10 to 10     
+Benchmark 9 out of 10 to 10     
+Benchmark 10 out of 10 to 10    
+Report for single runs
+binarytrees          (   10 single benchmarks)
+	 branch-misses mean =  12568956.7(00), deviation =    0.91841%
+	 branches      mean = 9944320394.3000, deviation =    0.00147%
+	 instructions  mean = 44081983399.0000, deviation =    0.00108%
+	 maxrss        mean =      180249.600, deviation =    0.04261%
+	 task-clock    mean =         2.6(00), deviation =    3.08240%
+	 wall-clock    mean =         2.6(01), deviation =    3.08378%
+
+binarytrees.st       (   10 single benchmarks)
+	 branch-misses mean =   9394322.1(00), deviation =    3.82374%
+	 branches      mean = 9927955192.4000, deviation =    0.00187%
+	 instructions  mean = 43956017124.4000, deviation =    0.00139%
+	 maxrss        mean =    121467.20(0), deviation =    0.13495%
+	 task-clock    mean =         2.5(62), deviation =    0.86392%
+	 wall-clock    mean =         2.5(63), deviation =    0.86189%
+
+const_fold           (   10 single benchmarks)
+	 branch-misses mean = 112740177.0(00), deviation =    0.68853%
+	 branches      mean = 2628944698.30(0), deviation =    0.10001%
+	 instructions  mean = 12669098816.20(0), deviation =    0.06755%
+	 maxrss        mean =     1828531.200, deviation =    0.00642%
+	 task-clock    mean =         2.37(6), deviation =    0.38040%
+	 wall-clock    mean =         2.37(7), deviation =    0.38107%
+
+deriv                (   10 single benchmarks)
+	 branch-misses mean =  18205759.00(0), deviation =    0.24588%
+	 branches      mean = 1784847953.5000, deviation =    0.00068%
+	 instructions  mean = 7433371428.6000, deviation =    0.00081%
+	 maxrss        mean =      442009.600, deviation =    0.02837%
+	 task-clock    mean =         0.8(62), deviation =    0.72039%
+	 wall-clock    mean =         0.8(63), deviation =    0.72554%
+
+liasolver            (   10 single benchmarks)
+	 branch-misses mean =   4589664.(700), deviation =   11.11800%
+	 branches      mean =  952001234.7000, deviation =    0.00331%
+	 instructions  mean = 4397994084.2000, deviation =    0.00338%
+	 maxrss        mean =    121467.20(0), deviation =    0.13495%
+	 task-clock    mean =         0.2(64), deviation =    1.70265%
+	 wall-clock    mean =         0.2(65), deviation =    1.71887%
+
+parser               (   10 single benchmarks)
+	 branch-misses mean =  89161938.1(00), deviation =    2.77624%
+	 branches      mean = 8911230480.5000, deviation =    0.00134%
+	 instructions  mean = 38173016083.9000, deviation =    0.00137%
+	 maxrss        mean =    121467.20(0), deviation =    0.13495%
+	 task-clock    mean =         3.0(29), deviation =    0.57996%
+	 wall-clock    mean =         3.0(30), deviation =    0.57954%
+
+qsort                (   10 single benchmarks)
+	 branch-misses mean = 128476376.60(0), deviation =    0.25371%
+	 branches      mean = 4210025505.40000, deviation =    0.00038%
+	 instructions  mean = 19139443954.50000, deviation =    0.00041%
+	 maxrss        mean =    121467.20(0), deviation =    0.13495%
+	 task-clock    mean =         1.44(6), deviation =    0.15974%
+	 wall-clock    mean =         1.44(7), deviation =    0.16119%
+
+rbmap                (   10 single benchmarks)
+	 branch-misses mean =  13565076.1(00), deviation =    0.89317%
+	 branches      mean = 1198825280.3000, deviation =    0.00087%
+	 instructions  mean = 5608407021.9000, deviation =    0.00094%
+	 maxrss        mean =    121467.20(0), deviation =    0.13495%
+	 task-clock    mean =         0.36(9), deviation =    0.26753%
+	 wall-clock    mean =         0.37(0), deviation =    0.26316%
+
+rbmap_1              (   10 single benchmarks)
+	 branch-misses mean = 100297222.90(0), deviation =    0.29168%
+	 branches      mean = 4002923675.20000, deviation =    0.00039%
+	 instructions  mean = 18378312873.50000, deviation =    0.00045%
+	 maxrss        mean =    2371532.8000, deviation =    0.00432%
+	 task-clock    mean =         2.5(55), deviation =    0.54511%
+	 wall-clock    mean =         2.5(56), deviation =    0.54798%
+
+rbmap_10             (   10 single benchmarks)
+	 branch-misses mean =  22838260.4(00), deviation =    0.68053%
+	 branches      mean = 1488517563.7000, deviation =    0.00089%
+	 instructions  mean = 6902630070.6000, deviation =    0.00095%
+	 maxrss        mean =      322022.400, deviation =    0.02385%
+	 task-clock    mean =         0.70(4), deviation =    0.28913%
+	 wall-clock    mean =         0.70(4), deviation =    0.30819%
+
+rbmap_fbip           (   10 single benchmarks)
+	 branch-misses mean =   9573918.7(00), deviation =    0.86705%
+	 branches      mean =  3252135498.400, deviation =    0.00556%
+	 instructions  mean = 14217139975.5000, deviation =    0.00433%
+	 maxrss        mean =    121467.20(0), deviation =    0.13495%
+	 task-clock    mean =         0.73(4), deviation =    0.28343%
+	 wall-clock    mean =         0.73(4), deviation =    0.27458%
+
+rbmap_library        (   10 single benchmarks)
+	 branch-misses mean =  13837054.6(00), deviation =    1.17532%
+	 branches      mean = 1031893301.7000, deviation =    0.00270%
+	 instructions  mean = 5479634188.1000, deviation =    0.00245%
+	 maxrss        mean =    145177.60(0), deviation =    0.27825%
+	 task-clock    mean =         0.3(70), deviation =    1.10367%
+	 wall-clock    mean =         0.3(70), deviation =    1.07905%
+
+reduceMatch          (   10 single benchmarks)
+	 branch-misses mean =  39356676.1(00), deviation =    3.01138%
+	 branches      mean = 4954064043.6000, deviation =    0.00296%
+	 instructions  mean = 20609938612.3000, deviation =    0.00243%
+	 maxrss        mean =    524102.40000, deviation =    0.00037%
+	 task-clock    mean =         1.7(76), deviation =    0.58785%
+	 wall-clock    mean =         1.7(78), deviation =    0.54453%
+
+unionfind            (   10 single benchmarks)
+	 branch-misses mean =   4817696.80(0), deviation =    0.10999%
+	 branches      mean = 6307273041.2000, deviation =    0.00099%
+	 instructions  mean = 28004784714.3000, deviation =    0.00076%
+	 maxrss        mean =    121467.20(0), deviation =    0.13495%
+	 task-clock    mean =         1.(504), deviation =    8.56259%
+	 wall-clock    mean =         1.(505), deviation =    8.55748%
+
+workspaceSymbols     (   10 single benchmarks)
+	 branch-misses mean =  82754782.2(00), deviation =    3.77149%
+	 branches      mean = 30484251644.20000, deviation =    0.00023%
+	 instructions  mean = 135176709117.70000, deviation =    0.00018%
+	 maxrss        mean =    501573.20000, deviation =    0.00037%
+	 task-clock    mean =         7.29(9), deviation =    0.44638%
+	 wall-clock    mean =         7.30(2), deviation =    0.45301%
+
++ mkdir -p /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/
++ mv /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/noreuse.speedcenter.bench.yaml.temp /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/noreuse.speedcenter.bench.yaml
+++ uname -a
++ curl -d 'Done[MICROBENCHMARK-LOG-noreuse]. run:run-2024-05-06--13-24-grosser-7950x3d. machine:Linux grosser-7950x3d.cl.cam.ac.uk 6.5.0-35-generic #35~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue May  7 09:00:52 UTC 2 x86_64 x86_64 x86_64 GNU/Linux.' ntfy.sh/xISSztEV8EoOchM2
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   585  100   352  100   233   2205   1459 --:--:-- --:--:-- --:--:--  3679
+{"id":"nZvdJVAEiE8I","time":1716829701,"expires":1716872901,"event":"message","topic":"xISSztEV8EoOchM2","message":"Done[MICROBENCHMARK-LOG-noreuse]. run:run-2024-05-06--13-24-grosser-7950x3d. machine:Linux grosser-7950x3d.cl.cam.ac.uk 6.5.0-35-generic #35~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue May  7 09:00:52 UTC 2 x86_64 x86_64 x86_64 GNU/Linux."}
++ local temci_report_outfile=/local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/temci-report.txt
++ temci report /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/reuse.speedcenter.bench.yaml /local/scratch/bollu/2024-borrowing/lean4/1-runs/run-2024-05-06--13-24-grosser-7950x3d/outputs/noreuse.speedcenter.bench.yaml
+[2024-05-27 18:08:22,341] Note: NumExpr detected 32 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+[2024-05-27 18:08:22,341] NumExpr defaulting to 8 threads.
