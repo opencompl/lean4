@@ -110,14 +110,10 @@ run_temci_for_kind() {
     cd "$EXPERIMENTDIR/builds-speedcenter/$kind/tests/bench/" || exit 1
     elan override set "$LEAN_TOOLCHAIN" # set override for temci
     # taskset is preserved across child PIDs: https://stackoverflow.com/a/42941343
-    taskset -c0  temci exec --config speedcenter.yaml --out "$outfile_temp" --included_blocks suite # run temci
+    cp "$EXPERIMENTDIR/research-runtime-allocator.exec.yaml" "$EXPERIMENTDIR/builds-speedcenter/$kind/tests/bench/speedcenter.exec.velcom.yaml"
+    taskset -c 0  temci exec --config speedcenter.yaml --out "$outfile_temp" --included_blocks suite # run temci
     mkdir -p "$EXPERIMENTDIR/outputs/"
     mv "$outfile_temp" "$outfile"
-  fi
-  local temci_report_outfile="$EXPERIMENTDIR/outputs/temci-report.txt"
-  if [ ! -f "${temci_report_outfile}" ]; then
-    temci report "$EXPERIMENTDIR/outputs/${KINDS[0]}.speedcenter.bench.yaml" \
-      "$EXPERIMENTDIR/outputs/${KINDS[1]}.speedcenter.bench.yaml" > "$temci_report_outfile"
   fi
 }
 
@@ -126,10 +122,15 @@ run() {
     curl -d "Start[MICROBENCHMARK-LOG-${KINDS[i]}]. run:$TAG_TO_BENCH. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
     mkdir -p builds-speedcenter
     run_build_for_kind "${KINDS[i]}"
-    run_benchmark_for_kind "${KINDS[i]}"
+    # run_benchmark_for_kind "${KINDS[i]}"
     run_temci_for_kind "${KINDS[i]}"
     curl -d "Done[MICROBENCHMARK-LOG-${KINDS[i]}]. run:$TAG_TO_BENCH. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
   done;
+  local temci_report_outfile="$EXPERIMENTDIR/outputs/temci-report.txt"
+  # if [ ! -f "${temci_report_outfile}" ]; then
+    temci report "$EXPERIMENTDIR/outputs/${KINDS[0]}.speedcenter.bench.yaml" \
+      "$EXPERIMENTDIR/outputs/${KINDS[1]}.speedcenter.bench.yaml" > "$temci_report_outfile"
+  # fi
 }
 
 run 
