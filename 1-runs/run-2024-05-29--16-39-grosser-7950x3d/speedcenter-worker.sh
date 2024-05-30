@@ -109,9 +109,9 @@ run_temci_for_kind() {
     elan toolchain link "$LEAN_TOOLCHAIN" "$EXPERIMENTDIR/builds-speedcenter/$kind/build/release/stage2"
     cd "$EXPERIMENTDIR/builds-speedcenter/$kind/tests/bench/" || exit 1
     elan override set "$LEAN_TOOLCHAIN" # set override for temci
+    cp "$EXPERIMENTDIR/speedcenter.exec.velcom.yaml" "$EXPERIMENTDIR/builds-speedcenter/$kind/tests/bench/" # copy our allocator speedcenter config.
     # taskset is preserved across child PIDs: https://stackoverflow.com/a/42941343
-    cp "$EXPERIMENTDIR/research-runtime-allocator.exec.yaml" "$EXPERIMENTDIR/builds-speedcenter/$kind/tests/bench/speedcenter.exec.velcom.yaml"
-    taskset -c 0  temci exec --config speedcenter.yaml --out "$outfile_temp" --included_blocks suite # run temci
+    taskset -c 0  temci exec --config speedcenter.yaml --out "$outfile_temp" # run temci [unused options: '--included_blocks suite']
     mkdir -p "$EXPERIMENTDIR/outputs/"
     mv "$outfile_temp" "$outfile"
   fi

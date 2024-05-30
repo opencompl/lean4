@@ -1,0 +1,734 @@
+Report for binarytrees
+binarytrees [0]      (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =           1.290, deviation =    0.00000%
+	 max_res_set        mean =      130.64533k, deviation =    0.09237%
+	 num_alloc          mean =          2.982k, deviation =    0.00000%
+	 num_dealloc        mean =         122.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         15.469k, deviation =    0.00000%
+	 num_recycled_pages mean =        305.103k, deviation =    0.00000%
+	 num_segments       mean =          20.000, deviation =    0.00000%
+	 num_small_alloc    mean =      152.75402M, deviation =    0.00000%
+	 num_small_dealloc  mean =      152.74346M, deviation =    0.00000%
+	 rss                mean =        133.693M, deviation =    0.00000%
+	 stime              mean =     2(6).(667)m, deviation =   46.77072%
+	 utime              mean =         1.2(57), deviation =    0.75025%
+
+binarytrees [1]      (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =         1.2(83), deviation =    0.97186%
+	 max_res_set        mean =      130.64533k, deviation =    0.09237%
+	 num_alloc          mean =          2.943k, deviation =    0.00000%
+	 num_dealloc        mean =         122.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         15.468k, deviation =    0.00000%
+	 num_recycled_pages mean =        305.103k, deviation =    0.00000%
+	 num_segments       mean =          20.000, deviation =    0.00000%
+	 num_small_alloc    mean =      152.75387M, deviation =    0.00000%
+	 num_small_dealloc  mean =      152.74345M, deviation =    0.00000%
+	 rss                mean =        133.693M, deviation =    0.00000%
+	 stime              mean =         20.000m, deviation =    0.00000%
+	 utime              mean =         1.25(7), deviation =    0.37512%
+
+Equal program blocks
+	 binarytrees [0]  ⟷   binarytrees [1]
+		 etime              confidence =   49%, speed up =      0.52%
+		 max_res_set        confidence =  100%, speed up =      0.00%
+		 stime              confidence =   49%, speed up =     25.00%
+		 utime              confidence =  100%, speed up =      0.00%
+
+Unequal program blocks
+	 binarytrees [0]  ⟷   binarytrees [1]
+		 num_alloc          confidence =  100%, speed up =      1.31%
+		 num_pages          confidence =  100%, speed up =      0.01%
+		 num_small_alloc    confidence =  100%, speed up =      0.00%
+		 num_small_dealloc  confidence =  100%, speed up =      0.00%
+
+Uncertain program blocks
+	 binarytrees [0]  ⟷   binarytrees [1]
+		 avg_mem_usage      confidence =  nan%, speed up =       nan%
+		 avg_res_set        confidence =  nan%, speed up =       nan%
+		 num_dealloc        confidence =  nan%, speed up =      0.00%
+		 num_exports        confidence =  nan%, speed up =       nan%
+		 num_recycled_pages confidence =  nan%, speed up =      0.00%
+		 num_segments       confidence =  nan%, speed up =      0.00%
+		 rss                confidence =  nan%, speed up =      0.00%
+
+Report for binarytrees.st
+binarytrees.st [0]   (   10 single benchmarks)
+	 avg_mem_usage mean =           0.000, deviation =         0.0
+	 avg_res_set   mean =           0.000, deviation =         0.0
+	 etime         mean =         1.2(52), deviation =    0.69631%
+	 max_res_set   mean =       60.28800k, deviation =    0.21231%
+	 stime         mean =     1(1).(000)m, deviation =   48.95604%
+	 utime         mean =         1.2(36), deviation =    0.74152%
+
+binarytrees.st [1]   (   10 single benchmarks)
+	 avg_mem_usage mean =           0.000, deviation =         0.0
+	 avg_res_set   mean =           0.000, deviation =         0.0
+	 etime         mean =         1.2(54), deviation =    1.47905%
+	 max_res_set   mean =       60.33920k, deviation =    0.19442%
+	 stime         mean =     1(4).(000)m, deviation =   34.99271%
+	 utime         mean =         1.2(33), deviation =    1.81533%
+
+Equal program blocks
+	 binarytrees.st [0]  ⟷   binarytrees.st [1]
+		 etime         confidence =   77%, speed up =     -0.16%
+		 max_res_set   confidence =   39%, speed up =     -0.08%
+		 stime         confidence =   23%, speed up =    -27.27%
+		 utime         confidence =   71%, speed up =      0.24%
+
+Uncertain program blocks
+	 binarytrees.st [0]  ⟷   binarytrees.st [1]
+		 avg_mem_usage confidence =  nan%, speed up =       nan%
+		 avg_res_set   confidence =  nan%, speed up =       nan%
+
+Report for const_fold
+const_fold [0]       (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =      (6).(667)m, deviation =   70.71068%
+	 max_res_set        mean =         18.176k, deviation =    0.00000%
+	 num_alloc          mean =          2.915k, deviation =    0.00000%
+	 num_dealloc        mean =          55.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         797.000, deviation =    0.00000%
+	 num_recycled_pages mean =         269.000, deviation =    0.00000%
+	 num_segments       mean =           1.000, deviation =    0.00000%
+	 num_small_alloc    mean =      109.47533k, deviation =    0.00043%
+	 num_small_dealloc  mean =       98.91133k, deviation =    0.00048%
+	 rss                mean =         18.350M, deviation =    0.00000%
+	 stime              mean =           0.000, deviation =         0.0
+	 utime              mean =           0.000, deviation =         0.0
+
+const_fold [1]       (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =         10.000m, deviation =    0.00000%
+	 max_res_set        mean =         18.176k, deviation =    0.00000%
+	 num_alloc          mean =          2.876k, deviation =    0.00000%
+	 num_dealloc        mean =          55.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         797.000, deviation =    0.00000%
+	 num_recycled_pages mean =         269.000, deviation =    0.00000%
+	 num_segments       mean =           1.000, deviation =    0.00000%
+	 num_small_alloc    mean =        109.322k, deviation =    0.00000%
+	 num_small_dealloc  mean =         98.906k, deviation =    0.00000%
+	 rss                mean =         18.350M, deviation =    0.00000%
+	 stime              mean =           0.000, deviation =         0.0
+	 utime              mean =           0.000, deviation =         0.0
+
+Equal program blocks
+	 const_fold [0]  ⟷   const_fold [1]
+		 etime              confidence =   37%, speed up =    -50.00%
+
+Unequal program blocks
+	 const_fold [0]  ⟷   const_fold [1]
+		 num_alloc          confidence =  100%, speed up =      1.34%
+		 num_small_alloc    confidence =  100%, speed up =      0.14%
+		 num_small_dealloc  confidence =  100%, speed up =      0.01%
+
+Uncertain program blocks
+	 const_fold [0]  ⟷   const_fold [1]
+		 avg_mem_usage      confidence =  nan%, speed up =       nan%
+		 avg_res_set        confidence =  nan%, speed up =       nan%
+		 max_res_set        confidence =  nan%, speed up =      0.00%
+		 num_dealloc        confidence =  nan%, speed up =      0.00%
+		 num_exports        confidence =  nan%, speed up =       nan%
+		 num_pages          confidence =  nan%, speed up =      0.00%
+		 num_recycled_pages confidence =  nan%, speed up =      0.00%
+		 num_segments       confidence =  nan%, speed up =      0.00%
+		 rss                confidence =  nan%, speed up =      0.00%
+		 stime              confidence =  nan%, speed up =       nan%
+		 utime              confidence =  nan%, speed up =       nan%
+
+Report for deriv
+deriv [0]            (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =    8(13).(333)m, deviation =    0.57960%
+	 max_res_set        mean =      442.02667k, deviation =    0.02730%
+	 num_alloc          mean =          2.954k, deviation =    0.00000%
+	 num_dealloc        mean =          91.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         54.403k, deviation =    0.00000%
+	 num_recycled_pages mean =         53.854k, deviation =    0.00000%
+	 num_segments       mean =          54.000, deviation =    0.00000%
+	 num_small_alloc    mean =       25.92761M, deviation =    0.00000%
+	 num_small_dealloc  mean =       25.91703M, deviation =    0.00000%
+	 rss                mean =        452.461M, deviation =    0.00000%
+	 stime              mean =        120.000m, deviation =    0.00000%
+	 utime              mean =    6(90).(000)m, deviation =    1.18333%
+
+deriv [1]            (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =    8(40).(000)m, deviation =    0.97202%
+	 max_res_set        mean =      442.19733k, deviation =    0.02729%
+	 num_alloc          mean =          2.915k, deviation =    0.00000%
+	 num_dealloc        mean =          91.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         54.403k, deviation =    0.00000%
+	 num_recycled_pages mean =         53.855k, deviation =    0.00000%
+	 num_segments       mean =          54.000, deviation =    0.00000%
+	 num_small_alloc    mean =       25.92746M, deviation =    0.00000%
+	 num_small_dealloc  mean =       25.91703M, deviation =    0.00000%
+	 rss                mean =      452.63531M, deviation =    0.02730%
+	 stime              mean =    (126).(667)m, deviation =    9.84647%
+	 utime              mean =    7(06).(667)m, deviation =    2.40520%
+
+Equal program blocks
+	 deriv [0]  ⟷   deriv [1]
+		 max_res_set        confidence =   23%, speed up =     -0.04%
+		 stime              confidence =   49%, speed up =     -5.56%
+		 utime              confidence =   28%, speed up =     -2.42%
+
+Unequal program blocks
+	 deriv [0]  ⟷   deriv [1]
+		 etime              confidence =   98%, speed up =     -3.28%
+		 num_alloc          confidence =  100%, speed up =      1.32%
+		 num_recycled_pages confidence =  100%, speed up =     -0.00%
+		 num_small_alloc    confidence =  100%, speed up =      0.00%
+		 num_small_dealloc  confidence =  100%, speed up =      0.00%
+
+Uncertain program blocks
+	 deriv [0]  ⟷   deriv [1]
+		 avg_mem_usage      confidence =  nan%, speed up =       nan%
+		 avg_res_set        confidence =  nan%, speed up =       nan%
+		 num_dealloc        confidence =  nan%, speed up =      0.00%
+		 num_exports        confidence =  nan%, speed up =       nan%
+		 num_pages          confidence =  nan%, speed up =      0.00%
+		 num_segments       confidence =  nan%, speed up =      0.00%
+		 rss                confidence =   12%, speed up =     -0.04%
+
+Report for liasolver
+liasolver [0]        (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =        260.000m, deviation =    0.00000%
+	 max_res_set        mean =        51.4560k, deviation =    0.70359%
+	 num_alloc          mean =         65.210k, deviation =    0.00000%
+	 num_dealloc        mean =         36.027k, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =          1.431k, deviation =    0.00000%
+	 num_recycled_pages mean =          7.615k, deviation =    0.00000%
+	 num_segments       mean =           2.000, deviation =    0.00000%
+	 num_small_alloc    mean =        8.25927M, deviation =    0.00001%
+	 num_small_dealloc  mean =        8.11508M, deviation =    0.00001%
+	 rss                mean =       52.42880M, deviation =    0.70711%
+	 stime              mean =      (3).(333)m, deviation =  141.42136%
+	 utime              mean =    2(46).(667)m, deviation =    1.91110%
+
+liasolver [1]        (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =        260.000m, deviation =    0.00000%
+	 max_res_set        mean =        53.2480k, deviation =    0.67991%
+	 num_alloc          mean =         65.065k, deviation =    0.00000%
+	 num_dealloc        mean =         36.043k, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =          1.426k, deviation =    0.00000%
+	 num_recycled_pages mean =          7.583k, deviation =    0.00000%
+	 num_segments       mean =           2.000, deviation =    0.00000%
+	 num_small_alloc    mean =        8.26117M, deviation =    0.00001%
+	 num_small_dealloc  mean =        8.11740M, deviation =    0.00001%
+	 rss                mean =       54.43857M, deviation =    0.45400%
+	 stime              mean =      (6).(667)m, deviation =   70.71068%
+	 utime              mean =    2(46).(667)m, deviation =    1.91110%
+
+Equal program blocks
+	 liasolver [0]  ⟷   liasolver [1]
+		 stime              confidence =   52%, speed up =   -100.00%
+		 utime              confidence =  100%, speed up =      0.00%
+
+Unequal program blocks
+	 liasolver [0]  ⟷   liasolver [1]
+		 max_res_set        confidence =   99%, speed up =     -3.48%
+		 num_alloc          confidence =  100%, speed up =      0.22%
+		 num_dealloc        confidence =  100%, speed up =     -0.04%
+		 num_pages          confidence =  100%, speed up =      0.35%
+		 num_recycled_pages confidence =  100%, speed up =      0.42%
+		 num_small_alloc    confidence =  100%, speed up =     -0.02%
+		 num_small_dealloc  confidence =  100%, speed up =     -0.03%
+		 rss                confidence =  100%, speed up =     -3.83%
+
+Uncertain program blocks
+	 liasolver [0]  ⟷   liasolver [1]
+		 avg_mem_usage      confidence =  nan%, speed up =       nan%
+		 avg_res_set        confidence =  nan%, speed up =       nan%
+		 etime              confidence =  nan%, speed up =      0.00%
+		 num_exports        confidence =  nan%, speed up =       nan%
+		 num_segments       confidence =  nan%, speed up =      0.00%
+
+Report for parser
+parser [0]           (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =         3.0(50), deviation =    0.80311%
+	 max_res_set        mean =        55.8933k, deviation =    0.57125%
+	 num_alloc          mean =          9.616M, deviation =    0.00000%
+	 num_dealloc        mean =          9.587M, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =          2.075k, deviation =    0.00000%
+	 num_recycled_pages mean =        210.067k, deviation =    0.00000%
+	 num_segments       mean =           3.000, deviation =    0.00000%
+	 num_small_alloc    mean =       80.76941M, deviation =    0.00000%
+	 num_small_dealloc  mean =       80.62529M, deviation =    0.00000%
+	 rss                mean =       57.06001M, deviation =    0.57300%
+	 stime              mean =     (10).(000)m, deviation =   81.64966%
+	 utime              mean =         3.0(33), deviation =    0.56033%
+
+parser [1]           (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =         3.01(0), deviation =    0.46984%
+	 max_res_set        mean =        57.9413k, deviation =    1.15965%
+	 num_alloc          mean =          9.664M, deviation =    0.00000%
+	 num_dealloc        mean =          9.635M, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =          2.079k, deviation =    0.00000%
+	 num_recycled_pages mean =        209.926k, deviation =    0.00000%
+	 num_segments       mean =           3.000, deviation =    0.00000%
+	 num_small_alloc    mean =       80.53826M, deviation =    0.00000%
+	 num_small_dealloc  mean =       80.39456M, deviation =    0.00000%
+	 rss                mean =       59.15716M, deviation =    1.04447%
+	 stime              mean =     (10).(000)m, deviation =   81.64966%
+	 utime              mean =           2.990, deviation =    0.00000%
+
+Equal program blocks
+	 parser [0]  ⟷   parser [1]
+		 stime              confidence =  100%, speed up =      0.00%
+
+Unequal program blocks
+	 parser [0]  ⟷   parser [1]
+		 max_res_set        confidence =   98%, speed up =     -3.66%
+		 num_alloc          confidence =  100%, speed up =     -0.50%
+		 num_dealloc        confidence =  100%, speed up =     -0.50%
+		 num_pages          confidence =  100%, speed up =     -0.19%
+		 num_recycled_pages confidence =  100%, speed up =      0.07%
+		 num_small_alloc    confidence =  100%, speed up =      0.29%
+		 num_small_dealloc  confidence =  100%, speed up =      0.29%
+		 rss                confidence =   99%, speed up =     -3.68%
+		 utime              confidence =   98%, speed up =      1.43%
+
+Uncertain program blocks
+	 parser [0]  ⟷   parser [1]
+		 avg_mem_usage      confidence =  nan%, speed up =       nan%
+		 avg_res_set        confidence =  nan%, speed up =       nan%
+		 etime              confidence =   12%, speed up =      1.31%
+		 num_exports        confidence =  nan%, speed up =       nan%
+		 num_segments       confidence =  nan%, speed up =      0.00%
+
+Report for qsort
+qsort [0]            (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =         1.44000, deviation =    0.00000%
+	 max_res_set        mean =         10.752k, deviation =    0.00000%
+	 num_alloc          mean =          1.082M, deviation =    0.00000%
+	 num_dealloc        mean =          1.079M, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         553.000, deviation =    0.00000%
+	 num_recycled_pages mean =           0.000, deviation =         0.0
+	 num_segments       mean =           1.000, deviation =    0.00000%
+	 num_small_alloc    mean =       32.95318M, deviation =    0.00000%
+	 num_small_dealloc  mean =       32.94260M, deviation =    0.00000%
+	 rss                mean =         11.010M, deviation =    0.00000%
+	 stime              mean =           0.000, deviation =         0.0
+	 utime              mean =         1.44000, deviation =    0.00000%
+
+qsort [1]            (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =         1.43(7), deviation =    0.32812%
+	 max_res_set        mean =        10.9227k, deviation =    1.10485%
+	 num_alloc          mean =          1.082M, deviation =    0.00000%
+	 num_dealloc        mean =          1.079M, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         552.000, deviation =    0.00000%
+	 num_recycled_pages mean =           0.000, deviation =         0.0
+	 num_segments       mean =           1.000, deviation =    0.00000%
+	 num_small_alloc    mean =       32.95303M, deviation =    0.00000%
+	 num_small_dealloc  mean =       32.94259M, deviation =    0.00000%
+	 rss                mean =         11.010M, deviation =    0.00000%
+	 stime              mean =           0.000, deviation =         0.0
+	 utime              mean =         1.43(3), deviation =    0.32889%
+
+Equal program blocks
+	 qsort [0]  ⟷   qsort [1]
+		 etime              confidence =   37%, speed up =      0.23%
+
+Unequal program blocks
+	 qsort [0]  ⟷   qsort [1]
+		 num_alloc          confidence =  100%, speed up =      0.00%
+		 num_pages          confidence =  100%, speed up =      0.18%
+		 num_small_alloc    confidence =  100%, speed up =      0.00%
+		 num_small_dealloc  confidence =  100%, speed up =      0.00%
+
+Uncertain program blocks
+	 qsort [0]  ⟷   qsort [1]
+		 avg_mem_usage      confidence =  nan%, speed up =       nan%
+		 avg_res_set        confidence =  nan%, speed up =       nan%
+		 max_res_set        confidence =   12%, speed up =     -1.59%
+		 num_dealloc        confidence =  nan%, speed up =      0.00%
+		 num_exports        confidence =  nan%, speed up =       nan%
+		 num_recycled_pages confidence =  nan%, speed up =       nan%
+		 num_segments       confidence =  nan%, speed up =      0.00%
+		 rss                confidence =  nan%, speed up =      0.00%
+		 stime              confidence =  nan%, speed up =       nan%
+		 utime              confidence =   12%, speed up =      0.46%
+
+Report for rbmap
+rbmap [0]            (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =        330.000m, deviation =    0.00000%
+	 max_res_set        mean =         89.600k, deviation =    0.00000%
+	 num_alloc          mean =          2.907k, deviation =    0.00000%
+	 num_dealloc        mean =          53.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         10.405k, deviation =    0.00000%
+	 num_recycled_pages mean =          9.852k, deviation =    0.00000%
+	 num_segments       mean =          11.000, deviation =    0.00000%
+	 num_small_alloc    mean =        2.01116M, deviation =    0.00002%
+	 num_small_dealloc  mean =        2.00060M, deviation =    0.00002%
+	 rss                mean =         91.750M, deviation =    0.00000%
+	 stime              mean =     (20).(000)m, deviation =   70.71068%
+	 utime              mean =    3(10).(000)m, deviation =    4.56198%
+
+rbmap [1]            (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =      370.00000m, deviation =    0.00000%
+	 max_res_set        mean =         89.856k, deviation =    0.00000%
+	 num_alloc          mean =          2.868k, deviation =    0.00000%
+	 num_dealloc        mean =          53.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         10.405k, deviation =    0.00000%
+	 num_recycled_pages mean =          9.852k, deviation =    0.00000%
+	 num_segments       mean =          11.000, deviation =    0.00000%
+	 num_small_alloc    mean =        2.01101M, deviation =    0.00002%
+	 num_small_dealloc  mean =        2.00060M, deviation =    0.00002%
+	 rss                mean =         91.750M, deviation =    0.00000%
+	 stime              mean =     2(6).(667)m, deviation =   46.77072%
+	 utime              mean =    3(40).(000)m, deviation =    4.15945%
+
+Equal program blocks
+	 rbmap [0]  ⟷   rbmap [1]
+		 stime              confidence =   64%, speed up =    -33.33%
+
+Unequal program blocks
+	 rbmap [0]  ⟷   rbmap [1]
+		 etime              confidence =  100%, speed up =    -12.12%
+		 max_res_set        confidence =  100%, speed up =     -0.29%
+		 num_alloc          confidence =  100%, speed up =      1.34%
+		 num_small_alloc    confidence =  100%, speed up =      0.01%
+		 num_small_dealloc  confidence =  100%, speed up =      0.00%
+
+Uncertain program blocks
+	 rbmap [0]  ⟷   rbmap [1]
+		 avg_mem_usage      confidence =  nan%, speed up =       nan%
+		 avg_res_set        confidence =  nan%, speed up =       nan%
+		 num_dealloc        confidence =  nan%, speed up =      0.00%
+		 num_exports        confidence =  nan%, speed up =       nan%
+		 num_pages          confidence =  nan%, speed up =      0.00%
+		 num_recycled_pages confidence =  nan%, speed up =      0.00%
+		 num_segments       confidence =  nan%, speed up =      0.00%
+		 rss                confidence =  nan%, speed up =      0.00%
+		 utime              confidence =   10%, speed up =     -9.68%
+
+Report for rbmap_1
+rbmap_1 [0]          (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =         1.89(3), deviation =    0.24898%
+	 max_res_set        mean =          2.371M, deviation =    0.00000%
+	 num_alloc          mean =          2.913k, deviation =    0.00000%
+	 num_dealloc        mean =          56.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =        295.481k, deviation =    0.00000%
+	 num_recycled_pages mean =        294.928k, deviation =    0.00000%
+	 num_segments       mean =         289.000, deviation =    0.00000%
+	 num_small_alloc    mean =       60.68404M, deviation =    0.00000%
+	 num_small_dealloc  mean =       60.67348M, deviation =    0.00000%
+	 rss                mean =        2.42815G, deviation =    0.00509%
+	 stime              mean =    6(93).(333)m, deviation =    4.90290%
+	 utime              mean =         1.1(93), deviation =    2.76522%
+
+rbmap_1 [1]          (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =         2.41(0), deviation =    0.33880%
+	 max_res_set        mean =        2.37150M, deviation =    0.00509%
+	 num_alloc          mean =          2.874k, deviation =    0.00000%
+	 num_dealloc        mean =          56.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =        295.480k, deviation =    0.00000%
+	 num_recycled_pages mean =        294.927k, deviation =    0.00000%
+	 num_segments       mean =         289.000, deviation =    0.00000%
+	 num_small_alloc    mean =       60.68389M, deviation =    0.00000%
+	 num_small_dealloc  mean =       60.67347M, deviation =    0.00000%
+	 rss                mean =          2.428G, deviation =    0.00000%
+	 stime              mean =    6(73).(333)m, deviation =    4.25858%
+	 utime              mean =         1.7(33), deviation =    1.90375%
+
+Equal program blocks
+	 rbmap_1 [0]  ⟷   rbmap_1 [1]
+		 rss                confidence =   37%, speed up =     -0.00%
+		 stime              confidence =   56%, speed up =      2.88%
+
+Unequal program blocks
+	 rbmap_1 [0]  ⟷   rbmap_1 [1]
+		 etime              confidence =  100%, speed up =    -27.29%
+		 num_alloc          confidence =  100%, speed up =      1.34%
+		 num_pages          confidence =  100%, speed up =      0.00%
+		 num_recycled_pages confidence =  100%, speed up =      0.00%
+		 num_small_alloc    confidence =  100%, speed up =      0.00%
+		 num_small_dealloc  confidence =  100%, speed up =      0.00%
+		 utime              confidence =  100%, speed up =    -45.25%
+
+Uncertain program blocks
+	 rbmap_1 [0]  ⟷   rbmap_1 [1]
+		 avg_mem_usage      confidence =  nan%, speed up =       nan%
+		 avg_res_set        confidence =  nan%, speed up =       nan%
+		 max_res_set        confidence =   12%, speed up =     -0.01%
+		 num_dealloc        confidence =  nan%, speed up =      0.00%
+		 num_exports        confidence =  nan%, speed up =       nan%
+		 num_segments       confidence =  nan%, speed up =      0.00%
+
+Report for rbmap_10
+rbmap_10 [0]         (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =    5(63).(333)m, deviation =    0.83681%
+	 max_res_set        mean =      321.87733k, deviation =    0.03749%
+	 num_alloc          mean =          2.913k, deviation =    0.00000%
+	 num_dealloc        mean =          56.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         39.405k, deviation =    0.00000%
+	 num_recycled_pages mean =         38.852k, deviation =    0.00000%
+	 num_segments       mean =          39.000, deviation =    0.00000%
+	 num_small_alloc    mean =        7.97845M, deviation =    0.00001%
+	 num_small_dealloc  mean =        7.96789M, deviation =    0.00001%
+	 rss                mean =        329.515M, deviation =    0.00000%
+	 stime              mean =     9(0).(000)m, deviation =    9.07218%
+	 utime              mean =    4(66).(667)m, deviation =    2.67261%
+
+rbmap_10 [1]         (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =        680.000m, deviation =    0.00000%
+	 max_res_set        mean =        322.048k, deviation =    0.00000%
+	 num_alloc          mean =          2.874k, deviation =    0.00000%
+	 num_dealloc        mean =          56.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         39.405k, deviation =    0.00000%
+	 num_recycled_pages mean =         38.852k, deviation =    0.00000%
+	 num_segments       mean =          39.000, deviation =    0.00000%
+	 num_small_alloc    mean =        7.97830M, deviation =    0.00001%
+	 num_small_dealloc  mean =        7.96788M, deviation =    0.00001%
+	 rss                mean =        329.777M, deviation =    0.00000%
+	 stime              mean =     9(3).(333)m, deviation =   10.10153%
+	 utime              mean =    5(80).(000)m, deviation =    1.40775%
+
+Equal program blocks
+	 rbmap_10 [0]  ⟷   rbmap_10 [1]
+		 stime              confidence =   72%, speed up =     -3.70%
+
+Unequal program blocks
+	 rbmap_10 [0]  ⟷   rbmap_10 [1]
+		 etime              confidence =  100%, speed up =    -20.71%
+		 num_alloc          confidence =  100%, speed up =      1.34%
+		 num_small_alloc    confidence =  100%, speed up =      0.00%
+		 num_small_dealloc  confidence =  100%, speed up =      0.00%
+		 rss                confidence =  100%, speed up =     -0.08%
+		 utime              confidence =  100%, speed up =    -24.29%
+
+Uncertain program blocks
+	 rbmap_10 [0]  ⟷   rbmap_10 [1]
+		 avg_mem_usage      confidence =  nan%, speed up =       nan%
+		 avg_res_set        confidence =  nan%, speed up =       nan%
+		 max_res_set        confidence =   12%, speed up =     -0.05%
+		 num_dealloc        confidence =  nan%, speed up =      0.00%
+		 num_exports        confidence =  nan%, speed up =       nan%
+		 num_pages          confidence =  nan%, speed up =      0.00%
+		 num_recycled_pages confidence =  nan%, speed up =      0.00%
+		 num_segments       confidence =  nan%, speed up =      0.00%
+
+Report for rbmap_fbip
+rbmap_fbip [0]       (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =        220.000m, deviation =    0.00000%
+	 max_res_set        mean =         89.856k, deviation =    0.00000%
+	 num_alloc          mean =          2.907k, deviation =    0.00000%
+	 num_dealloc        mean =          53.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         10.405k, deviation =    0.00000%
+	 num_recycled_pages mean =          9.852k, deviation =    0.00000%
+	 num_segments       mean =          11.000, deviation =    0.00000%
+	 num_small_alloc    mean =        2.01116M, deviation =    0.00002%
+	 num_small_dealloc  mean =        2.00060M, deviation =    0.00002%
+	 rss                mean =       91.83778M, deviation =    0.13456%
+	 stime              mean =     1(6).(667)m, deviation =   28.28427%
+	 utime              mean =      200.00000m, deviation =    0.00000%
+
+rbmap_fbip [1]       (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =    7(46).(667)m, deviation =    0.63135%
+	 max_res_set        mean =        114.432k, deviation =    0.00000%
+	 num_alloc          mean =          2.868k, deviation =    0.00000%
+	 num_dealloc        mean =          53.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         13.477k, deviation =    0.00000%
+	 num_recycled_pages mean =         63.593k, deviation =    0.00000%
+	 num_segments       mean =          14.000, deviation =    0.00000%
+	 num_small_alloc    mean =      115.35673M, deviation =    0.00000%
+	 num_small_dealloc  mean =      115.34632M, deviation =    0.00000%
+	 rss                mean =      117.00361M, deviation =    0.10562%
+	 stime              mean =     3(0).(000)m, deviation =   27.21655%
+	 utime              mean =    7(10).(000)m, deviation =    1.15000%
+
+Unequal program blocks
+	 rbmap_fbip [0]  ⟷   rbmap_fbip [1]
+		 etime              confidence =  100%, speed up =   -239.39%
+		 max_res_set        confidence =  100%, speed up =    -27.35%
+		 num_alloc          confidence =  100%, speed up =      1.34%
+		 num_pages          confidence =  100%, speed up =    -29.52%
+		 num_recycled_pages confidence =  100%, speed up =   -545.48%
+		 num_segments       confidence =  100%, speed up =    -27.27%
+		 num_small_alloc    confidence =  100%, speed up =  -5635.82%
+		 num_small_dealloc  confidence =  100%, speed up =  -5665.57%
+		 rss                confidence =  100%, speed up =    -27.40%
+		 utime              confidence =  100%, speed up =   -255.00%
+
+Uncertain program blocks
+	 rbmap_fbip [0]  ⟷   rbmap_fbip [1]
+		 avg_mem_usage      confidence =  nan%, speed up =       nan%
+		 avg_res_set        confidence =  nan%, speed up =       nan%
+		 num_dealloc        confidence =  nan%, speed up =      0.00%
+		 num_exports        confidence =  nan%, speed up =       nan%
+		 stime              confidence =   12%, speed up =    -80.00%
+
+Report for rbmap_library
+rbmap_library [0]    (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =      360.00000m, deviation =    0.00000%
+	 max_res_set        mean =      143.27467k, deviation =    0.46897%
+	 num_alloc          mean =         38.673k, deviation =    0.00000%
+	 num_dealloc        mean =          9.528k, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         13.027k, deviation =    0.00000%
+	 num_recycled_pages mean =         12.126k, deviation =    0.00000%
+	 num_segments       mean =          13.000, deviation =    0.00000%
+	 num_small_alloc    mean =        2.33312M, deviation =    0.00002%
+	 num_small_dealloc  mean =        2.18900M, deviation =    0.00002%
+	 rss                mean =      146.53850M, deviation =    0.50598%
+	 stime              mean =     3(6).(667)m, deviation =   34.01507%
+	 utime              mean =    3(16).(667)m, deviation =    3.93859%
+
+rbmap_library [1]    (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =      360.00000m, deviation =    0.00000%
+	 max_res_set        mean =      145.32267k, deviation =    0.16608%
+	 num_alloc          mean =         38.528k, deviation =    0.00000%
+	 num_dealloc        mean =          9.544k, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =         13.021k, deviation =    0.00000%
+	 num_recycled_pages mean =         12.128k, deviation =    0.00000%
+	 num_segments       mean =          13.000, deviation =    0.00000%
+	 num_small_alloc    mean =        2.33502M, deviation =    0.00002%
+	 num_small_dealloc  mean =        2.19131M, deviation =    0.00002%
+	 rss                mean =      148.63565M, deviation =    0.24942%
+	 stime              mean =     3(0).(000)m, deviation =   27.21655%
+	 utime              mean =    3(23).(333)m, deviation =    1.45795%
+
+Equal program blocks
+	 rbmap_library [0]  ⟷   rbmap_library [1]
+		 etime              confidence =  100%, speed up =      0.00%
+		 stime              confidence =   56%, speed up =     18.18%
+		 utime              confidence =   52%, speed up =     -2.11%
+
+Unequal program blocks
+	 rbmap_library [0]  ⟷   rbmap_library [1]
+		 max_res_set        confidence =   98%, speed up =     -1.43%
+		 num_alloc          confidence =  100%, speed up =      0.37%
+		 num_dealloc        confidence =  100%, speed up =     -0.17%
+		 num_pages          confidence =  100%, speed up =      0.05%
+		 num_recycled_pages confidence =  100%, speed up =     -0.02%
+		 num_small_alloc    confidence =  100%, speed up =     -0.08%
+		 num_small_dealloc  confidence =  100%, speed up =     -0.11%
+		 rss                confidence =   98%, speed up =     -1.43%
+
+Uncertain program blocks
+	 rbmap_library [0]  ⟷   rbmap_library [1]
+		 avg_mem_usage      confidence =  nan%, speed up =       nan%
+		 avg_res_set        confidence =  nan%, speed up =       nan%
+		 num_exports        confidence =  nan%, speed up =       nan%
+		 num_segments       confidence =  nan%, speed up =      0.00%
+
+Report for unionfind
+unionfind [0]        (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =         1.5(73), deviation =    0.79272%
+	 max_res_set        mean =      104.67200k, deviation =    0.00312%
+	 num_alloc          mean =          2.935k, deviation =    0.00000%
+	 num_dealloc        mean =          74.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =          9.405k, deviation =    0.00000%
+	 num_recycled_pages mean =         18.101k, deviation =    0.00000%
+	 num_segments       mean =          10.000, deviation =    0.00000%
+	 num_small_alloc    mean =        167.284M, deviation =    0.00000%
+	 num_small_dealloc  mean =        167.274M, deviation =    0.00000%
+	 rss                mean =      107.18413M, deviation =    0.00312%
+	 stime              mean =     3(0).(000)m, deviation =   27.21655%
+	 utime              mean =         1.5(43), deviation =    0.80813%
+
+unionfind [1]        (    3 single benchmarks)
+	 avg_mem_usage      mean =           0.000, deviation =         0.0
+	 avg_res_set        mean =           0.000, deviation =         0.0
+	 etime              mean =         1.4(47), deviation =    0.86213%
+	 max_res_set        mean =      105.07467k, deviation =    0.00179%
+	 num_alloc          mean =          2.896k, deviation =    0.00000%
+	 num_dealloc        mean =          74.000, deviation =    0.00000%
+	 num_exports        mean =           0.000, deviation =         0.0
+	 num_pages          mean =          9.428k, deviation =    0.00000%
+	 num_recycled_pages mean =         18.257k, deviation =    0.00000%
+	 num_segments       mean =          10.000, deviation =    0.00000%
+	 num_small_alloc    mean =      152.41605M, deviation =    0.00000%
+	 num_small_dealloc  mean =      152.40563M, deviation =    0.00000%
+	 rss                mean =      107.59646M, deviation =    0.00179%
+	 stime              mean =     2(6).(667)m, deviation =   17.67767%
+	 utime              mean =         1.4(13), deviation =    1.20260%
+
+Equal program blocks
+	 unionfind [0]  ⟷   unionfind [1]
+		 stime              confidence =   64%, speed up =     11.11%
+
+Unequal program blocks
+	 unionfind [0]  ⟷   unionfind [1]
+		 etime              confidence =  100%, speed up =      8.05%
+		 max_res_set        confidence =  100%, speed up =     -0.38%
+		 num_alloc          confidence =  100%, speed up =      1.33%
+		 num_pages          confidence =  100%, speed up =     -0.24%
+		 num_recycled_pages confidence =  100%, speed up =     -0.86%
+		 num_small_alloc    confidence =  100%, speed up =      8.89%
+		 num_small_dealloc  confidence =  100%, speed up =      8.89%
+		 rss                confidence =  100%, speed up =     -0.38%
+		 utime              confidence =  100%, speed up =      8.42%
+
+Uncertain program blocks
+	 unionfind [0]  ⟷   unionfind [1]
+		 avg_mem_usage      confidence =  nan%, speed up =       nan%
+		 avg_res_set        confidence =  nan%, speed up =       nan%
+		 num_dealloc        confidence =  nan%, speed up =      0.00%
+		 num_exports        confidence =  nan%, speed up =       nan%
+		 num_segments       confidence =  nan%, speed up =      0.00%
+

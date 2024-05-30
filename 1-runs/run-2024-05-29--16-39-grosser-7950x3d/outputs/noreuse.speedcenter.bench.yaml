@@ -1,0 +1,922 @@
+- attributes:
+    __description: binarytrees
+    description: binarytrees
+  data:
+    __ov-time:
+    - 1.3037798404693604
+    - 1.2787840366363525
+    - 1.2898428440093994
+    avg_mem_usage:
+    - 0.0
+    - 0.0
+    - 0.0
+    avg_res_set:
+    - 0.0
+    - 0.0
+    - 0.0
+    etime:
+    - 1.3
+    - 1.27
+    - 1.28
+    max_res_set:
+    - 130816.0
+    - 130560.0
+    - 130560.0
+    num_alloc:
+    - 2943
+    - 2943
+    - 2943
+    num_dealloc:
+    - 122
+    - 122
+    - 122
+    num_exports:
+    - 0
+    - 0
+    - 0
+    num_pages:
+    - 15468
+    - 15468
+    - 15468
+    num_recycled_pages:
+    - 305103
+    - 305103
+    - 305103
+    num_segments:
+    - 20
+    - 20
+    - 20
+    num_small_alloc:
+    - 152753870
+    - 152753871
+    - 152753871
+    num_small_dealloc:
+    - 152743454
+    - 152743455
+    - 152743455
+    rss:
+    - 133693440
+    - 133693440
+    - 133693440
+    stime:
+    - 0.02
+    - 0.02
+    - 0.02
+    utime:
+    - 1.26
+    - 1.25
+    - 1.26
+- attributes:
+    __description: binarytrees.st
+    description: binarytrees.st
+  data:
+    __ov-time:
+    - 1.2662713527679443
+    - 1.2695369720458984
+    - 1.2459633350372314
+    - 1.2629714012145996
+    - 1.2574536800384521
+    - 1.3050482273101807
+    - 1.2487680912017822
+    - 1.2408499717712402
+    - 1.2613294124603271
+    - 1.2433123588562012
+    avg_mem_usage:
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    avg_res_set:
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    etime:
+    - 1.26
+    - 1.26
+    - 1.24
+    - 1.26
+    - 1.25
+    - 1.3
+    - 1.24
+    - 1.23
+    - 1.26
+    - 1.24
+    max_res_set:
+    - 60416.0
+    - 60416.0
+    - 60416.0
+    - 60416.0
+    - 60160.0
+    - 60416.0
+    - 60416.0
+    - 60160.0
+    - 60160.0
+    - 60416.0
+    stime:
+    - 0.01
+    - 0.02
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.01
+    - 0.02
+    - 0.02
+    - 0.02
+    - 0.01
+    utime:
+    - 1.24
+    - 1.24
+    - 1.22
+    - 1.25
+    - 1.22
+    - 1.29
+    - 1.22
+    - 1.21
+    - 1.22
+    - 1.22
+- attributes:
+    __description: const_fold
+    description: const_fold
+  data:
+    __ov-time:
+    - 0.01135873794555664
+    - 0.011314153671264648
+    - 0.01133418083190918
+    avg_mem_usage:
+    - 0.0
+    - 0.0
+    - 0.0
+    avg_res_set:
+    - 0.0
+    - 0.0
+    - 0.0
+    etime:
+    - 0.01
+    - 0.01
+    - 0.01
+    max_res_set:
+    - 18176.0
+    - 18176.0
+    - 18176.0
+    num_alloc:
+    - 2876
+    - 2876
+    - 2876
+    num_dealloc:
+    - 55
+    - 55
+    - 55
+    num_exports:
+    - 0
+    - 0
+    - 0
+    num_pages:
+    - 797
+    - 797
+    - 797
+    num_recycled_pages:
+    - 269
+    - 269
+    - 269
+    num_segments:
+    - 1
+    - 1
+    - 1
+    num_small_alloc:
+    - 109322
+    - 109322
+    - 109322
+    num_small_dealloc:
+    - 98906
+    - 98906
+    - 98906
+    rss:
+    - 18350080
+    - 18350080
+    - 18350080
+    stime:
+    - 0.0
+    - 0.0
+    - 0.0
+    utime:
+    - 0.0
+    - 0.0
+    - 0.0
+- attributes:
+    __description: deriv
+    description: deriv
+  data:
+    __ov-time:
+    - 0.8535943031311035
+    - 0.8488450050354004
+    - 0.8392255306243896
+    avg_mem_usage:
+    - 0.0
+    - 0.0
+    - 0.0
+    avg_res_set:
+    - 0.0
+    - 0.0
+    - 0.0
+    etime:
+    - 0.85
+    - 0.84
+    - 0.83
+    max_res_set:
+    - 442112.0
+    - 442112.0
+    - 442368.0
+    num_alloc:
+    - 2915
+    - 2915
+    - 2915
+    num_dealloc:
+    - 91
+    - 91
+    - 91
+    num_exports:
+    - 0
+    - 0
+    - 0
+    num_pages:
+    - 54403
+    - 54403
+    - 54403
+    num_recycled_pages:
+    - 53855
+    - 53855
+    - 53855
+    num_segments:
+    - 54
+    - 54
+    - 54
+    num_small_alloc:
+    - 25927460
+    - 25927460
+    - 25927461
+    num_small_dealloc:
+    - 25917028
+    - 25917028
+    - 25917029
+    rss:
+    - 452722688
+    - 452460544
+    - 452722688
+    stime:
+    - 0.11
+    - 0.14
+    - 0.13
+    utime:
+    - 0.73
+    - 0.69
+    - 0.7
+- attributes:
+    __description: liasolver
+    description: liasolver
+  data:
+    __ov-time:
+    - 0.2665059566497803
+    - 0.26514315605163574
+    - 0.2660033702850342
+    avg_mem_usage:
+    - 0.0
+    - 0.0
+    - 0.0
+    avg_res_set:
+    - 0.0
+    - 0.0
+    - 0.0
+    etime:
+    - 0.26
+    - 0.26
+    - 0.26
+    max_res_set:
+    - 52992.0
+    - 53760.0
+    - 52992.0
+    num_alloc:
+    - 65065
+    - 65065
+    - 65065
+    num_dealloc:
+    - 36043
+    - 36043
+    - 36043
+    num_exports:
+    - 0
+    - 0
+    - 0
+    num_pages:
+    - 1426
+    - 1426
+    - 1426
+    num_recycled_pages:
+    - 7583
+    - 7583
+    - 7583
+    num_segments:
+    - 2
+    - 2
+    - 2
+    num_small_alloc:
+    - 8261167
+    - 8261167
+    - 8261166
+    num_small_dealloc:
+    - 8117402
+    - 8117402
+    - 8117401
+    rss:
+    - 54263808
+    - 54788096
+    - 54263808
+    stime:
+    - 0.01
+    - 0.01
+    - 0.0
+    utime:
+    - 0.25
+    - 0.24
+    - 0.25
+- attributes:
+    __description: parser
+    description: parser
+  data:
+    __ov-time:
+    - 3.0366668701171875
+    - 3.009931802749634
+    - 3.0074424743652344
+    avg_mem_usage:
+    - 0.0
+    - 0.0
+    - 0.0
+    avg_res_set:
+    - 0.0
+    - 0.0
+    - 0.0
+    etime:
+    - 3.03
+    - 3.0
+    - 3.0
+    max_res_set:
+    - 57600.0
+    - 58880.0
+    - 57344.0
+    num_alloc:
+    - 9664007
+    - 9664007
+    - 9664007
+    num_dealloc:
+    - 9635022
+    - 9635022
+    - 9635022
+    num_exports:
+    - 0
+    - 0
+    - 0
+    num_pages:
+    - 2079
+    - 2079
+    - 2079
+    num_recycled_pages:
+    - 209926
+    - 209926
+    - 209926
+    num_segments:
+    - 3
+    - 3
+    - 3
+    num_small_alloc:
+    - 80538261
+    - 80538262
+    - 80538261
+    num_small_dealloc:
+    - 80394557
+    - 80394558
+    - 80394557
+    rss:
+    - 58720256
+    - 60030976
+    - 58720256
+    stime:
+    - 0.02
+    - 0.01
+    - 0.0
+    utime:
+    - 2.99
+    - 2.99
+    - 2.99
+- attributes:
+    __description: qsort
+    description: qsort
+  data:
+    __ov-time:
+    - 1.4411256313323975
+    - 1.445094347000122
+    - 1.441467046737671
+    avg_mem_usage:
+    - 0.0
+    - 0.0
+    - 0.0
+    avg_res_set:
+    - 0.0
+    - 0.0
+    - 0.0
+    etime:
+    - 1.43
+    - 1.44
+    - 1.44
+    max_res_set:
+    - 11008.0
+    - 10752.0
+    - 11008.0
+    num_alloc:
+    - 1082080
+    - 1082080
+    - 1082080
+    num_dealloc:
+    - 1079251
+    - 1079251
+    - 1079251
+    num_exports:
+    - 0
+    - 0
+    - 0
+    num_pages:
+    - 552
+    - 552
+    - 552
+    num_recycled_pages:
+    - 0
+    - 0
+    - 0
+    num_segments:
+    - 1
+    - 1
+    - 1
+    num_small_alloc:
+    - 32953031
+    - 32953032
+    - 32953032
+    num_small_dealloc:
+    - 32942590
+    - 32942591
+    - 32942591
+    rss:
+    - 11010048
+    - 11010048
+    - 11010048
+    stime:
+    - 0.0
+    - 0.0
+    - 0.0
+    utime:
+    - 1.43
+    - 1.44
+    - 1.43
+- attributes:
+    __description: rbmap
+    description: rbmap
+  data:
+    __ov-time:
+    - 0.3810117244720459
+    - 0.3810303211212158
+    - 0.3774564266204834
+    avg_mem_usage:
+    - 0.0
+    - 0.0
+    - 0.0
+    avg_res_set:
+    - 0.0
+    - 0.0
+    - 0.0
+    etime:
+    - 0.37
+    - 0.37
+    - 0.37
+    max_res_set:
+    - 89856.0
+    - 89856.0
+    - 89856.0
+    num_alloc:
+    - 2868
+    - 2868
+    - 2868
+    num_dealloc:
+    - 53
+    - 53
+    - 53
+    num_exports:
+    - 0
+    - 0
+    - 0
+    num_pages:
+    - 10405
+    - 10405
+    - 10405
+    num_recycled_pages:
+    - 9852
+    - 9852
+    - 9852
+    num_segments:
+    - 11
+    - 11
+    - 11
+    num_small_alloc:
+    - 2011011
+    - 2011010
+    - 2011011
+    num_small_dealloc:
+    - 2000600
+    - 2000599
+    - 2000600
+    rss:
+    - 91750400
+    - 91750400
+    - 91750400
+    stime:
+    - 0.04
+    - 0.03
+    - 0.01
+    utime:
+    - 0.33
+    - 0.33
+    - 0.36
+- attributes:
+    __description: rbmap_1
+    description: rbmap_1
+  data:
+    __ov-time:
+    - 2.408578634262085
+    - 2.418987512588501
+    - 2.4256889820098877
+    avg_mem_usage:
+    - 0.0
+    - 0.0
+    - 0.0
+    avg_res_set:
+    - 0.0
+    - 0.0
+    - 0.0
+    etime:
+    - 2.4
+    - 2.41
+    - 2.42
+    max_res_set:
+    - 2371584.0
+    - 2371584.0
+    - 2371328.0
+    num_alloc:
+    - 2874
+    - 2874
+    - 2874
+    num_dealloc:
+    - 56
+    - 56
+    - 56
+    num_exports:
+    - 0
+    - 0
+    - 0
+    num_pages:
+    - 295480
+    - 295480
+    - 295480
+    num_recycled_pages:
+    - 294927
+    - 294927
+    - 294927
+    num_segments:
+    - 289
+    - 289
+    - 289
+    num_small_alloc:
+    - 60683887
+    - 60683888
+    - 60683888
+    num_small_dealloc:
+    - 60673472
+    - 60673473
+    - 60673473
+    rss:
+    - 2428239872
+    - 2428239872
+    - 2428239872
+    stime:
+    - 0.71
+    - 0.67
+    - 0.64
+    utime:
+    - 1.69
+    - 1.74
+    - 1.77
+- attributes:
+    __description: rbmap_10
+    description: rbmap_10
+  data:
+    __ov-time:
+    - 0.6878013610839844
+    - 0.6858382225036621
+    - 0.6858923435211182
+    avg_mem_usage:
+    - 0.0
+    - 0.0
+    - 0.0
+    avg_res_set:
+    - 0.0
+    - 0.0
+    - 0.0
+    etime:
+    - 0.68
+    - 0.68
+    - 0.68
+    max_res_set:
+    - 322048.0
+    - 322048.0
+    - 322048.0
+    num_alloc:
+    - 2874
+    - 2874
+    - 2874
+    num_dealloc:
+    - 56
+    - 56
+    - 56
+    num_exports:
+    - 0
+    - 0
+    - 0
+    num_pages:
+    - 39405
+    - 39405
+    - 39405
+    num_recycled_pages:
+    - 38852
+    - 38852
+    - 38852
+    num_segments:
+    - 39
+    - 39
+    - 39
+    num_small_alloc:
+    - 7978297
+    - 7978297
+    - 7978298
+    num_small_dealloc:
+    - 7967882
+    - 7967882
+    - 7967883
+    rss:
+    - 329777152
+    - 329777152
+    - 329777152
+    stime:
+    - 0.08
+    - 0.1
+    - 0.1
+    utime:
+    - 0.59
+    - 0.58
+    - 0.57
+- attributes:
+    __description: rbmap_fbip
+    description: rbmap_fbip
+  data:
+    __ov-time:
+    - 0.7518765926361084
+    - 0.7508349418640137
+    - 0.7529861927032471
+    avg_mem_usage:
+    - 0.0
+    - 0.0
+    - 0.0
+    avg_res_set:
+    - 0.0
+    - 0.0
+    - 0.0
+    etime:
+    - 0.75
+    - 0.74
+    - 0.75
+    max_res_set:
+    - 114432.0
+    - 114432.0
+    - 114432.0
+    num_alloc:
+    - 2868
+    - 2868
+    - 2868
+    num_dealloc:
+    - 53
+    - 53
+    - 53
+    num_exports:
+    - 0
+    - 0
+    - 0
+    num_pages:
+    - 13477
+    - 13477
+    - 13477
+    num_recycled_pages:
+    - 63593
+    - 63593
+    - 63593
+    num_segments:
+    - 14
+    - 14
+    - 14
+    num_small_alloc:
+    - 115356733
+    - 115356733
+    - 115356732
+    num_small_dealloc:
+    - 115346322
+    - 115346322
+    - 115346321
+    rss:
+    - 116916224
+    - 116916224
+    - 117178368
+    stime:
+    - 0.04
+    - 0.03
+    - 0.02
+    utime:
+    - 0.7
+    - 0.71
+    - 0.72
+- attributes:
+    __description: rbmap_library
+    description: rbmap_library
+  data:
+    __ov-time:
+    - 0.3639945983886719
+    - 0.3634510040283203
+    - 0.3638322353363037
+    avg_mem_usage:
+    - 0.0
+    - 0.0
+    - 0.0
+    avg_res_set:
+    - 0.0
+    - 0.0
+    - 0.0
+    etime:
+    - 0.36
+    - 0.36
+    - 0.36
+    max_res_set:
+    - 145664.0
+    - 145152.0
+    - 145152.0
+    num_alloc:
+    - 38528
+    - 38528
+    - 38528
+    num_dealloc:
+    - 9544
+    - 9544
+    - 9544
+    num_exports:
+    - 0
+    - 0
+    - 0
+    num_pages:
+    - 13021
+    - 13021
+    - 13021
+    num_recycled_pages:
+    - 12128
+    - 12128
+    - 12128
+    num_segments:
+    - 13
+    - 13
+    - 13
+    num_small_alloc:
+    - 2335016
+    - 2335017
+    - 2335016
+    num_small_dealloc:
+    - 2191314
+    - 2191315
+    - 2191314
+    rss:
+    - 149159936
+    - 148373504
+    - 148373504
+    stime:
+    - 0.03
+    - 0.02
+    - 0.04
+    utime:
+    - 0.32
+    - 0.33
+    - 0.32
+- attributes:
+    __description: unionfind
+    description: unionfind
+  data:
+    __ov-time:
+    - 1.4586780071258545
+    - 1.4614660739898682
+    - 1.4389431476593018
+    avg_mem_usage:
+    - 0.0
+    - 0.0
+    - 0.0
+    avg_res_set:
+    - 0.0
+    - 0.0
+    - 0.0
+    etime:
+    - 1.45
+    - 1.46
+    - 1.43
+    max_res_set:
+    - 105072.0
+    - 105076.0
+    - 105076.0
+    num_alloc:
+    - 2896
+    - 2896
+    - 2896
+    num_dealloc:
+    - 74
+    - 74
+    - 74
+    num_exports:
+    - 0
+    - 0
+    - 0
+    num_pages:
+    - 9428
+    - 9428
+    - 9428
+    num_recycled_pages:
+    - 18257
+    - 18257
+    - 18257
+    num_segments:
+    - 10
+    - 10
+    - 10
+    num_small_alloc:
+    - 152416049
+    - 152416050
+    - 152416049
+    num_small_dealloc:
+    - 152405628
+    - 152405629
+    - 152405628
+    rss:
+    - 107593728
+    - 107597824
+    - 107597824
+    stime:
+    - 0.03
+    - 0.02
+    - 0.03
+    utime:
+    - 1.42
+    - 1.43
+    - 1.39
+- property_descriptions:
+    avg_mem_usage: average total mem usage (in K)
+    avg_res_set: average resident set (not swapped out) size in K
+    etime: elapsed real (wall clock) time (in seconds)
+    max_res_set: maximum resident set (not swapped out) size in K
+    stime: system (kernel) CPU time used (in seconds)
+    utime: user CPU time used (in seconds)
+- env_info:
+  - - Operating system
+    - - - name
+        - Linux
+      - - release
+        - 6.5.0-35-generic
+  - - CPU
+    - - - cpu
+        - AMD Ryzen 9 7950X3D 16-Core Processor
+      - - cores
+        - '32'
+      - - threads
+        - '32'
+  - - Memory
+    - - - total
+        - 125.001GiB
+      - - available
+        - 119.487GiB
