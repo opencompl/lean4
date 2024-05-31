@@ -10,12 +10,12 @@
     parse_output: true
 - attributes:
     description: binarytrees.st
+  build_config:
+    cmd: ./compile.sh binarytrees.st.lean
   run_config:
     cmd: |
       bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-binarytrees.st.txt" ./binarytrees.st.lean.out 20 2>/dev/null 1>/dev/null;
       cat temci-binarytrees.st.txt'
-  build_config:
-    cmd: ./compile.sh binarytrees.st.lean
     max_runs: 3
     parse_output: true
 - attributes:
