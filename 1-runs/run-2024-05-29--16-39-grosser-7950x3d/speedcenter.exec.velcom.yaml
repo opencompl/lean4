@@ -6,7 +6,7 @@
     cmd: |
       bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-binarytrees.txt" ./binarytrees.lean.out 20 2>/dev/null 1>/dev/null; 
       cat temci-binarytrees.txt'
-    max_runs: 3
+    max_runs: 20
     parse_output: true
 - attributes:
     description: binarytrees.st
@@ -16,7 +16,7 @@
     cmd: |
       bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-binarytrees.st.txt" ./binarytrees.st.lean.out 20 2>/dev/null 1>/dev/null;
       cat temci-binarytrees.st.txt'
-    max_runs: 3
+    max_runs: 20
     parse_output: true
 - attributes:
     description: const_fold
@@ -25,7 +25,7 @@
       # bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-const_fold.txt" ./const_fold.lean.out 16 2>/dev/null 1>/dev/null;
       bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-const_fold.txt" ./const_fold.lean.out 15 2>/dev/null 1>/dev/null;
       cat temci-const_fold.txt'
-    max_runs: 3
+    max_runs: 20
     parse_output: true
   build_config:
     cmd: ./compile.sh const_fold.lean
@@ -35,7 +35,7 @@
     cmd: |
       bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-deriv.txt" ./deriv.lean.out 10 2>/dev/null 1>/dev/null;
       cat temci-deriv.txt'
-    max_runs: 3
+    max_runs: 20
     parse_output: true
   build_config:
     cmd: ./compile.sh deriv.lean
@@ -46,7 +46,7 @@
     cmd: |
       bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-liasolver.txt" ./liasolver.lean.out ex-50-50-1.leq 2>/dev/null 1>/dev/null;
       cat temci-liasolver.txt'
-    max_runs: 3
+    max_runs: 20
     parse_output: true
   build_config:
     cmd: ./compile.sh liasolver.lean
@@ -56,7 +56,7 @@
     cmd: |
       bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-parser.txt" ./parser.lean.out ../../src/Init/Prelude.lean 50 2>/dev/null 1>/dev/null;
       cat temci-parser.txt'
-    max_runs: 3
+    max_runs: 20
     parse_output: true
   build_config:
     cmd: ./compile.sh parser.lean
@@ -66,7 +66,7 @@
     cmd: |
       bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-qsort.txt" ./qsort.lean.out 400 2>/dev/null 1>/dev/null;
       cat temci-qsort.txt'
-    max_runs: 3
+    max_runs: 20
     parse_output: true
   build_config:
     cmd: ./compile.sh qsort.lean
@@ -76,7 +76,7 @@
     cmd: |
       bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-rbmap.txt" ./rbmap.lean.out 2000000 2>/dev/null 1>/dev/null;
       cat temci-rbmap.txt'
-    max_runs: 3
+    max_runs: 20
     parse_output: true
   build_config:
     cmd: ./compile.sh rbmap.lean
@@ -86,7 +86,7 @@
     cmd: |
       bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-rbmap_1.txt" ./rbmap_checkpoint.lean.out 2000000 1 2>/dev/null 1>/dev/null;
       cat temci-rbmap_1.txt'
-    max_runs: 3
+    max_runs: 20
     parse_output: true
   build_config:
     cmd: ./compile.sh rbmap_checkpoint.lean
@@ -96,7 +96,7 @@
     cmd: |
       bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-rbmap_10.txt" ./rbmap_checkpoint.lean.out 2000000 10 2>/dev/null 1>/dev/null;
       cat temci-rbmap_10.txt'
-    max_runs: 3
+    max_runs: 20
     parse_output: true
   build_config:
     cmd: ./compile.sh rbmap_checkpoint.lean
@@ -106,7 +106,7 @@
     cmd: |
       bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-rbmap_fbip.txt" ./rbmap_fbip.lean.out 2000000 2>/dev/null 1>/dev/null;
       cat temci-rbmap_fbip.txt'
-    max_runs: 3
+    max_runs: 20
     parse_output: true
   build_config:
     cmd: ./compile.sh rbmap_fbip.lean
@@ -116,7 +116,7 @@
     cmd: |
       bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-rbmap_library.txt" ./rbmap_library.lean.out 2000000 2>/dev/null 1>/dev/null;
       cat temci-rbmap_library.txt'
-    max_runs: 3
+    max_runs: 20
     parse_output: true
   build_config:
     cmd: ./compile.sh rbmap_library.lean
@@ -126,7 +126,7 @@
     cmd: |
       bash -c 'RESEARCH_LEAN_RUNTIME_ALLOCATOR_LOG="temci-unionfind.txt" ./unionfind.lean.out 3000000 2>/dev/null 1>/dev/null;
       cat temci-unionfind.txt'
-    max_runs: 3
+    max_runs: 20
     parse_output: true
   build_config:
     cmd: ./compile.sh unionfind.lean
