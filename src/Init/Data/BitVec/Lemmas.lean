@@ -736,7 +736,8 @@ private theorem Int.toNat_sub_toNat_eq_negSucc_ofLt {n m : Nat} (hlt : n < m) :
 
 /-- Equation theorem for 'Int.mod' -/
 private theorem Int.negSucc_emod (m : Nat) (n : Int) :
-  (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := rfl
+  (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := by
+   rfl
 
 
 /-- To sign extend when the msb is false, then sign extension is the same as truncation -/
@@ -776,11 +777,16 @@ theorem signExtend_eq_neg_truncate_neg_of_msb_true {x : BitVec w} {v : Nat} (hms
 
 @[simp] theorem getLsb_signExtend (x  : BitVec w) {v i : Nat} :
     (x.signExtend v).getLsb i = (decide (i < v) && if i < w then x.getLsb i else x.msb) := by
-  rcases hmsb : x.msb with rfl | rfl
-  · rw [signExtend_eq_neg_truncate_neg_of_msb_false hmsb]
-    by_cases (i < v) <;> by_cases (i < w) <;> simp_all <;> omega
-  · rw [signExtend_eq_neg_truncate_neg_of_msb_true hmsb]
-    by_cases (i < v) <;> by_cases (i < w) <;> simp_all <;> omega
+  by_cases h : i ≥ v
+  · simp [getLsb_ge (x.signExtend v) i h, h]
+    omega
+  · have h' : i < v := by omega
+    simp [h']
+    rcases hmsb : x.msb with rfl | rfl
+    · rw [signExtend_eq_neg_truncate_neg_of_msb_false hmsb]
+      by_cases (i < w) <;> simp_all <;> omega
+    · rw [signExtend_eq_neg_truncate_neg_of_msb_true hmsb]
+      by_cases (i < w) <;> simp_all <;> omega
 
 @[simp] theorem signExtend_of_eq (x : BitVec w) :
   x.signExtend w = x := by
