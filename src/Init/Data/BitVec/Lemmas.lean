@@ -1085,6 +1085,46 @@ theorem ofInt_mul {n} (x y : Int) : BitVec.ofInt n (x * y) =
   apply eq_of_toInt_eq
   simp
 
+def mulRec (l r : BitVec w) (s : Nat) : BitVec w :=
+  let cur := if r.getLsb s then (l <<< s) else 0
+  match s with
+  | 0 => cur
+  | s + 1 => mulRec l r s + cur
+
+@[simp]
+theorem shiftLeft_zero_eq (x : BitVec w) : x <<< 0 = x := by
+  apply eq_of_toNat_eq
+  simp
+
+theorem mulRec_zero_eq (l r : BitVec w) :
+    mulRec l r 0 = if r.getLsb 0 then l else 0 := by
+  simp [mulRec]
+
+theorem mulRec_succ_eq (l r : BitVec w) (s : Nat) :
+    mulRec l r (s + 1) = mulRec l r s + if r.getLsb (s + 1) then (l <<< (s + 1)) else 0 := by
+  simp [mulRec]
+
+theorem mulRec_eq_mul_signExtend_truncate (l r : BitVec w) (s : Nat) :
+    (mulRec l r s) = l * ((r.truncate s).signExtend w) := by
+  induction w generalizing s
+  case zero => apply Subsingleton.elim
+  case succ w' hw =>
+    induction s
+    case zero =>
+      simp [mulRec, mulRec_zero_eq, signExtend, truncate]
+      sorry
+    case succ s' hs => sorry
+
+-- Provable with sign extend theory.
+@[simp]
+theorem signExtend_eq_self (x : BitVec w) : x.signExtend w = x := sorry
+
+theorem getLsb_mul (x y : BitVec w) (i : Nat) :
+    (x * y).getLsb i = (mulRec x y w).getLsb i := by
+  rw [mulRec_eq_mul_signExtend_truncate]
+  simp [zeroExtend_eq]
+
+
 /-! ### le and lt -/
 
 @[bv_toNat] theorem le_def (x y : BitVec n) :
