@@ -202,6 +202,16 @@ theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat 
     simp only [Nat.add_sub_cancel]
     exact p
 
+theorem toNat_lt_of_msb_false {x : BitVec n} (p : BitVec.msb x = false) : x.toNat < 2^(n-1) := by
+  match n with
+  | 0 =>
+    rw [eq_nil x]
+    simp
+  | n + 1 =>
+    simp [BitVec.msb_eq_decide] at p
+    simp only [Nat.add_sub_cancel]
+    exact p
+
 /-! ### cast -/
 
 @[simp, bv_toNat] theorem toNat_cast (h : w = v) (x : BitVec w) : (cast h x).toNat = x.toNat := rfl
@@ -564,7 +574,18 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
     (~~~x).truncate k = ~~~(x.truncate k) := by
   ext
   simp [h]
+
   omega
+
+@[simp] theorem zeroExtend_not {x : BitVec w} (h : k ≤ w) :
+    (~~~x).zeroExtend k = ~~~(x.zeroExtend k) := by
+  ext
+  simp [h]
+
+@[simp] theorem not_not {x : BitVec w} :
+    ~~~ (~~~x) = x := by
+  ext
+  simp
 
 /-! ### cast -/
 
@@ -725,6 +746,176 @@ theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
         Bool.and_iff_right_iff_imp, Bool.or_eq_true, Bool.not_eq_true', decide_eq_false_iff_not,
         Nat.not_lt, decide_eq_true_eq]
       omega
+
+/-! ### signExtend -/
+
+/-- Equation theorem for 'Int.sub' when both arguments are 'negSucc' -/
+private theorem Int.toNat_sub_toNat_eq_negSucc_ofLt {n m : Nat} (hlt : n < m) :
+  (n : Int) - (m : Int) = (Int.negSucc (m - 1 - n)) := by
+  rw [Int.negSucc_eq] -- TODO: consider adding this to omega cleanup set.
+  omega
+
+/-- Equation theorem for 'Int.mod' -/
+private theorem Int.negSucc_emod (m : Nat) (n : Int) :
+  (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := by
+   rfl
+
+theorem Int.mod_lt {a : Int} {b: Nat} (h : a < 0) (h2 : -a < b): a % b = b - ((-a) % b) := by
+  sorry
+
+/-
+theorem Int.mod_lt (a : Int) (b: Nat) (h : a < 0) (h2 : -a < b): a % b = b - ((-a) % b) := by
+  simp only [instHMod]
+  simp only [Mod.mod, Int.emod, h]
+  cases a
+  case ofNat x =>
+    simp
+    contradiction
+  case negSucc x =>
+    simp only [Int.natAbs_ofNat, Nat.succ_eq_add_one, Int.ofNat_eq_coe, Int.ofNat_emod,
+      Int.natCast_natAbs, Int.emod_abs, Int.negSucc_coe, Int.neg_neg]
+    norm_cast
+    norm_num
+    have w : - (Int.negSucc x) = x + 1 := rfl
+    rw [Nat.mod_eq_of_lt (by omega)]
+    rw [Nat.mod_eq_of_lt (by omega)]
+-/
+
+@[bv_toNat] theorem toNat_signExtend (i : Nat) (x : BitVec n) :
+    BitVec.toNat (signExtend i x) =
+    if x.msb && i > n then
+      x.toNat + (allOnes (i)).toNat - (allOnes (n)).toNat
+    else
+      (zeroExtend i x).toNat := by
+  by_cases hn : n = 0
+  · subst hn; simp [signExtend]; unfold BitVec.toInt; simp
+  by_cases hmsb : i <= n
+  · have h : ¬ (i > n) := by omega
+    simp [h]
+    simp only [signExtend]
+    unfold BitVec.toInt
+    by_cases hh : 2 * x.toNat < 2 ^ n
+    · simp [hh]
+    · simp [hh]
+      norm_cast
+      have xx : ↑x.toNat - (((2 ^ n):Nat):Int) = ↑x.toNat + (-1 * (((2^(n-i))):Nat):Int) * (((2^i):Nat): Int):= by
+        have yy : ↑x.toNat - (((2 ^ n):Nat):Int) = ↑x.toNat + -1 * (((2^(n-i)) * (((2^i):Nat)):Nat):Int):= by
+          norm_cast
+          rw [← Nat.pow_add]
+          rw [Nat.sub_add_cancel]
+          omega
+          omega
+        rw [yy]
+        simp
+        norm_cast
+        rw [Int.natCast_mul]
+        have ss : @Neg.neg Int Int.instNegInt 1 = @Neg.neg Int Int.instNegInt 1 := rfl
+        rw [ss]
+        rw [Int.mul_assoc]
+      rw [xx]
+      rw [Int.add_mul_emod_self]
+      norm_cast
+  · simp only [signExtend]
+    unfold BitVec.toInt
+    simp [BitVec.toNat_ofInt]
+    have xx :  (n < i) := by omega
+    simp [xx]
+    by_cases rr : x.msb
+    · simp [rr]
+      have tt := BitVec.toNat_ge_of_msb_true rr
+      have rr : 2 * x.toNat >= 2 ^ n := by
+        have ss : 2 ^n = 2 ^(n - 1 + 1) := by
+          rw [Nat.sub_add_cancel]
+          omega
+        rw [ss]
+        rw [Nat.pow_succ]
+        omega
+      have rr : ¬ (2 * x.toNat < 2 ^ n) := by omega
+      simp [rr]
+      norm_cast
+      have ee : ((((x.toNat:Nat):Int) - (((2 ^ n):Nat):Int)))< 0 := by omega
+      rw [Int.mod_lt ee]
+      have nn : -(↑x.toNat - (((2 ^ n:Nat)):Int)) % (((2 ^ i):Nat):Int) = -(↑x.toNat - ((2 ^ n):Int)) := by
+        norm_cast
+
+        sorry
+      rw [nn]
+      norm_cast
+      rw [Int.neg_sub]
+      rw [Int.sub_eq_add_neg]
+      rw [Int.neg_sub]
+      norm_cast
+      have y : x.toNat + (2 ^ i - 1) - (2 ^ n - 1) = x.toNat + (2 ^ i) - (2 ^ n) := by omega
+      rw [y]
+      have yy : ((((2 ^ i):Nat):Int) + (↑x.toNat - 2 ^ n)).toNat = 2 ^ i + x.toNat - 2 ^ n := by
+        norm_cast
+        omega
+      rw [yy]
+      omega
+      norm_cast
+      have uu : ↑x.toNat - ↑(2 ^ n) < 2 ^n := by omega
+      norm_cast
+      have ii := Nat.pow_lt_pow_of_lt (a := 2) (by omega) xx
+      omega
+    · simp at rr
+      simp [rr]
+      have tt := BitVec.toNat_lt_of_msb_false rr
+      have rr : 2 * x.toNat < 2 ^ n := by
+        have ss : 2 ^n = 2 ^(n - 1 + 1) := by
+          rw [Nat.sub_add_cancel]
+          omega
+        rw [ss]
+        rw [Nat.pow_succ]
+        omega
+      simp [rr]
+      norm_cast
+
+
+
+
+
+
+
+/-- To sign extend when the msb is false, then sign extension is the same as truncation -/
+theorem signExtend_eq_neg_truncate_neg_of_msb_false {x : BitVec w} {v : Nat} (hmsb : x.msb = false) :
+    (x.signExtend v) = x.zeroExtend v := by
+  rw [toNat_eq]
+  rw [toNat_signExtend]
+  simp only [hmsb, gt_iff_lt, Bool.false_and, Bool.false_eq_true, ↓reduceIte, toNat_truncate]
+
+theorem signExtend_eq_neg_truncate_neg_of_msb_true {x : BitVec w} {v : Nat} (hmsb : x.msb = true) :
+    (x.signExtend v) = ~~~((~~~x).zeroExtend v) := by
+  by_cases hv : w < v
+  · rw [toNat_eq, toNat_signExtend]
+    simp only [hmsb, gt_iff_lt, hv, decide_True, Bool.and_self, ↓reduceIte, toNat_allOnes,
+      toNat_not, toNat_truncate]
+    rw [Nat.mod_eq_of_lt (by have hh := Nat.pow_lt_pow_of_lt (a := 2) (by omega) hv; omega)]
+    omega
+  · rw [zeroExtend_not (by omega)]
+    simp [toNat_eq, toNat_signExtend]
+    omega
+
+@[simp] theorem getLsb_signExtend (x  : BitVec w) {v i : Nat} :
+    (x.signExtend v).getLsb i = (decide (i < v) && if i < w then x.getLsb i else x.msb) := by
+  by_cases h : i ≥ v
+  · simp [getLsb_ge (x.signExtend v) i h, h]
+    omega
+  · have h' : i < v := by omega
+    simp [h']
+    rcases hmsb : x.msb with rfl | rfl
+    · rw [signExtend_eq_neg_truncate_neg_of_msb_false hmsb]
+      by_cases (i < w) <;> simp_all <;> omega
+    · rw [signExtend_eq_neg_truncate_neg_of_msb_true hmsb]
+      by_cases (i < w) <;> simp_all <;> omega
+
+@[simp] theorem signExtend_of_eq (x : BitVec w) :
+  x.signExtend w = x := by
+  simp [signExtend]
+  apply BitVec.eq_of_toNat_eq
+  simp
+  rw [BitVec.toInt_eq_msb_cond]
+  rcases hmsb : x.msb with rfl | rfl <;>
+     simp [hmsb, Int.ofNat_mod_ofNat, Int.toNat_ofNat]
 
 /-! ### append -/
 
