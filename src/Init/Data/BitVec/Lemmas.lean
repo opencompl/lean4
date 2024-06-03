@@ -1130,8 +1130,42 @@ theorem mulRec_succ_eq (l r : BitVec w) (s : Nat) :
     mulRec l r (s + 1) = mulRec l r s + if r.getLsb (s + 1) then (l <<< (s + 1)) else 0 := by
   simp [mulRec]
 
+/-!
+#!/usr/bin/env python3
+# Check that 'hargonix-recurrences-statements' actually has the right statements.
+# https://github.com/opencompl/lean4/pull/6
+# Theorems from: https://www21.in.tum.de/teaching/sar/SS20/7.pdf
+from z3 import *
+
+# Define the `mulRec` function in Z3py
+def mulRec(l : BitVecRef, r : BitVecRef, s : int):
+    # import pudb; pudb.set_trace()
+    assert isinstance(s, int)
+    assert isinstance(l, BitVecRef)
+    assert isinstance(r, BitVecRef)
+    cur = If(Extract(s, s, r) == 1, l << s, BitVecVal(0, w))
+    if s == 0: return cur
+    else: return mulRec(l, r, s-1) + cur
+
+# Define BitVecs
+w = 8  # Example width, you can adjust it as necessary
+l = BitVec('l', w)
+r = BitVec('r', w)
+
+mul_circuit = mulRec(l, r, w-1)
+print(mul_circuit)
+
+# Define assertion
+mul_circuit_correct = mul_circuit == l * r
+s = Solver()
+s.add(mul_circuit_correct)
+
+out = s.check()
+print(out)
+-/
+
 theorem mulRec_eq_mul_signExtend_truncate (l r : BitVec w) (s : Nat) :
-    (mulRec l r s) = l * ((r.truncate s).signExtend w) := by
+    (mulRec l r s) = l * r := by
   induction w generalizing s
   case zero => apply Subsingleton.elim
   case succ w' hw =>
@@ -1148,8 +1182,6 @@ theorem signExtend_eq_self (x : BitVec w) : x.signExtend w = x := sorry
 theorem getLsb_mul (x y : BitVec w) (i : Nat) :
     (x * y).getLsb i = (mulRec x y w).getLsb i := by
   rw [mulRec_eq_mul_signExtend_truncate]
-  simp [zeroExtend_eq]
-
 
 /-! ### le and lt -/
 
