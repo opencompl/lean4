@@ -756,26 +756,41 @@ private theorem Int.negSucc_emod (m : Nat) (n : Int) :
       x.toNat + (allOnes i).toNat - (allOnes n).toNat
     else
       (zeroExtend i x).toNat := by
-  by_cases hmsb : i > n
-  · simp [hmsb]
-      norm_cast
-
-
-
-
-    sorry
-  · simp [hmsb]
+  by_cases hmsb : i <= n
+  · have h : ¬ (i > n) := by omega
+    simp [h]
     simp only [signExtend]
-
-    simp [hmsb]
     unfold BitVec.toInt
     by_cases hh : 2 * x.toNat < 2 ^ n
     · simp [hh]
     · simp [hh]
       norm_cast
+      have xx : ↑x.toNat - (((2 ^ n):Nat):Int) = ↑x.toNat + (-1 * (((2^(n-i))):Nat):Int) * (((2^i):Nat): Int):= by
+        have yy : ↑x.toNat - (((2 ^ n):Nat):Int) = ↑x.toNat + -1 * (((2^(n-i)) * (((2^i):Nat)):Nat):Int):= by
+          norm_cast
+          rw [← Nat.pow_add]
+          rw [Nat.sub_add_cancel]
+          omega
+          omega
+        rw [yy]
+        simp
+        norm_cast
+        rw [Int.natCast_mul]
+        have ss : @Neg.neg Int Int.instNegInt 1 = @Neg.neg Int Int.instNegInt 1 := rfl
+        rw [ss]
+        rw [Int.mul_assoc]
+      rw [xx]
+      rw [Int.add_mul_emod_self]
+      norm_cast
+  · simp only [signExtend]
+    unfold BitVec.toInt
+    simp [BitVec.toNat_ofInt]
+    · simp [h]
+    · simp [h, hmsb]
 
 
-      sorry
+
+
 
 
 /-- To sign extend when the msb is false, then sign extension is the same as truncation -/
