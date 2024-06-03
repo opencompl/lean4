@@ -812,15 +812,13 @@ private theorem Int.negSucc_emod (m : Nat) (n : Int) :
       have rr : ¬ (2 * x.toNat < 2 ^ n) := by omega
       simp [rr]
       norm_cast
-      rw [←Int.ofNat_sub]
-      norm_cast
-      rw [Nat.mod_eq_of_lt]
-      · sorry
-      · have ww :=  Nat.pow_lt_pow_of_lt (a := 2) (by omega) xx
-        omega
-      · have ee := BitVec.toNat_lt x
-        simp [ee]
-        sorry
+      unfold instHMod
+      simp_all
+      unfold Mod.mod
+      unfold Int.instMod
+      unfold Int.emod
+      simp
+      -- here the negSucc comes in
     · simp at rr
       simp [rr]
       have tt := BitVec.toNat_lt_of_msb_false rr
