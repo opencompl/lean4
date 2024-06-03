@@ -739,23 +739,50 @@ private theorem Int.negSucc_emod (m : Nat) (n : Int) :
   (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := by
    rfl
 
+@[bv_toNat] theorem toNat_signExtend (i : Nat) (x : BitVec n) :
+    BitVec.toNat (signExtend i x) =
+    if x.msb && i > n then
+      x.toNat + (allOnes i).toNat - (allOnes n).toNat
+    else
+      (zeroExtend i x).toNat := sorry
 
 /-- To sign extend when the msb is false, then sign extension is the same as truncation -/
 theorem signExtend_eq_neg_truncate_neg_of_msb_false {x : BitVec w} {v : Nat} (hmsb : x.msb = false) :
     (x.signExtend v) = x.truncate v := by
-  ext i
-  by_cases hv : i < v
-  · simp only [getLsb_zeroExtend, hv, decide_True, Bool.true_and]
-    rw [signExtend, getLsb]
-    simp only [toNat_ofInt]
-    rw [BitVec.toInt_eq_msb_cond]
-    simp only [hmsb, Bool.false_eq_true, ↓reduceIte]
-    rw [Int.ofNat_mod_ofNat, Int.toNat_ofNat]
-    simp only [Nat.testBit_mod_two_pow, hv, decide_True, Bool.true_and]
-    rw [BitVec.testBit_toNat]
-  · simp only [getLsb_zeroExtend, hv, decide_False, Bool.false_and]
-    apply getLsb_ge
-    omega
+  rw [toNat_eq]
+  rw [toNat_signExtend]
+  simp [hmsb]
+
+theorem signExtend_eq_neg_truncate_neg_of_msb_true' {x : BitVec w} {v : Nat} (hmsb : x.msb = true) :
+    (x.signExtend v) = ~~~((~~~x).truncate v) := by
+  rw [toNat_eq]
+  simp only [toNat_not]
+  simp only [toNat_truncate]
+  simp only [toNat_not]
+  rw [toNat_signExtend]
+  simp [hmsb]
+  by_cases hv : w < v
+  · simp [hv]
+    sorry
+  · simp [hv]
+    sorry
+
+--  simp
+--  intros
+--rw [toNat_truncate]
+
+--  by_cases hv : i < v
+--  · simp only [getLsb_zeroExtend, hv, decide_True, Bool.true_and]
+--    rw [signExtend, getLsb]
+--    simp only [toNat_ofInt]
+--    rw [BitVec.toInt_eq_msb_cond]
+--    simp only [hmsb, Bool.false_eq_true, ↓reduceIte]
+--    rw [Int.ofNat_mod_ofNat, Int.toNat_ofNat]
+--    simp only [Nat.testBit_mod_two_pow, hv, decide_True, Bool.true_and]
+--    rw [BitVec.testBit_toNat]
+--  · simp only [getLsb_zeroExtend, hv, decide_False, Bool.false_and]
+--    apply getLsb_ge
+--    omega
 
 /-- To sign extend when the msb is true, we perform double negation to make the high bits true. -/
 theorem signExtend_eq_neg_truncate_neg_of_msb_true {x : BitVec w} {v : Nat} (hmsb : x.msb = true) :
