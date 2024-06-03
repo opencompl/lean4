@@ -815,10 +815,18 @@ private theorem Int.negSucc_emod (m : Nat) (n : Int) :
       omega
       sorry
     · simp at rr
+      simp [rr]
       have tt := BitVec.toNat_lt_of_msb_false rr
-      have rr : 2 * x.toNat < 2 ^ n := by sorry
+      have rr : 2 * x.toNat < 2 ^ n := by
+        have ss : 2 ^n = 2 ^(n - 1 + 1) := by
+          rw [Nat.sub_add_cancel]
+          omega
+        rw [ss]
+        rw [Nat.pow_succ]
+        omega
       simp [rr]
       norm_cast
+
 
 
 
