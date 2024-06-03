@@ -564,7 +564,13 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
     (~~~x).truncate k = ~~~(x.truncate k) := by
   ext
   simp [h]
+
   omega
+
+@[simp] theorem zeroExtend_not {x : BitVec w} (h : k ≤ w) :
+    (~~~x).zeroExtend k = ~~~(x.zeroExtend k) := by
+  ext
+  simp [h]
 
 @[simp] theorem not_not {x : BitVec w} :
     ~~~ (~~~x) = x := by
@@ -774,21 +780,21 @@ private theorem Int.negSucc_emod (m : Nat) (n : Int) :
 
 /-- To sign extend when the msb is false, then sign extension is the same as truncation -/
 theorem signExtend_eq_neg_truncate_neg_of_msb_false {x : BitVec w} {v : Nat} (hmsb : x.msb = false) :
-    (x.signExtend v) = x.truncate v := by
+    (x.signExtend v) = x.zeroExtend v := by
   rw [toNat_eq]
   rw [toNat_signExtend]
   simp only [hmsb, gt_iff_lt, Bool.false_and, Bool.false_eq_true, ↓reduceIte, toNat_truncate]
 
 theorem signExtend_eq_neg_truncate_neg_of_msb_true {x : BitVec w} {v : Nat} (hmsb : x.msb = true) :
-    (x.signExtend v) = ~~~((~~~x).truncate v) := by
+    (x.signExtend v) = ~~~((~~~x).zeroExtend v) := by
   by_cases hv : w < v
   · rw [toNat_eq, toNat_signExtend]
     simp only [hmsb, gt_iff_lt, hv, decide_True, Bool.and_self, ↓reduceIte, toNat_allOnes,
       toNat_not, toNat_truncate]
     rw [Nat.mod_eq_of_lt (by have hh := Nat.pow_lt_pow_of_lt (a := 2) (by omega) hv; omega)]
     omega
-  · rw [truncate_not (by omega)]
-    simp [toNat_eq, toNat_signExtend, hmsb]
+  · rw [zeroExtend_not (by omega)]
+    simp [toNat_eq, toNat_signExtend]
     omega
 
 @[simp] theorem getLsb_signExtend (x  : BitVec w) {v i : Nat} :
