@@ -202,6 +202,16 @@ theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat 
     simp only [Nat.add_sub_cancel]
     exact p
 
+theorem toNat_lt_of_msb_false {x : BitVec n} (p : BitVec.msb x = false) : x.toNat < 2^(n-1) := by
+  match n with
+  | 0 =>
+    rw [eq_nil x]
+    simp
+  | n + 1 =>
+    simp [BitVec.msb_eq_decide] at p
+    simp only [Nat.add_sub_cancel]
+    exact p
+
 /-! ### cast -/
 
 @[simp, bv_toNat] theorem toNat_cast (h : w = v) (x : BitVec w) : (cast h x).toNat = x.toNat := rfl
@@ -756,6 +766,8 @@ private theorem Int.negSucc_emod (m : Nat) (n : Int) :
       x.toNat + (allOnes i).toNat - (allOnes n).toNat
     else
       (zeroExtend i x).toNat := by
+  by_cases hn : n = 0
+  · subst hn; simp [signExtend]; unfold BitVec.toInt; simp
   by_cases hmsb : i <= n
   · have h : ¬ (i > n) := by omega
     simp [h]
@@ -785,8 +797,28 @@ private theorem Int.negSucc_emod (m : Nat) (n : Int) :
   · simp only [signExtend]
     unfold BitVec.toInt
     simp [BitVec.toNat_ofInt]
-    · simp [h]
-    · simp [h, hmsb]
+    have xx :  (n < i) := by omega
+    simp [xx]
+    by_cases rr : x.msb
+    · simp [rr]
+      have tt := BitVec.toNat_ge_of_msb_true rr
+      have rr : 2 * x.toNat >= 2 ^ n := by
+        have ss : 2 ^n = 2 ^(n - 1 + 1) := by
+          rw [Nat.sub_add_cancel]
+          omega
+        rw [ss]
+        rw [Nat.pow_succ]
+        omega
+      have rr : ¬ (2 * x.toNat < 2 ^ n) := by omega
+      simp [rr]
+
+      omega
+      sorry
+    · simp at rr
+      have tt := BitVec.toNat_lt_of_msb_false rr
+      have rr : 2 * x.toNat < 2 ^ n := by sorry
+      simp [rr]
+      norm_cast
 
 
 
