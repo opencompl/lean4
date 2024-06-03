@@ -726,6 +726,32 @@ theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
         Nat.not_lt, decide_eq_true_eq]
       omega
 
+/-! ### udiv -/
+
+theorem udiv_eq {x y : BitVec n} :
+    x.udiv y = BitVec.ofNat n (x.toNat / y.toNat) := by
+  apply BitVec.eq_of_toNat_eq
+  simp only [udiv, toNat_ofNatLt, toNat_ofNat]
+  rw [Nat.mod_eq_of_lt]
+  exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
+
+/-- The remainder `rem` obeys the euclidean algorithm equation on computing `l.udiv r`. -/
+def udivDivisor (l r rem : BitVec w) : Prop :=
+  rem < r ∧
+  let l' := l.signExtend (2*w)
+  let r' := r.signExtend (2*w)
+  let rem' := rem.signExtend (2*w)
+  l' = (l' / r') * r' + rem'
+
+/-- Such a remainder always exists. -/
+theorem udiv_euclid_eqn_exists (l r : BitVec w) :
+  ∃ (rem : BitVec w), udivDivisor l r rem := sorry
+
+/-- Such a remainder is unique. -/
+theorem udiv_euclid_eqn_unique (l r rem rem' : BitVec w)
+  (hrem : udivDivisor l r rem) (hrem' : udivDivisor l r rem') :
+  rem = rem' := sorry
+
 /-! ### append -/
 
 theorem append_def (x : BitVec v) (y : BitVec w) :
