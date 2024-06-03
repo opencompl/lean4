@@ -833,9 +833,12 @@ theorem Int.mod_lt (a : Int) (b: Nat) (h : a < 0) (h2 : -a < b): a % b = b - ((-
       have rr : ¬ (2 * x.toNat < 2 ^ n) := by omega
       simp [rr]
       norm_cast
-      have ee : ((((x.toNat:Nat):Int) - (((2 ^ n):Nat):Int)))< 0 := sorry
-      rw [Int.mod_lt ee sorry]
-      have nn : -(↑x.toNat - (((2 ^ n:Nat)):Int)) % (((2 ^ i):Nat):Int) = -(↑x.toNat - ((2 ^ n):Int)) := sorry
+      have ee : ((((x.toNat:Nat):Int) - (((2 ^ n):Nat):Int)))< 0 := by omega
+      rw [Int.mod_lt ee]
+      have nn : -(↑x.toNat - (((2 ^ n:Nat)):Int)) % (((2 ^ i):Nat):Int) = -(↑x.toNat - ((2 ^ n):Int)) := by
+        norm_cast
+
+        sorry
       rw [nn]
       norm_cast
       rw [Int.neg_sub]
@@ -844,8 +847,15 @@ theorem Int.mod_lt (a : Int) (b: Nat) (h : a < 0) (h2 : -a < b): a % b = b - ((-
       norm_cast
       have y : x.toNat + (2 ^ i - 1) - (2 ^ n - 1) = x.toNat + (2 ^ i) - (2 ^ n) := by omega
       rw [y]
-      have yy : ((((2 ^ i):Nat):Int) + (↑x.toNat - 2 ^ n)).toNat = 2 ^ i + x.toNat - 2 ^ n := by omega
+      have yy : ((((2 ^ i):Nat):Int) + (↑x.toNat - 2 ^ n)).toNat = 2 ^ i + x.toNat - 2 ^ n := by
+        norm_cast
+        omega
       rw [yy]
+      omega
+      norm_cast
+      have uu : ↑x.toNat - ↑(2 ^ n) < 2 ^n := by omega
+      norm_cast
+      have ii := Nat.pow_lt_pow_of_lt (a := 2) (by omega) xx
       omega
     · simp at rr
       simp [rr]
