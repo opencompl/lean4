@@ -760,10 +760,31 @@ private theorem Int.negSucc_emod (m : Nat) (n : Int) :
   (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := by
    rfl
 
+theorem Int.mod_lt {a : Int} {b: Nat} (h : a < 0) (h2 : -a < b): a % b = b - ((-a) % b) := by
+  sorry
+
+/-
+theorem Int.mod_lt (a : Int) (b: Nat) (h : a < 0) (h2 : -a < b): a % b = b - ((-a) % b) := by
+  simp only [instHMod]
+  simp only [Mod.mod, Int.emod, h]
+  cases a
+  case ofNat x =>
+    simp
+    contradiction
+  case negSucc x =>
+    simp only [Int.natAbs_ofNat, Nat.succ_eq_add_one, Int.ofNat_eq_coe, Int.ofNat_emod,
+      Int.natCast_natAbs, Int.emod_abs, Int.negSucc_coe, Int.neg_neg]
+    norm_cast
+    norm_num
+    have w : - (Int.negSucc x) = x + 1 := rfl
+    rw [Nat.mod_eq_of_lt (by omega)]
+    rw [Nat.mod_eq_of_lt (by omega)]
+-/
+
 @[bv_toNat] theorem toNat_signExtend (i : Nat) (x : BitVec n) :
     BitVec.toNat (signExtend i x) =
     if x.msb && i > n then
-      x.toNat + (allOnes i).toNat - (allOnes n).toNat
+      x.toNat + (allOnes (i)).toNat - (allOnes (n)).toNat
     else
       (zeroExtend i x).toNat := by
   by_cases hn : n = 0
@@ -812,12 +833,15 @@ private theorem Int.negSucc_emod (m : Nat) (n : Int) :
       have rr : ¬ (2 * x.toNat < 2 ^ n) := by omega
       simp [rr]
       norm_cast
-      unfold instHMod
-      simp_all
-      unfold Mod.mod
-      unfold Int.instMod
-      unfold Int.emod
-      simp
+      have ee : ((((x.toNat:Nat):Int) - (((2 ^ n):Nat):Int)))< 0 := sorry
+      rw [Int.mod_lt ee sorry]
+      have nn : -(↑x.toNat - (((2 ^ n:Nat)):Int)) % (((2 ^ i):Nat):Int) = -(↑x.toNat - ((2 ^ n):Int)) := sorry
+      rw [nn]
+      norm_cast
+      rw [Int.neg_sub]
+      rw [Int.sub_eq_add_neg]
+      rw [Int.neg_sub]
+      norm_cast
       -- here the negSucc comes in
     · simp at rr
       simp [rr]
