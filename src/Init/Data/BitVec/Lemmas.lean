@@ -842,7 +842,11 @@ theorem Int.mod_lt (a : Int) (b: Nat) (h : a < 0) (h2 : -a < b): a % b = b - ((-
       rw [Int.sub_eq_add_neg]
       rw [Int.neg_sub]
       norm_cast
-      -- here the negSucc comes in
+      have y : x.toNat + (2 ^ i - 1) - (2 ^ n - 1) = x.toNat + (2 ^ i) - (2 ^ n) := by omega
+      rw [y]
+      have yy : ((((2 ^ i):Nat):Int) + (↑x.toNat - 2 ^ n)).toNat = 2 ^ i + x.toNat - 2 ^ n := by omega
+      rw [yy]
+      omega
     · simp at rr
       simp [rr]
       have tt := BitVec.toNat_lt_of_msb_false rr
