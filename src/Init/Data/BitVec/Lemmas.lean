@@ -1224,6 +1224,17 @@ theorem BitVec.mul_add {x y z : BitVec w} :
 def pot {w : Nat} (i : Nat) : BitVec w := (1#w) <<< i
 
 @[simp]
+theorem toNat_pot (w : Nat) (i : Nat) : (pot i : BitVec w).toNat = 2^i % 2^w := by
+  rcases w with rfl | w
+  · simp [Nat.mod_one]
+  · simp [pot, toNat_shiftLeft]
+    have h1 : 1 < 2 ^ (w + 1) := Nat.one_lt_two_pow (by omega)
+    rw [Nat.mod_eq_of_lt h1]
+    rw [Nat.shiftLeft_eq, Nat.one_mul]
+
+
+
+@[simp]
 theorem getLsb_pot (i j : Nat) : (pot i : BitVec w).getLsb j = ((i < w) && (i = j)) := by
   rcases w with rfl | w
   · simp only [pot, BitVec.reduceOfNat, Nat.zero_le, getLsb_ge, Bool.false_eq,
@@ -1243,6 +1254,26 @@ theorem getLsb_pot (i j : Nat) : (pot i : BitVec w).getLsb j = ((i < w) && (i = 
           simp at hi
         simp_all
 
+theorem and_pot_eq_getLsb (x : BitVec w) (i : Nat) :
+    x &&& (pot i : BitVec w) = if x.getLsb i then pot i else 0#w := by
+  ext j
+  simp only [getLsb_and, getLsb_pot]
+  by_cases hj : i = j <;> by_cases hx : x.getLsb i <;> simp_all
+
+@[simp]
+theorem mul_pot_eq_shiftLeft (x : BitVec w) (i : Nat) :
+    x * (pot i : BitVec w) = x <<< i := by
+  apply eq_of_toNat_eq
+  simp only [toNat_mul, toNat_pot, toNat_shiftLeft, Nat.shiftLeft_eq]
+  by_cases hi : i < w
+  · have hpow : 2^i < 2^w := Nat.pow_lt_pow_of_lt (by omega) (by omega)
+    rw [Nat.mod_eq_of_lt hpow]
+  · have hpow : 2 ^ i % 2 ^ w = 0 := by
+      rw [Nat.mod_eq_zero_of_dvd]
+      apply Nat.pow_dvd_pow 2 (by omega)
+    simp [Nat.mul_mod, hpow]
+
+
 /-- This is proven in BitBlast.lean, but it's a dependency that needs an import cycle to be broken. -/
 theorem add_eq_or_of_and_eq_zero (x y : BitVec w) (h : x &&& y = 0#w) : x + y = x ||| y := by sorry
 
@@ -1261,11 +1292,20 @@ theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_pot (x : BitVec w) (
   rw [add_eq_or_of_and_eq_zero]
   · ext k
     simp only [getLsb_zeroExtend, Fin.is_lt, decide_True, Bool.true_and, getLsb_or, getLsb_and]
-    by_cases hk:k = i
-    · sorry
-    · sorry
+    by_cases hik:i = k
+    · subst hik
+      simp
+    · simp [hik]
+      /- Really, 'omega' should be able to do this-/
+      by_cases hik' : k < (i + 1)
+      · have hik'' : k < i := by omega
+        simp [hik', hik'']
+      · have hik'' : ¬ (k < i) := by omega
+        simp [hik', hik'']
   · ext k
-    sorry
+    simp
+    intros h₁ _ _ _
+    omega
 
 theorem mulRec_eq_mul_signExtend_truncate (l r : BitVec w) (s : Nat) :
     (mulRec l r s) = l * ((r.truncate (s + 1)).zeroExtend w) := by
@@ -1287,7 +1327,9 @@ theorem mulRec_eq_mul_signExtend_truncate (l r : BitVec w) (s : Nat) :
       rw [hs];
       have heq :
         (if r.getLsb (s' + 1) = true then l <<< (s' + 1) else 0) =
-          (l * (r &&& (BitVec.pot (s' + 1)))) := by sorry
+          (l * (r &&& (BitVec.pot (s' + 1)))) := by
+        simp only [ofNat_eq_ofNat, and_pot_eq_getLsb]
+        by_cases hr : r.getLsb (s' + 1) <;> simp [hr]
       rw [heq, ← BitVec.mul_add]
       rw [← zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_pot]
 
