@@ -1229,19 +1229,19 @@ theorem getLsb_pot (i j : Nat) : (pot i : BitVec w).getLsb j = ((i < w) && (i = 
   · simp only [pot, BitVec.reduceOfNat, Nat.zero_le, getLsb_ge, Bool.false_eq,
     Bool.and_eq_false_imp, decide_eq_true_eq, decide_eq_false_iff_not]
     omega
-  · simp [pot, getLsb_shiftLeft, getLsb_ofNat, decide_eq_true_eq]
-    by_cases hi : Nat.testBit 1 (j - i)
-    · simp [hi]
-      obtain hi' := Nat.testBit_one_eq_true_iff_self_eq_zero.mp hi
-      simp [hi']
-      have hi'' : i = j := by omega
+  · simp only [pot, getLsb_shiftLeft, getLsb_ofNat]
+    by_cases hj : j < i
+    · simp only [hj, decide_True, Bool.not_true, Bool.and_false, Bool.false_and, Bool.false_eq,
+      Bool.and_eq_false_imp, decide_eq_true_eq, decide_eq_false_iff_not]
       omega
-    · simp at hi
-      rw [hi]
-      have hij : i ≠ j := by
-        intro h; subst h
-        simp at hi
-      simp [hij]
+    · by_cases hi : Nat.testBit 1 (j - i)
+      · obtain hi' := Nat.testBit_one_eq_true_iff_self_eq_zero.mp hi
+        have hij : j = i := by omega
+        simp_all
+      · have hij : i ≠ j := by
+          intro h; subst h
+          simp at hi
+        simp_all
 
 /-- This is proven in BitBlast.lean, but it's a dependency that needs an import cycle to be broken. -/
 theorem add_eq_or_of_and_eq_zero (x y : BitVec w) (h : x &&& y = 0#w) : x + y = x ||| y := by sorry
