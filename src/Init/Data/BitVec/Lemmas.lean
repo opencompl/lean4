@@ -1191,6 +1191,7 @@ private theorem Nat.testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
     Nat.testBit 1 i = true ↔ i = 0 := by
   cases i <;> simp
 
+
 /-- Zero extending `1#v` to `1#w` equals `1#w` when `v > 0`. -/
 theorem zeroExtend_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v):
     (BitVec.ofNat v 1).zeroExtend w = BitVec.ofNat w 1 := by
@@ -1222,11 +1223,49 @@ theorem BitVec.mul_add {x y z : BitVec w} :
 /-- The Bitvector that is equal to `2^i % 2^w`, the power of 2 (`pot`). -/
 def pot {w : Nat} (i : Nat) : BitVec w := (1#w) <<< i
 
+@[simp]
+theorem getLsb_pot (i j : Nat) : (pot i : BitVec w).getLsb j = ((i < w) && (i = j)) := by
+  rcases w with rfl | w
+  · simp only [pot, BitVec.reduceOfNat, Nat.zero_le, getLsb_ge, Bool.false_eq,
+    Bool.and_eq_false_imp, decide_eq_true_eq, decide_eq_false_iff_not]
+    omega
+  · simp [pot, getLsb_shiftLeft, getLsb_ofNat, decide_eq_true_eq]
+    by_cases hi : Nat.testBit 1 (j - i)
+    · simp [hi]
+      obtain hi' := Nat.testBit_one_eq_true_iff_self_eq_zero.mp hi
+      simp [hi']
+      have hi'' : i = j := by omega
+      omega
+    · simp at hi
+      rw [hi]
+      have hij : i ≠ j := by
+        intro h; subst h
+        simp at hi
+      simp [hij]
+
+/-- This is proven in BitBlast.lean, but it's a dependency that needs an import cycle to be broken. -/
+theorem add_eq_or_of_and_eq_zero (x y : BitVec w) (h : x &&& y = 0#w) : x + y = x ||| y := by sorry
+
+theorem BitVec.toNat_pot (w : Nat) (i : Nat) : (pot i : BitVec w).toNat = 2^i % 2^w := by
+  rcases w with rfl | w
+  · simp [Nat.mod_one]
+  · simp [pot, toNat_shiftLeft]
+    have hone : 1 < 2 ^ (w + 1) := by
+      rw [show 1 = 2^0 by simp[Nat.pow_zero]]
+      exact Nat.pow_lt_pow_of_lt (by omega) (by omega)
+    simp [Nat.mod_eq_of_lt hone, Nat.shiftLeft_eq]
+
 theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_pot (x : BitVec w) (i : Nat) :
     zeroExtend w (x.truncate (i + 1)) =
       zeroExtend w (x.truncate i) + (x &&& (BitVec.pot i)) := by
-  apply eq_of_toNat_eq
-  sorry
+  rw [add_eq_or_of_and_eq_zero]
+  · ext k
+    simp only [getLsb_zeroExtend, Fin.is_lt, decide_True, Bool.true_and, getLsb_or, getLsb_and]
+    by_cases hk:k = i
+    · sorry
+    · sorry
+  · ext k
+    sorry
 
 theorem mulRec_eq_mul_signExtend_truncate (l r : BitVec w) (s : Nat) :
     (mulRec l r s) = l * ((r.truncate (s + 1)).zeroExtend w) := by
