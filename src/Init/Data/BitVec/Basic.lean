@@ -614,14 +614,14 @@ theorem ofBool_append (msb : Bool) (lsbs : BitVec w) :
     ofBool msb ++ lsbs = (cons msb lsbs).cast (Nat.add_comm ..) :=
   rfl
 
-end bitwise
-
-section twoPow
-
-/-- `twoPow i` is the bitvector `2^i` if `i < w`, and `0` otherwise. That is, 2 to the power `i`. -/
+/--
+`twoPow i` is the bitvector `2^i` if `i < w`, and `0` otherwise.
+That is, 2 to the power `i`.
+For the bitwise point of view, it has the `i`th bit as `1` and all other bits as `0`.
+-/
 def twoPow {w : Nat} (i : Nat) : BitVec w := (1#w) <<< i
 
-end twoPow
+end bitwise
 
 section normalization_eqs
 /-! We add simp-lemmas that rewrite bitvector operations into the equivalent notation -/
