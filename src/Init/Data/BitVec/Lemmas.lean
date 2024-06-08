@@ -1138,7 +1138,7 @@ theorem BitVec.mul_one {x : BitVec w} : x * 1#w = x := by
   simp [toNat_mul, Nat.mod_eq_of_lt x.isLt]
 
 @[simp]
-theorem BitVec.mul_zero {x : BitVec w} : x * (0#w) = (0#w) := by
+theorem BitVec.mul_zero {x : BitVec w} : x * 0#w = 0#w := by
   apply eq_of_toNat_eq
   simp [toNat_mul]
 
