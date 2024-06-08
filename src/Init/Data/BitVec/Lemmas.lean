@@ -1113,46 +1113,6 @@ theorem mulRec_succ_eq (l r : BitVec w) (s : Nat) :
     mulRec l r (s + 1) = mulRec l r s + if r.getLsb (s + 1) then (l <<< (s + 1)) else 0 := by
   simp [mulRec]
 
-/-!
-#!/usr/bin/env python3
-##Check that 'hargonix-recurrences-statements' actually has the right statements.
-from z3 import *
-
-def mulExample():
-    # Define the `mulRec` function in Z3py
-    def mulRec(l : BitVecRef, r : BitVecRef, s : int):
-        # import pudb; pudb.set_trace()
-        assert isinstance(s, int)
-        assert isinstance(l, BitVecRef)
-        assert isinstance(r, BitVecRef)
-        cur = If(Extract(s, s, r) == 1, l << s, BitVecVal(0, w))
-        if s == 0: return cur
-        else: return mulRec(l, r, s-1) + cur
-
-    # Define BitVecs
-    w = 8  # Example width, you can adjust it as necessary
-    l = BitVec('l', w)
-    r = BitVec('r', w)
-
-    mul_circuit = mulRec(l, r, w-1)
-    print(mul_circuit)
-
-    # Define assertion
-    mul_circuit_correct = mul_circuit == l * r
-    s = Solver()
-    s.add(ForAll(l, ForAll(r, mul_circuit_correct)))
-
-    assert bool(s.check())
-
-    # verify what happens in mulRec for all 's'
-    for nbits_keep in range(1, w):
-        s = Solver()
-        s.add(ForAll(l, ForAll(r, mulRec(l, r, nbits_keep) == ZeroExt(w - nbits_keep - 1, Extract(nbits_keep, 0, l * r)))))
-        print(f"* checking mul eqn for width:'{nbits_keep}': '{s}'.")
-        assert bool(s.check())
-mulExample()
--/
-
 @[simp]
 theorem getLsb_ofBool (b : Bool) (i : Nat) : (BitVec.ofBool b).getLsb i = ((i = 0) && b) := by
   rcases b with rfl | rfl
