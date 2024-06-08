@@ -1374,4 +1374,95 @@ theorem getLsb_rotateRight {x : BitVec w} {r i : Nat} :
   · simp
   · rw [← rotateRight_mod_eq_rotateRight, getLsb_rotateRight_of_le (Nat.mod_lt _ (by omega))]
 
+/-! ### mod -/
+
+@[simp]
+theorem mod_def (x y : BitVec w) : BitVec.umod x y = x % y := rfl
+
+theorem mod_eq_of_lt (x y : BitVec w) (hx : x < y) : x % y = x := by
+  apply eq_of_toNat_eq
+  rw [← mod_def, umod]
+  simp
+  apply Nat.mod_eq_of_lt hx
+
+@[simp, bv_toNat]
+theorem toNat_mod (x y : BitVec w) :
+    (x % y).toNat = x.toNat % y.toNat := by
+  rw [← mod_def, umod]
+  simp
+
+@[simp]
+theorem mod_zero_eq {w : Nat} (x : BitVec w) : x % (0#w) = x :=
+  eq_of_toNat_eq (by simp)
+
+@[simp]
+theorem mod_self_eq {w : Nat} (x : BitVec w) : x % x = (0#w) :=
+  eq_of_toNat_eq (by simp)
+
+theorem mod_lt (x y : BitVec w) (hy : 0#w < y) : x % y < y := by
+  simp only [lt_def, toNat_mod]
+  apply Nat.mod_lt;
+  simp only [lt_def, toNat_ofNat, Nat.zero_mod] at hy
+  omega
+
+/-! ## udiv -/
+
+theorem udiv_eq {x y : BitVec n} :
+    x.udiv y = BitVec.ofNat n (x.toNat / y.toNat) := by
+  apply BitVec.eq_of_toNat_eq
+  simp only [udiv, toNat_ofNatLt, toNat_ofNat]
+  rw [Nat.mod_eq_of_lt]
+  exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
+
+
+/-- The remainder `rem` obeys the euclidean algorithm equation on computing `l.udiv r`. -/
+def udivDivisor (l r rem : BitVec w) : Prop :=
+  rem < r ∧
+  let l' := l.signExtend (2*w)
+  let r' := r.signExtend (2*w)
+  let rem' := rem.signExtend (2*w)
+  l' = (l' / r') * r' + rem'
+
+theorem signExtend_toInt_eq_of_le (x : BitVec w) (h : w ≤ n) :
+    (x.signExtend n).toInt = x.toInt := by
+  simp only [signExtend]
+  rw [toInt_ofInt]
+  rw [Int.bmod_def]
+  sorry
+
+-- TODO: write how to deduce the toInt version from the bitvec version above.
+def udivDivisorToInt (l r rem : BitVec w) : Prop :=
+  rem.toInt < r.toInt ∧
+  l.toInt = (l.toInt / r.toInt) * r.toInt + rem.toInt
+
+/-- Show that the two are iff. -/
+theorem udivDivisorToInt_eq (l r rem : BitVec w) :
+    udivDivisor l r rem ↔ udivDivisorToInt l r rem := by sorry
+
+
+/-- Such a remainder always exists. -/
+theorem udiv_euclid_eqn_exists (l r : BitVec w) (hr : r ≠ 0#w):
+    ∃ (rem : BitVec w), udivDivisor l r rem := by
+simp [udivDivisor]
+exists (l % r)
+constructor
+· apply mod_lt
+  sorry
+· apply eq_of_toInt_eq
+  have hw : w ≤ 2 * w := by omega
+  simp [signExtend_toInt_eq_of_le _ hw]
+  sorry
+
+#check Classical.byContradiction
+
+/-- Such a remainder is unique. -/
+theorem udiv_euclid_eqn_unique (l r rem rem' : BitVec w)
+    (hrem : udivDivisor l r rem) (hrem' : udivDivisor l r rem') :
+    rem = rem' := by
+  apply Classical.byContradiction
+  intros hcontra
+  simp [udivDivisor] at hrem hrem'
+  sorry
+
+
 end BitVec
