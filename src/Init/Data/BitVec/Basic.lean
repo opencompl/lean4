@@ -616,6 +616,13 @@ theorem ofBool_append (msb : Bool) (lsbs : BitVec w) :
 
 end bitwise
 
+section twoPow
+
+/-- `twoPow i` is the bitvector `2^i` if `i < w`, and `0` otherwise. That is, 2 to the power `i`. -/
+def twoPow {w : Nat} (i : Nat) : BitVec w := (1#w) <<< i
+
+end twoPow
+
 section normalization_eqs
 /-! We add simp-lemmas that rewrite bitvector operations into the equivalent notation -/
 @[simp] theorem append_eq (x : BitVec w) (y : BitVec v)   : BitVec.append x y = x ++ y        := rfl
