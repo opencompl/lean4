@@ -289,7 +289,7 @@ theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow (x : BitVec w
     omega
 
 theorem mulRec_eq_mul_signExtend_truncate (l r : BitVec w) (s : Nat) :
-    (mulRec l r s) = l * ((r.truncate (s + 1)).zeroExtend w) := by
+    mulRec l r s = l * ((r.truncate (s + 1)).zeroExtend w) := by
   induction s
   case zero =>
     simp [mulRec_zero_eq]
