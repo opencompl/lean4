@@ -1133,7 +1133,7 @@ theorem ofInt_mul {n} (x y : Int) : BitVec.ofInt n (x * y) =
   simp
 
 @[simp]
-theorem BitVec.mul_one {x : BitVec w} : x * (1#w) = x := by
+theorem BitVec.mul_one {x : BitVec w} : x * 1#w = x := by
   apply eq_of_toNat_eq
   simp [toNat_mul, Nat.mod_eq_of_lt x.isLt]
 
