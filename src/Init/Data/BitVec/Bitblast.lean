@@ -159,7 +159,7 @@ theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := b
 theorem allOnes_sub_eq_not (x : BitVec w) : allOnes w - x = ~~~x := by
   rw [← add_not_self x, BitVec.add_comm, add_sub_cancel]
 
-/-- Adding two bitvectors equals or-ing them if they are 1 in mutually exclusive locations -/
+/-- Adding two bitvectors equals or-ing them if they are 1 in mutually exclusive locations. -/
 theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     (h : x &&& y = 0#w) : x + y = x ||| y := by
   rw [add_eq_adc, adc, iunfoldr_replace (fun _ => false) (x ||| y)]
