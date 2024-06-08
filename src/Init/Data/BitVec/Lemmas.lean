@@ -735,23 +735,6 @@ theorem udiv_eq {x y : BitVec n} :
   rw [Nat.mod_eq_of_lt]
   exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
 
-/-- The remainder `rem` obeys the euclidean algorithm equation on computing `l.udiv r`. -/
-def udivDivisor (l r rem : BitVec w) : Prop :=
-  rem < r ∧
-  let l' := l.signExtend (2*w)
-  let r' := r.signExtend (2*w)
-  let rem' := rem.signExtend (2*w)
-  l' = (l' / r') * r' + rem'
-
-/-- Such a remainder always exists. -/
-theorem udiv_euclid_eqn_exists (l r : BitVec w) :
-  ∃ (rem : BitVec w), udivDivisor l r rem := sorry
-
-/-- Such a remainder is unique. -/
-theorem udiv_euclid_eqn_unique (l r rem rem' : BitVec w)
-  (hrem : udivDivisor l r rem) (hrem' : udivDivisor l r rem') :
-  rem = rem' := sorry
-
 /-! ### append -/
 
 theorem append_def (x : BitVec v) (y : BitVec w) :
@@ -1191,7 +1174,6 @@ private theorem Nat.testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
     Nat.testBit 1 i = true ↔ i = 0 := by
   cases i <;> simp
 
-
 /-- Zero extending `1#v` to `1#w` equals `1#w` when `v > 0`. -/
 theorem zeroExtend_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v):
     (BitVec.ofNat v 1).zeroExtend w = BitVec.ofNat w 1 := by
@@ -1219,138 +1201,6 @@ theorem BitVec.mul_add {x y z : BitVec w} :
   simp
   rw [Nat.mul_mod, Nat.mod_mod (y.toNat + z.toNat),
     ← Nat.mul_mod, Nat.mul_add]
-
-/-- The Bitvector that is equal to `2^i % 2^w`, the power of 2 (`pot`). -/
-def pot {w : Nat} (i : Nat) : BitVec w := (1#w) <<< i
-
-@[simp]
-theorem toNat_pot (w : Nat) (i : Nat) : (pot i : BitVec w).toNat = 2^i % 2^w := by
-  rcases w with rfl | w
-  · simp [Nat.mod_one]
-  · simp [pot, toNat_shiftLeft]
-    have h1 : 1 < 2 ^ (w + 1) := Nat.one_lt_two_pow (by omega)
-    rw [Nat.mod_eq_of_lt h1]
-    rw [Nat.shiftLeft_eq, Nat.one_mul]
-
-
-
-@[simp]
-theorem getLsb_pot (i j : Nat) : (pot i : BitVec w).getLsb j = ((i < w) && (i = j)) := by
-  rcases w with rfl | w
-  · simp only [pot, BitVec.reduceOfNat, Nat.zero_le, getLsb_ge, Bool.false_eq,
-    Bool.and_eq_false_imp, decide_eq_true_eq, decide_eq_false_iff_not]
-    omega
-  · simp only [pot, getLsb_shiftLeft, getLsb_ofNat]
-    by_cases hj : j < i
-    · simp only [hj, decide_True, Bool.not_true, Bool.and_false, Bool.false_and, Bool.false_eq,
-      Bool.and_eq_false_imp, decide_eq_true_eq, decide_eq_false_iff_not]
-      omega
-    · by_cases hi : Nat.testBit 1 (j - i)
-      · obtain hi' := Nat.testBit_one_eq_true_iff_self_eq_zero.mp hi
-        have hij : j = i := by omega
-        simp_all
-      · have hij : i ≠ j := by
-          intro h; subst h
-          simp at hi
-        simp_all
-
-theorem and_pot_eq_getLsb (x : BitVec w) (i : Nat) :
-    x &&& (pot i : BitVec w) = if x.getLsb i then pot i else 0#w := by
-  ext j
-  simp only [getLsb_and, getLsb_pot]
-  by_cases hj : i = j <;> by_cases hx : x.getLsb i <;> simp_all
-
-@[simp]
-theorem mul_pot_eq_shiftLeft (x : BitVec w) (i : Nat) :
-    x * (pot i : BitVec w) = x <<< i := by
-  apply eq_of_toNat_eq
-  simp only [toNat_mul, toNat_pot, toNat_shiftLeft, Nat.shiftLeft_eq]
-  by_cases hi : i < w
-  · have hpow : 2^i < 2^w := Nat.pow_lt_pow_of_lt (by omega) (by omega)
-    rw [Nat.mod_eq_of_lt hpow]
-  · have hpow : 2 ^ i % 2 ^ w = 0 := by
-      rw [Nat.mod_eq_zero_of_dvd]
-      apply Nat.pow_dvd_pow 2 (by omega)
-    simp [Nat.mul_mod, hpow]
-
-
-/-- This is proven in BitBlast.lean, but it's a dependency that needs an import cycle to be broken. -/
-theorem add_eq_or_of_and_eq_zero (x y : BitVec w) (h : x &&& y = 0#w) : x + y = x ||| y := by sorry
-
-theorem BitVec.toNat_pot (w : Nat) (i : Nat) : (pot i : BitVec w).toNat = 2^i % 2^w := by
-  rcases w with rfl | w
-  · simp [Nat.mod_one]
-  · simp [pot, toNat_shiftLeft]
-    have hone : 1 < 2 ^ (w + 1) := by
-      rw [show 1 = 2^0 by simp[Nat.pow_zero]]
-      exact Nat.pow_lt_pow_of_lt (by omega) (by omega)
-    simp [Nat.mod_eq_of_lt hone, Nat.shiftLeft_eq]
-
-theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_pot (x : BitVec w) (i : Nat) :
-    zeroExtend w (x.truncate (i + 1)) =
-      zeroExtend w (x.truncate i) + (x &&& (BitVec.pot i)) := by
-  rw [add_eq_or_of_and_eq_zero]
-  · ext k
-    simp only [getLsb_zeroExtend, Fin.is_lt, decide_True, Bool.true_and, getLsb_or, getLsb_and]
-    by_cases hik:i = k
-    · subst hik
-      simp
-    · simp [hik]
-      /- Really, 'omega' should be able to do this-/
-      by_cases hik' : k < (i + 1)
-      · have hik'' : k < i := by omega
-        simp [hik', hik'']
-      · have hik'' : ¬ (k < i) := by omega
-        simp [hik', hik'']
-  · ext k
-    simp
-    intros h₁ _ _ _
-    omega
-
-theorem mulRec_eq_mul_signExtend_truncate (l r : BitVec w) (s : Nat) :
-    (mulRec l r s) = l * ((r.truncate (s + 1)).zeroExtend w) := by
-  induction w generalizing s
-  case zero => apply Subsingleton.elim
-  case succ w' hw =>
-    induction s
-    case zero =>
-      simp [mulRec_zero_eq]
-      by_cases r.getLsb 0
-      case pos hr =>
-        simp only [hr, ↓reduceIte, truncate, zeroExtend_one_eq_ofBool_getLsb_zero,
-          hr, ofBool_true, ofNat_eq_ofNat]
-        rw [zeroExtend_ofNat_one_eq_ofNat_one_of_lt (by omega)]; simp
-      case neg hr =>
-        simp [hr, zeroExtend_one_eq_ofBool_getLsb_zero]
-    case succ s' hs =>
-      rw [mulRec_succ_eq]
-      rw [hs];
-      have heq :
-        (if r.getLsb (s' + 1) = true then l <<< (s' + 1) else 0) =
-          (l * (r &&& (BitVec.pot (s' + 1)))) := by
-        simp only [ofNat_eq_ofNat, and_pot_eq_getLsb]
-        by_cases hr : r.getLsb (s' + 1) <;> simp [hr]
-      rw [heq, ← BitVec.mul_add]
-      rw [← zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_pot]
-
-/-- Zero extending by number of bits larger than the bitwidth has no effect. -/
-theorem zeroExtend_of_ge {x : BitVec w} {i j : Nat} (hi : i ≥ w) :
-    (x.zeroExtend i).zeroExtend j = x.zeroExtend j := by
-  ext k
-  simp
-  intros hx;
-  have hi' : k < w := BitVec.lt_of_getLsb _ _ hx
-  omega
-
-/-- Zero extending by the bitwidth has no effect. -/
-theorem zeroExtend_eq_self {x : BitVec w} : x.zeroExtend w = x := by
-  ext i
-  simp [getLsb_zeroExtend]
-
-theorem getLsb_mul (x y : BitVec w) (i : Nat) :
-    (x * y).getLsb i = (mulRec x y w).getLsb i := by
-  simp [mulRec_eq_mul_signExtend_truncate]
-  rw [truncate, zeroExtend_of_ge (by omega), zeroExtend_eq_self]
 
 /-! ### le and lt -/
 
