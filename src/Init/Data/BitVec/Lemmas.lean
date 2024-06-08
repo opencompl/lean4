@@ -1132,20 +1132,6 @@ theorem ofInt_mul {n} (x y : Int) : BitVec.ofInt n (x * y) =
   apply eq_of_toInt_eq
   simp
 
-def mulRec (l r : BitVec w) (s : Nat) : BitVec w :=
-  let cur := if r.getLsb s then (l <<< s) else 0
-  match s with
-  | 0 => cur
-  | s + 1 => mulRec l r s + cur
-
-theorem mulRec_zero_eq (l r : BitVec w) :
-    mulRec l r 0 = if r.getLsb 0 then l else 0 := by
-  simp [mulRec]
-
-theorem mulRec_succ_eq (l r : BitVec w) (s : Nat) :
-    mulRec l r (s + 1) = mulRec l r s + if r.getLsb (s + 1) then (l <<< (s + 1)) else 0 := by
-  simp [mulRec]
-
 @[simp]
 theorem BitVec.mul_one {x : BitVec w} : x * (1#w) = x := by
   apply eq_of_toNat_eq

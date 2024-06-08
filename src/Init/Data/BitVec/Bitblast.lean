@@ -159,7 +159,6 @@ theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := b
 theorem allOnes_sub_eq_not (x : BitVec w) : allOnes w - x = ~~~x := by
   rw [← add_not_self x, BitVec.add_comm, add_sub_cancel]
 
-#check BitVec.ofNat
 /-- Adding two bitvectors equals or-ing them if they are 1 in mutually exclusive locations -/
 theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     (h : x &&& y = (0#w)) : x + y = x ||| y := by
@@ -252,7 +251,21 @@ theorem sle_eq_carry (x y : BitVec w) :
 
 /-! ### mul recurrence for bitblasting -/
 
-/-- Recurrence lemma that  saus that truncating to `i+1` bits and then zero extending to `w`
+def mulRec (l r : BitVec w) (s : Nat) : BitVec w :=
+  let cur := if r.getLsb s then (l <<< s) else 0
+  match s with
+  | 0 => cur
+  | s + 1 => mulRec l r s + cur
+
+theorem mulRec_zero_eq (l r : BitVec w) :
+    mulRec l r 0 = if r.getLsb 0 then l else 0 := by
+  simp [mulRec]
+
+theorem mulRec_succ_eq (l r : BitVec w) (s : Nat) :
+    mulRec l r (s + 1) = mulRec l r s + if r.getLsb (s + 1) then (l <<< (s + 1)) else 0 := by
+  simp [mulRec]
+
+/-- Recurrence lemma: truncating to `i+1` bits and then zero extending to `w`
 equals truncating upto `i` bits `[0..i-1]`, and then adding the `i`th bit of `x`. -/
 theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow (x : BitVec w) (i : Nat) :
     zeroExtend w (x.truncate (i + 1)) =
