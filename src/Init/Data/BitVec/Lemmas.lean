@@ -440,7 +440,6 @@ theorem zeroExtend_ofNat_one_eq_ofNat_one_of_lt {v w : Nat} (hv : 0 < v):
   have hv := Nat.testBit_one_eq_true_iff_self_eq_zero.mp hi1
   omega
 
-
 /-! ## extractLsb -/
 
 @[simp]
