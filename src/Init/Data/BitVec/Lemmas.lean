@@ -1377,7 +1377,7 @@ theorem getLsb_rotateRight {x : BitVec w} {r i : Nat} :
 /- ## twoPow -/
 
 @[simp]
-theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow i : BitVec w).toNat = 2^i % 2^w := by
+theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
   rcases w with rfl | w
   · simp [Nat.mod_one]
   · simp [twoPow, toNat_shiftLeft]
@@ -1386,7 +1386,7 @@ theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow i : BitVec w).toNat = 2^i % 2
     rw [Nat.shiftLeft_eq, Nat.one_mul]
 
 @[simp]
-theorem getLsb_twoPow (i j : Nat) : (twoPow i : BitVec w).getLsb j = ((i < w) && (i = j)) := by
+theorem getLsb_twoPow (i j : Nat) : (twoPow w i).getLsb j = ((i < w) && (i = j)) := by
   rcases w with rfl | w
   · simp only [twoPow, BitVec.reduceOfNat, Nat.zero_le, getLsb_ge, Bool.false_eq,
     Bool.and_eq_false_imp, decide_eq_true_eq, decide_eq_false_iff_not]
@@ -1405,15 +1405,16 @@ theorem getLsb_twoPow (i j : Nat) : (twoPow i : BitVec w).getLsb j = ((i < w) &&
           simp at hi
         simp_all
 
+@[simp]
 theorem and_twoPow_eq_getLsb (x : BitVec w) (i : Nat) :
-    x &&& (twoPow i : BitVec w) = if x.getLsb i then twoPow i else 0#w := by
+    x &&& (twoPow w i) = if x.getLsb i then twoPow w i else 0#w := by
   ext j
   simp only [getLsb_and, getLsb_twoPow]
   by_cases hj : i = j <;> by_cases hx : x.getLsb i <;> simp_all
 
 @[simp]
 theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
-    x * (twoPow i : BitVec w) = x <<< i := by
+    x * (twoPow w i) = x <<< i := by
   apply eq_of_toNat_eq
   simp only [toNat_mul, toNat_twoPow, toNat_shiftLeft, Nat.shiftLeft_eq]
   by_cases hi : i < w
@@ -1424,7 +1425,7 @@ theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
       apply Nat.pow_dvd_pow 2 (by omega)
     simp [Nat.mul_mod, hpow]
 
-theorem BitVec.toNat_twoPow (w : Nat) (i : Nat) : (twoPow i : BitVec w).toNat = 2^i % 2^w := by
+theorem BitVec.toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
   rcases w with rfl | w
   · simp [Nat.mod_one]
   · simp [twoPow, toNat_shiftLeft]
@@ -1432,5 +1433,10 @@ theorem BitVec.toNat_twoPow (w : Nat) (i : Nat) : (twoPow i : BitVec w).toNat = 
       rw [show 1 = 2^0 by simp[Nat.pow_zero]]
       exact Nat.pow_lt_pow_of_lt (by omega) (by omega)
     simp [Nat.mod_eq_of_lt hone, Nat.shiftLeft_eq]
+
+@[simp]
+theorem twoPow_zero_eq_one (w : Nat) : twoPow w 0 = 1#w := by
+  apply eq_of_toNat_eq
+  simp
 
 end BitVec
