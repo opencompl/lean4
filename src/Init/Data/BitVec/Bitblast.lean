@@ -237,6 +237,14 @@ theorem sle_eq_carry (x y : BitVec w) :
 
 /- ## Shift left for arbitrary bit width -/
 
+@[simp]
+theorem shiftLeft_zero (x : BitVec w) : x <<< 0 = x := by
+  simp [bv_toNat]
+
+@[simp]
+theorem zero_shiftLeft (n : Nat) : (0#w) <<< n = 0 := by
+  simp [bv_toNat]
+
 def shiftLeftRec (x : BitVec w) (y : BitVec w) (n : Nat) : BitVec w :=
   let val := if y.getLsb n then x <<< n else 0#w
   match n with
@@ -246,9 +254,17 @@ def shiftLeftRec (x : BitVec w) (y : BitVec w) (n : Nat) : BitVec w :=
 @[simp]
 theorem shiftLeftRec_zero (x y : BitVec w) :
     shiftLeftRec x y 0 = if y.getLsb 0 then x else 0 := by
-  simp [shiftLeftRec]
+  simp only [shiftLeftRec, ofNat_eq_ofNat]
+  by_cases h : y.getLsb 0 <;> simp [h, bv_toNat]
 
+theorem truncate_zero (x : BitVec w) : x.truncate 0 = 0 := by
+  ext i
+  simp
 theorem shiftLeftRec_eq (x y : BitVec w) (n : Nat) :
-  shiftLeftRec x y n = x <<< (y.truncate n).zeroExtend w := sorry
+  shiftLeftRec x y n = x <<< (y.truncate n).zeroExtend w := by
+  induction n generalizing x y
+  case zero =>
+    simp
+  case succ n ih => sorry
 
 end BitVec
