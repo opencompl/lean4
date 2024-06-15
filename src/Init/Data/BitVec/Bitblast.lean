@@ -365,7 +365,8 @@ theorem truncate_one_eq_ofBool_getLsb (x : BitVec w) :
   ext i
   simp [show i = 0 by omega]
 
--- x << 3 = x << 2 << 1
+/-## shiftLeft recurrence -/
+
 def shiftLeftRec (x : BitVec w) (y : BitVec w) (n : Nat) : BitVec w :=
   let shiftAmt := (y &&& (twoPow w n))
   match n with
@@ -464,5 +465,16 @@ theorem shiftLeft_eq_shiftLeft_rec (x y : BitVec w) :
   · apply Subsingleton.elim
   · simp [shiftLeftRec_eq x y w (by omega)]
 
+
+/-## logical shift right recurrence -/
+def shiftRightRec (x : BitVec w) (y : BitVec w) (n : Nat) : BitVec w :=
+  let shiftAmt := y &&& twoPow w n
+  match n with
+  | 0 => x >>> shiftAmt
+  | n + 1 => (shiftLeftRec x y n) >>> shiftAmt
+
+theorem shiftRightRec_eq (x y : BitVec w) (n : Nat) (hn : n + 1 ≤ w) :
+  shiftRightRec x y n = x >>> (y.truncate (n + 1)).zeroExtend w := by
+  sorry
 
 end BitVec
