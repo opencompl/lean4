@@ -367,21 +367,21 @@ theorem truncate_one_eq_ofBool_getLsb (x : BitVec w) :
 
 /-## shiftLeft recurrence -/
 
-def shiftLeftRec (x : BitVec w) (y : BitVec w) (n : Nat) : BitVec w :=
-  let shiftAmt := (y &&& (twoPow w n))
+def shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
+  let shiftAmt := (y &&& (twoPow w₂ n))
   match n with
   | 0 => x <<< shiftAmt
   | n + 1 => (shiftLeftRec x y n) <<< shiftAmt
 
 @[simp]
-theorem shiftLeftRec_zero (x y : BitVec w) :
-    shiftLeftRec x y 0 = x <<< (y &&& twoPow w 0)  := by
+theorem shiftLeftRec_zero (x : BitVec w₁) (y : BitVec w₂) :
+    shiftLeftRec x y 0 = x <<< (y &&& twoPow w₂ 0)  := by
   simp [shiftLeftRec]
 
 @[simp]
-theorem shiftLeftRec_succ (x y : BitVec w) :
+theorem shiftLeftRec_succ (x : BitVec w₁) (y : BitVec w₂) :
     shiftLeftRec x y (n + 1) =
-      (shiftLeftRec x y n) <<< (y &&& twoPow w (n + 1)) := by
+      (shiftLeftRec x y n) <<< (y &&& twoPow w₂ (n + 1)) := by
   simp [shiftLeftRec]
 
 -- | TODO: should this be a simp-lemma? Probably not.
