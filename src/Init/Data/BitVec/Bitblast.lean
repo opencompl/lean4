@@ -469,11 +469,10 @@ theorem shiftLeftRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) (hn : n + 
 /-- info: 'BitVec.shiftLeftRec_eq' depends on axioms: [propext, Quot.sound, Classical.choice] -/
 #guard_msgs in #print axioms shiftLeftRec_eq
 
-theorem shiftLeft_eq_shiftLeft_rec (x y : BitVec w) :
-    x <<< y = shiftLeftRec x y (w - 1) := by
-  rcases w with rfl | w
-  · apply Subsingleton.elim
-  · simp [shiftLeftRec_eq x y w (by omega)]
-
+theorem shiftLeft_eq_shiftLeft_rec (x : BitVec ℘) (y : BitVec w₂) :
+    x <<< y = shiftLeftRec x y (w₂ - 1) := by
+  rcases w₂ with rfl | w₂
+  · simp [of_length_zero]
+  · simp [shiftLeftRec_eq x y w₂ (by omega)]
 
 end BitVec
