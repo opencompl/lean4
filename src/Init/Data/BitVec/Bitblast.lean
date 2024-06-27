@@ -476,60 +476,60 @@ theorem shiftLeft_eq_shiftLeft_rec (x : BitVec ℘) (y : BitVec w₂) :
   · simp [shiftLeftRec_eq x y w₂ (by omega)]
 
 
-/-## sshiftRight recurrence -/
+/-## (Arithmetic) sshiftRight recurrence -/
 
-def sshiftRight_rec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
+def ushiftRight_rec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))
   match n with
   | 0 => x >>> shiftAmt
-  | n + 1 => (sshiftRight_rec x y n) >>> shiftAmt
+  | n + 1 => (ushiftRight_rec x y n) >>> shiftAmt
 
 @[simp]
-theorem sshiftRight_rec_zero (x : BitVec w₁) (y : BitVec w₂) :
-    sshiftRight_rec x y 0 = x >>> (y &&& twoPow w₂ 0)  := by
-  simp [sshiftRight_rec]
+theorem ushiftRight_rec_zero (x : BitVec w₁) (y : BitVec w₂) :
+    ushiftRight_rec x y 0 = x >>> (y &&& twoPow w₂ 0)  := by
+  simp [ushiftRight_rec]
 
 @[simp]
-theorem sshiftRight_rec_succ (x : BitVec w₁) (y : BitVec w₂) :
-    sshiftRight_rec x y (n + 1) =
-      (sshiftRight_rec x y n) >>> (y &&& twoPow w₂ (n + 1)) := by
-  simp [sshiftRight_rec]
+theorem ushiftRight_rec_succ (x : BitVec w₁) (y : BitVec w₂) :
+    ushiftRight_rec x y (n + 1) =
+      (ushiftRight_rec x y n) >>> (y &&& twoPow w₂ (n + 1)) := by
+  simp [ushiftRight_rec]
 
 -- | TODO: should this be a simp-lemma? Probably not.
-theorem sshiftRight_eq' (x : BitVec w) (y : BitVec w₂) :
+theorem ushiftRight_eq' (x : BitVec w) (y : BitVec w₂) :
   x >>> y = x >>> y.toNat := by rfl
 
 
 @[simp]
-theorem BitVec.sshiftRight_zero (x : BitVec w) : x >>> 0 = x := by
+theorem BitVec.ushiftRight_zero (x : BitVec w) : x >>> 0 = x := by
   simp [bv_toNat]
 
 -- | TODO: what to name these theorems?
 @[simp]
-theorem sshiftRight_zero' (x : BitVec w) :
+theorem ushiftRight_zero' (x : BitVec w) :
     x >>> (0#w₂) = x := by
-  simp [sshiftRight_eq']
+  simp [ushiftRight_eq']
 
-theorem sshiftRight'_sshiftRight' {x y z : BitVec w} :
+theorem ushiftRight'_ushiftRight' {x y z : BitVec w} :
     x >>> y >>> z = x >>> (y.toNat + z.toNat) := by
-  simp [sshiftRight_eq', shiftRight_shiftRight]
+  simp [ushiftRight_eq', shiftRight_shiftRight]
 
-theorem sshiftRight_or_eq_sshiftRight_sshiftRight_of_and_eq_zero {x : BitVec w} {y z : BitVec w₂}
+theorem ushiftRight_or_eq_ushiftRight_ushiftRight_of_and_eq_zero {x : BitVec w} {y z : BitVec w₂}
     (h : y &&& z = 0#w₂) (h' : y.toNat + z.toNat < 2^w₂):
     x >>> (y ||| z) = x >>> y >>> z := by
-  simp [← add_eq_or_of_and_eq_zero _ _ h, sshiftRight_eq', shiftRight_shiftRight,
+  simp [← add_eq_or_of_and_eq_zero _ _ h, ushiftRight_eq', shiftRight_shiftRight,
     toNat_add, Nat.mod_eq_of_lt h']
 
-theorem getLsb_sshiftRight' (x : BitVec w) (y : BitVec w₂) (i : Nat) :
+theorem getLsb_ushiftRight' (x : BitVec w) (y : BitVec w₂) (i : Nat) :
     (x >>>  y).getLsb i = x.getLsb (y.toNat + i) := by
-  simp [sshiftRight_eq', getLsb_sshiftRight]
+  simp [ushiftRight_eq', getLsb_ushiftRight]
 
-theorem sshiftRight_rec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) (hn : n + 1 ≤ w₂) :
-  sshiftRight_rec x y n = x >>> (y.truncate (n + 1)).zeroExtend w₂ := by
+theorem ushiftRight_rec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) (hn : n + 1 ≤ w₂) :
+  ushiftRight_rec x y n = x >>> (y.truncate (n + 1)).zeroExtend w₂ := by
   induction n generalizing x y
   case zero =>
     ext i
-    simp only [sshiftRight_rec_zero, twoPow_zero_eq_one, Nat.reduceAdd, truncate_one_eq_ofBool_getLsb]
+    simp only [ushiftRight_rec_zero, twoPow_zero_eq_one, Nat.reduceAdd, truncate_one_eq_ofBool_getLsb]
     have heq : (y &&& 1#w₂) = zeroExtend w₂ (ofBool (y.getLsb 0)) := by
       ext i
       by_cases h : (↑i : Nat) = 0 <;> simp [h, Bool.and_comm]
@@ -539,7 +539,7 @@ theorem sshiftRight_rec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) (hn : n
     by_cases h : y.getLsb (n + 1) <;> simp [h]
     · rw [ih (hn := by omega)]
       rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true _ _ h]
-      rw [sshiftRight_or_eq_sshiftRight_sshiftRight_of_and_eq_zero]
+      rw [ushiftRight_or_eq_ushiftRight_ushiftRight_of_and_eq_zero]
       · simp
       · simp;
         have hpow : 2 ^ (n + 1) < 2 ^ w₂ := by
@@ -568,13 +568,14 @@ theorem sshiftRight_rec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) (hn : n
       rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)]
       simp [h]
 
-/-- info: 'BitVec.sshiftRight_rec_eq' depends on axioms: [propext, Quot.sound, Classical.choice] -/
-#guard_msgs in #print axioms sshiftRight_rec_eq
+/-- info: 'BitVec.ushiftRight_rec_eq' depends on axioms: [propext, Quot.sound, Classical.choice] -/
+#guard_msgs in #print axioms ushiftRight_rec_eq
 
 theorem shiftRight_eq_shiftRight_rec (x : BitVec ℘) (y : BitVec w₂) :
-    x >>> y = sshiftRight_rec x y (w₂ - 1) := by
+    x >>> y = ushiftRight_rec x y (w₂ - 1) := by
   rcases w₂ with rfl | w₂
   · simp [of_length_zero]
-  · simp [sshiftRight_rec_eq x y w₂ (by omega)]
+  · simp [ushiftRight_rec_eq x y w₂ (by omega)]
+
 
 end BitVec
