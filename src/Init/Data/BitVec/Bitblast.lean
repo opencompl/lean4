@@ -925,10 +925,13 @@ theorem divRec_eq_div_of_lawful {qr : DivRecQuotRem w n d} (hqr : qr.Lawful) (hd
     {hqr' : qr' = (divRec qr w)} :
     qr'.q = udiv n d := by
   have hlawful : qr'.Lawful := by simp [hqr', divRec_lawful hqr]
-  have hremainder : qr'.r < d := by simp [hqr', divRec_remainder_inbounds hqr]
+  have hremainder : qr'.r < d := by
+    simp [hqr']
+    apply divRec_remainder_inbounds hqr
+    apply qr.r.isLt
+    assumption
   have this := div_characterized_of_mul_add_toNat
     (d := d) (q := qr'.q) (n := n) (r := qr'.r) hd hremainder hlawful.def
   simp [this.1]
-
 
 end BitVec
