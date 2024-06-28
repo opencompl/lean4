@@ -585,6 +585,23 @@ r = n - d * (∑ i, 2^i * q.getLsb i)
 
 -/
 
+
+/-!
+Let us study an instructive counterexample to the claim that
+  `n = d * q + r` for (`0 ≤ r < d`) uniquely determining q and r *over bitvectors*.
+
+- Let `bitwidth = 3`
+- Let `n = 0, d = 3`
+- If we choose `q = 2, r = 2`, then d * q + r = 6 + 2 = 8 ≃ 0 (mod 8) so satisfies.
+- But see that `q = 0, r = 0` also satisfies, as 0 * 3 + 0 = 0.
+- So for (`n = 0, d = 3`), both:
+    `q = 2, r = 2` as well as
+    `q = 0, r = 0` are solutions!
+
+It's easy to cook up such examples, by chosing `(q, r)` for a fixed `(d, n)`
+such that `(d * q + r)` overflows.
+-/
+
 /-- TODO: This theorem surely exists somewhere. -/
 theorem Nat.div_add_eq_left_of_lt {x y z : Nat} (hx : z ∣ x) (hy : y < z) (hz : 0 < z):
     (x + y) / z = x / z := by
@@ -598,7 +615,7 @@ theorem Nat.div_add_eq_left_of_lt {x y z : Nat} (hx : z ∣ x) (hy : y < z) (hz 
       exact (Nat.div_eq_iff_eq_mul_left hz hx).mp rfl
     · exact hy
 
-theorem div_characterized {d n q r : BitVec w} {hd : 0 < d}
+theorem div_characterized_of_mul_add_toNat {d n q r : BitVec w} {hd : 0 < d}
     (hrd : r < d)
     (hdqnr : d.toNat * q.toNat + r.toNat = n.toNat) :
     (n.udiv d = q ∧ n.umod d = r) := by
@@ -625,7 +642,22 @@ theorem div_characterized {d n q r : BitVec w} {hd : 0 < d}
     rw [Nat.mod_eq_of_lt hrd] at hdqnr
     simp [hdqnr]
 
-theorem div_characterized' {d n q r : BitVec w} {hd : 0 < d}
+theorem div_characterized_of_mul_add_of_lt {d n q r : BitVec w} {hd : 0 < d}
+    (hrd : r < d)
+    (hdqnr : d * q + r = n)
+    (hlt : d.toNat * q.toNat + r.toNat < 2^w) :
+    (n.udiv d = q ∧ n.umod d = r) := by
+  apply div_characterized_of_mul_add_toNat <;> try assumption
+  apply Eq.symm
+  have hlt' : d.toNat * q.toNat < 2^w := by omega
+  calc
+    n.toNat = (d * q + r).toNat := by rw [← hdqnr]
+    _ = ((d * q).toNat + r.toNat) % 2^w := by simp [BitVec.toNat_add]
+    _ = ((d.toNat * q.toNat) % 2^w + r.toNat) % 2^w := by simp [BitVec.toNat_mul]
+    _ = ((d.toNat * q.toNat) + r.toNat) % 2^w := by simp [Nat.mod_eq_of_lt hlt']
+    _ = ((d.toNat * q.toNat) + r.toNat)  := by simp [Nat.mod_eq_of_lt hlt]
+
+theorem div_characterized_toNat_of_eq_udiv_of_eq_umod {d n q r : BitVec w} {hd : 0 < d}
     (hq : n.udiv d = q) (hr : n.umod d = r) :
     (d.toNat * q.toNat + r.toNat = n.toNat) := by
   have hdiv : n.toNat / d.toNat = q.toNat := by
