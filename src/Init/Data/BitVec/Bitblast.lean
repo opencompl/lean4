@@ -602,6 +602,13 @@ It's easy to cook up such examples, by chosing `(q, r)` for a fixed `(d, n)`
 such that `(d * q + r)` overflows.
 -/
 
+/-!
+References:
+- Fast 32-bit Division on the DSP56800E: Minimized nonrestoring division algorithm by David Baca
+- Bitwuzla sources for bitblasting.h
+-/
+
+
 /-- TODO: This theorem surely exists somewhere. -/
 theorem Nat.div_add_eq_left_of_lt {x y z : Nat} (hx : z ∣ x) (hy : y < z) (hz : 0 < z):
     (x + y) / z = x / z := by
@@ -688,13 +695,118 @@ theorem div_iff_add_mod_of_lt {d n q r : BitVec w} (hd : 0 < d)
   · intros h
     apply div_characterized_of_mul_add_of_lt <;> assumption
 
-/- Given d, R(j + 1), (calculate R(j), q.getLsb j)-/
--- def divremi (d : BitVec w) (rjsucc : BitVec w) (j : Nat) :  BitVec w  × Bool :=
---   -- optimistically assume (q.getLsb j = 1) and perform the subtraction.
---   let rj? := rjsucc - d * twoPow w j
---   if rj? ≥ 0 -- yay, this subtraction is allowed.
---   then (rj?, true) -- confirm the results.
---   else (rjsucc, false) -- discard the results.
+/- # Division Recurrence for Bitblasting -/
+
+/-- A bundle of the quotient and remainder for the intermediate steps when computing n.div d -/
+structure DivRecQuotRem (w : Nat) (n : BitVec w) (d : BitVec w) where
+  r : BitVec w
+  q : BitVec w
+
+
+/- Given d, R(j + 1), (calculate R(j), q.getLsb j). -/
+def divremi (qr : DivRecQuotRem w n d) (j : Nat) :  BitVec w × Bool :=
+  if d * twoPow w j ≤ qr.r then
+    let rj := qr.r - d * twoPow w j -- remainder is legal since it's positive, accept it.
+    (rj, true)
+  else
+    (qr.r, false) -- remainder is illegal, so quotient must be '0' at this bit.
+
+theorem divremi_eq_of_le (qr : DivRecQuotRem w n d) (h : d <<< j ≤ qr.r) :
+    divremi qr j = (qr.r - d * twoPow w j, true) := by
+  simp [divremi, h]
+
+theorem divremi_eq_of_not_le (qr : DivRecQuotRem w n d) (h : ¬ d <<< j ≤ qr.r) :
+    divremi qr j = (qr.r, false) := by
+  simp [divremi, h]
+
+def DivRecQuotRem.Lawful {n d : BitVec w} (qr : DivRecQuotRem w n d) : Prop :=
+  d.toNat * qr.q.toNat + qr.r.toNat = n.toNat
+
+theorem DivRecQuotRem.Lawful.def {n d : BitVec w} {qr : DivRecQuotRem w n d}
+    (h : qr.Lawful) : d.toNat * qr.q.toNat + qr.r.toNat = n.toNat := by
+  simp [DivRecQuotRem.Lawful] at h
+  assumption
+
+def DivRecQuotRem.initialize (n d : BitVec w) : DivRecQuotRem w n d :=
+  { r := n, q := 0 }
+
+theorem DivRecQuotRem.lawful_initialize {n d : BitVec w} :
+    (DivRecQuotRem.initialize n d).Lawful := by
+  simp [DivRecQuotRem.Lawful, DivRecQuotRem.initialize]
+
+/-- Recurrence for division in terms of `divremi`. -/
+def divRec (qr : DivRecQuotRem w n d) (j : Nat) : DivRecQuotRem w n d :=
+  let (r, qj) := divremi qr j
+  let q := setBit qr.q j qj
+  match j with
+  | 0 => { r := r, q := q }
+  | j + 1 => divRec { r := r, q := q } j
+where
+  /-- Set the `i`th bit of `v` to `b`.-/
+  setBit (v : BitVec w) (i : Nat) (b : Bool) :=
+    if b then v ||| twoPow w i else v
+
+@[simp]
+theorem divRec_zero {qr : DivRecQuotRem w n d} :
+    divRec qr 0 =
+    { r := (divremi qr 0).fst , q := divRec.setBit qr.q 0 (divremi qr 0).snd } := by
+  unfold divRec
+  simp
+
+@[simp]
+theorem divRec_succ {qr : DivRecQuotRem w n d} {j : Nat} :
+    divRec qr (j + 1) =
+    divRec {
+      r := (divremi qr (j + 1) |>.fst),
+      q := (divRec.setBit qr.q (j + 1) (divremi qr (j + 1) |>.snd))
+    } j := by
+  conv =>
+    lhs
+    unfold divRec
+
+/--
+Clear all low bits in the range `(j..0]`,
+keeping high bits in the range `[w..j]`
+-/
+abbrev clearLowBitsAfter (x : BitVec w) (j : Nat) : BitVec w := (x >>> j) <<< j
+
+@[simp]
+theorem getLsb_clearLowBitsAfter {x : BitVec w} {j i : Nat} :
+    (clearLowBitsAfter x j).getLsb i = if j ≤ i then x.getLsb i else false := by
+  unfold clearLowBitsAfter
+  simp
+  by_cases hij : i < j
+  · simp only [hij, decide_True, Bool.not_true, Bool.and_false, Bool.false_and, false_eq,
+    and_eq_false_imp, decide_eq_true_eq]
+    intros hcontra
+    omega
+  · simp [hij, show j + (i - j) = i by omega, show j ≤ i by omega]
+    apply lt_of_getLsb
+
+-- d * j + q = n.
+theorem divRec_lawful {qr : DivRecQuotRem w n d} {j : Nat}
+    (hqr : qr.Lawful) : (divRec qr j).Lawful := by sorry
+
+theorem divRec_remainder_inbounds {qr : DivRecQuotRem w n d} {j : Nat}
+    (hqr : qr.Lawful) :
+    (divRec qr j).r < d := by sorry
+
+theorem divRec_eq_div_of_lawful {qr : DivRecQuotRem w n d} (hd : 0 < d)
+    {hqr' : qr' = (divRec (DivRecQuotRem.initialize n d) w)} :
+    qr'.q = udiv n d := by
+  have hlawful : qr'.Lawful := by
+    rw [hqr']
+    apply divRec_lawful
+    apply DivRecQuotRem.lawful_initialize
+  have hremainder : qr'.r < d := by
+    rw [hqr']
+    apply divRec_remainder_inbounds
+    apply DivRecQuotRem.lawful_initialize
+  have this := div_characterized_of_mul_add_toNat
+    (d := d) (q := qr'.q) (n := n) (r := qr'.r) hd hremainder hlawful.def
+  simp [this.1]
+
+-- theorem div_rec_corret {d n q j : BitVec w}
 
 -- def divrem_rec (d : BitVec w) (n : BitVec w) (j : Nat) : BitVec w × BitVec w :=
 --     match j with
