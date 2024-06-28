@@ -702,7 +702,6 @@ structure DivRecQuotRem (w : Nat) (n : BitVec w) (d : BitVec w) where
   r : BitVec w
   q : BitVec w
 
-
 /- Given d, R(j + 1), (calculate R(j), q.getLsb j). -/
 def divremi (qr : DivRecQuotRem w n d) (j : Nat) :  BitVec w × Bool :=
   if d * twoPow w j ≤ qr.r then
@@ -711,11 +710,11 @@ def divremi (qr : DivRecQuotRem w n d) (j : Nat) :  BitVec w × Bool :=
   else
     (qr.r, false) -- remainder is illegal, so quotient must be '0' at this bit.
 
-theorem divremi_eq_of_le (qr : DivRecQuotRem w n d) (h : d <<< j ≤ qr.r) :
+theorem divremi_eq_of_le {qr : DivRecQuotRem w n d} (h : d <<< j ≤ qr.r) :
     divremi qr j = (qr.r - d * twoPow w j, true) := by
   simp [divremi, h]
 
-theorem divremi_eq_of_not_le (qr : DivRecQuotRem w n d) (h : ¬ d <<< j ≤ qr.r) :
+theorem divremi_eq_of_not_le {qr : DivRecQuotRem w n d} (h : ¬ d <<< j ≤ qr.r) :
     divremi qr j = (qr.r, false) := by
   simp [divremi, h]
 
@@ -726,6 +725,7 @@ theorem DivRecQuotRem.Lawful.def {n d : BitVec w} {qr : DivRecQuotRem w n d}
     (h : qr.Lawful) : d.toNat * qr.q.toNat + qr.r.toNat = n.toNat := by
   simp [DivRecQuotRem.Lawful] at h
   assumption
+
 
 def DivRecQuotRem.initialize (n d : BitVec w) : DivRecQuotRem w n d :=
   { r := n, q := 0 }
@@ -764,7 +764,17 @@ theorem divRec_succ {qr : DivRecQuotRem w n d} {j : Nat} :
     lhs
     unfold divRec
 
-/--
+@[simp]
+theorem divRec.setBit_false {v : BitVec w} {i : Nat} :
+    divRec.setBit v i false = v := by
+  simp [divRec.setBit]
+
+@[simp]
+theorem divRec.setBit_true {v : BitVec w} {i : Nat} :
+    divRec.setBit v i true = v ||| twoPow w i := by
+  simp [divRec.setBit]
+
+/-
 Clear all low bits in the range `(j..0]`,
 keeping high bits in the range `[w..j]`
 -/
@@ -785,11 +795,131 @@ theorem getLsb_clearLowBitsAfter {x : BitVec w} {j i : Nat} :
 
 -- d * j + q = n.
 theorem divRec_lawful {qr : DivRecQuotRem w n d} {j : Nat}
-    (hqr : qr.Lawful) : (divRec qr j).Lawful := by sorry
+    (hqr : qr.Lawful) (hq : ∀ {i : Nat} (hi : i ≤ j), qr.q.getLsb j = false): (divRec qr j).Lawful := by
+  induction j generalizing qr
+  case zero =>
+    /-
+    w : Nat
+    n d : BitVec w
+    qr : DivRecQuotRem w n d
+    hqr : qr.Lawful
+    ⊢ d.toNat * (divRec.setBit qr.q 0 (divremi qr 0).snd).toNat + (divremi qr 0).fst.toNat = n.toNat
+    -/
+    simp [DivRecQuotRem.Lawful]
+    by_cases h : d <<< 0 ≤ qr.r
+    · simp [divremi_eq_of_le h]
+      simp at h
+      rcases w with rfl | w
+      · simp -- get rid of corner case with 1 % 2^0 = 1 % 1 = 0
+      · have h1 : 1 % 2^(w + 1) = 1 := by
+          sorry
+        -- TODO: refactor instead of having toNat goal, have two goals,
+        -- one as bitvec equality, other as nat bound.
+        simp [h1]
+        specialize (hq (i := 0) (by omega))
+        /-
+        case pos.succ
+        w : Nat
+        n d : BitVec (w + 1)
+        qr : DivRecQuotRem (w + 1) n d
+        hqr : qr.Lawful
+        hq : ∀ {i : Nat}, i ≤ 0 → qr.q.getLsb 0 = false
+        h : d ≤ qr.r
+        ⊢ d.toNat * (qr.q.toNat ||| 1 % 2 ^ (w + 1)) + (qr.r.toNat + (2 ^ (w + 1) - d.toNat)) % 2 ^ (w + 1) = n.toNat
+        -/
+        -- this is equal, since it simplifies to:
+        -- (d * (q ||| 1) + (r - 2^(w + 1) - d)) % (2^(w + 1)) = n
+        -- = (d * (q + 1) + (r - 2^(w + 1) - d)) % (2^(w + 1)) = n [q, 1 are mutex by hq]
+        -- = (d * q + d + (r + (2^(w + 1) - d))) % 2 ^(w + 1) = n
+        -- now rearrange, and cancel the d by using (h : d ≤ r):
+        -- = (d * q + d + -d + (r + (2^(w + 1))) % 2 ^(w + 1) = n
+        -- = (d * q + (r + (2^(w + 1))) % 2 ^(w + 1) = n
+        -- Now cancel the modulo, giving us
+        -- d * q + r =indeed= n by [lawful].
+        sorry -- HERE
+    · simp [divremi_eq_of_not_le h]
+      simp at h
+      exact hqr.def
+  case succ j ih =>
+    simp
+    -- TODO: split below into a separate lemma
+    by_cases h : d <<< (j + 1) ≤ qr.r
+    · simp [divremi_eq_of_le h]
+      simp at h
+      sorry -- NEXT
+    · simp [divremi_eq_of_not_le h]
+      simp at h
+      apply ih hqr
+
 
 theorem divRec_remainder_inbounds {qr : DivRecQuotRem w n d} {j : Nat}
-    (hqr : qr.Lawful) :
-    (divRec qr j).r < d := by sorry
+    (hqr : qr.Lawful) (hr : qr.r.toNat < 2^j) (hd : 0 < d):
+    (divRec qr j).r < d := by
+  induction j generalizing qr
+  case zero =>
+    simp
+    by_cases h : d <<< 0 ≤ qr.r
+    · simp [divremi_eq_of_le h]
+      simp at h
+      simp at hr
+      simp [lt_def]
+      simp [show qr.r.toNat = 0 by omega]
+      simp [le_def] at h
+      have hd' : d.toNat = 0 := by omega
+      simp [lt_def] at hd
+      omega
+    · simp [divremi_eq_of_not_le h]
+      simp at h
+      simp [lt_def] at hr
+      simp [lt_def]
+      simp [lt_def] at hd
+      omega
+      -- exact h
+  case succ j ih =>
+    simp
+    by_cases h : d <<< (j + 1) ≤ qr.r
+    · simp [divremi_eq_of_le h]
+      simp at h
+      /-
+      case pos
+      w : Nat
+      n d : BitVec w
+      hd : 0 < d
+      j : Nat
+      ih : ∀ {qr : DivRecQuotRem w n d}, qr.Lawful → qr.r.toNat < 2 ^ j → (divRec qr j).r < d
+      qr : DivRecQuotRem w n d
+      hqr : qr.Lawful
+      hr : qr.r.toNat < 2 ^ (j + 1)
+      h : d <<< (j + 1) ≤ qr.r
+      ⊢ (divRec { r := qr.r - d <<< (j + 1), q := qr.q ||| twoPow w (j + 1) } j).r < d
+      -/
+      sorry
+      -- exact h
+    · simp [divremi_eq_of_not_le h]
+      simp at h
+      apply ih
+      · exact hqr
+      · simp;
+        /-
+        case neg.hr
+        w : Nat
+        n d : BitVec w
+        hd : 0 < d
+        j : Nat
+        ih : ∀ {qr : DivRecQuotRem w n d}, qr.Lawful → qr.r.toNat < 2 ^ j → (divRec qr j).r < d
+        qr : DivRecQuotRem w n d
+        hqr : qr.Lawful
+        hr : qr.r.toNat < 2 ^ (j + 1)
+        h : ¬d <<< (j + 1) ≤ qr.r
+        ⊢ qr.r.toNat < 2 ^ j
+        -/
+        -- I get a contradiction, because I know the following facts:
+        -- - hr : qr < 2^(j + 1)
+        -- hd : 0 < d => d >= 1
+        -- and thus, d <<< (j + 1) ≥ 1 >>> (j + 1) ≥ 2 ^(j + 1)
+        -- plus, h tells me that qr.r > d <<< (j + 1) => qr.r > 2^(j + 1)
+        -- contradiction!
+        sorry
 
 theorem divRec_eq_div_of_lawful {qr : DivRecQuotRem w n d} (hqr : qr.Lawful) (hd : 0 < d)
     {hqr' : qr' = (divRec qr w)} :
@@ -799,5 +929,6 @@ theorem divRec_eq_div_of_lawful {qr : DivRecQuotRem w n d} (hqr : qr.Lawful) (hd
   have this := div_characterized_of_mul_add_toNat
     (d := d) (q := qr'.q) (n := n) (r := qr'.r) hd hremainder hlawful.def
   simp [this.1]
+
 
 end BitVec
