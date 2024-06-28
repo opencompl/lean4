@@ -791,28 +791,13 @@ theorem divRec_remainder_inbounds {qr : DivRecQuotRem w n d} {j : Nat}
     (hqr : qr.Lawful) :
     (divRec qr j).r < d := by sorry
 
-theorem divRec_eq_div_of_lawful {qr : DivRecQuotRem w n d} (hd : 0 < d)
-    {hqr' : qr' = (divRec (DivRecQuotRem.initialize n d) w)} :
+theorem divRec_eq_div_of_lawful {qr : DivRecQuotRem w n d} (hqr : qr.Lawful) (hd : 0 < d)
+    {hqr' : qr' = (divRec qr w)} :
     qr'.q = udiv n d := by
-  have hlawful : qr'.Lawful := by
-    rw [hqr']
-    apply divRec_lawful
-    apply DivRecQuotRem.lawful_initialize
-  have hremainder : qr'.r < d := by
-    rw [hqr']
-    apply divRec_remainder_inbounds
-    apply DivRecQuotRem.lawful_initialize
+  have hlawful : qr'.Lawful := by simp [hqr', divRec_lawful hqr]
+  have hremainder : qr'.r < d := by simp [hqr', divRec_remainder_inbounds hqr]
   have this := div_characterized_of_mul_add_toNat
     (d := d) (q := qr'.q) (n := n) (r := qr'.r) hd hremainder hlawful.def
   simp [this.1]
-
--- theorem div_rec_corret {d n q j : BitVec w}
-
--- def divrem_rec (d : BitVec w) (n : BitVec w) (j : Nat) : BitVec w × BitVec w :=
---     match j with
---     | 0 => divremi d n 0
---     | j + 1 =>
---       let (b, rj') := divrem_rec d n j
---       divremi d (if b then rj' else n) (j + 1)
 
 end BitVec
