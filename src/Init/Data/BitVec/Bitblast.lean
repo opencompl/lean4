@@ -626,9 +626,8 @@ theorem div_characterized {d n q r : BitVec w} {hd : 0 < d}
     simp [hdqnr]
 
 theorem div_characterized' {d n q r : BitVec w} {hd : 0 < d}
-    (hqr : n.udiv d = q ∧ n.umod d = r) :
+    (hq : n.udiv d = q) (hr : n.umod d = r) :
     (d.toNat * q.toNat + r.toNat = n.toNat) := by
-  obtain ⟨hq, hr⟩ := hqr
   have hdiv : n.toNat / d.toNat = q.toNat := by
     rw [← toNat_udiv hd] -- TODO: squeeze
     rw [(toNat_eq _ _).mp hq]
@@ -637,6 +636,7 @@ theorem div_characterized' {d n q r : BitVec w} {hd : 0 < d}
     rw [(toNat_eq _ _).mp hr]
   rw [← hdiv, ← hmod] -- TODO: flip
   rw [div_add_mod]
+
 
 /- Given d, R(j + 1), (calculate R(j), q.getLsb j)-/
 -- def divremi (d : BitVec w) (rjsucc : BitVec w) (j : Nat) :  BitVec w  × Bool :=
