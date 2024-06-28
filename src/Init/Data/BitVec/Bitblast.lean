@@ -615,7 +615,7 @@ theorem Nat.div_add_eq_left_of_lt {x y z : Nat} (hx : z ∣ x) (hy : y < z) (hz 
       exact (Nat.div_eq_iff_eq_mul_left hz hx).mp rfl
     · exact hy
 
-theorem div_characterized_of_mul_add_toNat {d n q r : BitVec w} {hd : 0 < d}
+theorem div_characterized_of_mul_add_toNat {d n q r : BitVec w} (hd : 0 < d)
     (hrd : r < d)
     (hdqnr : d.toNat * q.toNat + r.toNat = n.toNat) :
     (n.udiv d = q ∧ n.umod d = r) := by
@@ -642,7 +642,7 @@ theorem div_characterized_of_mul_add_toNat {d n q r : BitVec w} {hd : 0 < d}
     rw [Nat.mod_eq_of_lt hrd] at hdqnr
     simp [hdqnr]
 
-theorem div_characterized_of_mul_add_of_lt {d n q r : BitVec w} {hd : 0 < d}
+theorem div_characterized_of_mul_add_of_lt {d n q r : BitVec w} (hd : 0 < d)
     (hrd : r < d)
     (hdqnr : d * q + r = n)
     (hlt : d.toNat * q.toNat + r.toNat < 2^w) :
@@ -657,7 +657,7 @@ theorem div_characterized_of_mul_add_of_lt {d n q r : BitVec w} {hd : 0 < d}
     _ = ((d.toNat * q.toNat) + r.toNat) % 2^w := by simp [Nat.mod_eq_of_lt hlt']
     _ = ((d.toNat * q.toNat) + r.toNat)  := by simp [Nat.mod_eq_of_lt hlt]
 
-theorem div_characterized_toNat_of_eq_udiv_of_eq_umod {d n q r : BitVec w} {hd : 0 < d}
+theorem div_characterized_toNat_of_eq_udiv_of_eq_umod {d n q r : BitVec w} (hd : 0 < d)
     (hq : n.udiv d = q) (hr : n.umod d = r) :
     (d.toNat * q.toNat + r.toNat = n.toNat) := by
   have hdiv : n.toNat / d.toNat = q.toNat := by
@@ -669,6 +669,24 @@ theorem div_characterized_toNat_of_eq_udiv_of_eq_umod {d n q r : BitVec w} {hd :
   rw [← hdiv, ← hmod] -- TODO: flip
   rw [div_add_mod]
 
+theorem div_characterized_toNat_of_eq_udiv_of_eq_umod_of_lt {d n q r : BitVec w} (hd : 0 < d)
+    (hq : n.udiv d = q) (hr : n.umod d = r)
+    (hlt : d.toNat * q.toNat + r.toNat < 2^w) :
+    d * q + r = n := by
+  apply eq_of_toNat_eq
+  simp [toNat_add, toNat_mul]
+  rw [Nat.mod_eq_of_lt hlt]
+  apply div_characterized_toNat_of_eq_udiv_of_eq_umod hd hq hr
+
+theorem div_iff_add_mod_of_lt {d n q r : BitVec w} (hd : 0 < d)
+    (hrd : r < d)
+    (hlt : d.toNat * q.toNat + r.toNat < 2^w) :
+    (n.udiv d = q ∧ n.umod d = r) ↔ (d * q + r = n) := by
+  constructor
+  · intros h; obtain ⟨h₁, h₂⟩ := h
+    apply div_characterized_toNat_of_eq_udiv_of_eq_umod_of_lt <;> assumption
+  · intros h
+    apply div_characterized_of_mul_add_of_lt <;> assumption
 
 /- Given d, R(j + 1), (calculate R(j), q.getLsb j)-/
 -- def divremi (d : BitVec w) (rjsucc : BitVec w) (j : Nat) :  BitVec w  × Bool :=
