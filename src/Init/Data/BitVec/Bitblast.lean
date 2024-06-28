@@ -577,5 +577,80 @@ theorem shiftRight_eq_shiftRight_rec (x : BitVec ℘) (y : BitVec w₂) :
   · simp [of_length_zero]
   · simp [ushiftRight_rec_eq x y w₂ (by omega)]
 
+/- ## udiv/urem bitblasting -/
+
+/-
+r = n - d * q
+r = n - d * (∑ i, 2^i * q.getLsb i)
+
+-/
+
+/-- TODO: This theorem surely exists somewhere. -/
+theorem Nat.div_add_eq_left_of_lt {x y z : Nat} (hx : z ∣ x) (hy : y < z) (hz : 0 < z):
+    (x + y) / z = x / z := by
+  refine Nat.div_eq_of_lt_le ?lo ?hi
+  · apply Nat.le_trans
+    · exact div_mul_le_self x z
+    · omega
+  · simp only [succ_eq_add_one, Nat.add_mul, Nat.one_mul]
+    apply Nat.add_lt_add_of_le_of_lt
+    · apply Nat.le_of_eq
+      exact (Nat.div_eq_iff_eq_mul_left hz hx).mp rfl
+    · exact hy
+
+theorem div_characterized {d n q r : BitVec w} {hd : 0 < d}
+    (hrd : r < d)
+    (hdqnr : d.toNat * q.toNat + r.toNat = n.toNat) :
+    (n.udiv d = q ∧ n.umod d = r) := by
+  constructor
+  · apply BitVec.eq_of_toNat_eq
+    rw [toNat_udiv hd]
+    replace hdqnr : (d.toNat * q.toNat + r.toNat) / d.toNat = n.toNat / d.toNat := by
+      simp [hdqnr]
+    rw [Nat.div_add_eq_left_of_lt] at hdqnr
+    · rw [← hdqnr]
+      exact mul_div_right q.toNat hd
+    · exact Nat.dvd_mul_right d.toNat q.toNat
+    · exact hrd
+    · exact hd
+  · apply BitVec.eq_of_toNat_eq
+    rw [toNat_umod]
+    replace hdqnr : (d.toNat * q.toNat + r.toNat) % d.toNat = n.toNat % d.toNat := by
+      simp [hdqnr]
+    rw [Nat.add_mod, Nat.mul_mod_right] at hdqnr
+    simp at hdqnr
+    replace hrd : r.toNat < d.toNat := by
+      rw [BitVec.lt_def] at hrd
+      exact hrd -- TODO: golf
+    rw [Nat.mod_eq_of_lt hrd] at hdqnr
+    simp [hdqnr]
+
+theorem div_characterized' {d n q r : BitVec w} {hd : 0 < d}
+    (hqr : n.udiv d = q ∧ n.umod d = r) :
+    (d.toNat * q.toNat + r.toNat = n.toNat) := by
+  obtain ⟨hq, hr⟩ := hqr
+  have hdiv : n.toNat / d.toNat = q.toNat := by
+    rw [← toNat_udiv hd] -- TODO: squeeze
+    rw [(toNat_eq _ _).mp hq]
+  have hmod : n.toNat % d.toNat = r.toNat := by
+    rw [← toNat_umod] -- TODO: squeeze
+    rw [(toNat_eq _ _).mp hr]
+  rw [← hdiv, ← hmod] -- TODO: flip
+  rw [div_add_mod]
+
+/- Given d, R(j + 1), (calculate R(j), q.getLsb j)-/
+-- def divremi (d : BitVec w) (rjsucc : BitVec w) (j : Nat) :  BitVec w  × Bool :=
+--   -- optimistically assume (q.getLsb j = 1) and perform the subtraction.
+--   let rj? := rjsucc - d * twoPow w j
+--   if rj? ≥ 0 -- yay, this subtraction is allowed.
+--   then (rj?, true) -- confirm the results.
+--   else (rjsucc, false) -- discard the results.
+
+-- def divrem_rec (d : BitVec w) (n : BitVec w) (j : Nat) : BitVec w × BitVec w :=
+--     match j with
+--     | 0 => divremi d n 0
+--     | j + 1 =>
+--       let (b, rj') := divrem_rec d n j
+--       divremi d (if b then rj' else n) (j + 1)
 
 end BitVec
