@@ -713,6 +713,19 @@ def divremi (qr : DivRecQuotRem w n d) (j : Nat) :  BitVec w × Bool :=
   else
     (qr.r, false) -- remainder is illegal, so quotient must be '0' at this bit.
 
+/-- Recurrence for division in terms of `divremi`. -/
+def divRec (qr : DivRecQuotRem w n d) (j : Nat) : DivRecQuotRem w n d :=
+  let (r, qj) := divremi qr j
+  let q := setBit qr.q j qj
+  match j with
+  | 0 => { r := r, q := q }
+  | j + 1 => divRec { r := r, q := q } j
+where
+  /-- Set the `i`th bit of `v` to `b`.-/
+  setBit (v : BitVec w) (i : Nat) (b : Bool) :=
+    if b then v ||| twoPow w i else v
+
+
 theorem divremi_eq_of_le {qr : DivRecQuotRem w n d} (h : d ≤ qr.r >>> j) :
     divremi qr j = (qr.r >>> j - d, true) := by
   simp [divremi, h]
@@ -741,14 +754,14 @@ theorem DivRecQuotRem.Lawful.eq {n d : BitVec w} {qr : DivRecQuotRem w n d}
   rw [Nat.mod_eq_of_lt]
   omega
 
-theorem DivRecQuotRem.Lawful.eq_nat {n d : BitVec w} {qr : DivRecQuotRem w n d}
-    (h : qr.Lawful) : d.toNat * qr.q.toNat + qr.r.toNat = n.toNat := by
-  simp only [Lawful] at h
-  have h' : (d * qr.q + qr.r).toNat = n.toNat := by rw [h.2]
-  simp only [toNat_add, toNat_mul, mod_add_mod] at h'
-  rw [Nat.mod_eq_of_lt] at h'
-  · exact h'
-  · exact h.1
+-- theorem DivRecQuotRem.Lawful.eq_nat {n d : BitVec w} {qr : DivRecQuotRem w n d}
+--     (h : qr.Lawful) : d.toNat * qr.q.toNat + qr.r.toNat = n.toNat := by
+--   simp only [Lawful] at h
+--   have h' : (d * qr.q + qr.r).toNat = n.toNat := by rw [h.2]
+--   simp only [toNat_add, toNat_mul, mod_add_mod] at h'
+--   rw [Nat.mod_eq_of_lt] at h'
+--   · exact h'
+--   · exact h.1
 
 def DivRecQuotRem.initialize (n d : BitVec w) : DivRecQuotRem w n d :=
   { r := n, q := 0 }
@@ -757,17 +770,6 @@ theorem DivRecQuotRem.lawful_initialize {n d : BitVec w} :
     (DivRecQuotRem.initialize n d).Lawful := by
   simp [DivRecQuotRem.Lawful, DivRecQuotRem.initialize]
 
-/-- Recurrence for division in terms of `divremi`. -/
-def divRec (qr : DivRecQuotRem w n d) (j : Nat) : DivRecQuotRem w n d :=
-  let (r, qj) := divremi qr j
-  let q := setBit qr.q j qj
-  match j with
-  | 0 => { r := r, q := q }
-  | j + 1 => divRec { r := r, q := q } j
-where
-  /-- Set the `i`th bit of `v` to `b`.-/
-  setBit (v : BitVec w) (i : Nat) (b : Bool) :=
-    if b then v ||| twoPow w i else v
 
 @[simp]
 theorem divRec_zero {qr : DivRecQuotRem w n d} :
