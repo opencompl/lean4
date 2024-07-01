@@ -475,7 +475,7 @@ theorem shiftLeft_eq_shiftLeft_rec (x : BitVec ℘) (y : BitVec w₂) :
   · simp [shiftLeftRec_eq x y w₂ (by omega)]
 
 
-/-## (Arithmetic) ushiftRight recurrence -/
+/-## (Logical) ushiftRight recurrence -/
 
 def ushiftRight_rec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))
@@ -574,6 +574,20 @@ theorem shiftRight_eq_shiftRight_rec (x : BitVec ℘) (y : BitVec w₂) :
   rcases w₂ with rfl | w₂
   · simp [of_length_zero]
   · simp [ushiftRight_rec_eq x y w₂ (by omega)]
+
+
+/- ### Arithmetic (sshiftRight) recurrence -/
+
+def sshiftRightRec (x : BitVec w) (y : BitVec w₂) (n : Nat) : BitVec w :=
+  let shiftAmt := (y &&& (twoPow w₂ n))
+  match n with
+  | 0 => x.sshiftRight' shiftAmt
+  | n + 1 => (sshiftRightRec x y n) >>> shiftAmt
+
+theorem sshiftRight_eq_sshiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
+  (x >>> y).getLsb i = (sshiftRightRec x y w).getLsb i := sorry
+
+
 
 /- ## udiv/urem bitblasting -/
 
@@ -1066,5 +1080,6 @@ theorem divRec_eq_udiv_of_lawful {qr : DivRecQuotRem w n d} (hqr : qr.Lawful) (h
 --   have this := div_characterized_of_mul_add_toNat
 --     (d := d) (q := qr'.q) (n := n) (r := qr'.r) hd hremainder hlawful.def
 --   simp [this.2]
+
 
 end BitVec
