@@ -763,6 +763,23 @@ theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
         Nat.not_lt, decide_eq_true_eq]
       omega
 
+/-- The arithmetic shift right equals the msb when `s + i ≥ w`, and equals the logical shift right when `s + i < w. -/
+theorem getLsb_sshiftRight_eq_getLsb_ushiftRight (x : BitVec w) (s i : Nat) :
+    getLsb (x.sshiftRight s) i = (!decide (w ≤ i) && if s + i < w then (x >>> s).getLsb i else x.msb) := by
+  have h : (x >>> s).getLsb i = x.getLsb (s + i) := by
+    simp only [getLsb_ushiftRight]
+  rw [h]
+  simp [getLsb_sshiftRight]
+
+/-- A version of `BitVec.sshiftRight` with both arguments as bitvectors. -/
+def sshiftRight' (x y : BitVec w) : BitVec w := x.sshiftRight y.toNat
+
+theorem getLsb_sshift'_eq_getLsb_sshiftRight (x y : BitVec w) (i : Nat) :
+    getLsb (sshiftRight' x y) i = getLsb (x.sshiftRight y.toNat) i := by
+  simp [sshiftRight']
+
+-- theorem getLsb_sshiftRight'_
+
 /-! ### udiv -/
 
 theorem udiv_eq {x y : BitVec n} :

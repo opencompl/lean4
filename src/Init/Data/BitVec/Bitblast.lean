@@ -466,8 +466,7 @@ theorem shiftLeftRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) (hn : n + 
       rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)]
       simp [h]
 
-/-- info: 'BitVec.shiftLeftRec_eq' depends on axioms: [propext, Quot.sound, Classical.choice] -/
-#guard_msgs in #print axioms shiftLeftRec_eq
+#print axioms shiftLeftRec_eq
 
 theorem shiftLeft_eq_shiftLeft_rec (x : BitVec ℘) (y : BitVec w₂) :
     x <<< y = shiftLeftRec x y (w₂ - 1) := by
@@ -476,7 +475,7 @@ theorem shiftLeft_eq_shiftLeft_rec (x : BitVec ℘) (y : BitVec w₂) :
   · simp [shiftLeftRec_eq x y w₂ (by omega)]
 
 
-/-## (Arithmetic) sshiftRight recurrence -/
+/-## (Arithmetic) ushiftRight recurrence -/
 
 def ushiftRight_rec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))
@@ -568,8 +567,7 @@ theorem ushiftRight_rec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) (hn : n
       rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)]
       simp [h]
 
-/-- info: 'BitVec.ushiftRight_rec_eq' depends on axioms: [propext, Quot.sound, Classical.choice] -/
-#guard_msgs in #print axioms ushiftRight_rec_eq
+#print axioms ushiftRight_rec_eq
 
 theorem shiftRight_eq_shiftRight_rec (x : BitVec ℘) (y : BitVec w₂) :
     x >>> y = ushiftRight_rec x y (w₂ - 1) := by
@@ -842,8 +840,22 @@ theorem DivRecQuotRem.rec_lawful_of_lawful
     { r := qr.r >>> (j + 1) - d, q := qr.q ||| twoPow w (j + 1) : DivRecQuotRem w n d }.Lawful := by
   simp only [DivRecQuotRem.Lawful]
   rw [← BitVec.add_eq_or_of_and_eq_zero]
-  sorry
-
+  · simp
+    /-
+    w : Nat
+    n d : BitVec w
+    j : Nat
+    qr : DivRecQuotRem w n d
+    hqr : qr.Lawful
+    hq : ∀ {i : Nat}, i ≤ j + 1 → qr.q.getLsb i = false
+    hd : d ≤ qr.r >>> (j + 1)
+    ⊢ d.toNat * ((qr.q.toNat + 2 ^ (j + 1)) % 2 ^ w) + (qr.r.toNat >>> (j + 1) + (2 ^ w - d.toNat)) % 2 ^ w = n.toNat
+    -/
+    sorry
+  · simp
+    specialize hq (i := j + 1) (by omega)
+    rw [hq]
+    simp
 -- d * j + q = n.
 theorem divRec_lawful {qr : DivRecQuotRem w n d} {j : Nat}
     (hqr : qr.Lawful)
@@ -937,10 +949,49 @@ theorem divRec_lawful {qr : DivRecQuotRem w n d} {j : Nat}
       apply hq
       omega
 
-/--
-info: 'BitVec.divRec_lawful' depends on axioms: [propext, Quot.sound, Classical.choice]
--/
-#guard_msgs in #print axioms divRec_lawful
+#print axioms divRec_lawful
+
+theorem divRec_remainder_inbounds {qr : DivRecQuotRem w n d} {j : Nat}
+    (hqr : qr.Lawful) (hr : qr.r.toNat < 2^j) (hd : 0 < d):
+    (divRec qr j).r < d := by
+  induction j generalizing qr
+  case zero =>
+    simp
+    by_cases h : d <<< 0 ≤ qr.r
+    · simp at h
+      simp at hr
+      simp [lt_def]
+      simp [le_def] at h
+      have hd' : d.toNat = 0 := by omega
+      simp [lt_def] at hd
+      omega
+    · simp at h
+      simp [lt_def] at hr
+      simp [lt_def]
+      simp [lt_def] at hd
+      simp [divremi, h]
+      omega
+  case succ j ih =>
+    simp
+    by_cases h : d ≤ qr.r >>> (j + 1)
+    · simp [divremi_eq_of_le h]
+      simp at h
+      have hqr' : qr.r >>> (j + 1) = 0#w := by
+        apply BitVec.eq_of_toNat_eq
+        simp only [toNat_ushiftRight, toNat_ofNat, zero_mod]
+        rw [Nat.shiftRight_eq_div_pow]
+        rw[Nat.div_eq_of_lt (by omega)]
+      rw [hqr']
+      rw [hqr'] at h
+      have hdcontra : d = 0#w := by
+        simp only [le_def, toNat_ofNat, zero_mod, le_zero_eq] at h
+        apply BitVec.eq_of_toNat_eq
+        simp [h]
+      simp [hdcontra] at hd
+    · simp [divremi_eq_of_not_le h]
+      apply ih hqr
+      simp [BitVec.le_def] at h
+      sorry
 
 theorem divRec_eq_udiv_of_lawful {qr : DivRecQuotRem w n d} (hqr : qr.Lawful) (hd : 0 < d)
     {hqr' : qr' = (divRec qr w)} :
@@ -953,46 +1004,8 @@ theorem divRec_eq_udiv_of_lawful {qr : DivRecQuotRem w n d} (hqr : qr.Lawful) (h
     apply qr.r.isLt
     assumption
   have this := div_characterized_of_mul_add_toNat
-    (d := d) (q := qr'.q) (n := n) (r := qr'.r) hd hremainder hlawful.def
+    (d := d) (q := qr'.q) (n := n) (r := qr'.r) hd hremainder hlawful
   simp [this.1]
-
-
-
--- theorem divRec_remainder_inbounds {qr : DivRecQuotRem w n d} {j : Nat}
---     (hqr : qr.Lawful) (hr : qr.r.toNat < 2^j) (hd : 0 < d):
---     (divRec qr j).r < d := by
---   induction j generalizing qr
---   case zero =>
---     simp
---     by_cases h : d <<< 0 ≤ qr.r
---     · simp [divremi_eq_of_le h]
---       simp at h
---       simp at hr
---       simp [lt_def]
---       simp [show qr.r.toNat = 0 by omega]
---       simp [le_def] at h
---       have hd' : d.toNat = 0 := by omega
---       simp [lt_def] at hd
---       omega
---     · simp [divremi_eq_of_not_le h]
---       simp at h
---       simp [lt_def] at hr
---       simp [lt_def]
---       simp [lt_def] at hd
---       omega
---       -- exact h
---   case succ j ih =>
---     simp
---     by_cases h : d <<< (j + 1) ≤ qr.r
---     · simp [divremi_eq_of_le h]
---       simp at h
---       have hcontra : (d <<< (j + 1)).toNat < 2^(j + 1) := by
---         simp [BitVec.le_def] at h
---         calc
---           d <<< (j + 1) ≤ qr.r := by exact h
---           (d <<< (j + 1)).toNat ≤ qr.r.toNat := by simp
-
-
 
 --         /-
 --         case neg.hr
