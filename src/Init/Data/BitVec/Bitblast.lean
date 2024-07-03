@@ -423,4 +423,43 @@ theorem shiftLeft_eq_shiftLeft_rec (x : BitVec ℘) (y : BitVec w₂) :
   · simp [of_length_zero]
   · simp [shiftLeftRec_eq (x := x) (y := y) (n := w₂) (by omega)]
 
+
+/- ## Generalized shiftLeft in terms of op -/
+
+section GeneralizedShiftProof
+
+variable (op : {w₁ w₂ : Nat} → BitVec w₁ → BitVec w₂ → BitVec w₁)
+variable (op_zero : {w₁ : Nat} → {x : BitVec w₁} → op x 0#w₂ = x)
+variable (opTwoPow : {w : Nat} → (i : Nat) → BitVec w → BitVec w)
+variable (op_eq_opTwoPow : {w w₂ : Nat} → (i : Nat) → (x : BitVec w) → op x (twoPow w₂ i) = opTwoPow i x)
+variable (op_twoPow_or_twoPow_eq_opTwoPow_opTwoPow : {w : Nat} →
+  {i j : Nat} → (hij : i < j) → {x : BitVec w} →
+    op x (twoPow w₂ j ||| twoPow w₂ i) = opTwoPow j (opTwoPow i x))
+
+def opTwoPowRec (x : BitVec w)  (y : BitVec w₂) (i : Nat) : BitVec w :=
+  let bit := y.getLsb i
+  let x' := if bit then opTwoPow i x else x
+  match i with
+  | 0 => x'
+  | i + 1 => opTwoPowRec x' y i
+
+def bitVecTwoPowRec (x : BitVec w) (i : Nat) : BitVec w :=
+  let bit := x.getLsb i
+  let x' := (x <<< 1) ||| (BitVec.ofBool bit).zeroExtend w
+  match i with
+  | 0 => x'
+  | i + 1 => bitVecTwoPowRec x' i
+
+-- This is not worth the proof engineering I am afraid.
+-- Proof strategy:
+-- 1) Show that any bitvector x equals bitVecTwoPowRec x (w - 1).
+--   The definition has the loop invariant (bitVecTwoPowRec x i) = (x.truncate i).zeroExtend w
+-- 2) Show that 'op_twoPow_or_twoPow_eq_opTwoPow_opTwoPow' implies that
+--  (op x (twoPow w₂ j ||| (y.truncate (j-1).zero)) = opTwoPow j (opTwoPow i x).
+-- 3) show that the above implies that
+--    (op x ((y && twoPow w₂ j) ||| (y.truncate (j-1).zero)) =
+--        opTwoPow (if y.getLsb j then (opTwoPow j (opRec (j - 1) x)).
+-- But this is about equally as painful as what we have now :(
+end GeneralizedShiftProof
+
 end BitVec
