@@ -726,7 +726,7 @@ theorem div_iff_add_mod_of_lt {d n q r : BitVec w} (hd : 0 < d)
 --   0   0000             -- insert n.msb [0]
 --              0010   0  -- subtract d, not successful
 --       0000             -- result [unchanged]
---       0000             -- shift
+--       0000             -- shift left
 --
 --   1   0001             -- insert n.msb [1]
 --              0010   0  -- subtract d, not successful
@@ -750,18 +750,21 @@ structure DivRecQuotRem (w : Nat) (n : BitVec w) (d : BitVec w) where
   q : BitVec w
 deriving DecidableEq, Repr
 
+theorem invariant_qr (r : Nat) (hr : r < d) : 2 * r + 1 - d < d := by
+  omega
+
 def divRec (qr : DivRecQuotRem w n d) (j : Nat) : DivRecQuotRem w n d :=
   let rj := (qr.r <<< 1) ||| (BitVec.ofBool (n.getLsb j)).zeroExtend w
-  let qr' := if rj ≤ d
-    then { r := rj, q := qr.q <<< 1}
-   else {r := rj - d, q := qr.q <<< 1 ||| 1 }
+  let qr' :=
+    if rj ≤ d
+    then { r := rj, q := qr.q <<< 1 }
+    else { r := rj - d, q := qr.q <<< 1 ||| 1 }
   match j with
   | 0 => qr'
   | j + 1 => divRec qr' j
 
 -- invariants:
--- 1) r < d.
--- 2)
+-- 1) qr.r < d.
 theorem div_rec_7_2 :
     (divRec (w := 4) (n := 7) (d := 2) { r := 0, q := 0 } 3) =
     { r := 1, q := 3 } := by

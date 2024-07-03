@@ -4,7 +4,26 @@ def get_lsb(n, j):
 def print_bits(w, n):
     return ("{0:0%sb}" % (w)).format(n)
 
+def check_pre_invariant(w, n, d, q, r, j):
+    assert r < d
+    qright = n // d
+    rright = n % d
+
+    assert n >> (j + 1) == d * q + r
+    assert q == qright >> (j + 1)
+    assert r == ((n >> j) - (d * (qright >> j)))
+    pass
+
+def check_post_invariant(w, n, d, q, r, j):
+    qright = n // d
+    rright = n % d
+    assert r < d
+    assert q == qright >> j
+    assert n >> j == d * q + r
+    assert r == ((n >> j) - (d * (qright >> j)))
+
 def shift_subtract(w, n, d, q, r, j):
+    check_pre_invariant(w, n, d, q, r, j)
     print(f"shift_subtract> n: '%s' | d: '%s' | q : '%s' | r : '%s' | j : '%s'" % 
           (print_bits(w, n), print_bits(w, d), print_bits(w, q), print_bits(w, r), j))
     print(f"  j[%s] = %s" % (j, get_lsb(n, j)))
@@ -22,15 +41,17 @@ def shift_subtract(w, n, d, q, r, j):
         print(f"  r.new = %s" % print_bits(w, r))
         print(f"  q = %s" % print_bits(w, q))
     if j == 0:
-        return (q, r)
+        (qout, rout) = (q, r)
     else:
-        return shift_subtract(w, n, d, q, r, j-1)
+        (qout, rout) = shift_subtract(w, n, d, q, r, j-1)
+    check_post_invariant(w, n, d, q, r, j)
+    return (qout, rout)
 
 # 10 / 3 = 3
 for n in range(1, 10):
     for d in range(1, 10):
         w = 4
-        (q, r) = shift_subtract(w, n, d, 0, 0, w)
+        (q, r) = shift_subtract(w, n, d, 0, 0, w-1)
         assert n == d * q + r
         if n == d * q + r:
             print ("verified correct invariant for n: '%s' | d : '%s' | q : '%s' r: '%s'" % 
