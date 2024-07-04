@@ -750,32 +750,140 @@ structure DivRecQuotRem (w : Nat) (n : BitVec w) (d : BitVec w) where
   q : BitVec w
 deriving DecidableEq, Repr
 
-theorem invariant_qr (r : Nat) (hr : r < d) : 2 * r + 1 - d < d := by
+
+theorem BitVec.shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
+    x <<< n = x * (BitVec.twoPow w n) := by
+  ext i
+  simp
+
+/-- One round of the division algorithm, that tries to perform a subtract shift. -/
+def tryDivSubtractShift (qr : DivRecQuotRem w n d) (ix : Nat) : DivRecQuotRem w n d :=
+  let r' := (qr.r <<< 1) ||| (BitVec.ofBool (n.getLsb ix)).zeroExtend w
+  if r' < d
+  then { r := r', q := qr.q <<< 1  }
+  else {
+      r := r' - d,
+      q := qr.q <<< 1 ||| 1
+    }
+
+/- Surely this exists somewhere, I remember proving this even -/
+theorem Nat.sub_mod_self_eq_sub {x n : Nat} (hx₀ : 0 < x := by omega) (hxn : x < n := by omega) : (n - x) % n = n - x := by
+  rw [Nat.mod_eq_of_lt]
   omega
 
-def divRec (qr : DivRecQuotRem w n d) (j : Nat) : DivRecQuotRem w n d :=
-  let rj := (qr.r <<< 1) ||| (BitVec.ofBool (n.getLsb j)).zeroExtend w
+theorem tryDivSubtractShift_lt_of_lt {qr : DivRecQuotRem w n d} {ix : Nat} (hrlt : qr.r < d) :
+    (tryDivSubtractShift qr ix).r < d := by
+  simp only [tryDivSubtractShift, ofNat_eq_ofNat]
+  generalize hr₂ : qr.r <<< 1 ||| zeroExtend w (ofBool (n.getLsb ix)) = r₂
+  by_cases hr₂lt : r₂  < d
+  · simp [hr₂lt]
+  · simp [hr₂lt]
+    rw [← BitVec.add_eq_or_of_and_eq_zero] at hr₂
+    rw [BitVec.shiftLeft_eq_mul_twoPow] at hr₂
+    · simp only [BitVec.lt_def] at hr₂ hr₂lt ⊢
+      simp only [toNat_sub, toNat_add, toNat_shiftLeft, toNat_truncate,
+        toNat_ofBool, add_mod_mod, mod_add_mod, toNat_mul] at hr₂ hr₂lt ⊢
+      -- simp only [toNat_twoPow, Nat.pow_one] at hr₂
+      rcases w with rfl | rfl | w
+      · have hr : qr.r = 0#0 := by apply Subsingleton.elim
+        have hd : d = 0#0 := by apply Subsingleton.elim
+        rw [hr, hd] at hrlt
+        simp at hrlt -- TODO: golf this with simpa, ask alex.
+      · simp only [Nat.reduceAdd, Nat.zero_add, Nat.pow_one, mod_self, Nat.mul_zero] at hrlt hr₂ ⊢
+        simp only [Nat.reduceAdd, lt_def] at hrlt hr₂
+        simp only [Nat.reduceAdd, zeroExtend_eq, lt_def, toNat_or, toNat_shiftLeft, Nat.pow_one,
+          toNat_ofBool, Nat.not_lt] at hr₂
+        have hd : d.toNat < 2 := d.isLt
+        generalize hb : (n.getLsb ix) = b
+        rw [hb] at hr₂
+        replace hd : d.toNat = 0 ∨ d.toNat = 1 := by omega;
+        rcases hd with hd | hd
+        · omega -- d ≠ 0
+        · rw [hd] at hr₂lt hrlt
+          rcases b with rfl | rfl
+          · replace hrlt : qr.r.toNat = 0 := by omega
+            rw [← hr₂] at hr₂lt
+            simp at hr₂lt
+            rw [hrlt] at hr₂lt
+            simp at hr₂lt
+          · simp; omega
+      · have hr₂lt₂ : r₂.toNat - d.toNat < d.toNat := by sorry
+        calc
+          _ =  (r₂.toNat + (2 ^ (w + 1 + 1) - d.toNat)) % 2 ^ (w + 1 + 1)  := by rfl
+          _ =  ((r₂.toNat + (2 ^ (w + 1 + 1)) - d.toNat)) % 2 ^ (w + 1 + 1)  := by
+            rw [Nat.add_sub_assoc]
+            have := d.isLt
+            omega
+          _ =  (((2 ^ (w + 1 + 1) + r₂.toNat) - d.toNat)) % 2 ^ (w + 1 + 1) := by
+            rw [Nat.add_comm]
+          _ =  (2 ^ (w + 1 + 1) + (r₂.toNat - d.toNat)) % 2 ^ (w + 1 + 1) := by
+            congr 1
+            rw [Nat.add_sub_assoc]
+            omega
+          _ =  ((2 ^ (w + 1 + 1) % 2 ^ (w + 1 + 1)) + ((r₂.toNat - d.toNat) % 2 ^ (w + 1 + 1))) % (2 ^ (w + 1 + 1)) := by
+            rw [Nat.add_mod]
+          _ = (r₂.toNat - d.toNat) % 2 ^ (w + 1 + 1) := by
+            simp
+          _ = (r₂.toNat - d.toNat) := by
+            rw [Nat.mod_eq_of_lt]
+            omega
+          _ < d.toNat := by omega
+    · ext i
+      simp
+      intros hi _ hi'
+      omega
+
+/-- repeatedly apply `tryDivSubtractShift`. -/
+def divRec (qr : DivRecQuotRem w n d) (j : Nat) :
+    DivRecQuotRem w n d :=
   let qr' :=
-    if rj ≤ d
-    then { r := rj, q := qr.q <<< 1 }
-    else { r := rj - d, q := qr.q <<< 1 ||| 1 }
-  match j with
-  | 0 => qr'
-  | j + 1 => divRec qr' j
+    match j with
+    | 0 => qr
+    | j + 1 => divRec qr j
+  tryDivSubtractShift qr' (w - 1 - j)
+
+  def checkDivRec : Bool × Array String := Id.run do
+    let w := 4
+    let max := (Nat.pow 2 w)
+    let mut outputs := #[]
+    let mut wrong := false
+    for n in (List.range max) do
+      for d in (List.range (max - 1)).map (fun n => Nat.add n 1) do
+        have hd : d > 0 := by sorry
+        let qr := divRec (w := w) (n := n) (d := d) { r := 0, q := 0, hr := by sorry } (w - 1)
+        if qr.q * d + qr.r != n then
+          outputs := outputs.push s!"ERROR: n = {n}, d = {d}, q = {qr.q}, r = {qr.r}, n = {n}, d = {d}, q = {qr.q}, r = {qr.r}"
+          wrong := true
+    (wrong, outputs)
+
+
+theorem divRec_postcondition {w : Nat} {n d : BitVec w} (qr : DivRecQuotRem w n d) (j : Nat) (hj : j ≤ w - 1) :
+    let qr' := divRec qr j
+   (qr'.q * d + qr'.r) = n >>> ((w - 1) - j) := by
+  induction j generalizing qr
+  · sorry
+  · sorry
+
+/-- info: (false, { data := [] }) -/
+#guard_msgs in #reduce checkDivRec
+
+-- theorem divRec_n (qr : DivRecQuotRem w n d) :
+--   d * (tryDivSubtractShift qr j).q + (tryDivSubtractShift q j).r = n >>> (j + 1)
 
 -- invariants:
 -- 1) qr.r < d.
 theorem div_rec_7_2 :
-    (divRec (w := 4) (n := 7) (d := 2) { r := 0, q := 0 } 3) =
-    { r := 1, q := 3 } := by
-  simp [divRec]
+    (divRec (w := 4) (n := 7) (d := 2) { r := 0, q := 0, hr := by sorry } 3) =
+    { r := 1, q := 3, hr := by sorry } := by
+  simp [divRec, tryDivSubtractShift]
 
 -- invariant 2
 -- n.toNat % 2^j = d.toNat * q.toNat + r.toNat
-#reduce (divRec (w := 4) (n := 7) (d := 2) { r := 0, q := 0 } 3) -- r = 1, q = 3
-#reduce (divRec (w := 4) (n := 7) (d := 2) { r := 0, q := 0 } 2) -- r = 1, q = 3
-#reduce (divRec (w := 4) (n := 7) (d := 2) { r := 0, q := 0 } 1) -- r = 1, q = 1
-#reduce (divRec (w := 4) (n := 7) (d := 2) { r := 0, q := 0 } 0) -- r = 1, q = 0
+-- set_option maxHeartbeats 99999 in
+-- #reduce (divRec (w := 4) (n := 7) (d := 2) { r := 0, q := 0 } 3) -- r = 1, q = 3
+-- #reduce (divRec (w := 4) (n := 7) (d := 2) { r := 0, q := 0 } 2) -- r = 1, q = 3
+-- #reduce (divRec (w := 4) (n := 7) (d := 2) { r := 0, q := 0 } 1) -- r = 1, q = 1
+-- #reduce (divRec (w := 4) (n := 7) (d := 2) { r := 0, q := 0 } 0) -- r = 1, q = 0
 
 -- /- Given d, R(j + 1), (calculate R(j), q.getLsb j). -/
 -- def divremi (qr : DivRecQuotRem w n d) (j : Nat) :  BitVec w × Bool :=
