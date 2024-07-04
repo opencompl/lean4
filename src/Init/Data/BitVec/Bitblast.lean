@@ -955,19 +955,32 @@ theorem BitVec.add_mul (x y z : BitVec w) : (y + z) * x = y * x + z * x := by
 TODO: what's a good theorem name?
 If the LSB is false, then shifting to (w - 1) is the same as shifting to w and then right shifting 1.
 -/
-private theorem BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_of_getLsb_false
-    {x : BitVec w} (hx : x.getLsb (w - 1) = false) :
-    x >>> (w - 1) = x >>> w <<< 1 := by
+private theorem BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_or_zeroExtend_getLsb
+    {x : BitVec w} :
+    x >>> (w - 1) = ((x >>> w <<< 1) ||| (BitVec.ofBool (x.getLsb (w - 1))).zeroExtend w) := by
   ext i
-  simp only [getLsb_ushiftRight, getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and]
+  simp only [getLsb_ushiftRight, getLsb_or, getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and,
+    getLsb_zeroExtend, getLsb_ofBool]
   by_cases (i : Nat) < 1
   case pos h =>
     simp only [h, decide_True, Bool.not_true, Bool.false_and]
     have hi : (i : Nat) = 0 := by omega
-    simp [hi, hx]
+    simp [hi]
   case neg h =>
     simp only [h, decide_False, Bool.not_false, Bool.true_and]
+    have hi : (i : Nat) ≠ 0 := by omega
+    simp only [hi, decide_False, Bool.false_and, Bool.or_false]
     congr 1
+    omega
+
+private theorem BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_add_zeroExtend_getLsb
+    {x : BitVec w} :
+    x >>> (w - 1) = ((x >>> w <<< 1) + (BitVec.ofBool (x.getLsb (w - 1))).zeroExtend w) := by
+  rw [BitVec.add_eq_or_of_and_eq_zero]
+  · apply BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_or_zeroExtend_getLsb
+  · ext i
+    simp
+    intros i _ hi'
     omega
 
 theorem BitVec.add_assoc {x y z : BitVec w} : x + y + z = x + (y + z) := by
@@ -984,47 +997,31 @@ theorem divRec_correct {w : Nat} {n d : BitVec w} {qr : DivRecQuotRem w n d} {j 
   case zero =>
     simp [divRec]
     simp at hqrn
-    -- simp [tryDivSubtractShift]
     simp [tryDivSubtractShift_eq_tryDivSubtractShift']
     simp [tryDivSubtractShift']
     generalize hb : n.getLsb (w - 1) = b
     generalize hs : qr.r <<< 1 ||| zeroExtend w (ofBool b) = s
     by_cases hslt : s < d
     · simp [hslt]
-      rcases b with rfl | rfl
-      · simp_all
-        rw [← hs]
-        have qd : qr.q <<< 1 * d = (qr.q * d) <<< 1 := by
-          rw [BitVec.shiftLeft_mul_comm]
-          rw [BitVec.shiftLeft_mul_assoc]
-        rw [qd]
-        rw [BitVec.shiftLeft_eq_mul_twoPow]
-        rw [BitVec.shiftLeft_eq_mul_twoPow]
+      rw [← hs]
+      have qd : qr.q <<< 1 * d = (qr.q * d) <<< 1 := by
+        rw [BitVec.shiftLeft_mul_comm]
+        rw [BitVec.shiftLeft_mul_assoc]
+      rw [qd]
+      rw [BitVec.shiftLeft_eq_mul_twoPow]
+      rw [BitVec.shiftLeft_eq_mul_twoPow]
+      rw [← add_eq_or_of_and_eq_zero]
+      · rw [← BitVec.add_assoc]
         rw [← BitVec.add_mul]
         rw [← hqrn]
         rw [← BitVec.shiftLeft_eq_mul_twoPow]
-        rw [BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_of_getLsb_false hb]
-      · simp_all
-        rw [← hs]
-        have qd : qr.q <<< 1 * d = (qr.q * d) <<< 1 := by
-          rw [BitVec.shiftLeft_mul_comm]
-          rw [BitVec.shiftLeft_mul_assoc]
-        rw [qd]
-        rw [BitVec.shiftLeft_eq_mul_twoPow]
-        rw [BitVec.shiftLeft_eq_mul_twoPow]
-        rw [← add_eq_or_of_and_eq_zero]
-        · rw [← BitVec.add_assoc]
-          rw [← BitVec.add_mul]
-          rw [← hqrn]
-          rw [← BitVec.shiftLeft_eq_mul_twoPow]
-
-        · ext i
-          simp
-          intros i _ hi'
-          omega
+        rw [BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_add_zeroExtend_getLsb, hb]
+      · ext i
+        simp
+        intros i _ hi'
+        omega
     · simp [hslt]
       sorry
-    sorry
   case succ j' ih =>
     simp [divRec]
     simp at hqrn
