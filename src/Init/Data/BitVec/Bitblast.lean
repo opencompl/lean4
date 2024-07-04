@@ -988,6 +988,39 @@ theorem BitVec.add_assoc {x y z : BitVec w} : x + y + z = x + (y + z) := by
   simp
   rw [Nat.add_assoc]
 
+theorem BitVec.add_sub_assoc  {m k : BitVec w} (h : k ≤ m) (n : BitVec w) : n + m - k = n + (m - k) := sorry
+
+/--
+Bitwise or of (x <<< 1) with 1 is the same as addition.
+This is useful to reason in mixed-arithmetic bitwise contexts.
+-/
+private theorem BitVec.shiftLeft_one_or_one_eq_shiftLeft_one_add_one {x : BitVec w} :
+    x <<< 1 ||| 1#w = (x <<< 1) + 1#w := by
+  rw [BitVec.add_eq_or_of_and_eq_zero]
+  ext i
+  simp
+  intro i _ hi'
+  omega
+
+theorem BitVec.add_sub_self_left {x y : BitVec w} : x + y - x = y := by
+  apply eq_of_toNat_eq
+  simp
+  calc
+    (x.toNat + y.toNat + (2 ^ w - x.toNat)) % 2 ^ w = (x.toNat + y.toNat + 2 ^ w - x.toNat) % 2 ^ w := by
+      rw [Nat.add_sub_assoc (Nat.le_of_lt x.isLt)]
+    _ = (x.toNat + y.toNat - x.toNat + 2 ^ w) % 2 ^ w := by rw [Nat.sub_add_comm]; omega
+    _ = (y.toNat + 2 ^ w) % 2 ^ w := by rw [Nat.add_sub_self_left]
+    _ = y.toNat % 2 ^ w := by simp
+    _ = y.toNat := by simp [Nat.mod_eq_of_lt]
+
+theorem BitVec.add_sub_self_right {x y : BitVec w} : x + y - y = x := by
+  rw [BitVec.add_comm]
+  rw [BitVec.add_sub_self_left]
+
+@[simp]
+theorem BitVec.le_of_not_lt {x y : BitVec w} : ¬ x < y → y ≤ x := by
+  simp [BitVec.lt_def, BitVec.le_def]
+
 theorem divRec_correct {w : Nat} {n d : BitVec w} {qr : DivRecQuotRem w n d} {j : Nat} (hj : j ≤ w - 1)
     (hqrd : qr.r < d)
     (hrn : qr.r < n >>> (j + 1))
@@ -1021,6 +1054,12 @@ theorem divRec_correct {w : Nat} {n d : BitVec w} {qr : DivRecQuotRem w n d} {j 
         intros i _ hi'
         omega
     · simp [hslt]
+      rw [BitVec.shiftLeft_one_or_one_eq_shiftLeft_one_add_one]
+      rw [BitVec.add_mul]
+      simp only [BitVec.one_mul]
+      rw [BitVec.add_assoc]
+      rw [← BitVec.add_sub_assoc (by simp [hslt])]
+      rw [BitVec.add_sub_self_left]
       sorry
   case succ j' ih =>
     simp [divRec]
