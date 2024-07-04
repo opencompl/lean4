@@ -756,9 +756,15 @@ theorem BitVec.shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
   ext i
   simp
 
+theorem foo (a b : Nat) (hr : r * 2 + 1 < d) : r < (d - 1) / 2 := by
+  sorry
+
 /-- One round of the division algorithm, that tries to perform a subtract shift. -/
 def tryDivSubtractShift (qr : DivRecQuotRem w n d) (ix : Nat) : DivRecQuotRem w n d :=
   let r' := (qr.r <<< 1) ||| (BitVec.ofBool (n.getLsb ix)).zeroExtend w
+  -- r * 2 + 1 < d. -- Why does this not overflow?
+  -- r < d - 1
+  -- r < d / 2
   if r' < d
   then { r := r', q := qr.q <<< 1  }
   else {
@@ -771,7 +777,13 @@ theorem Nat.sub_mod_self_eq_sub {x n : Nat} (hx₀ : 0 < x := by omega) (hxn : x
   rw [Nat.mod_eq_of_lt]
   omega
 
-theorem tryDivSubtractShift_lt_of_lt {qr : DivRecQuotRem w n d} {ix : Nat} (hrlt : qr.r < d) :
+@[simp]
+theorem Bool.toNat_lt (b : Bool) : b.toNat < 2 := by
+  have h := Bool.toNat_le b
+  omega
+
+/-- TODO: This shows that the remainer is always going to be below 'd', and does not overflow.  -/
+theorem tryDivSubtractShift_lt_of_lt {qr : DivRecQuotRem w n d} {ix : Nat} (hrlt : qr.r < d) (hrltTwoPow : qr.r.toNat * 2 + 1 < 2 ^ w):
     (tryDivSubtractShift qr ix).r < d := by
   simp only [tryDivSubtractShift, ofNat_eq_ofNat]
   generalize hr₂ : qr.r <<< 1 ||| zeroExtend w (ofBool (n.getLsb ix)) = r₂
@@ -807,7 +819,23 @@ theorem tryDivSubtractShift_lt_of_lt {qr : DivRecQuotRem w n d} {ix : Nat} (hrlt
             rw [hrlt] at hr₂lt
             simp at hr₂lt
           · simp; omega
-      · have hr₂lt₂ : r₂.toNat - d.toNat < d.toNat := by sorry
+      · have hr₂lt₂ : r₂.toNat - d.toNat < d.toNat := by
+          rw [← hr₂]
+          simp only [mul_twoPow_eq_shiftLeft, toNat_add, toNat_shiftLeft, toNat_truncate,
+            toNat_ofBool, add_mod_mod, mod_add_mod]
+          rw [Nat.shiftLeft_eq]
+          simp only [Nat.pow_one]
+          have hd : d.toNat < 2^(w + 1 + 1) := d.isLt
+          have hb : (n.getLsb ix).toNat < 2 := by simp
+          simp only [lt_def] at hrlt
+          rw [Nat.mod_eq_of_lt]
+          · -- r < d [integers]
+            -- r - 1 <= d
+            -- 2(r - 2) <= 2d
+            -- 2r - 2 - d <= d
+            -- 2r - 1 - d < d
+            omega
+          · omega -- here is the use of hrltTwoPow
         calc
           _ =  (r₂.toNat + (2 ^ (w + 1 + 1) - d.toNat)) % 2 ^ (w + 1 + 1)  := by rfl
           _ =  ((r₂.toNat + (2 ^ (w + 1 + 1)) - d.toNat)) % 2 ^ (w + 1 + 1)  := by
@@ -842,19 +870,29 @@ def divRec (qr : DivRecQuotRem w n d) (j : Nat) :
     | j + 1 => divRec qr j
   tryDivSubtractShift qr' (w - 1 - j)
 
-  def checkDivRec : Bool × Array String := Id.run do
-    let w := 4
-    let max := (Nat.pow 2 w)
-    let mut outputs := #[]
-    let mut wrong := false
-    for n in (List.range max) do
-      for d in (List.range (max - 1)).map (fun n => Nat.add n 1) do
-        have hd : d > 0 := by sorry
-        let qr := divRec (w := w) (n := n) (d := d) { r := 0, q := 0, hr := by sorry } (w - 1)
-        if qr.q * d + qr.r != n then
-          outputs := outputs.push s!"ERROR: n = {n}, d = {d}, q = {qr.q}, r = {qr.r}, n = {n}, d = {d}, q = {qr.q}, r = {qr.r}"
-          wrong := true
-    (wrong, outputs)
+theorem divRec_remainder_lt_twoPow (qr : DivRecQuotRem w n d) (j : Nat) (hj : j < w) (hr : qr.r < d) (hr₂ : qr.r.toNat * 2 + 1 < 2 ^ w) :
+    (divRec qr j).r.toNat * 2 + 1 < 2 ^ w := by
+  induction j generalizing qr
+  case zero =>
+    simp [divRec, tryDivSubtractShift]
+    exact hr
+  case succ j ih =>
+    simp [divRec]
+    apply tryDivSubtractShift_lt_of_lt hr hr₂
+
+def checkDivRec : Bool × Array String := Id.run do
+  let w := 4
+  let max := (Nat.pow 2 w)
+  let mut outputs := #[]
+  let mut wrong := false
+  for n in (List.range max) do
+    for d in (List.range (max - 1)).map (fun n => Nat.add n 1) do
+      have hd : d > 0 := by sorry
+      let qr := divRec (w := w) (n := n) (d := d) { r := 0, q := 0 } (w - 1)
+      if qr.q * d + qr.r != n then
+        outputs := outputs.push s!"ERROR: n = {n}, d = {d}, q = {qr.q}, r = {qr.r}, n = {n}, d = {d}, q = {qr.q}, r = {qr.r}"
+        wrong := true
+  (wrong, outputs)
 
 
 theorem divRec_postcondition {w : Nat} {n d : BitVec w} (qr : DivRecQuotRem w n d) (j : Nat) (hj : j ≤ w - 1) :
@@ -873,8 +911,8 @@ theorem divRec_postcondition {w : Nat} {n d : BitVec w} (qr : DivRecQuotRem w n 
 -- invariants:
 -- 1) qr.r < d.
 theorem div_rec_7_2 :
-    (divRec (w := 4) (n := 7) (d := 2) { r := 0, q := 0, hr := by sorry } 3) =
-    { r := 1, q := 3, hr := by sorry } := by
+    (divRec (w := 4) (n := 7) (d := 2) { r := 0, q := 0 } 3) =
+    { r := 1, q := 3 } := by
   simp [divRec, tryDivSubtractShift]
 
 -- invariant 2

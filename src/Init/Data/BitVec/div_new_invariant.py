@@ -38,6 +38,7 @@ def shift_subtract(w, n, d, q, r, j):
     ix = (w - 1) - j
     assert ix >= 0
     r = (r << 1) | get_lsb(n, ix)
+    assert r < 2 ** w # how is this loop invariant upheld, right after doing weird operations? Very weird.
     print(f"  r = %s" % print_bits(w, r))
     if r >= d:
         print(f"  r > d.")
@@ -53,6 +54,17 @@ def shift_subtract(w, n, d, q, r, j):
     check_final_invariant(w, n, d, q, r, j)
     return (q, r)
 
+
+
+w = 4
+d = 10 # d * 2 will overflow.
+(q, r) = shift_subtract(w, n, d, 0, 0, w-1)
+assert n == d * q + r
+if n == d * q + r and r < d:
+    print ("verified correct invariant for n: '%s' | d : '%s' | q : '%s' r: '%s'" % 
+           (n, d, q, r))
+else:
+    raise RuntimeError("verification failed for n: '%s' | d: '%s'" % (n, d))
 # 10 / 3 = 3
 for n in range(1, 32):
     for d in range(1, 32):
