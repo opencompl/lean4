@@ -1034,12 +1034,12 @@ theorem divRec_correct {w : Nat} {n d : BitVec w} {qr : DivRecQuotRem w n d} {j 
     simp [tryDivSubtractShift']
     generalize hb : n.getLsb (w - 1) = b
     generalize hs : qr.r <<< 1 ||| zeroExtend w (ofBool b) = s
-    by_cases hslt : s < d
+    have qd : qr.q <<< 1 * d = (qr.q * d) <<< 1 := by
+      rw [BitVec.shiftLeft_mul_comm]
+      rw [BitVec.shiftLeft_mul_assoc]
+    by_cases hslt : s < d -- Note that the proof is identical on both sides of the case split.
     · simp [hslt]
       rw [← hs]
-      have qd : qr.q <<< 1 * d = (qr.q * d) <<< 1 := by
-        rw [BitVec.shiftLeft_mul_comm]
-        rw [BitVec.shiftLeft_mul_assoc]
       rw [qd]
       rw [BitVec.shiftLeft_eq_mul_twoPow]
       rw [BitVec.shiftLeft_eq_mul_twoPow]
@@ -1060,7 +1060,20 @@ theorem divRec_correct {w : Nat} {n d : BitVec w} {qr : DivRecQuotRem w n d} {j 
       rw [BitVec.add_assoc]
       rw [← BitVec.add_sub_assoc (by simp [hslt])]
       rw [BitVec.add_sub_self_left]
-      sorry
+      rw [← hs]
+      rw [qd]
+      rw [BitVec.shiftLeft_eq_mul_twoPow]
+      rw [BitVec.shiftLeft_eq_mul_twoPow]
+      rw [← add_eq_or_of_and_eq_zero]
+      · rw [← BitVec.add_assoc]
+        rw [← BitVec.add_mul]
+        rw [← hqrn]
+        rw [← BitVec.shiftLeft_eq_mul_twoPow]
+        rw [BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_add_zeroExtend_getLsb, hb]
+      · ext i
+        simp
+        intros i _ hi'
+        omega
   case succ j' ih =>
     simp [divRec]
     simp at hqrn
