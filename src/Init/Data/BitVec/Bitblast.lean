@@ -770,9 +770,6 @@ theorem BitVec.add_mul (x y z : BitVec w) : (y + z) * x = y * x + z * x := by
     rw [BitVec.mul_comm, BitVec.mul_add]
   congr 1 <;> rw [BitVec.mul_comm]
 
-
-
-
 theorem BitVec.add_assoc {x y z : BitVec w} : x + y + z = x + (y + z) := by
   apply eq_of_toNat_eq
   simp[Nat.add_assoc]
@@ -951,16 +948,26 @@ structure ShiftSubtractInput (w wr wn : Nat) (n d: BitVec w)
   extends DivRemInput w wr wn n d : Type where
   hwn_lt : 0 < wn -- we can only call this function legally if we have dividend bits.
 
-/-- In the shift subtract input, we have one more bit to spare,
-so we do not overflow. -/
+
+/--
+In the shift subtract input, we have one more bit to spare,
+so we do not overflow.
+-/
 def ShiftSubtractInput.wr_add_one_le_w
     (h : ShiftSubtractInput w wr wn n d) : wr + 1 ≤ w := by
   have hwrn := h.hwrn
   have hwn_lt := h.hwn_lt
   omega
 
-/-- In the shift subtract input, we have one more bit to spare,
-so we do not overflow. -/
+def ShiftSubtractInput.wr_lt_w
+    (h : ShiftSubtractInput w wr wn n d) : wr < w := by
+  have hwr := h.wr_add_one_le_w
+  omega
+
+/--
+In the shift subtract input, we have one more bit to spare,
+so we do not overflow.
+-/
 def ShiftSubtractInput.wr_le_wr_sub_one
     (h : ShiftSubtractInput w wr wn n d) : wr ≤ w - 1 := by
   have hw := h.hw
@@ -1015,20 +1022,24 @@ theorem concatBit'_lt (x : BitVec w) (b : Bool) :
   (concatBit' x b).toNat < 2 ^ w := (concatBit' x b).isLt
 
 theorem toNat_concatBit'_eq (x : BitVec w) (b : Bool) (k : Nat)
-  (hkw : k < w) (hkx : x.toNat < 2 ^ k) :
+  (hk : k < w) (hx : x.toNat < 2 ^ k) :
     (concatBit' x b).toNat  = x.toNat * 2 + b.toNat:= by
   simp only [concatBit']
   rw [toNat_shiftLeft_or_zeroExtend_ofBool_eq (k := k)]
   · omega
   · omega
 
-#print axioms toNat_concatBit'_eq
+theorem toNat_concatBit'_false_eq (x : BitVec w) (k : Nat)
+  (hk : k < w) (hx : x.toNat < 2 ^ k) :
+    (concatBit' x false).toNat  = x.toNat * 2 := by
+  rw [toNat_concatBit'_eq (k := k) (hk := hk) (hx := hx)]
+  simp
 
 theorem toNat_concatBit'_lt (x : BitVec w) (b : Bool) (k : Nat)
-  (hkw : k < w) (hkx : x.toNat < 2 ^ k) :
+  (hk : k < w) (hx : x.toNat < 2 ^ k) :
     (concatBit' x b).toNat < 2 ^ (k + 1) := by
-  rw [toNat_concatBit'_eq x b k hkw hkx]
-  apply mul_two_add_lt_two_pow_of_lt_two_pow_of_lt_two hkx
+  rw [toNat_concatBit'_eq x b k hk hx]
+  apply mul_two_add_lt_two_pow_of_lt_two_pow_of_lt_two hx
   · rcases b with rfl | rfl <;> decide
   · omega
 
@@ -1103,9 +1114,10 @@ TODO: think of isolating the pattern as `concatBit'`.
 def divSubtractShift (h : ShiftSubtractInput w wr wn n d) :
    DivRemInput w (wr + 1) (wn - 1) n d :=
   let r' := concatBit' h.r h.nmsb
-  let qlo := r' < d
-  let q := h.q.concatBit' qlo
-  if hqlo : qlo then {
+  let rltd : Bool := r' < d
+  let q := h.q.concatBit' !rltd -- if r ≥ d, then we have a quotient bit.
+  if hrltd : rltd
+  then {
     q := q,
     r := r',
     hwr := by
@@ -1121,8 +1133,8 @@ def divSubtractShift (h : ShiftSubtractInput w wr wn n d) :
       omega,
     hd := h.hd,
     hrd := by
-      simp [qlo] at hqlo
-      simp [BitVec.lt_def] at hqlo
+      simp [rltd] at hrltd
+      simp [BitVec.lt_def] at hrltd
       assumption,
     hrwr := by
       simp [r']
@@ -1135,18 +1147,65 @@ def divSubtractShift (h : ShiftSubtractInput w wr wn n d) :
       · exact h.wr_add_one_le_w
       · exact h.hqwr,
     hdiv := by
+      rw [h.toNat_n_shiftr_wl_minus_one_eq_n_shiftr_wl_plus_nmsb]
+      simp only [r']
+      rw [h.hdiv]
+      rw [toNat_concatBit'_eq (x := h.r)
+        (k := wr)
+        (hk := h.wr_lt_w)
+        (hx := h.hrwr)]
+      simp only [q]
+      simp only [hrltd, Bool.not_true]
+      have hq' := toNat_concatBit'_false_eq h.q wr h.wr_lt_w h.hqwr
+      rw [hq']
+      rw [← Nat.mul_assoc]
+      rw [Nat.add_mul]
+      rw [Nat.add_assoc]
+  }
+  else {
+    q := q,
+    r := r',
+    hwr := by
+      have := h.hwr
+      have := h.wr_add_one_le_w
+      omega,
+    hwn := by
+      have := h.hwn
+      omega,
+    hwrn := by
+      have := h.hwrn
+      have := h.wr_add_one_le_w
+      omega,
+    hd := h.hd,
+    hrd := by
+      simp [rltd] at hrltd
+      simp [BitVec.lt_def] at hrltd
+      sorry
+    hrwr := by
       simp [r']
-      sorry -- HERE HERE
-      -- rw [toNat_concatBit'_eq]
-      -- · simp only [hqlo, decide_True, ↓reduceIte]
-        -- sorry
-        -- rw [h.toNat_n_shiftr_wl_minus_one_eq_n_shiftr_wl_plus_nmsb]
-        -- rw [h.hdiv]
-        -- rw [toNat_concatBit'_eq (k := wr)]
-        -- · sorry
-        -- · sorry
-        -- · sorry
-  } else sorry
+      apply toNat_concatBit'_lt
+      · exact h.wr_add_one_le_w
+      · exact h.hrwr,
+    hqwr := by
+      simp [q]
+      apply toNat_concatBit'_lt
+      · exact h.wr_add_one_le_w
+      · exact h.hqwr,
+    hdiv := by
+      rw [h.toNat_n_shiftr_wl_minus_one_eq_n_shiftr_wl_plus_nmsb]
+      simp only [r']
+      rw [h.hdiv]
+      rw [toNat_concatBit'_eq (x := h.r)
+        (k := wr)
+        (hk := h.wr_lt_w)
+        (hx := h.hrwr)]
+      simp only [q]
+      simp only [hrltd, Bool.not_true]
+      have hq' := toNat_concatBit'_false_eq h.q wr h.wr_lt_w h.hqwr
+      rw [Nat.add_mul]
+      rw [Nat.add_assoc]
+      sorry
+  }
 
 /--
 Core divsion recurrence.
