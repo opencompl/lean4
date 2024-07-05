@@ -1413,7 +1413,32 @@ theorem divRec_eq_divRecNonDep  (h h' : DivRemInput w wr wn n d)
         r_divSubtractShift_eq_snd_divSubtractShiftNonDep',
         hh'.1, hh'.2]
 
-  theorem divRecNonDep_correct (n d : BitVec w) (hw : 0 < w) (hd : 0 < d) :
+-- def concatBit' (x : BitVec w) (b : Bool) : BitVec w :=
+--   x <<< 1 ||| (BitVec.ofBool b).zeroExtend w
+
+theorem divSubtractShiftNonDep_fst (n q r d : BitVec w) (wn : Nat) :
+    (divSubtractShiftNonDep n q r d wn).fst =
+      q.concatBit' !decide (r.concatBit' (n.getLsb (wn - 1)) < d) := by
+  simp [divSubtractShiftNonDep]
+  by_cases h : r.concatBit' (n.getLsb (wn - 1)) < d <;>
+    simp [h]
+
+theorem divSubtractShiftNonDep_snd (n q r d : BitVec w) (wn : Nat) :
+    (divSubtractShiftNonDep n q r d wn).snd =
+    if r.concatBit' (n.getLsb (wn - 1)) < d then r.concatBit' (n.getLsb (wn - 1))
+    else r.concatBit' (n.getLsb (wn - 1)) - d := by
+  simp [divSubtractShiftNonDep]
+  by_cases h : r.concatBit' (n.getLsb (wn - 1)) < d <;> simp [h]
+
+theorem divRecNonDep_zero (n q r d : BitVec w) : divRecNondep n q r d 0 = (q, r) := by simp [divRecNondep]
+
+theorem divRecNonDep_succ (n q r d : BitVec w) (wn : Nat) :
+    (divRecNondep n q r d (wn + 1) =
+      divRecNondep n (divSubtractShiftNonDep n q r d (wn + 1)).1
+      (divSubtractShiftNonDep n q r d (wn + 1)).2 d wn) := by
+  simp [divRecNondep, divSubtractShiftNonDep]
+
+theorem divRecNonDep_correct (n d : BitVec w) (hw : 0 < w) (hd : 0 < d) :
     let out := divRecNondep n 0#w 0#w d w
     n.udiv d = out.fst ∧ n.umod d = out.snd := by
   simp
@@ -1429,7 +1454,10 @@ theorem divRec_eq_divRecNonDep  (h h' : DivRemInput w wr wn n d)
   have heq_r : (divRec' (DivRemInput_init w n d hw hd)).r =
       (n.divRecNondep (0#w) (0#w) d w).snd := by
     rw [← heq]
-  rw [heq_q, heq_r]
-  simp
+  simp [heq_q, heq_r]
+/--
+info: 'BitVec.divRecNonDep_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+-/
+#guard_msgs in #print axioms divRecNonDep_correct
 
 end BitVec
