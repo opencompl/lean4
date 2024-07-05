@@ -756,9 +756,6 @@ theorem BitVec.shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
   ext i
   simp
 
-theorem foo (a b : Nat) (hr : r * 2 + 1 < d) : r < (d - 1) / 2 := by
-  sorry
-
 /-- One round of the division algorithm, that tries to perform a subtract shift. -/
 def tryDivSubtractShift (qr : DivRecQuotRem w n d) (ix : Nat) : DivRecQuotRem w n d :=
   let r' := (qr.r <<< 1) ||| (BitVec.ofBool (n.getLsb ix)).zeroExtend w
@@ -979,16 +976,20 @@ private theorem BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_add_zeroExtend_getL
   rw [BitVec.add_eq_or_of_and_eq_zero]
   · apply BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_or_zeroExtend_getLsb
   · ext i
-    simp
+    simp only [getLsb_and, getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and,
+      getLsb_ushiftRight, getLsb_zeroExtend, getLsb_ofBool, getLsb_zero, and_eq_false_imp,
+      and_eq_true, not_eq_true', decide_eq_false_iff_not, Nat.not_lt, decide_eq_true_eq, and_imp]
     intros i _ hi'
     omega
 
 theorem BitVec.add_assoc {x y z : BitVec w} : x + y + z = x + (y + z) := by
   apply eq_of_toNat_eq
-  simp
-  rw [Nat.add_assoc]
+  simp[Nat.add_assoc]
 
-theorem BitVec.add_sub_assoc  {m k : BitVec w} (h : k ≤ m) (n : BitVec w) : n + m - k = n + (m - k) := sorry
+theorem BitVec.add_sub_assoc  {m k : BitVec w} (h : k ≤ m) (n : BitVec w) :
+    n + m - k = n + (m - k) := by
+  apply BitVec.eq_of_toNat_eq
+  simp only [toNat_sub, toNat_add, mod_add_mod, add_mod_mod, Nat.add_assoc]
 
 /--
 Bitwise or of (x <<< 1) with 1 is the same as addition.
@@ -1021,64 +1022,100 @@ theorem BitVec.add_sub_self_right {x y : BitVec w} : x + y - y = x := by
 theorem BitVec.le_of_not_lt {x y : BitVec w} : ¬ x < y → y ≤ x := by
   simp [BitVec.lt_def, BitVec.le_def]
 
-theorem divRec_correct {w : Nat} {n d : BitVec w} {qr : DivRecQuotRem w n d} {j : Nat} (hj : j ≤ w - 1)
+-- theorem div_iff_add_mod_of_lt {d n q r : BitVec w} (hd : 0 < d)
+--     (hrd : r < d)
+--     (hlt : d.toNat * q.toNat + r.toNat < 2^w) :
+--     (n.udiv d = q ∧ n.umod d = r) ↔ (d * q + r = n) := by
+
+theorem divRec_correct {w : Nat} {n d : BitVec w} {qr : DivRecQuotRem w n d} {j : Nat}
+    (hj : j ≤ w - 1)
     (hqrd : qr.r < d)
-    (hrn : qr.r < n >>> (j + 1))
-    (hqrn : n >>> (w - j) == qr.q * d + qr.r) :
-    n >>> ((w - 1) - j) == (divRec qr j).q * d + (divRec qr j).r := by
+    (hrn : qr.r < d)
+    (hqrn : n >>> (w - j) = qr.q * d + qr.r) :
+    ((n >>> ((w - 1) - j) = (divRec qr j).q * d + (divRec qr j).r)) ∧
+    (d.toNat * (divRec qr j).q.toNat + (divRec qr j).r.toNat < 2^w) ∧
+    (divRec qr j).r < d := by
   induction j generalizing qr
   case zero =>
-    simp [divRec]
-    simp at hqrn
-    simp [tryDivSubtractShift_eq_tryDivSubtractShift']
-    simp [tryDivSubtractShift']
-    generalize hb : n.getLsb (w - 1) = b
-    generalize hs : qr.r <<< 1 ||| zeroExtend w (ofBool b) = s
-    have qd : qr.q <<< 1 * d = (qr.q * d) <<< 1 := by
-      rw [BitVec.shiftLeft_mul_comm]
-      rw [BitVec.shiftLeft_mul_assoc]
-    by_cases hslt : s < d -- Note that the proof is identical on both sides of the case split.
-    · simp [hslt]
-      rw [← hs]
-      rw [qd]
-      rw [BitVec.shiftLeft_eq_mul_twoPow]
-      rw [BitVec.shiftLeft_eq_mul_twoPow]
-      rw [← add_eq_or_of_and_eq_zero]
-      · rw [← BitVec.add_assoc]
-        rw [← BitVec.add_mul]
-        rw [← hqrn]
-        rw [← BitVec.shiftLeft_eq_mul_twoPow]
-        rw [BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_add_zeroExtend_getLsb, hb]
-      · ext i
-        simp
-        intros i _ hi'
-        omega
-    · simp [hslt]
-      rw [BitVec.shiftLeft_one_or_one_eq_shiftLeft_one_add_one]
-      rw [BitVec.add_mul]
-      simp only [BitVec.one_mul]
-      rw [BitVec.add_assoc]
-      rw [← BitVec.add_sub_assoc (by simp [hslt])]
-      rw [BitVec.add_sub_self_left]
-      rw [← hs]
-      rw [qd]
-      rw [BitVec.shiftLeft_eq_mul_twoPow]
-      rw [BitVec.shiftLeft_eq_mul_twoPow]
-      rw [← add_eq_or_of_and_eq_zero]
-      · rw [← BitVec.add_assoc]
-        rw [← BitVec.add_mul]
-        rw [← hqrn]
-        rw [← BitVec.shiftLeft_eq_mul_twoPow]
-        rw [BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_add_zeroExtend_getLsb, hb]
-      · ext i
-        simp
-        intros i _ hi'
-        omega
+    constructor
+    · simp [divRec]
+      simp at hqrn
+      simp [tryDivSubtractShift_eq_tryDivSubtractShift']
+      simp [tryDivSubtractShift']
+      generalize hb : n.getLsb (w - 1) = b
+      generalize hs : qr.r <<< 1 ||| zeroExtend w (ofBool b) = s
+      have qd : qr.q <<< 1 * d = (qr.q * d) <<< 1 := by
+        rw [BitVec.shiftLeft_mul_comm]
+        rw [BitVec.shiftLeft_mul_assoc]
+      by_cases hslt : s < d -- Note that the proof is identical on both sides of the case split.
+      · simp [hslt]
+        rw [← hs]
+        rw [qd]
+        rw [BitVec.shiftLeft_eq_mul_twoPow]
+        rw [BitVec.shiftLeft_eq_mul_twoPow]
+        rw [← add_eq_or_of_and_eq_zero]
+        · rw [← BitVec.add_assoc]
+          rw [← BitVec.add_mul]
+          rw [← hqrn]
+          rw [← BitVec.shiftLeft_eq_mul_twoPow]
+          rw [BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_add_zeroExtend_getLsb, hb]
+        · ext i
+          simp
+          intros i _ hi'
+          omega
+      · simp [hslt]
+        rw [BitVec.shiftLeft_one_or_one_eq_shiftLeft_one_add_one]
+        rw [BitVec.add_mul]
+        simp only [BitVec.one_mul]
+        rw [BitVec.add_assoc]
+        rw [← BitVec.add_sub_assoc (by simp [hslt])]
+        rw [BitVec.add_sub_self_left]
+        rw [← hs]
+        rw [qd]
+        rw [BitVec.shiftLeft_eq_mul_twoPow]
+        rw [BitVec.shiftLeft_eq_mul_twoPow]
+        rw [← add_eq_or_of_and_eq_zero]
+        · rw [← BitVec.add_assoc]
+          rw [← BitVec.add_mul]
+          rw [← hqrn]
+          rw [← BitVec.shiftLeft_eq_mul_twoPow]
+          rw [BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_add_zeroExtend_getLsb, hb]
+        · ext i
+          simp
+          intros i _ hi'
+          omega
+    · constructor
+      · simp [divRec]
+        simp at hqrn
+        sorry
+      · -- r < d
+        simp [divRec]
+        apply tryDivSubtractShift_lt_of_lt
+        apply hqrd
+        sorry
   case succ j' ih =>
-    simp [divRec]
-    simp at hqrn
-    simp [tryDivSubtractShift_eq_tryDivSubtractShift']
     sorry
+
+
+theorem div_eq_divRec (n d : BitVec w) (hd : d > 0) :
+    n.udiv d = (divRec (w := w) (n := n) (d := d) { r := 0, q := 0 } (w - 1)).q ∧
+    n.umod d = (divRec (w := w) (n := n) (d := d) { r := 0, q := 0 } (w - 1)).r := by
+  obtain ⟨h₁, h₂, h₃⟩ := divRec_correct (w := w) (n := n) (d := d) (j := w - 1) (qr := { r := 0, q := 0})
+    (by omega)
+    (by simpa using hd)
+    (by simpa using hd)
+    (by sorry)
+  simp at h₃
+  simp at h₂
+  simp at h₁
+  have k := div_characterized_of_mul_add_of_lt (d := d) (n := n)
+    (q := (divRec (w := w) (n := n) (d := d) { r := 0, q := 0 } (w - 1)).q)
+    (r := (divRec (w := w) (n := n) (d := d) { r := 0, q := 0 } (w - 1)).r)
+    hd
+    h₃
+    (by rw [BitVec.mul_comm]; simp_all)
+    (by simp_all)
+  simp [k]
 
 def checkDivRec : Bool × Array String := Id.run do
   let w := 4
@@ -1093,7 +1130,6 @@ def checkDivRec : Bool × Array String := Id.run do
         outputs := outputs.push s!"ERROR: n = {n}, d = {d}, q = {qr.q}, r = {qr.r}, n = {n}, d = {d}, q = {qr.q}, r = {qr.r}"
         wrong := true
   (wrong, outputs)
-
 
 /-- info: (false, { data := [] }) -/
 #guard_msgs in #reduce checkDivRec
