@@ -958,6 +958,16 @@ def DivRemInput_init (w : Nat) (n d : BitVec w) (hw : 0 < w) (hd : 0#w < d) :
     apply Nat.div_eq_of_lt n.isLt
 }
 
+@[simp]
+theorem DivRemInput_init_q (w : Nat) (n d : BitVec w) (hw : 0 < w) (hd : 0#w < d) :
+    (DivRemInput_init w n d hw hd).q = 0#w := by
+  rfl
+
+@[simp]
+theorem DivRemInput_init_r (w : Nat) (n d : BitVec w) (hw : 0 < w) (hd : 0#w < d) :
+    (DivRemInput_init w n d hw hd).r = 0#w := by
+  rfl
+
 theorem DivRemInput_implies_udiv_urem
   (h : DivRemInput w w 0 n d) :
     n.udiv d = h.q ∧ n.umod d = h.r := by
@@ -1134,9 +1144,6 @@ theorem ShiftSubtractInput.toNat_n_shiftr_wl_minus_one_eq_n_shiftr_wl_plus_nmsb
 One round of the division algorithm, that tries to perform a subtract shift.
 Note that this is only called when `r.msb = false`, so we will not overflow.
 This means that `r'.toNat = r.toNat *2 + q.toNat`
-.
-
-TODO: think of isolating the pattern as `concatBit'`.
 -/
 def divSubtractShift (h : ShiftSubtractInput w wr wn n d) :
    DivRemInput w (wr + 1) (wn - 1) n d :=
@@ -1325,5 +1332,104 @@ theorem divRec'_correct (n d : BitVec w) (hw : 0 < w) (hd : 0 < d) :
     n.udiv d = out.q ∧ n.umod d = out.r := by
   simp
   apply DivRemInput_implies_udiv_urem
+
+def divSubtractShiftNonDep (n q r d : BitVec w) (wn : Nat) : BitVec w × BitVec w :=
+  let r' := concatBit' r (n.getLsb (wn - 1))
+  let rltd : Bool := r' < d
+  let q := q.concatBit' !rltd
+  if rltd
+  then (q, r')
+  else (q, r' - d)
+
+@[simp]
+theorem DivRemInput.toShiftSubtractInput_r_eq_r
+    (h : DivRemInput w wr (wn + 1) n d) :
+    (h.toShiftSubtractInput).r = h.r := by
+  simp [toShiftSubtractInput]
+
+@[simp]
+theorem DivRemInput.toShiftSubtractInput_q_eq_q
+    (h : DivRemInput w wr (wn + 1) n d) :
+    (h.toShiftSubtractInput).q = h.q := by
+  simp only [toShiftSubtractInput]
+
+theorem divSubtractShift_eq_divSubtractShiftNonDep
+    (h : ShiftSubtractInput w wr wn n d) :
+    ((divSubtractShift h).q, (divSubtractShift h).r) = divSubtractShiftNonDep n h.q h.r d wn := by
+  simp [divSubtractShift, divSubtractShiftNonDep, ShiftSubtractInput.nmsb]
+  by_cases h : h.r.concatBit' (n.getLsb (wn - 1)) < d <;>
+    simp only [h, ↓reduceDite, decide_True, Bool.not_true, ↓reduceIte]
+
+@[simp]
+theorem q_divSubtractShift_eq_fst_divSubtractShiftNonDep'
+    (h : DivRemInput w wr (wn + 1) n d) :
+    (divSubtractShift h.toShiftSubtractInput).q  =
+    (divSubtractShiftNonDep n h.q h.r d (wn + 1)).fst := by
+  simp [divSubtractShift,
+    divSubtractShiftNonDep,
+    ShiftSubtractInput.nmsb]
+  by_cases cond : h.r.concatBit' (n.getLsb wn) < d <;>
+    simp only [cond, ↓reduceDite, decide_True, Bool.not_true, ↓reduceIte]
+
+@[simp]
+theorem r_divSubtractShift_eq_snd_divSubtractShiftNonDep'
+    (h : DivRemInput w wr (wn + 1) n d) :
+    (divSubtractShift h.toShiftSubtractInput).r =
+    (divSubtractShiftNonDep n h.q h.r d (wn + 1)).snd := by
+  simp [divSubtractShift,
+    divSubtractShiftNonDep,
+    ShiftSubtractInput.nmsb]
+  by_cases cond : h.r.concatBit' (n.getLsb wn) < d <;>
+    simp only [cond, ↓reduceDite, decide_True, Bool.not_true, ↓reduceIte]
+
+theorem divSubtractShift_eq_divSubtractShiftNonDep'
+    (h : DivRemInput w wr (wn + 1) n d) :
+    ((divSubtractShift h.toShiftSubtractInput).q, (divSubtractShift h.toShiftSubtractInput).r) =
+    divSubtractShiftNonDep n h.q h.r d (wn + 1) := by
+  simp [divSubtractShift, divSubtractShiftNonDep, ShiftSubtractInput.nmsb]
+  by_cases h : h.r.concatBit' (n.getLsb wn)  < d <;>
+    simp only [h, ↓reduceDite, decide_True, Bool.not_true, ↓reduceIte]
+
+def divRecNondep (n q r d : BitVec w) (wn : Nat) :
+    BitVec w × BitVec w :=
+  match wn with
+  | 0 => (q, r)
+  | wn + 1 =>
+    let (q', r') := divSubtractShiftNonDep n q r d (wn + 1)
+    divRecNondep n q' r' d wn
+
+theorem divRec_eq_divRecNonDep  (h h' : DivRemInput w wr wn n d)
+    (hh' : h.q = h'.q ∧ h.r = h'.r):
+    ((divRec' h).q, (divRec' h).r) = divRecNondep n h'.q h'.r d wn := by
+  induction wn generalizing w wr n d
+  case zero =>
+    simp [divRec', divRecNondep, DivRemInput.wr_eq_w_of_wn_eq_zero]
+    simp [hh'.1, hh'.2]
+  case succ wn ih =>
+    simp [divRecNondep, divRec']
+    rw[← divSubtractShift_eq_divSubtractShiftNonDep']
+    apply ih <;>
+      simp [q_divSubtractShift_eq_fst_divSubtractShiftNonDep',
+        r_divSubtractShift_eq_snd_divSubtractShiftNonDep',
+        hh'.1, hh'.2]
+
+  theorem divRecNonDep_correct (n d : BitVec w) (hw : 0 < w) (hd : 0 < d) :
+    let out := divRecNondep n 0#w 0#w d w
+    n.udiv d = out.fst ∧ n.umod d = out.snd := by
+  simp
+  have heq := divRec_eq_divRecNonDep (DivRemInput_init w n d hw hd) (DivRemInput_init w n d hw hd)
+    (by simp)
+  simp at heq
+  have hcorrect := divRec'_correct n d hw hd
+  obtain ⟨hqcorrect, hrcorrect⟩ := hcorrect
+  rw [hqcorrect, hrcorrect]
+  have heq_q : (divRec' (DivRemInput_init w n d hw hd)).q =
+      (n.divRecNondep (0#w) (0#w) d w).fst := by
+    rw [← heq]
+  have heq_r : (divRec' (DivRemInput_init w n d hw hd)).r =
+      (n.divRecNondep (0#w) (0#w) d w).snd := by
+    rw [← heq]
+  rw [heq_q, heq_r]
+  simp
 
 end BitVec
