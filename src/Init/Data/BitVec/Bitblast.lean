@@ -835,180 +835,6 @@ theorem BitVec.toNat_shiftLeft_one_eq_mul_two_of_lt
   simp only [toNat_shiftLeft]
   rw [Nat.shiftLeft_eq, Nat.mod_eq_of_lt (by omega)]
 
-structure DivRemInput (w wr wn : Nat)
-    (n : BitVec w)
-    (d : BitVec w)
-    (q r : BitVec w) : Type where
-  hwr : wr ≤ w
-  hwn : wn ≤ w
-  hwrn : wr + wn = w
-  hd : 0 < d
-  hrd : r.toNat < d.toNat
-  hrwr : r.toNat < 2^wr
-  hqwr : q.toNat < 2^wr
-  hdiv : (n >>> wn).toNat = d.toNat * q.toNat + r.toNat
-
-/-- In a valid DivRemInput, it is implied that `w > 0`. -/
-def DivRemInput.hw (h : DivRemInput w wr wn n d q r) : 0 < w := by
-  have hd := h.hd
-  rcases w with rfl | w
-  · have hcontra : d = 0#0 := by apply Subsingleton.elim
-    rw [hcontra] at hd
-    simp at hd
-  · omega
-
-/--
-Make an initial state of the DivRemInput, for a given choice of
-`n, d, q, r`. -/
-def DivRemInput_init (w : Nat) (n d : BitVec w) (hw : 0 < w) (hd : 0#w < d) :
-    DivRemInput w 0 w n d 0#w 0#w := {
-  hwr := by omega,
-  hwn := by omega,
-  hwrn := by omega,
-  hd := by assumption
-  hrd := by simp [BitVec.lt_def] at hd ⊢; assumption
-  hrwr := by simp,
-  hqwr := by simp,
-  hdiv := by
-    simp;
-    rw [Nat.shiftRight_eq_div_pow]
-    apply Nat.div_eq_of_lt n.isLt
-}
-
-theorem DivRemInput_implies_udiv_urem
-  (h : DivRemInput w w 0 n d q r) :
-    n.udiv d = q ∧ n.umod d = r := by
-  apply div_characterized_of_mul_add_toNat
-    (n := n) (d := d) (q := q) (r := r)
-    (h.hd)
-    (h.hrd)
-    (by
-      have hdiv := h.hdiv
-      simp at hdiv
-      omega
-    )
-
-structure ShiftSubtractInput (w wr wn : Nat) (n d q r : BitVec w)
-  extends DivRemInput w wr wn n d q r : Type where
-  hwn_lt : 0 < wn -- we can only call this function legally if we have dividend bits.
-
-/-- In the shift subtract input, we have one more bit to spare,
-so we do not overflow. -/
-def ShiftSubtractInput.wr_add_one_le_w
-    (h : ShiftSubtractInput w wr wn n d q r) : wr + 1 ≤ w := by
-  have hwrn := h.hwrn
-  have hwn_lt := h.hwn_lt
-  omega
-
-/-- In the shift subtract input, we have one more bit to spare,
-so we do not overflow. -/
-def ShiftSubtractInput.wr_le_wr_sub_one
-    (h : ShiftSubtractInput w wr wn n d q r) : wr ≤ w - 1 := by
-  have hw := h.hw
-  have hwrn := h.hwrn
-  have hwn_lt := h.hwn_lt
-  omega
-
-/-- If we have extra bits to spare in `n`,
-then the div rem input can be converted into a shift subtract input
-to run a round of the shift subtracter. -/
-def DivRemInput.toShiftSubtractInput
-    (h : DivRemInput w wr (wn + 1) n d q r) :
-  ShiftSubtractInput w wr (wn + 1) n d q r := {
-    hwr := h.hwr,
-    hwn := h.hwn,
-    hwrn := by have := h.hwrn; omega,
-    hd := h.hd,
-    hrd := h.hrd,
-    hrwr := h.hrwr,
-    hqwr := h.hqwr,
-    hdiv := h.hdiv,
-    hwn_lt := by omega
-  }
-
-def ShiftSubtractInput.nmsb (_ : ShiftSubtractInput w wr wn n d q r) :
-    BitVec 1 :=
-  BitVec.ofBool <| n.getMsb wn
-
-def DivRemInput.wr_eq_w_of_wn_eq_zero
-    (h : DivRemInput w wr 0 n d q r) : DivRemInput w w 0 n d q r :=
-  {
-    hwr := by have := h.hwr; omega,
-    hwn := h.hwn,
-    hwrn := by have := h.hwrn; omega,
-    hd := h.hd,
-    hrd := h.hrd,
-    hrwr := by have := h.hrwr; omega,
-    hqwr := by have := h.hqwr; omega,
-    hdiv := h.hdiv
-  }
-
-
-/- # Division Recurrence for Bitblasting (V2 )-/
-
-/--
-One round of the division algorithm, that tries to perform a subtract shift.
-Note that this is only called when `r.msb = false`, so we will not overflow.
-This means that `r'.toNat = r.toNat *2 + q.toNat`
-.
--/
-def divSubtractShift (h : ShiftSubtractInput w wr wn n d q r) :
-   DivRemInput w (wr + 1) (wn - 1) n d q r :=
-  let r' := (r <<< 1) ||| (h.nmsb).zeroExtend w
-  let q := r' < d
-  ⟨if q then r' - d else r', BitVec.ofBool q⟩
-
-/--
-Core divsion recurrence.
-We have three widths at play:
-- w, the total bitwidth
-- wr, the effective bitwidth of the reminder
-- wn, the effective bitwidth of the dividend.
-- We have the invariant that wn + wr = w.
-
-See that when it is called, we will know that :
-  - r < [2^wr = 2^(w - wn)]
-    which allows us to safely shift left, since it is of length n.
-    In particular, since 'wn' decreases in the course of the recursion,
-    will will allow larger and larger values, and at the step where 'wn = 0',
-    we will have `r < 2^w`, which is no longer sufficient to allow for a shift left.
-    Thus, at this step, we will stop and return a full remainder.
-    So, the remainder is morally of length `w - wn`.
-  - d > 0
-  - r < d
-  - n.toNat >>> wr =
--/
-def divRec' (h : DivRemInput w wr wn n d q r) :
-    DivRemOutput w n d :=
-  match wn with
-  | 0 => h.wr_eq_w_of_wn_eq_zero
-  | _ + 1 =>
-    let new := divSubtractShift h.toShiftSubtractInput
-    divRec' new
-
-def checkDivRec' : Bool × Option (BitVec 4 × BitVec 4 × BitVec 4 × BitVec 4) := Id.run do
-  let w := 4
-  let max := (Nat.pow 2 w)
-  let mut outputs := .none
-  let mut wrong := false
-  for n in (List.range max) do
-    for d in (List.range (max - 1)).map (fun n => Nat.add n 1) do
-      have hd : d > 0 := by sorry
-      have hd' : d < 2 ^ w := by sorry
-      let init := DivRemInput_init w (BitVec.ofNat w n) (BitVec.ofNat w d)
-        (by omega)
-        (by simp; rw [Nat.mod_eq_of_lt]; omega; omega)
-      let qr := divRec' init
-      if qr.q != n then
-        wrong := true
-        outputs := .some (n, d, qr.2, qr.1)
-  (wrong, outputs)
-
-/-- info: (false, none) -/
-#guard_msgs in #reduce checkDivRec'
-
-/- # Tons of helper lemmas about the behaviour of divRec -/
-
 /--
 The arithmetic version of:
 If `n : Bitvec w` has only the low `k < w` bits set,
@@ -1028,17 +854,12 @@ theorem mul_two_add_lt_two_pow_of_lt_two_pow_of_lt_two
   have : n * 2 + b < 2^w := by omega
   assumption
 
--- 0 a | a < 2
--- a b -- 2a + b < 4
--- k < w + 1
--- 2^k ≤ 2^w
--- x ≤ 2^w
--- x * w ≤ 2^w + 1
 /--
-the LHS of the condition of divSubtractShift,
-written as an arithmetic inequality.
+If `n : Bitvec w` has only the low `k < w` bits set,
+then `(n <<< 1 | b)` does not overflow, and we can compute its value
+as a multiply and add.
 -/
-theorem divSubtractShift_toNat_cond_lhs (w : Nat)
+theorem toNat_shiftLeft_or_zeroExtend_ofBool_eq (w : Nat)
     (r : BitVec w)
     (b : Bool)
     (hk : k < w)
@@ -1065,6 +886,295 @@ theorem divSubtractShift_toNat_cond_lhs (w : Nat)
         decide_eq_false_iff_not, Nat.not_lt, decide_eq_true_eq, and_imp]
       intros hi _ hi'
       omega
+
+
+/- # DivRem, V3 -/
+structure DivRemInput (w wr wn : Nat)
+    (n : BitVec w)
+    (d : BitVec w) : Type where
+  q : BitVec w
+  r : BitVec w
+  hwr : wr ≤ w
+  hwn : wn ≤ w
+  hwrn : wr + wn = w
+  hd : 0 < d
+  hrd : r.toNat < d.toNat
+  hrwr : r.toNat < 2^wr
+  hqwr : q.toNat < 2^wr
+  hdiv : (n >>> wn).toNat = d.toNat * q.toNat + r.toNat
+
+/-- In a valid DivRemInput, it is implied that `w > 0`. -/
+def DivRemInput.hw (h : DivRemInput w wr wn n d) : 0 < w := by
+  have hd := h.hd
+  rcases w with rfl | w
+  · have hcontra : d = 0#0 := by apply Subsingleton.elim
+    rw [hcontra] at hd
+    simp at hd
+  · omega
+
+/--
+Make an initial state of the DivRemInput, for a given choice of
+`n, d, q, r`. -/
+def DivRemInput_init (w : Nat) (n d : BitVec w) (hw : 0 < w) (hd : 0#w < d) :
+    DivRemInput w 0 w n d:= {
+  q := 0#w
+  r := 0#w
+  hwr := by omega,
+  hwn := by omega,
+  hwrn := by omega,
+  hd := by assumption
+  hrd := by simp [BitVec.lt_def] at hd ⊢; assumption
+  hrwr := by simp,
+  hqwr := by simp,
+  hdiv := by
+    simp;
+    rw [Nat.shiftRight_eq_div_pow]
+    apply Nat.div_eq_of_lt n.isLt
+}
+
+theorem DivRemInput_implies_udiv_urem
+  (h : DivRemInput w w 0 n d) :
+    n.udiv d = h.q ∧ n.umod d = h.r := by
+  apply div_characterized_of_mul_add_toNat
+    (n := n) (d := d) (q := h.q) (r := h.r)
+    (h.hd)
+    (h.hrd)
+    (by
+      have hdiv := h.hdiv
+      simp at hdiv
+      omega
+    )
+
+structure ShiftSubtractInput (w wr wn : Nat) (n d: BitVec w)
+  extends DivRemInput w wr wn n d : Type where
+  hwn_lt : 0 < wn -- we can only call this function legally if we have dividend bits.
+
+/-- In the shift subtract input, we have one more bit to spare,
+so we do not overflow. -/
+def ShiftSubtractInput.wr_add_one_le_w
+    (h : ShiftSubtractInput w wr wn n d) : wr + 1 ≤ w := by
+  have hwrn := h.hwrn
+  have hwn_lt := h.hwn_lt
+  omega
+
+/-- In the shift subtract input, we have one more bit to spare,
+so we do not overflow. -/
+def ShiftSubtractInput.wr_le_wr_sub_one
+    (h : ShiftSubtractInput w wr wn n d) : wr ≤ w - 1 := by
+  have hw := h.hw
+  have hwrn := h.hwrn
+  have hwn_lt := h.hwn_lt
+  omega
+
+/-- If we have extra bits to spare in `n`,
+then the div rem input can be converted into a shift subtract input
+to run a round of the shift subtracter. -/
+def DivRemInput.toShiftSubtractInput
+    (h : DivRemInput w wr (wn + 1) n d) :
+  ShiftSubtractInput w wr (wn + 1) n d := {
+    q := h.q,
+    r := h.r
+    hwr := h.hwr,
+    hwn := h.hwn,
+    hwrn := by have := h.hwrn; omega,
+    hd := h.hd,
+    hrd := h.hrd,
+    hrwr := h.hrwr,
+    hqwr := h.hqwr,
+    hdiv := h.hdiv,
+    hwn_lt := by omega
+  }
+
+def ShiftSubtractInput.nmsb (_ : ShiftSubtractInput w wr wn n d) :
+    Bool := n.getLsb (wn - 1)
+
+def DivRemInput.wr_eq_w_of_wn_eq_zero
+    (h : DivRemInput w wr 0 n d) : DivRemInput w w 0 n d :=
+  {
+    q := h.q,
+    r := h.r,
+    hwr := by have := h.hwr; omega,
+    hwn := h.hwn,
+    hwrn := by have := h.hwrn; omega,
+    hd := h.hd,
+    hrd := h.hrd,
+    hrwr := by have := h.hrwr; omega,
+    hqwr := by have := h.hqwr; omega,
+    hdiv := h.hdiv
+  }
+
+
+/- # Division Recurrence for Bitblasting (V2 )-/
+
+def concatBit' (x : BitVec w) (b : Bool) : BitVec w :=
+  x <<< 1 ||| (BitVec.ofBool b).zeroExtend w
+
+theorem concatBit'_lt (x : BitVec w) (b : Bool) :
+  (concatBit' x b).toNat < 2 ^ w := (concatBit' x b).isLt
+
+theorem toNat_concatBit'_eq (x : BitVec w) (b : Bool) {k : Nat}
+  (hkw : k < w) (hkx : x.toNat < 2 ^ k) :
+    (concatBit' x b).toNat  = x.toNat * 2 + (if b then 1 else 0) := by
+  simp only [concatBit']
+  rw [toNat_shiftLeft_or_zeroExtend_ofBool_eq (k := k)]
+  · omega
+  · omega
+
+#print axioms toNat_concatBit'_eq
+
+theorem toNat_concatBit'_lt (x : BitVec w) (b : Bool) {k : Nat}
+  (hkw : k < w) (hkx : x.toNat < 2 ^ k) :
+    (concatBit' x b).toNat < 2 ^ (k + 1) := by
+  rw [toNat_concatBit'_eq x b hkw hkx]
+  apply mul_two_add_lt_two_pow_of_lt_two_pow_of_lt_two hkx
+  · rcases b with rfl | rfl <;> decide
+  · omega
+
+private theorem BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_or_zeroExtend_getLsb
+    {x : BitVec w} {k : Nat} (hk' : 0 < k) :
+    x >>> (k - 1) = ((x >>> k <<< 1) ||| ((BitVec.ofBool (x.getLsb (k - 1))).zeroExtend w)) := by
+  ext i
+  simp only [getLsb_ushiftRight, getLsb_or, getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and,
+    getLsb_zeroExtend, getLsb_ofBool]
+  by_cases (i : Nat) < 1
+  case pos h =>
+    simp only [h, decide_True, Bool.not_true, Bool.false_and]
+    have hi : (i : Nat) = 0 := by omega
+    simp [hi]
+  case neg h =>
+    simp only [h, decide_False, Bool.not_false, Bool.true_and]
+    have hi : (i : Nat) ≠ 0 := by omega
+    simp only [hi, decide_False, Bool.false_and, Bool.or_false]
+    congr 1
+    omega
+
+theorem ShiftSubtractInput.n_shiftr_wl_minus_one_eq_n_shiftr_wl_or_nmsb
+    (h : ShiftSubtractInput w wr wn n d) :
+    n >>> (wn - 1) = (n >>> wn).concatBit' (ShiftSubtractInput.nmsb h) := by
+  rw [concatBit']
+  rw [ShiftSubtractInput.nmsb]
+  rw [BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_or_zeroExtend_getLsb]
+  have hwn_lt := h.hwn_lt
+  omega
+
+theorem ShiftSubtractInput.toNat_n_shiftr_wl_minus_one_eq_n_shiftr_wl_plus_nmsb
+    (h : ShiftSubtractInput w wr wn n d) {k : Nat} :
+    n.toNat >>> (wn - 1) = (n.toNat >>> wn) * 2 + if (n.getMsb wn) then 1 else 0 := by
+  have hn := ShiftSubtractInput.n_shiftr_wl_minus_one_eq_n_shiftr_wl_or_nmsb h
+  obtain hn : (n >>> (wn - 1)).toNat = ((n >>> wn).concatBit' h.nmsb).toNat := by
+    simp [hn]
+  simp at hn
+  rw [toNat_concatBit'_eq] at hn
+  repeat sorry
+  -- rw [BitVec.toNat_shiftRight]
+
+/--
+One round of the division algorithm, that tries to perform a subtract shift.
+Note that this is only called when `r.msb = false`, so we will not overflow.
+This means that `r'.toNat = r.toNat *2 + q.toNat`
+.
+
+TODO: think of isolating the pattern as `concatBit'`.
+-/
+def divSubtractShift (h : ShiftSubtractInput w wr wn n d) :
+   DivRemInput w (wr + 1) (wn - 1) n d :=
+  let r' := concatBit' h.r h.nmsb
+  let qlo := r' < d
+  let q := h.q.concatBit' qlo
+  if hqlo : qlo then {
+    q := q,
+    r := r',
+    hwr := by
+      have := h.hwr
+      have := h.wr_add_one_le_w
+      omega,
+    hwn := by
+      have := h.hwn
+      omega,
+    hwrn := by
+      have := h.hwrn
+      have := h.wr_add_one_le_w
+      omega,
+    hd := h.hd,
+    hrd := by
+      simp [qlo] at hqlo
+      simp [BitVec.lt_def] at hqlo
+      assumption,
+    hrwr := by
+      simp [r']
+      apply toNat_concatBit'_lt
+      · exact h.wr_add_one_le_w
+      · exact h.hrwr,
+    hqwr := by
+      simp [q]
+      apply toNat_concatBit'_lt
+      · exact h.wr_add_one_le_w
+      · exact h.hqwr,
+    hdiv := by
+      simp [r']
+      rw [toNat_concatBit'_eq]
+      · simp only [hqlo, decide_True, ↓reduceIte]
+        sorry
+      repeat sorry -- HERE
+  } else sorry
+
+/--
+Core divsion recurrence.
+We have three widths at play:
+- w, the total bitwidth
+- wr, the effective bitwidth of the reminder
+- wn, the effective bitwidth of the dividend.
+- We have the invariant that wn + wr = w.
+
+See that when it is called, we will know that :
+  - r < [2^wr = 2^(w - wn)]
+    which allows us to safely shift left, since it is of length n.
+    In particular, since 'wn' decreases in the course of the recursion,
+    will will allow larger and larger values, and at the step where 'wn = 0',
+    we will have `r < 2^w`, which is no longer sufficient to allow for a shift left.
+    Thus, at this step, we will stop and return a full remainder.
+    So, the remainder is morally of length `w - wn`.
+  - d > 0
+  - r < d
+  - n.toNat >>> wr =
+-/
+def divRec' (h : DivRemInput w wr wn n d) :
+    DivRemInput w w 0 n d :=
+  match wn with
+  | 0 => h.wr_eq_w_of_wn_eq_zero
+  | _ + 1 =>
+    let new := divSubtractShift h.toShiftSubtractInput
+    divRec' new
+
+theorem divRec'_correct (n d : BitVec w) (hw : 0 < w) (hd : 0 < d) :
+    let out := divRec' (DivRemInput_init w n d hw hd)
+    n.udiv d = out.q ∧ n.umod d = out.r := by
+  simp
+  apply DivRemInput_implies_udiv_urem
+
+def checkDivRec' : Bool × Option (BitVec 4 × BitVec 4 × BitVec 4 × BitVec 4) := Id.run do
+  let w := 4
+  let max := (Nat.pow 2 w)
+  let mut outputs := .none
+  let mut wrong := false
+  for n in (List.range max) do
+    for d in (List.range (max - 1)).map (fun n => Nat.add n 1) do
+      have hd : d > 0 := by sorry
+      have hd' : d < 2 ^ w := by sorry
+      let init := DivRemInput_init w (BitVec.ofNat w n) (BitVec.ofNat w d)
+        (by omega)
+        (by simp; rw [Nat.mod_eq_of_lt]; omega; omega)
+      let qr := divRec' init
+      if qr.q != n then
+        wrong := true
+        outputs := .some (n, d, qr.2, qr.1)
+  (wrong, outputs)
+
+-- /-- info: (false, none) -/
+-- #guard_msgs in #reduce checkDivRec'
+
+/- # Tons of helper lemmas about the behaviour of divRec -/
+
 
 /--
 the condition of divSubtractShift is true iff
