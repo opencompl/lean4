@@ -852,6 +852,33 @@ theorem mul_two_add_lt_two_pow_of_lt_two_pow_of_lt_two
   assumption
 
 /--
+This is used when proving the correctness of the divison algorithm,
+where we know that `r < d`.
+We then want to show that `r <<< 1 | b - d < d` as the loop invariant.
+In arithmethic, this is the same as showing that
+`r * 2 + 1 - d < d`, which this theorem establishes.
+-/
+theorem two_mul_add_sub_lt_of_lt_of_lt_two -- HERE HERE
+  (h : a < x) (hy : y < 2):
+  2 * a + y - x < x := by omega
+
+/--
+Variant of `BitVec.toNat_sub` that does not introduce a modulo.
+-/
+theorem BitVec.toNat_sub_of_lt {x y : BitVec w} (hy : y ≤ x) :
+    (x - y).toNat = x.toNat - y.toNat := by
+  simp only [toNat_sub]
+  rw [← Nat.add_sub_assoc]
+  · rw [Nat.sub_add_comm]
+    · rw [Nat.add_mod]
+      simp only [mod_self, Nat.add_zero, mod_mod]
+      rw [Nat.mod_eq_of_lt]
+      omega
+    · simp only [le_def] at hy
+      omega
+  · omega
+
+/--
 If `n : Bitvec w` has only the low `k < w` bits set,
 then `(n <<< 1 | b)` does not overflow, and we can compute its value
 as a multiply and add.
@@ -1114,7 +1141,7 @@ TODO: think of isolating the pattern as `concatBit'`.
 def divSubtractShift (h : ShiftSubtractInput w wr wn n d) :
    DivRemInput w (wr + 1) (wn - 1) n d :=
   let r' := concatBit' h.r h.nmsb
-  let rltd : Bool := r' < d
+  let rltd : Bool := r' < d -- true if r' < d. In this case, we don't have a quotient bit.
   let q := h.q.concatBit' !rltd -- if r ≥ d, then we have a quotient bit.
   if hrltd : rltd
   then {
@@ -1164,7 +1191,7 @@ def divSubtractShift (h : ShiftSubtractInput w wr wn n d) :
   }
   else {
     q := q,
-    r := r',
+    r := r' - d,
     hwr := by
       have := h.hwr
       have := h.wr_add_one_le_w
@@ -1180,12 +1207,25 @@ def divSubtractShift (h : ShiftSubtractInput w wr wn n d) :
     hrd := by
       simp [rltd] at hrltd
       simp [BitVec.lt_def] at hrltd
+      have hr := h.hrd
+      -- | TODO: make this a field.
+      have hr' : h.r < d := by simp [BitVec.lt_def]; exact hr
+      simp only [r']
       sorry
     hrwr := by
-      simp [r']
-      apply toNat_concatBit'_lt
-      · exact h.wr_add_one_le_w
-      · exact h.hrwr,
+      simp only [r']
+      /- TODO: this proof is repeated, lift it to above the structure building. -/
+      have hdr' : ¬ (r' < d) := by
+        simp [rltd] at hrltd
+        assumption
+      have hdr' : d ≤ r' := BitVec.le_iff_not_lt.mp hdr'
+      rw [BitVec.toNat_sub_of_lt hdr']
+      have hr' : r'.toNat < 2 ^ (wr + 1) := by
+        simp [r']
+        apply toNat_concatBit'_lt
+        · exact h.wr_add_one_le_w
+        · exact h.hrwr
+      omega
     hqwr := by
       simp [q]
       apply toNat_concatBit'_lt
@@ -1193,6 +1233,11 @@ def divSubtractShift (h : ShiftSubtractInput w wr wn n d) :
       · exact h.hqwr,
     hdiv := by
       rw [h.toNat_n_shiftr_wl_minus_one_eq_n_shiftr_wl_plus_nmsb]
+      have hdr' : ¬ (r' < d) := by
+        simp [rltd] at hrltd
+        assumption
+      have hdr' : d ≤ r' := BitVec.le_iff_not_lt.mp hdr'
+      rw [BitVec.toNat_sub_of_lt hdr']
       simp only [r']
       rw [h.hdiv]
       rw [toNat_concatBit'_eq (x := h.r)
@@ -1200,11 +1245,29 @@ def divSubtractShift (h : ShiftSubtractInput w wr wn n d) :
         (hk := h.wr_lt_w)
         (hx := h.hrwr)]
       simp only [q]
-      simp only [hrltd, Bool.not_true]
-      have hq' := toNat_concatBit'_false_eq h.q wr h.wr_lt_w h.hqwr
-      rw [Nat.add_mul]
-      rw [Nat.add_assoc]
-      sorry
+      rw [toNat_concatBit'_eq (x := h.q)
+        (k := wr)
+        (hk := h.wr_lt_w)
+        (hx := h.hqwr)]
+      simp only [hrltd, Bool.not_false, toNat_true]
+      simp [Nat.mul_add]
+      apply Eq.symm
+      calc
+        _ = d.toNat * (h.q.toNat * 2) + d.toNat + (h.r.toNat * 2 + h.nmsb.toNat - d.toNat) :=
+          by rfl
+        _ = d.toNat * (h.q.toNat * 2) + d.toNat - d.toNat + (h.r.toNat * 2 + h.nmsb.toNat) := by
+          simp
+          rw [Nat.add_assoc]
+          congr 1
+          rw [Nat.add_sub_cancel']
+          sorry
+        _ = d.toNat * (h.q.toNat * 2) + (h.r.toNat * 2 + h.nmsb.toNat) := by
+          rw [Nat.add_sub_cancel]
+        _ = (d.toNat * h.q.toNat + h.r.toNat) * 2 + h.nmsb.toNat := by
+          rw [← Nat.add_assoc]
+          rw [← Nat.mul_assoc]
+          rw [Nat.add_mul]
+        _ = (d.toNat * h.q.toNat + h.r.toNat) * 2 + h.nmsb.toNat := rfl
   }
 
 /--
