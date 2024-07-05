@@ -1210,8 +1210,16 @@ def divSubtractShift (h : ShiftSubtractInput w wr wn n d) :
       have hr := h.hrd
       -- | TODO: make this a field.
       have hr' : h.r < d := by simp [BitVec.lt_def]; exact hr
+      rw [BitVec.toNat_sub_of_lt hrltd]
       simp only [r']
-      sorry
+      rw [toNat_concatBit'_eq (x := h.r)
+        (k := wr)
+        (hk := h.wr_lt_w)
+        (hx := h.hrwr)]
+      rw [Nat.mul_comm] -- TODO: canonicalize an order between w*2 and 2*w
+      apply two_mul_add_sub_lt_of_lt_of_lt_two
+      · exact hr
+      · apply Bool.toNat_lt
     hrwr := by
       simp only [r']
       /- TODO: this proof is repeated, lift it to above the structure building. -/
@@ -1260,7 +1268,15 @@ def divSubtractShift (h : ShiftSubtractInput w wr wn n d) :
           rw [Nat.add_assoc]
           congr 1
           rw [Nat.add_sub_cancel']
-          sorry
+          simp only [r'] at hdr'
+          simp only [BitVec.le_def] at hdr'
+          rw [BitVec.toNat_concatBit'_eq
+            (x := h.r)
+            (b := h.nmsb)
+            (k := wr)
+            (hk := h.wr_lt_w)
+            (hx := h.hrwr)] at hdr'
+          assumption
         _ = d.toNat * (h.q.toNat * 2) + (h.r.toNat * 2 + h.nmsb.toNat) := by
           rw [Nat.add_sub_cancel]
         _ = (d.toNat * h.q.toNat + h.r.toNat) * 2 + h.nmsb.toNat := by
@@ -1269,6 +1285,9 @@ def divSubtractShift (h : ShiftSubtractInput w wr wn n d) :
           rw [Nat.add_mul]
         _ = (d.toNat * h.q.toNat + h.r.toNat) * 2 + h.nmsb.toNat := rfl
   }
+
+/-- info: 'BitVec.divSubtractShift' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms divSubtractShift
 
 /--
 Core divsion recurrence.
@@ -1298,11 +1317,17 @@ def divRec' (h : DivRemInput w wr wn n d) :
     let new := divSubtractShift h.toShiftSubtractInput
     divRec' new
 
+/-- info: 'BitVec.divRec'' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms divRec'
+
 theorem divRec'_correct (n d : BitVec w) (hw : 0 < w) (hd : 0 < d) :
     let out := divRec' (DivRemInput_init w n d hw hd)
     n.udiv d = out.q ∧ n.umod d = out.r := by
   simp
   apply DivRemInput_implies_udiv_urem
+
+/-- info: 'BitVec.divRec'_correct' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms divRec'_correct
 
 def checkDivRec' : Bool × Option (BitVec 4 × BitVec 4 × BitVec 4 × BitVec 4) := Id.run do
   let w := 4
@@ -1321,6 +1346,7 @@ def checkDivRec' : Bool × Option (BitVec 4 × BitVec 4 × BitVec 4 × BitVec 4)
         wrong := true
         outputs := .some (n, d, qr.2, qr.1)
   (wrong, outputs)
+
 
 -- /-- info: (false, none) -/
 -- #guard_msgs in #reduce checkDivRec'
