@@ -707,7 +707,297 @@ theorem div_iff_add_mod_of_lt {d n q r : BitVec w} (hd : 0 < d)
   · intros h
     apply div_characterized_of_mul_add_of_lt <;> assumption
 
-/- # Division Recurrence for Bitblasting -/
+/-# Tons of Lemmas for Proving Bitblasting Correct -/
+
+
+
+theorem BitVec.shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
+    x <<< n = x * (BitVec.twoPow w n) := by
+  ext i
+  simp
+
+
+@[simp]
+theorem BitVec.or_zero (x : BitVec w) : x ||| 0#w = x := by
+  ext i
+  simp
+
+
+theorem BitVec.sub_le_self_of_le {x y : BitVec w} (hx : y ≤ x) : x - y ≤ x := by
+  simp [BitVec.lt_def, BitVec.le_def] at hx ⊢
+  rw [← Nat.add_sub_assoc (by omega)]
+  rw [Nat.add_comm]
+  rw [Nat.add_sub_assoc (by omega)]
+  rw [Nat.add_mod]
+  simp only [mod_self, Nat.zero_add, mod_mod]
+  rw [Nat.mod_eq_of_lt] <;> omega
+
+theorem BitVec.sub_lt_self_of_lt_of_lt {x y : BitVec w} (hx : y < x) (hy : 0 < y): x - y < x := by
+  simp [BitVec.lt_def] at hx hy ⊢
+  rw [← Nat.add_sub_assoc (by omega)]
+  rw [Nat.add_comm]
+  rw [Nat.add_sub_assoc (by omega)]
+  rw [Nat.add_mod]
+  simp only [mod_self, Nat.zero_add, mod_mod]
+  rw [Nat.mod_eq_of_lt] <;> omega
+
+theorem BitVec.le_iff_not_lt {x y : BitVec w} : (¬ x < y) ↔ y ≤ x := by
+  constructor <;>
+    (intro h; simp [BitVec.lt_def, BitVec.le_def] at h ⊢; omega)
+
+@[simp]
+theorem BitVec.le_refl (x : BitVec w) : x ≤ x := by
+  simp [BitVec.le_def]
+
+
+theorem BitVec.shiftLeft_mul_comm (x y : BitVec w) (n : Nat) :
+    x <<< n * y = x * y <<< n := by
+  rw [BitVec.shiftLeft_eq_mul_twoPow]
+  rw [BitVec.shiftLeft_eq_mul_twoPow]
+  rw [BitVec.mul_assoc]
+  congr 1
+  apply BitVec.mul_comm
+
+theorem BitVec.shiftLeft_mul_assoc (x y : BitVec w) (n : Nat) :
+    x * y <<< n = (x * y) <<< n := by
+  rw [BitVec.shiftLeft_eq_mul_twoPow]
+  rw [BitVec.shiftLeft_eq_mul_twoPow]
+  rw [BitVec.mul_assoc]
+
+theorem BitVec.add_mul (x y z : BitVec w) : (y + z) * x = y * x + z * x := by
+  conv =>
+    lhs
+    rw [BitVec.mul_comm, BitVec.mul_add]
+  congr 1 <;> rw [BitVec.mul_comm]
+
+
+
+
+theorem BitVec.add_assoc {x y z : BitVec w} : x + y + z = x + (y + z) := by
+  apply eq_of_toNat_eq
+  simp[Nat.add_assoc]
+
+theorem BitVec.add_sub_assoc  {m k : BitVec w} (h : k ≤ m) (n : BitVec w) :
+    n + m - k = n + (m - k) := by
+  apply BitVec.eq_of_toNat_eq
+  simp only [toNat_sub, toNat_add, mod_add_mod, add_mod_mod, Nat.add_assoc]
+
+/--
+Bitwise or of (x <<< 1) with 1 is the same as addition.
+This is useful to reason in mixed-arithmetic bitwise contexts.
+-/
+private theorem BitVec.shiftLeft_one_or_one_eq_shiftLeft_one_add_one {x : BitVec w} :
+    x <<< 1 ||| 1#w = (x <<< 1) + 1#w := by
+  rw [BitVec.add_eq_or_of_and_eq_zero]
+  ext i
+  simp
+  intro i _ hi'
+  omega
+
+theorem BitVec.add_sub_self_left {x y : BitVec w} : x + y - x = y := by
+  apply eq_of_toNat_eq
+  simp
+  calc
+    (x.toNat + y.toNat + (2 ^ w - x.toNat)) % 2 ^ w = (x.toNat + y.toNat + 2 ^ w - x.toNat) % 2 ^ w := by
+      rw [Nat.add_sub_assoc (Nat.le_of_lt x.isLt)]
+    _ = (x.toNat + y.toNat - x.toNat + 2 ^ w) % 2 ^ w := by rw [Nat.sub_add_comm]; omega
+    _ = (y.toNat + 2 ^ w) % 2 ^ w := by rw [Nat.add_sub_self_left]
+    _ = y.toNat % 2 ^ w := by simp
+    _ = y.toNat := by simp [Nat.mod_eq_of_lt]
+
+theorem BitVec.add_sub_self_right {x y : BitVec w} : x + y - y = x := by
+  rw [BitVec.add_comm]
+  rw [BitVec.add_sub_self_left]
+
+@[simp]
+theorem BitVec.le_of_not_lt {x y : BitVec w} : ¬ x < y → y ≤ x := by
+  simp [BitVec.lt_def, BitVec.le_def]
+
+/--
+if the MSB is false, then the arithmetic value of shifting
+is the same as the original value times 2.
+That is, if the msb is false, then shifting by 1 does not overflow.
+Can be generalized to talk about shifting by `k` if the top `k` bits are false.
+-/
+theorem BitVec.toNat_shiftLeft_one_eq_mul_two_of_msb_false
+   (x : BitVec w)
+   (h : x.msb = false) :
+    (x <<< 1).toNat = x.toNat * 2 := by
+  simp only [toNat_shiftLeft]
+  have h := (BitVec.msb_eq_false_iff_two_mul_lt x).mp h
+  rw [Nat.shiftLeft_eq, Nat.mod_eq_of_lt (by omega)]
+
+/- upon shifting left by one, if times 2 is less than 2^w, then we cannot overflow. -/
+theorem BitVec.toNat_shiftLeft_one_eq_mul_two_of_lt
+  (x : BitVec w)
+  (hlt : x.toNat * 2 < 2 ^ w) :
+    (x <<< 1).toNat = x.toNat * 2 := by
+  simp only [toNat_shiftLeft]
+  rw [Nat.shiftLeft_eq, Nat.mod_eq_of_lt (by omega)]
+
+/- # Division Recurrence for Bitblasting (V2 )-/
+
+/--
+One round of the division algorithm, that tries to perform a subtract shift.
+Note that this is only called when `r.msb = false`, so we will not overflow.
+This means that `r'.toNat = r.toNat *2 + q.toNat`
+.
+-/
+def divSubtractShift (w : Nat)
+  (d : BitVec w)
+  (r : BitVec w)
+  (nb : Bool)
+  :
+  BitVec w × BitVec 1 :=
+  let r' := (r <<< 1) ||| (BitVec.ofBool nb).zeroExtend w
+  let q := r' < d
+  ⟨if q then r' - d else r', BitVec.ofBool q⟩
+
+/--
+Core divsion recurrence.
+We have three widths at play:
+- w, the total bitwidth
+- wr, the effective bitwidth of the reminder
+- wn, the effective bitwidth of the dividend.
+- We have the invariant that wn + wr = w.
+
+See that when it is called, we will know that :
+  - r < [2^wr = 2^(w - wn)]
+    which allows us to safely shift left, since it is of length n.
+    In particular, since 'wn' decreases in the course of the recursion,
+    will will allow larger and larger values, and at the step where 'wn = 0',
+    we will have `r < 2^w`, which is no longer sufficient to allow for a shift left.
+    Thus, at this step, we will stop and return a full remainder.
+    So, the remainder is morally of length `w - wn`.
+  - d > 0
+  - r < d
+  - n.toNat >>> wr =
+-/
+def divRec' (w wn: Nat)
+  (d : BitVec w)
+  (r : BitVec w) -- morally, this of length 'w - wn'.
+  (n : BitVec wn)
+  : BitVec w × BitVec wn :=
+  match wn with
+  | 0 => (r, 0#0)
+  | wn + 1 =>
+    let (r', qcur) := divSubtractShift w d r (n.getMsb 0)
+    let (r'', q) := divRec' w wn d r' (n.truncate wn)
+    let q' := (q.zeroExtend (wn + 1))  ||| (qcur.zeroExtend (wn + 1) <<< wn)
+    (r'', q')
+
+def checkDivRec' : Bool × Option (BitVec 4 × BitVec 4 × BitVec 4 × BitVec 4) := Id.run do
+  let w := 4
+  let max := (Nat.pow 2 w)
+  let mut outputs := .none
+  let mut wrong := false
+  for n in (List.range max) do
+    for d in (List.range (max - 1)).map (fun n => Nat.add n 1) do
+      have hd : d > 0 := by sorry
+      let qr := divRec' w w d 0#w n
+      if qr.2 * d + qr.1 != n then
+        wrong := true
+        outputs := .some (n, d, qr.2, qr.1)
+  (wrong, outputs)
+
+/-- info: (false, none) -/
+#guard_msgs in #reduce checkDivRec'
+
+/-- # Tons of helper lemmas about the behaviour of divRec -/
+
+theorem mul_two_plus_one_lt_mul_two_of_lt (n m : Nat) (hn : n < m) :
+  n * 2 + 1 < 2 * m := by
+  omega
+
+theorem mul_two_plus_lt_mul_two_of_lt_of_lt_two (n m b : Nat)
+  (hn : n < m) (hb : b < 2) :
+  n * 2 + b < m * 2 := by
+  omega
+
+
+/--
+the LHS of the condition of divSubtractShift,
+written as an arithmetic inequality.
+-/
+theorem divSubtractShift_toNat_cond_lhs (w : Nat)
+    (d r : BitVec w)
+    (b : Bool)
+    (hk : k < w)
+    (hr : r.toNat < 2 ^ k) :
+    (r <<< 1 ||| zeroExtend w (ofBool b)).toNat =
+    (r.toNat * 2 + (if b then 1 else 0)) := by
+  have hk' : 2^k < 2^w := by
+    apply Nat.pow_lt_pow_of_lt (by decide) (by omega)
+  rcases w with rfl | w
+  · omega -- contradiction, k < w
+  · rw [← BitVec.add_eq_or_of_and_eq_zero]
+    · simp [Bool.toNat]
+      rw [Nat.shiftLeft_eq]
+      simp [show (2^1 = 2) by decide]
+      rw [Nat.mod_eq_of_lt]
+      · rcases b with rfl | rfl <;> simp
+      · rw [Nat.pow_succ]
+        apply mul_two_plus_lt_mul_two_of_lt_of_lt_two
+
+    · ext i
+      simp only [getLsb_and, getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and,
+        getLsb_zeroExtend, getLsb_ofBool, getLsb_zero, and_eq_false_imp, and_eq_true, not_eq_true',
+        decide_eq_false_iff_not, Nat.not_lt, decide_eq_true_eq, and_imp]
+      intros hi _ hi'
+      omega
+
+/--
+the condition of divSubtractShift is true iff
+the arithmetic inequality holds.
+-/
+theorem divSubtractShift_cond_iff (w : Nat)
+  (d r : BitVec w)
+  (b : Bool) :
+    (r <<< 1 ||| zeroExtend w (ofBool b) < d) ↔
+    (r.toNat * 2 + (if b then 1 else 0) < 3) := by sorry
+
+theorem divSubtractShift_lt_two_pow_of_lt_two_pow (w : Nat)
+  (d r : BitVec w)
+  (b : Bool)
+  (hk : k < w)
+  (hr : r.toNat < 2 ^ k) :
+    (divSubtractShift w d r b).1.toNat < 2 ^ (k + 1) := by
+  simp [divSubtractShift]
+  by_cases (r <<< 1 ||| zeroExtend w (ofBool b) < d)
+
+  case pos h => sorry
+  case neg h => sorry
+theorem divSubtractShift_lt_of_lt (w : Nat) (d r : BitVec w) (b : Bool) (hrd : r < d) :
+    (divSubtractShift w d r b).1 < d := by
+  simp [divSubtractShift]
+  by_cases (r <<< 1 ||| zeroExtend w (ofBool b) < d)
+  case pos h => sorry
+  case neg h => sorry
+
+mutual
+  theorem t1 (w wn : Nat) (d r : BitVec w) (n : BitVec wn) :
+    (divRec' w wn d r n).fst < d := by sorry
+  -- theorem t2 (w wn : Nat) (d r : BitVec w) (n : BitVec wn) :
+  --   d * (divRec' w wn d r n).snd + (divRec' w wn d r n).fst = n
+  theorem t2 (w : Nat) (d : BitVec w) (n : BitVec w) :
+    d * (divRec' w w d (0#w) n).snd + (divRec' w w d (0#w) n).fst = n := by sorry
+  theorem t3 (w : Nat) (d n : BitVec w) :
+    d.toNat * (divRec' w w d (0#w) n).snd.toNat + (divRec' w w d (0#w) n).fst.toNat < 2 ^ w := by sorry
+end
+
+theorem divRec'_eq_udiv (w : Nat) (n : BitVec w) (d : BitVec w) (hd : 0 < d):
+    n.umod d = (divRec' w w d 0#w n).1 ∧
+    n.udiv d = (divRec' w w d 0#w n).2 := by
+  have k := div_characterized_of_mul_add_of_lt (d := d) (n := n)
+    (q := (divRec' w w d 0#w n).2)
+    (r := (divRec' w w d 0#w n).1)
+    hd
+    (by apply t1)
+    (by apply t2)
+    (by apply t3)
+  simp [k]
+
+/- # (OLD OLD) Division Recurrence for Bitblasting -/
 
 -- n = d * q + r
 -- Two-stage subtraction:
@@ -751,11 +1041,6 @@ structure DivRecQuotRem (w : Nat) (n : BitVec w) (d : BitVec w) where
 deriving DecidableEq, Repr
 
 
-theorem BitVec.shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
-    x <<< n = x * (BitVec.twoPow w n) := by
-  ext i
-  simp
-
 /-- One round of the division algorithm, that tries to perform a subtract shift. -/
 def tryDivSubtractShift (qr : DivRecQuotRem w n d) (ix : Nat) : DivRecQuotRem w n d :=
   let r' := (qr.r <<< 1) ||| (BitVec.ofBool (n.getLsb ix)).zeroExtend w
@@ -771,11 +1056,6 @@ def tryDivSubtractShift' (qr : DivRecQuotRem w n d) (ix : Nat) : DivRecQuotRem w
   let r' := (qr.r <<< 1) ||| (BitVec.ofBool (n.getLsb ix)).zeroExtend w
   { r := if r' < d then r' else r' - d, q := qr.q <<< 1 ||| (if r' < d then 0 else 1)  }
 
-@[simp]
-theorem BitVec.or_zero (x : BitVec w) : x ||| 0#w = x := by
-  ext i
-  simp
-
 theorem tryDivSubtractShift_eq_tryDivSubtractShift' (qr : DivRecQuotRem w n d) (ix : Nat) :
     tryDivSubtractShift qr ix = tryDivSubtractShift' qr ix := by
   simp [tryDivSubtractShift, tryDivSubtractShift']
@@ -783,33 +1063,6 @@ theorem tryDivSubtractShift_eq_tryDivSubtractShift' (qr : DivRecQuotRem w n d) (
   by_cases hslt : s < d
   · simp [hslt]
   · simp [hslt]
-
-theorem BitVec.sub_le_self_of_le {x y : BitVec w} (hx : y ≤ x) : x - y ≤ x := by
-  simp [BitVec.lt_def, BitVec.le_def] at hx ⊢
-  rw [← Nat.add_sub_assoc (by omega)]
-  rw [Nat.add_comm]
-  rw [Nat.add_sub_assoc (by omega)]
-  rw [Nat.add_mod]
-  simp only [mod_self, Nat.zero_add, mod_mod]
-  rw [Nat.mod_eq_of_lt] <;> omega
-
-theorem BitVec.sub_lt_self_of_lt_of_lt {x y : BitVec w} (hx : y < x) (hy : 0 < y): x - y < x := by
-  simp [BitVec.lt_def] at hx hy ⊢
-  rw [← Nat.add_sub_assoc (by omega)]
-  rw [Nat.add_comm]
-  rw [Nat.add_sub_assoc (by omega)]
-  rw [Nat.add_mod]
-  simp only [mod_self, Nat.zero_add, mod_mod]
-  rw [Nat.mod_eq_of_lt] <;> omega
-
-theorem BitVec.le_iff_not_lt {x y : BitVec w} : (¬ x < y) ↔ y ≤ x := by
-  constructor <;>
-    (intro h; simp [BitVec.lt_def, BitVec.le_def] at h ⊢; omega)
-
-@[simp]
-theorem BitVec.le_refl (x : BitVec w) : x ≤ x := by
-  simp [BitVec.le_def]
-
 
 /-- The tryDivSubtractShift's remainder is upper bounded by `r << 1 | 1`. -/
 theorem tryDivSubtractShift_remainder_lt_shiftLeft_one_or_one {qr : DivRecQuotRem w n d} {ix : Nat} :
@@ -927,27 +1180,6 @@ def divRec (qr : DivRecQuotRem w n d) (j : Nat) :
     | j + 1 => divRec qr j
   tryDivSubtractShift qr' (w - 1 - j)
 
-theorem BitVec.shiftLeft_mul_comm (x y : BitVec w) (n : Nat) :
-    x <<< n * y = x * y <<< n := by
-  rw [BitVec.shiftLeft_eq_mul_twoPow]
-  rw [BitVec.shiftLeft_eq_mul_twoPow]
-  rw [BitVec.mul_assoc]
-  congr 1
-  apply BitVec.mul_comm
-
-theorem BitVec.shiftLeft_mul_assoc (x y : BitVec w) (n : Nat) :
-    x * y <<< n = (x * y) <<< n := by
-  rw [BitVec.shiftLeft_eq_mul_twoPow]
-  rw [BitVec.shiftLeft_eq_mul_twoPow]
-  rw [BitVec.mul_assoc]
-
-theorem BitVec.add_mul (x y z : BitVec w) : (y + z) * x = y * x + z * x := by
-  conv =>
-    lhs
-    rw [BitVec.mul_comm, BitVec.mul_add]
-  congr 1 <;> rw [BitVec.mul_comm]
-
-
 /--
 TODO: what's a good theorem name?
 If the LSB is false, then shifting to (w - 1) is the same as shifting to w and then right shifting 1.
@@ -982,56 +1214,11 @@ private theorem BitVec.shiftLeft_sub_eq_shiftLeft_shiftRight_add_zeroExtend_getL
     intros i _ hi'
     omega
 
-theorem BitVec.add_assoc {x y z : BitVec w} : x + y + z = x + (y + z) := by
-  apply eq_of_toNat_eq
-  simp[Nat.add_assoc]
-
-theorem BitVec.add_sub_assoc  {m k : BitVec w} (h : k ≤ m) (n : BitVec w) :
-    n + m - k = n + (m - k) := by
-  apply BitVec.eq_of_toNat_eq
-  simp only [toNat_sub, toNat_add, mod_add_mod, add_mod_mod, Nat.add_assoc]
-
-/--
-Bitwise or of (x <<< 1) with 1 is the same as addition.
-This is useful to reason in mixed-arithmetic bitwise contexts.
--/
-private theorem BitVec.shiftLeft_one_or_one_eq_shiftLeft_one_add_one {x : BitVec w} :
-    x <<< 1 ||| 1#w = (x <<< 1) + 1#w := by
-  rw [BitVec.add_eq_or_of_and_eq_zero]
-  ext i
-  simp
-  intro i _ hi'
-  omega
-
-theorem BitVec.add_sub_self_left {x y : BitVec w} : x + y - x = y := by
-  apply eq_of_toNat_eq
-  simp
-  calc
-    (x.toNat + y.toNat + (2 ^ w - x.toNat)) % 2 ^ w = (x.toNat + y.toNat + 2 ^ w - x.toNat) % 2 ^ w := by
-      rw [Nat.add_sub_assoc (Nat.le_of_lt x.isLt)]
-    _ = (x.toNat + y.toNat - x.toNat + 2 ^ w) % 2 ^ w := by rw [Nat.sub_add_comm]; omega
-    _ = (y.toNat + 2 ^ w) % 2 ^ w := by rw [Nat.add_sub_self_left]
-    _ = y.toNat % 2 ^ w := by simp
-    _ = y.toNat := by simp [Nat.mod_eq_of_lt]
-
-theorem BitVec.add_sub_self_right {x y : BitVec w} : x + y - y = x := by
-  rw [BitVec.add_comm]
-  rw [BitVec.add_sub_self_left]
-
-@[simp]
-theorem BitVec.le_of_not_lt {x y : BitVec w} : ¬ x < y → y ≤ x := by
-  simp [BitVec.lt_def, BitVec.le_def]
-
--- theorem div_iff_add_mod_of_lt {d n q r : BitVec w} (hd : 0 < d)
---     (hrd : r < d)
---     (hlt : d.toNat * q.toNat + r.toNat < 2^w) :
---     (n.udiv d = q ∧ n.umod d = r) ↔ (d * q + r = n) := by
-
 theorem divRec_correct {w : Nat} {n d : BitVec w} {qr : DivRecQuotRem w n d} {j : Nat}
     (hj : j ≤ w - 1)
     (hqrd : qr.r < d)
-    (hrn : qr.r < d)
-    (hqrn : n >>> (w - j) = qr.q * d + qr.r) :
+    (hqrn : n >>> (w - j) = qr.q * d + qr.r)
+    :
     ((n >>> ((w - 1) - j) = (divRec qr j).q * d + (divRec qr j).r)) ∧
     (d.toNat * (divRec qr j).q.toNat + (divRec qr j).r.toNat < 2^w) ∧
     (divRec qr j).r < d := by
@@ -1098,13 +1285,13 @@ theorem divRec_correct {w : Nat} {n d : BitVec w} {qr : DivRecQuotRem w n d} {j 
 
 
 theorem div_eq_divRec (n d : BitVec w) (hd : d > 0) :
-    n.udiv d = (divRec (w := w) (n := n) (d := d) { r := 0, q := 0 } (w - 1)).q ∧
-    n.umod d = (divRec (w := w) (n := n) (d := d) { r := 0, q := 0 } (w - 1)).r := by
+  let qr := divRec (w := w) (n := n) (d := d) { r := 0, q := 0 } (w - 1)
+  n.udiv d = qr.q ∧
+  n.umod d = qr.r := by
   obtain ⟨h₁, h₂, h₃⟩ := divRec_correct (w := w) (n := n) (d := d) (j := w - 1) (qr := { r := 0, q := 0})
     (by omega)
     (by simpa using hd)
-    (by simpa using hd)
-    (by sorry)
+    (by simp [show (w - (w - 1) = 1) by omega];)
   simp at h₃
   simp at h₂
   simp at h₁
@@ -1133,9 +1320,6 @@ def checkDivRec : Bool × Array String := Id.run do
 
 /-- info: (false, { data := [] }) -/
 #guard_msgs in #reduce checkDivRec
-
--- theorem divRec_n (qr : DivRecQuotRem w n d) :
---   d * (tryDivSubtractShift qr j).q + (tryDivSubtractShift q j).r = n >>> (j + 1)
 
 -- invariants:
 -- 1) qr.r < d.
