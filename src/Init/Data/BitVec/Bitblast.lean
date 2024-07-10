@@ -578,16 +578,122 @@ theorem shiftRight_eq_shiftRight_rec (x : BitVec ℘) (y : BitVec w₂) :
 
 /- ### Arithmetic (sshiftRight) recurrence -/
 
+@[simp]
+theorem sshiftRight'_zero (x : BitVec w) :
+    x.sshiftRight' (0#w₂) = x := by
+  ext i
+  rw [sshiftRight', getLsb_sshiftRight]
+  simp
+
 def sshiftRightRec (x : BitVec w) (y : BitVec w₂) (n : Nat) : BitVec w :=
   let shiftAmt := (y &&& (twoPow w₂ n))
   match n with
   | 0 => x.sshiftRight' shiftAmt
-  | n + 1 => (sshiftRightRec x y n) >>> shiftAmt
+  | n + 1 => (sshiftRightRec x y n).sshiftRight' shiftAmt
+
+@[simp]
+theorem sshiftRightRec_zero_eq (x : BitVec w) (y : BitVec w₂) :
+    sshiftRightRec x y 0 = x.sshiftRight' (y &&& 1#w₂) := by
+  simp [sshiftRightRec]
+
+@[simp]
+theorem sshiftRightRec_succ_eq (x : BitVec w) (y : BitVec w₂) (n : Nat) :
+    sshiftRightRec x y (n + 1) = (sshiftRightRec x y n).sshiftRight' (y &&& twoPow w₂ (n + 1)) := by
+  simp [sshiftRightRec]
+
+/-- The msb after arithmetic shifting right equals the original msb. -/
+theorem sshiftRight_msb_eq_msb {n : Nat} {x : BitVec w} :
+    (x.sshiftRight n).msb = x.msb := by
+  rw [msb_eq_getLsb_last, getLsb_sshiftRight]
+  rcases w with rfl | w
+  · simp
+  · simp only [Nat.add_sub_cancel]
+    simp [show ¬ (w + 1 ≤ w) by omega]
+    intros h
+    rw [msb_eq_getLsb_last]
+    simp only [Nat.add_sub_cancel]
+    simp [show n + w = w by omega]
+
+theorem sshiftRight_sshiftRight {x : BitVec w} {m n : Nat} :
+    (x.sshiftRight m).sshiftRight n = x.sshiftRight (m + n) := by
+  ext i
+  simp only [getLsb_sshiftRight]
+  simp only [Nat.add_assoc]
+  by_cases h₁ : w ≤ (i : Nat)
+  · simp [h₁]
+  · simp only [h₁, decide_False, Bool.not_false, Bool.true_and]
+    by_cases h₂ : n + ↑i < w
+    · simp [h₂]
+    · simp only [h₂, ↓reduceIte]
+      by_cases h₃ : m + (n + ↑i) < w
+      · simp [h₃]
+        omega
+      · simp [h₃]
+        apply sshiftRight_msb_eq_msb
+
+theorem sshiftRight'_sshiftRight' {x : BitVec w₁} {y : BitVec w₂} {z : BitVec w₃} :
+    (x.sshiftRight' y).sshiftRight' z = x.sshiftRight (y.toNat + z.toNat) := by
+  simp [sshiftRight', shiftRight_shiftRight, sshiftRight_sshiftRight]
+
+
+theorem sshiftRight_or_eq_sshiftRight_sshiftRight_of_and_eq_zero {x : BitVec w} {y z : BitVec w₂}
+    (h : y &&& z = 0#w₂) (h' : y.toNat + z.toNat < 2^w₂):
+    x.sshiftRight' (y ||| z) = (x.sshiftRight' y).sshiftRight' z := by
+  simp [← add_eq_or_of_and_eq_zero _ _ h]
+  simp [BitVec.sshiftRight']
+  simp [sshiftRight_sshiftRight]
+  rw [Nat.mod_eq_of_lt h']
+
+theorem sshiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) (hn : n + 1 ≤ w₂) :
+  sshiftRightRec x y n = x.sshiftRight' ((y.truncate (n + 1)).zeroExtend w₂) := by
+  induction n generalizing x y
+  case zero =>
+    ext i
+    simp only [ushiftRight_rec_zero, twoPow_zero_eq_one, Nat.reduceAdd, truncate_one_eq_ofBool_getLsb]
+    have heq : (y &&& 1#w₂) = zeroExtend w₂ (ofBool (y.getLsb 0)) := by
+      ext i
+      by_cases h : (↑i : Nat) = 0 <;> simp [h, Bool.and_comm]
+    simp [heq]
+  case succ n ih =>
+    simp
+    by_cases h : y.getLsb (n + 1) <;> simp [h]
+    · rw [ih (hn := by omega)]
+      rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true _ _ h]
+      rw [sshiftRight_or_eq_sshiftRight_sshiftRight_of_and_eq_zero]
+      · simp
+      · simp;
+        have hpow : 2 ^ (n + 1) < 2 ^ w₂ := by
+          apply Nat.pow_lt_pow_of_lt (by decide) (by omega)
+        have h₂ : 2 ^ (n + 1) % 2 ^ w₂ = 2 ^ (n + 1) := Nat.mod_eq_of_lt (by omega)
+        have h₁ : y.toNat % 2 ^ (n + 1) % 2 ^ w₂ = y.toNat % 2 ^ (n + 1) := by
+          apply Nat.mod_eq_of_lt
+          apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1))
+          apply Nat.mod_lt
+          apply Nat.pow_pos (by decide); omega
+        obtain h₁ : y.toNat % 2 ^ (n + 1) % 2 ^ w₂ = y.toNat % 2 ^ (n + 1) := by
+          apply Nat.mod_eq_of_lt
+          apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1)) <;> omega
+        rw [h₁, h₂]
+        rcases w₂ with rfl | w₂
+        · omega
+        · apply Nat.add_lt_add_of_lt_of_le
+          · simp only [pow_eq, Nat.mul_eq, Nat.mul_one]
+            apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1))
+            · apply Nat.mod_lt
+              · apply Nat.pow_pos (by decide)
+            · apply Nat.pow_le_pow_of_le_right (by decide) (by omega)
+          · simp
+            apply Nat.pow_le_pow_of_le_right (by decide) (by omega)
+    · rw [ih (hn := by omega)]
+      rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)]
+      simp [h]
+
 
 theorem sshiftRight_eq_sshiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
-  (x >>> y).getLsb i = (sshiftRightRec x y w).getLsb i := sorry
-
-
+    (x.sshiftRight' y).getLsb i = (sshiftRightRec x y (w₂ - 1)).getLsb i := by
+  rcases w₂ with rfl | w₂
+  · simp [of_length_zero]
+  · simp [sshiftRightRec_eq x y w₂ (by omega)]
 
 /- ## udiv/urem bitblasting -/
 

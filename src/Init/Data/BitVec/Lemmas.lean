@@ -771,15 +771,9 @@ theorem getLsb_sshiftRight_eq_getLsb_ushiftRight (x : BitVec w) (s i : Nat) :
   rw [h]
   simp [getLsb_sshiftRight]
 
-/-- A version of `BitVec.sshiftRight` with both arguments as bitvectors. -/
-def sshiftRight' (x : BitVec w₁) (y : BitVec w₂) : BitVec w₁ :=
-  x.sshiftRight y.toNat
-
 theorem getLsb_sshift'_eq_getLsb_sshiftRight :
     getLsb (sshiftRight' x y) i = getLsb (x.sshiftRight y.toNat) i := by
   simp [sshiftRight']
-
--- theorem getLsb_sshiftRight'_
 
 /-! ### udiv -/
 
