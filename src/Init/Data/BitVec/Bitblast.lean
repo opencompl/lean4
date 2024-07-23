@@ -290,7 +290,7 @@ theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow (x : BitVec w
         simp [hik', hik'']
   · ext k
     simp
-    omega
+    by_cases hi : x.getLsb i <;> simp [hi] <;> omega
 
 /--
 Recurrence lemma: multiplying `l` with the first `s` bits of `r` is the
@@ -325,5 +325,141 @@ theorem getLsb_mul (x y : BitVec w) (i : Nat) :
     truncate_truncate_of_le]
   · simp
   · omega
+
+/-## shiftLeft recurrence for bitblasting -/
+
+/--
+A recurrence that describes shifting by an arbitrary bitvector
+as shifting by a constant amount.
+ -/
+def shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
+  let shiftAmt := (y &&& (twoPow w₂ n))
+  match n with
+  | 0 => x <<< shiftAmt
+  | n + 1 => (shiftLeftRec x y n) <<< shiftAmt
+
+@[simp]
+theorem shiftLeftRec_zero {x : BitVec w₁} {y : BitVec w₂} :
+    shiftLeftRec x y 0 = x <<< (y &&& twoPow w₂ 0)  := by
+  simp [shiftLeftRec]
+
+@[simp]
+theorem shiftLeftRec_succ {x : BitVec w₁} {y : BitVec w₂} :
+    shiftLeftRec x y (n + 1) =
+      (shiftLeftRec x y n) <<< (y &&& twoPow w₂ (n + 1)) := by
+  simp [shiftLeftRec]
+
+@[simp]
+theorem getLsb_ofNat_one {w i : Nat} :
+    (1#w).getLsb i = (decide (i = 0) && decide (i < w)) := by
+  rcases w with rfl | w
+  · simp;
+  · simp [getLsb]
+    by_cases hi : i = 0
+    · simp [hi]
+    · simp [hi]
+      intros _; simp [testBit, shiftRight_eq_div_pow];
+      suffices 1 / 2^i = 0 by simp [this]
+      apply Nat.div_eq_of_lt;
+      exact Nat.one_lt_two_pow_iff.mpr hi
+
+theorem shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero {x : BitVec w} {y z : BitVec w₂}
+    (h : y &&& z = 0#w₂) (h' : y.toNat + z.toNat < 2^w₂):
+    x <<< (y ||| z) = x <<< y <<< z := by
+  simp [← add_eq_or_of_and_eq_zero _ _ h, shiftLeft_eq', shiftLeft_add,
+    toNat_add, Nat.mod_eq_of_lt h']
+
+theorem getLsb_shiftLeft' {x : BitVec w} {y : BitVec w₂} {i : Nat} :
+    (x <<< y).getLsb i = (decide (i < w) && !decide (i < y.toNat) && x.getLsb (i - y.toNat)) := by
+  simp [shiftLeft_eq', getLsb_shiftLeft]
+
+theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} (hn : n + 1 ≤ w₂) :
+  shiftLeftRec x y n = x <<< (y.truncate (n + 1)).zeroExtend w₂ := by
+  induction n generalizing x y
+  case zero =>
+    ext i
+    simp only [shiftLeftRec_zero, twoPow_zero_eq_one, Nat.reduceAdd, truncate_one_eq_ofBool_getLsb]
+    have heq : (y &&& 1#w₂) = zeroExtend w₂ (ofBool (y.getLsb 0)) := by
+      ext i
+      by_cases h : (↑i : Nat) = 0 <;> simp [h, Bool.and_comm]
+    simp [heq]
+  case succ n ih =>
+    simp
+    by_cases h : y.getLsb (n + 1) <;> simp [h]
+    · rw [ih (hn := by omega)]
+      rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true h]
+      rw [shiftLeft_or_eq_shiftLeft_shiftLeft_of_and_eq_zero]
+      · simp
+      · simp;
+        have hpow : 2 ^ (n + 1) < 2 ^ w₂ := by
+          apply Nat.pow_lt_pow_of_lt (by decide) (by omega)
+        have h₂ : 2 ^ (n + 1) % 2 ^ w₂ = 2 ^ (n + 1) := Nat.mod_eq_of_lt (by omega)
+        have h₁ : y.toNat % 2 ^ (n + 1) % 2 ^ w₂ = y.toNat % 2 ^ (n + 1) := by
+          apply Nat.mod_eq_of_lt
+          apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1))
+          apply Nat.mod_lt
+          apply Nat.pow_pos (by decide); omega
+        obtain h₁ : y.toNat % 2 ^ (n + 1) % 2 ^ w₂ = y.toNat % 2 ^ (n + 1) := by
+          apply Nat.mod_eq_of_lt
+          apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1)) <;> omega
+        rw [h₁, h₂]
+        rcases w₂ with rfl | w₂
+        · omega
+        · apply Nat.add_lt_add_of_lt_of_le
+          · simp only [pow_eq, Nat.mul_eq, Nat.mul_one]
+            apply Nat.lt_of_lt_of_le (m := 2 ^ (n + 1))
+            · apply Nat.mod_lt
+              · apply Nat.pow_pos (by decide)
+            · apply Nat.pow_le_pow_of_le_right (by decide) (by omega)
+          · simp
+            apply Nat.pow_le_pow_of_le_right (by decide) (by omega)
+    · rw [ih (hn := by omega)]
+      rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsb_false (i := n + 1)]
+      simp [h]
+
+theorem shiftLeft_eq_shiftLeft_rec (x : BitVec ℘) (y : BitVec w₂) :
+    x <<< y = shiftLeftRec x y (w₂ - 1) := by
+  rcases w₂ with rfl | w₂
+  · simp [of_length_zero]
+  · simp [shiftLeftRec_eq (x := x) (y := y) (n := w₂) (by omega)]
+
+
+/- ## Generalized shiftLeft in terms of op -/
+
+section GeneralizedShiftProof
+
+variable (op : {w₁ w₂ : Nat} → BitVec w₁ → BitVec w₂ → BitVec w₁)
+variable (op_zero : {w₁ : Nat} → {x : BitVec w₁} → op x 0#w₂ = x)
+variable (opTwoPow : {w : Nat} → (i : Nat) → BitVec w → BitVec w)
+variable (op_eq_opTwoPow : {w w₂ : Nat} → (i : Nat) → (x : BitVec w) → op x (twoPow w₂ i) = opTwoPow i x)
+variable (op_twoPow_or_twoPow_eq_opTwoPow_opTwoPow : {w : Nat} →
+  {i j : Nat} → (hij : i < j) → {x : BitVec w} →
+    op x (twoPow w₂ j ||| twoPow w₂ i) = opTwoPow j (opTwoPow i x))
+
+def opTwoPowRec (x : BitVec w)  (y : BitVec w₂) (i : Nat) : BitVec w :=
+  let bit := y.getLsb i
+  let x' := if bit then opTwoPow i x else x
+  match i with
+  | 0 => x'
+  | i + 1 => opTwoPowRec x' y i
+
+def bitVecTwoPowRec (x : BitVec w) (i : Nat) : BitVec w :=
+  let bit := x.getLsb i
+  let x' := (x <<< 1) ||| (BitVec.ofBool bit).zeroExtend w
+  match i with
+  | 0 => x'
+  | i + 1 => bitVecTwoPowRec x' i
+
+-- This is not worth the proof engineering I am afraid.
+-- Proof strategy:
+-- 1) Show that any bitvector x equals bitVecTwoPowRec x (w - 1).
+--   The definition has the loop invariant (bitVecTwoPowRec x i) = (x.truncate i).zeroExtend w
+-- 2) Show that 'op_twoPow_or_twoPow_eq_opTwoPow_opTwoPow' implies that
+--  (op x (twoPow w₂ j ||| (y.truncate (j-1).zero)) = opTwoPow j (opTwoPow i x).
+-- 3) show that the above implies that
+--    (op x ((y && twoPow w₂ j) ||| (y.truncate (j-1).zero)) =
+--        opTwoPow (if y.getLsb j then (opTwoPow j (opRec (j - 1) x)).
+-- But this is about equally as painful as what we have now :(
+end GeneralizedShiftProof
 
 end BitVec
