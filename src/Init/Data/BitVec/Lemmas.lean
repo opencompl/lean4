@@ -731,6 +731,16 @@ theorem getLsb_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {i : Nat} :
     getLsb (x >>> i) j = getLsb x (i+j) := by
   unfold getLsb ; simp
 
+@[simp]
+theorem ushiftRight_zero_eq (x : BitVec w) : x >>> 0 = x := by
+  simp [bv_toNat]
+
+/-! ### ushiftRight reductions from BitVec to Nat -/
+
+@[simp]
+theorem ushiftRight_eq' (x : BitVec w) (y : BitVec w₂) :
+  x >>> y = x >>> y.toNat := by rfl
+
 /-! ### sshiftRight -/
 
 theorem sshiftRight_eq {x : BitVec n} {i : Nat} :
@@ -794,6 +804,40 @@ theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
         Bool.and_iff_right_iff_imp, Bool.or_eq_true, Bool.not_eq_true', decide_eq_false_iff_not,
         Nat.not_lt, decide_eq_true_eq]
       omega
+
+/-- The msb after arithmetic shifting right equals the original msb. -/
+theorem sshiftRight_msb_eq_msb {n : Nat} {x : BitVec w} :
+    (x.sshiftRight n).msb = x.msb := by
+  rw [msb_eq_getLsb_last, getLsb_sshiftRight, msb_eq_getLsb_last]
+  by_cases hw₀ : w = 0
+  · simp [hw₀]
+  · simp only [show ¬(w ≤ w - 1) by omega, decide_False, Bool.not_false, Bool.true_and,
+    ite_eq_right_iff]
+    intros h
+    simp [show n = 0 by omega]
+
+theorem sshiftRight_add {x : BitVec w} {m n : Nat} :
+     x.sshiftRight (m + n) = (x.sshiftRight m).sshiftRight n := by
+  ext i
+  simp only [getLsb_sshiftRight, Nat.add_assoc]
+  by_cases h₁ : w ≤ (i : Nat)
+  · simp [h₁]
+  · simp only [h₁, decide_False, Bool.not_false, Bool.true_and]
+    by_cases h₂ : n + ↑i < w
+    · simp [h₂]
+    · simp only [h₂, ↓reduceIte]
+      by_cases h₃ : m + (n + ↑i) < w
+      · simp [h₃]
+        omega
+      · simp [h₃, sshiftRight_msb_eq_msb]
+
+/-! ### shiftRight reductions from BitVec to Nat -/
+
+@[simp]
+theorem sshiftRight'_zero (x : BitVec w) :
+    x.sshiftRight' (0#w₂) = x := by
+  ext i
+  simp [sshiftRight', getLsb_sshiftRight]
 
 /-! ### signExtend -/
 
@@ -928,6 +972,10 @@ theorem shiftRight_add {w : Nat} (x : BitVec w) (n m : Nat) :
     x >>> (n + m) = (x >>> n) >>> m:= by
   ext i
   simp [Nat.add_assoc n m i]
+
+theorem sshiftRight'_add {x : BitVec w₁} {y : BitVec w₂} {z : BitVec w₃} :
+    x.sshiftRight (y.toNat + z.toNat) = (x.sshiftRight' y).sshiftRight' z := by
+  simp [sshiftRight', shiftRight_add, sshiftRight_add]
 
 @[deprecated shiftRight_add (since := "2024-06-02")]
 theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :
@@ -1548,5 +1596,13 @@ theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsb_true
   · subst hik
     simp [hx]
   · by_cases hik' : k < i + 1 <;> simp [hik, hik'] <;> omega
+
+/-- Bitwise `and` of `(x : BitVec w`) with `1#w` equals zero extending the `lsb` to `w`. -/
+theorem and_one_eq_zeroExtend_ofBool_getLsb {x : BitVec w} :
+    (x &&& 1#w) = zeroExtend w (ofBool (x.getLsb 0)) := by
+  ext i
+  simp only [getLsb_and, getLsb_one, getLsb_zeroExtend, Fin.is_lt, decide_True, getLsb_ofBool,
+    Bool.true_and]
+  by_cases h : (0 = (i : Nat)) <;> simp [h] <;> omega
 
 end BitVec
