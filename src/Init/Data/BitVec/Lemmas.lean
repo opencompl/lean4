@@ -795,6 +795,37 @@ theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
         Nat.not_lt, decide_eq_true_eq]
       omega
 
+/-! ### udiv -/
+
+theorem udiv_eq {x y : BitVec n} :
+    x.udiv y = BitVec.ofNat n (x.toNat / y.toNat) := by
+  apply BitVec.eq_of_toNat_eq
+  simp only [udiv, toNat_ofNatLt, toNat_ofNat]
+  rw [Nat.mod_eq_of_lt]
+  exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
+
+theorem toNat_udiv {x y : BitVec n} (hy : 0 < y):
+    (x.udiv y).toNat = x.toNat / y.toNat := by
+  rw [udiv_eq]
+  simp only [toNat_ofNat]
+  rw [Nat.mod_eq_of_lt]
+  rw [Nat.div_lt_iff_lt_mul hy]
+  apply Nat.lt_of_lt_of_le x.isLt
+  apply Nat.le_mul_of_pos_right _ hy
+
+/-! ### umod -/
+
+theorem umod_eq {x y : BitVec n} :
+    x.umod y = BitVec.ofNat n (x.toNat % y.toNat) := by
+  apply BitVec.eq_of_toNat_eq
+  simp only [umod, toNat_ofNatLt, toNat_ofNat]
+  rw [Nat.mod_eq_of_lt (b := 2^n)]
+  apply Nat.lt_of_le_of_lt (Nat.mod_le _ _) x.isLt
+
+@[simp]
+theorem toNat_umod {x y : BitVec n} :
+    (x.umod y).toNat = x.toNat % y.toNat := by rfl
+
 /-! ### signExtend -/
 
 /-- Equation theorem for `Int.sub` when both arguments are `Int.ofNat` -/
