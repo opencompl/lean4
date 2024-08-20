@@ -315,6 +315,22 @@ theorem testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
     Nat.testBit 1 i = true ↔ i = 0 := by
   cases i <;> simp
 
+@[simp]
+theorem testBit_two_pow_self {n : Nat} : Nat.testBit (2 ^ n) n = true := by
+  rw [testBit, shiftRight_eq_div_pow, Nat.div_self (Nat.pow_pos Nat.zero_lt_two)]
+  simp
+
+@[simp]
+theorem testBit_two_pow_of_ne {n m : Nat} (hm : n ≠ m) : Nat.testBit (2 ^ n) m = false := by
+  rw [testBit, shiftRight_eq_div_pow]
+  cases Nat.lt_or_lt_of_ne hm
+  · rw [div_eq_of_lt (Nat.pow_lt_pow_right (by omega) (by omega))]
+    simp
+  · rw [Nat.pow_div _ Nat.two_pos,
+       ← Nat.sub_add_cancel (succ_le_of_lt <| Nat.sub_pos_of_lt (by omega))]
+    simp [Nat.pow_succ, and_one_is_mod, mul_mod_left]
+    omega
+
 /-! ### bitwise -/
 
 theorem testBit_bitwise

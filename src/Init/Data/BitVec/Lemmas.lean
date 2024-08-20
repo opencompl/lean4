@@ -1449,6 +1449,32 @@ protected theorem lt_of_le_ne (x y : BitVec n) (h1 : x <= y) (h2 : ¬ x = y) : x
   simp
   exact Nat.lt_of_le_of_ne
 
+/-! ### intMin -/
+
+/-- The bitvector of width `w` that has the smallest value when interpreted as an integer. -/
+def intMin (w : Nat) : BitVec w := BitVec.ofNat w (2^(w - 1))
+
+theorem getLsb_intMin (w : Nat) : (intMin w).getLsb i = decide (i + 1 = w) := by
+  simp [intMin, BitVec.getLsb]
+  by_cases h : i + 1 = w
+  · subst h
+    simp
+  · by_cases i + 1 < w
+    · simp [h, @Nat.testBit_two_pow_of_ne (w-1) i (by omega)]
+    · simp [h] ; omega
+
+@[simp, bv_toNat]
+theorem toNat_intMin : (intMin w).toNat = 2^(w - 1) % 2^w := by
+  simp [intMin]
+
+@[simp]
+theorem neg_intMin {w : Nat} : -intMin w = intMin w := by
+  by_cases h : 0 < w
+  · simp [bv_toNat, h]
+  · simp only [Nat.not_lt, Nat.le_zero_eq] at h
+    subst h
+    simp [intMin]
+
 /-! ### intMax -/
 
 /-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/

@@ -700,6 +700,35 @@ protected theorem pow_lt_pow_iff_right {a n m : Nat} (h : 1 < a) :
   · intro w
     exact Nat.pow_lt_pow_of_lt h w
 
+@[simp]
+protected theorem pow_pred_mul {x w : Nat} (h : 0 < w) :
+    x ^ (w - 1) * x = x ^ w := by
+  simp [← Nat.pow_succ, succ_eq_add_one, Nat.sub_add_cancel h]
+
+protected theorem pow_pred_lt_pow {x w : Nat} (h1 : 1 < x) (h2 : 0 < w) :
+    x ^ (w - 1) < x ^ w :=
+  @Nat.pow_lt_pow_of_lt x (w - 1) w  h1 (by omega)
+
+protected theorem pow_lt_pow_right (ha : 1 < a) (h : m < n) : a ^ m < a ^ n :=
+  (Nat.pow_lt_pow_iff_right ha).2 h
+
+@[simp]
+protected theorem two_pow_pred_add_two_pow_pred (h : 0 < w) :
+    2 ^ (w - 1) + 2 ^ (w - 1) = 2 ^ w:= by
+  rw [← Nat.pow_pred_mul h]
+  omega
+
+@[simp]
+protected theorem two_pow_sub_two_pow_pred (h : 0 < w) :
+    2 ^ w - 2 ^ (w - 1) = 2 ^ (w - 1) := by
+  simp [← Nat.two_pow_pred_add_two_pow_pred h]
+
+@[simp]
+protected theorem two_pow_pred_mod_two_pow (h : 0 < w):
+    2 ^ (w - 1) % 2 ^ w = 2 ^ (w - 1) := by
+  rw [mod_eq_of_lt]
+  apply Nat.pow_pred_lt_pow (by omega) h
+
 /-! ### log2 -/
 
 @[simp]
