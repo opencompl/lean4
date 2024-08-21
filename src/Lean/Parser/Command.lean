@@ -198,6 +198,9 @@ For more information about [inductive types](https://lean-lang.org/theorem_provi
 def «inductive»      := leading_parser
   "inductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
   many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
+def «coinductive»      := leading_parser
+  "coinductive " >> recover declId skipUntilWsOrDelim >> ppIndent declSig >> optional (symbol " :=" <|> " where") >>
+  many ctor >> optional (ppDedent ppLine >> computedFields) -- >> optDeriving --TODO: Handle deriving
 def classInductive   := leading_parser
   atomic (group (symbol "class " >> "inductive ")) >>
   recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >>
@@ -236,7 +239,7 @@ def «structure»          := leading_parser
 @[builtin_command_parser] def declaration := leading_parser
   declModifiers false >>
   («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
-   «inductive» <|> classInductive <|> «structure»)
+   «coinductive» <|> «inductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
 @[builtin_command_parser] def noncomputableSection := leading_parser
