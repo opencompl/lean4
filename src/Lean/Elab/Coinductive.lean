@@ -50,7 +50,7 @@ structure CoInductiveView : Type where
 
 namespace CoInductiveView
 
-section
+section -- toBinderViews defn
 /--
   Given syntax of the forms
     a) (`:` term)?
