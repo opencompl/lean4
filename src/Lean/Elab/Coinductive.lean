@@ -34,7 +34,7 @@ structure CoInductiveView.CtorView where
   type?     : Option Term
   deriving Inhabited
 
-structure CoInductiveView : Type where
+structure CoInductiveView where
   ref             : TSyntax ``Lean.Parser.Command.coinductive
   declId          : TSyntax ``Parser.Command.declId
   modifiers       : Modifiers
@@ -101,6 +101,15 @@ def ofModifiersAndStx (modifiers : Modifiers) (decl : Syntax) : CommandElabM CoI
 
 def ofStx (stx : Syntax) := elabModifiers stx[0] >>= (ofModifiersAndStx · stx[1])
 
+def extractIds : TSyntax ``Parser.Term.bracketedBinder → Array Ident
+  | ⟨.node _ _ #[.atom _ _, .node _ `null ids, _, _,  .atom _ _]⟩ => ids.map (⟨·⟩)
+  | _ => #[]
+
+def toBinderIds (c : CoInductiveView) : Array Ident := (c.binders.map extractIds).flatten
+
+def toRelType (c : CoInductiveView) : CommandElabM Term :=
+  c.binders.reverse.foldlM (fun curr acc => `($acc:bracketedBinder → $curr)) c.type
+
 end CoInductiveView
 
 open Parser.Term in
@@ -110,9 +119,6 @@ abbrev bb := bracketedBinder
 instance : Coe (TSyntax ``bb) (TSyntax ``bracketedBinder) where coe x := ⟨x.raw⟩
 end
 
-def extractIds : TSyntax ``Parser.Term.bracketedBinder → Array Ident
-  | ⟨.node _ _ #[_, .node _ `null ids, _, _,  _]⟩ => ids.map (⟨·⟩)
-  | _ => #[]
 
 partial def typeToArgArr (type : Term) : Array Term × Term := Prod.map List.toArray id $ go type.raw
   where go
@@ -127,7 +133,6 @@ def extractName : Syntax → Name
   | .ident _ _ nm _ => nm
   | _ => .anonymous
 
-
 def split : Nat → List α → (List α) × (List α)
   | _, []  => ⟨[], []⟩
   | 0, arr => ⟨[], arr⟩
@@ -136,7 +141,7 @@ def split : Nat → List α → (List α) × (List α)
 def generateIs (topView : CoInductiveView) (argArr : Array Ident) : CommandElabM Unit := do
   let shortDeclName := topView.shortDeclName ++ `Shape
 
-  let v ← `(bb| ($(mkIdent topView.shortDeclName) : $(topView.type)) )
+  let v ← `(bb| ($(mkIdent topView.shortDeclName) : $(←topView.toRelType)) )
 
   let view := {
     ref             := .missing
@@ -152,9 +157,12 @@ def generateIs (topView : CoInductiveView) (argArr : Array Ident) : CommandElabM
     computedFields  := #[]
   }
 
+  trace[Elab.CoInductive] s!"{repr topView.binders}"
+  trace[Elab.CoInductive] s!"{topView.toBinderIds}"
+
   let stx ← `(command|
-    abbrev $(mkIdent $ topView.shortDeclName ++ `Is) $(topView.binders)* (R : $(topView.type)) : Prop :=
-      ∀ { $argArr* }, R $argArr* → $(mkIdent shortDeclName) $((topView.binders.map extractIds).flatten)* R $argArr*)
+    abbrev $(mkIdent $ topView.shortDeclName ++ `Is) $(topView.binders)* (R : $(←topView.toRelType)) : Prop :=
+      ∀ { $argArr* }, R $(topView.toBinderIds)* $argArr* → $(mkIdent shortDeclName) $(topView.toBinderIds)* R $argArr*)
 
   trace[Elab.CoInductive] "Generating Is check:"
   trace[Elab.CoInductive] stx
@@ -175,6 +183,7 @@ def generateIs (topView : CoInductiveView) (argArr : Array Ident) : CommandElabM
         let ⟨pre, post⟩ := (split topView.binders.size arr.toList).map (·.toArray) (·.toArray)
 
         let out ← `($isTy $pre* $(mkIdent topView.shortDeclName) $post*)
+
         args.reverse.foldlM (fun acc curr => `($curr → $acc)) out
 
       return {
@@ -184,6 +193,23 @@ def generateIs (topView : CoInductiveView) (argArr : Array Ident) : CommandElabM
         binders   := .node .none `null (view.binders.map (·.raw))
         type?     := type?
       }
+
+/- def elabCoInductiveViews (views : Array CoInductiveView) : CommandElabM Unit := do -/
+/-   let view := views[0]! -/
+
+/-   let viewCheck ← views.mapM fun view => do -/
+/-     let ⟨tyArr, out⟩ := typeToArgArr view.type -/
+/-     let argArr := (← tyArr.mapM (fun _ => mkFreshBinderName)).map mkIdent -/
+
+/-     -- In theory we could make this handle types by simply changing the existential quantification but this would yield some pretty funny results -/
+/-     let .node _ ``Parser.Term.prop _ := out.raw | throwErrorAt out "Expected return type to be a Prop" -/
+/-     return Prod.mk view argArr -/
+
+/-   throwError "sorry" -/
+  /- generateIs view argArr -/
+  /- let stx ← `(def $(mkIdent view.shortDeclName) $(view.binders)* : $(view.type) := fun $argArr* => -/
+  /-   ∃ R, @$(mkIdent $ view.shortDeclName ++ `Is) $((view.binders.map extractIds).flatten)* R ∧ R $argArr*) -/
+  /- elabCommand stx -/
 
 -- TODO: handle mutual coinductive predicates
 def elabCoInductiveViews (views : Array CoInductiveView) : CommandElabM Unit := do
@@ -197,6 +223,6 @@ def elabCoInductiveViews (views : Array CoInductiveView) : CommandElabM Unit := 
 
   generateIs view argArr
   let stx ← `(def $(mkIdent view.shortDeclName) $(view.binders)* : $(view.type) := fun $argArr* =>
-    ∃ R, @$(mkIdent $ view.shortDeclName ++ `Is) $((view.binders.map extractIds).flatten)* R ∧ R $argArr*)
+    ∃ R, @$(mkIdent $ view.shortDeclName ++ `Is) $(view.toBinderIds)* R ∧ R $(view.toBinderIds)* $argArr*)
   elabCommand stx
 

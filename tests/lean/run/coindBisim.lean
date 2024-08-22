@@ -8,29 +8,29 @@ structure FSM where
 coinductive Bisim (fsm : FSM) : fsm.S → fsm.S → Prop :=
   | step {s t : fsm.S} :
     (fsm.A s ↔ fsm.A t)
-    → (∀ c, Bisim (fsm.d s c) (fsm.d t c))
+    → (∀ c, Bisim fsm (fsm.d s c) (fsm.d t c))
     → Bisim fsm s t
 
 /--
-info: inductive Bisim.Shape : (fsm : FSM) → (fsm.S → fsm.S → Prop) → fsm.S → fsm.S → Prop
+info: inductive Bisim.Shape : (fsm : FSM) → ((fsm : FSM) → fsm.S → fsm.S → Prop) → fsm.S → fsm.S → Prop
 number of parameters: 4
 constructors:
-Bisim.Shape.step : ∀ {fsm : FSM} {Bisim : fsm.S → fsm.S → Prop} {s t : fsm.S},
-  (fsm.A s ↔ fsm.A t) → (∀ (c : Nat), Bisim (fsm.d s c) (fsm.d t c)) → Bisim.Shape fsm Bisim s t
+Bisim.Shape.step : ∀ {fsm : FSM} {Bisim : (fsm : FSM) → fsm.S → fsm.S → Prop} {s t : fsm.S},
+  (fsm.A s ↔ fsm.A t) → (∀ (c : Nat), Bisim fsm (fsm.d s c) (fsm.d t c)) → Bisim.Shape fsm Bisim s t
 -/
 #guard_msgs in
 #print Bisim.Shape
 
 /--
-info: @[reducible] def Bisim.Is : (fsm : FSM) → (fsm.S → fsm.S → Prop) → Prop :=
-fun fsm R => ∀ {x x_1 : fsm.S}, R x x_1 → Bisim.Shape fsm R x x_1
+info: @[reducible] def Bisim.Is : FSM → ((fsm : FSM) → fsm.S → fsm.S → Prop) → Prop :=
+fun fsm R => ∀ {x x_1 : fsm.S}, R fsm x x_1 → Bisim.Shape fsm R x x_1
 -/
 #guard_msgs in
 #print Bisim.Is
 
 /--
 info: def Bisim : (fsm : FSM) → fsm.S → fsm.S → Prop :=
-fun fsm x x_1 => ∃ R, Bisim.Is fsm R ∧ R x x_1
+fun fsm x x_1 => ∃ R, Bisim.Is fsm R ∧ R fsm x x_1
 -/
 #guard_msgs in
 #print Bisim
@@ -40,21 +40,21 @@ fun fsm x x_1 => ∃ R, Bisim.Is fsm R ∧ R x x_1
 #print axioms Bisim
 
 theorem bisim_refl : Bisim f a a := by
-  exists fun a b => a = b
+  exists fun _ a b => a = b
   simp only [and_true]
   intro s t seqt
   constructor <;> simp_all
 
 theorem bisim_symm (h : Bisim f a b): Bisim f b a := by
   rcases h with ⟨rel, relIsBisim, rab⟩
-  exists fun a b => rel b a
+  exists fun f a b => rel f b a
   simp_all
   intro a b holds
   specialize relIsBisim holds
   rcases relIsBisim with ⟨imp, z⟩
   constructor <;> simp_all only [implies_true, and_self]
 
-theorem Bisim.unfold {f} : Bisim.Is f (Bisim f) := by
+theorem Bisim.unfold {f} : Bisim.Is f Bisim := by
   rintro s t ⟨R, h_is, h_Rst⟩
   constructor
   · exact (h_is h_Rst).1
@@ -62,7 +62,7 @@ theorem Bisim.unfold {f} : Bisim.Is f (Bisim f) := by
 
 theorem bisim_trans (h_ab : Bisim f a b) (h_bc : Bisim f b c) :
     Bisim f a c := by
-  exists (∃ u, Bisim f · u ∧ Bisim f u ·)
+  exists (fun f s t => ∃ u, Bisim f s u ∧ Bisim f u t)
   constructor
   intro s t h_Rst
   · rcases h_Rst with ⟨u, h_su, h_ut⟩
