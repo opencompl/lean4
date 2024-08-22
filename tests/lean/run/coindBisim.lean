@@ -62,7 +62,7 @@ theorem Bisim.unfold {f} : Bisim.Is f (Bisim f) := by
 
 theorem bisim_trans (h_ab : Bisim f a b) (h_bc : Bisim f b c) :
     Bisim f a c := by
-  exists (fun s t => ∃ u, Bisim f s u ∧ Bisim f u t)
+  exists (∃ u, Bisim f · u ∧ Bisim f u ·)
   constructor
   intro s t h_Rst
   · rcases h_Rst with ⟨u, h_su, h_ut⟩
