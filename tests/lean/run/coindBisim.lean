@@ -12,18 +12,18 @@ coinductive Bisim (fsm : FSM) : fsm.S → fsm.S → Prop :=
     → Bisim fsm s t
 
 /--
-info: inductive Bisim.Invariant : (fsm : FSM) → (fsm.S → fsm.S → Prop) → fsm.S → fsm.S → Prop
+info: inductive Bisim.Shape : (fsm : FSM) → (fsm.S → fsm.S → Prop) → fsm.S → fsm.S → Prop
 number of parameters: 4
 constructors:
-Bisim.Invariant.step : ∀ {fsm : FSM} {Bisim : fsm.S → fsm.S → Prop} {x x_1 : fsm.S},
-  (fsm.A x ↔ fsm.A x_1) → (∀ (c : Nat), Bisim (fsm.d x c) (fsm.d x_1 c)) → Bisim.Invariant fsm Bisim x x_1
+Bisim.Shape.step : ∀ {fsm : FSM} {Bisim : fsm.S → fsm.S → Prop} {s t : fsm.S},
+  (fsm.A s ↔ fsm.A t) → (∀ (c : Nat), Bisim (fsm.d s c) (fsm.d t c)) → Bisim.Shape fsm Bisim s t
 -/
 #guard_msgs in
-#print Bisim.Invariant
+#print Bisim.Shape
 
 /--
 info: @[reducible] def Bisim.Is : (fsm : FSM) → (fsm.S → fsm.S → Prop) → Prop :=
-fun fsm R => ∀ {x x_1 : fsm.S}, R x x_1 → Bisim.Invariant fsm R x x_1
+fun fsm R => ∀ {x x_1 : fsm.S}, R x x_1 → Bisim.Shape fsm R x x_1
 -/
 #guard_msgs in
 #print Bisim.Is
