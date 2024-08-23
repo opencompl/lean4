@@ -211,6 +211,7 @@ def elabCoInductiveViews (views : Array CoInductiveView) : CommandElabM Unit := 
     let stx ← `(def $(mkIdent view.shortDeclName) $(view.binders)* : $(view.type) := fun $argArr* =>
       ∃ $[$boundNames:ident]*, @$(mkIdent $ view.shortDeclName ++ `Is) $(view.toBinderIds)* $boundNames* ∧ $i $(view.toBinderIds)* $argArr*)
 
+    trace[Elab.CoInductive] "Generating co-inductive:"
     trace[Elab.CoInductive] stx
     elabCommand stx
 
