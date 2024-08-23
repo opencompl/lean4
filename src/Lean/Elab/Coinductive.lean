@@ -138,91 +138,88 @@ def split : Nat → List α → (List α) × (List α)
   | 0, arr => ⟨[], arr⟩
   | n+1, hd :: tl => Prod.map (hd :: ·) id $ split n tl
 
-def generateIs (topView : CoInductiveView) (argArr : Array Ident) : CommandElabM Unit := do
-  let shortDeclName := topView.shortDeclName ++ `Shape
 
-  let v ← `(bb| ($(mkIdent topView.shortDeclName) : $(←topView.toRelType)) )
-
-  let view := {
-    ref             := .missing
-    declId          := ←`(declId| $(mkIdent shortDeclName))
-    modifiers       := topView.modifiers
-    shortDeclName
-    declName        := topView.declName ++ `Shape
-    levelNames      := topView.levelNames
-    binders         := .node .none `null $ topView.binders.push v
-    type?           := some topView.type
-    ctors           := ←topView.ctors.mapM $ handleCtor $ mkIdent shortDeclName
-    derivingClasses := #[]
-    computedFields  := #[]
-  }
-
-  trace[Elab.CoInductive] s!"{repr topView.binders}"
-  trace[Elab.CoInductive] s!"{topView.toBinderIds}"
-
-  let stx ← `(command|
-    abbrev $(mkIdent $ topView.shortDeclName ++ `Is) $(topView.binders)* (R : $(←topView.toRelType)) : Prop :=
-      ∀ { $argArr* }, R $(topView.toBinderIds)* $argArr* → $(mkIdent shortDeclName) $(topView.toBinderIds)* R $argArr*)
-
-  trace[Elab.CoInductive] "Generating Is check:"
-  trace[Elab.CoInductive] stx
-
-  elabInductiveViews #[view]
-  elabCommand stx
-
-  where
     -- Coming in these have the form of  | name ... : ... Nm       topBinders...         args...
     -- But we want them to have the form | name ... : ... Nm.Shape topBinders... RecName args...
-    handleCtor isTy view := do
-      let nm := view.declName.replacePrefix topView.declName (topView.declName ++ `Shape)
+def handleCtor (names : Array Ident) (topView : CoInductiveView) (isTy : Ident) (view : CoInductiveView.CtorView) : CommandElabM CtorView := do
+  let nm := view.declName.replacePrefix topView.declName (topView.declName ++ `Shape)
 
-      let type? ← view.type?.mapM fun type => do
-        let ⟨args, out⟩ := typeToArgArr type
-        let ⟨arr, _⟩ := appsToArgArr out
+  let type? ← view.type?.mapM fun type => do
+    let ⟨args, out⟩ := typeToArgArr type
+    let ⟨arr, _⟩ := appsToArgArr out
 
-        let ⟨pre, post⟩ := (split topView.binders.size arr.toList).map (·.toArray) (·.toArray)
+    let ⟨pre, post⟩ := (split topView.binders.size arr.toList).map (·.toArray) (·.toArray)
 
-        let out ← `($isTy $pre* $(mkIdent topView.shortDeclName) $post*)
+    let out ← `($isTy $pre* $names* $post*)
 
-        args.reverse.foldlM (fun acc curr => `($curr → $acc)) out
+    args.reverse.foldlM (fun acc curr => `($curr → $acc)) out
 
-      return {
-        ref       := .missing
-        modifiers := view.modifiers
-        declName  := nm
-        binders   := .node .none `null (view.binders.map (·.raw))
-        type?     := type?
-      }
+  return {
+    ref       := .missing
+    modifiers := view.modifiers
+    declName  := nm
+    binders   := .node .none `null (view.binders.map (·.raw))
+    type?     := type?
+  }
 
-/- def elabCoInductiveViews (views : Array CoInductiveView) : CommandElabM Unit := do -/
-/-   let view := views[0]! -/
+def generateIs (vss : Array (CoInductiveView × Array Ident)) (rNameEntries : Array (Ident × Term)) : CommandElabM Unit := do
+  -- It could be worth making this extract only the names that are required.
+  let boundRNames ← rNameEntries.mapM (fun ⟨i, v⟩ => do `(bb| ( $i : $v) ))
+  let coRecArgs   ← vss.mapM (fun ⟨v, _⟩ => do `(bb| ( $(mkIdent $ v.shortDeclName) : $(←v.toRelType))))
+  let names      := vss.map  (mkIdent ·.fst.shortDeclName)
 
-/-   let viewCheck ← views.mapM fun view => do -/
-/-     let ⟨tyArr, out⟩ := typeToArgArr view.type -/
-/-     let argArr := (← tyArr.mapM (fun _ => mkFreshBinderName)).map mkIdent -/
+  for ⟨idx, topView, argArr⟩ in vss.toList.enum.toArray do
+    let shortDeclName := topView.shortDeclName ++ `Shape
 
-/-     -- In theory we could make this handle types by simply changing the existential quantification but this would yield some pretty funny results -/
-/-     let .node _ ``Parser.Term.prop _ := out.raw | throwErrorAt out "Expected return type to be a Prop" -/
-/-     return Prod.mk view argArr -/
+    let view := {
+      ref             := .missing
+      declId          := ←`(declId| $(mkIdent shortDeclName))
+      modifiers       := topView.modifiers
+      shortDeclName
+      declName        := topView.declName ++ `Shape
+      levelNames      := topView.levelNames
+      binders         := .node .none `null $ topView.binders.append coRecArgs
+      type?           := some topView.type
+      ctors           := ←topView.ctors.mapM $ handleCtor names topView $ mkIdent shortDeclName
+      derivingClasses := #[]
+      computedFields  := #[]
+    }
 
-/-   throwError "sorry" -/
-  /- generateIs view argArr -/
-  /- let stx ← `(def $(mkIdent view.shortDeclName) $(view.binders)* : $(view.type) := fun $argArr* => -/
-  /-   ∃ R, @$(mkIdent $ view.shortDeclName ++ `Is) $((view.binders.map extractIds).flatten)* R ∧ R $argArr*) -/
-  /- elabCommand stx -/
+    trace[Elab.CoInductive] s!"{repr topView.binders}"
+    trace[Elab.CoInductive] s!"{topView.toBinderIds}"
 
--- TODO: handle mutual coinductive predicates
+    let boundNames := rNameEntries.map Prod.fst
+    let i := boundNames[idx]! -- OK since these come from the same source
+
+    let stx ← `(command|
+      abbrev $(mkIdent $ topView.shortDeclName ++ `Is) $(topView.binders)* $boundRNames* : Prop :=
+        ∀ { $argArr* }, $i $(topView.toBinderIds)* $argArr* → $(mkIdent shortDeclName) $(topView.toBinderIds)* $boundNames* $argArr*)
+
+    trace[Elab.CoInductive] "Generating Is check:"
+    trace[Elab.CoInductive] stx
+
+    elabInductiveViews #[view]
+    elabCommand stx
+
 def elabCoInductiveViews (views : Array CoInductiveView) : CommandElabM Unit := do
-  let view := views[0]!
+  let viewCheck ← views.mapM fun view => do
+    let ⟨tyArr, out⟩ := typeToArgArr view.type
+    let argArr := (← tyArr.mapM (fun _ => mkFreshBinderName)).map mkIdent
 
-  let ⟨tyArr, out⟩ := typeToArgArr view.type
-  let argArr := (← tyArr.mapM (fun _ => mkFreshBinderName)).map mkIdent
+    -- In theory we could make this handle types by simply changing the existential quantification but this would yield some pretty funny results
+    let .node _ ``Parser.Term.prop _ := out.raw | throwErrorAt out "Expected return type to be a Prop"
+    return Prod.mk view argArr
 
-  -- In theory we could make this handle types by simply changing the existential quantification but this would yield some pretty funny results
-  let .node _ ``Parser.Term.prop _ := out.raw | throwErrorAt out "Expected return type to be a Prop"
+  let rNameEntries ← viewCheck.mapM (fun ⟨v, _⟩ => return Prod.mk (mkIdent $ ←mkFreshBinderName) (←v.toRelType))
 
-  generateIs view argArr
-  let stx ← `(def $(mkIdent view.shortDeclName) $(view.binders)* : $(view.type) := fun $argArr* =>
-    ∃ R, @$(mkIdent $ view.shortDeclName ++ `Is) $(view.toBinderIds)* R ∧ R $(view.toBinderIds)* $argArr*)
-  elabCommand stx
+  generateIs viewCheck rNameEntries
+  for ⟨idx, view, argArr⟩ in viewCheck.toList.enum.toArray do
+    let boundNames := rNameEntries.map Prod.fst
+    let i := boundNames[idx]! -- OK since these come from the same source
+
+    let stx ← `(def $(mkIdent view.shortDeclName) $(view.binders)* : $(view.type) := fun $argArr* =>
+      ∃ $[$boundNames:ident]*, @$(mkIdent $ view.shortDeclName ++ `Is) $(view.toBinderIds)* $boundNames* ∧ $i $(view.toBinderIds)* $argArr*)
+
+    trace[Elab.CoInductive] stx
+    elabCommand stx
 

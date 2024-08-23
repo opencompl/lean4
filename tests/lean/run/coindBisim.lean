@@ -23,14 +23,14 @@ Bisim.Shape.step : ∀ {fsm : FSM} {Bisim : (fsm : FSM) → fsm.S → fsm.S → 
 
 /--
 info: @[reducible] def Bisim.Is : FSM → ((fsm : FSM) → fsm.S → fsm.S → Prop) → Prop :=
-fun fsm R => ∀ {x x_1 : fsm.S}, R fsm x x_1 → Bisim.Shape fsm R x x_1
+fun fsm x => ∀ {x_1 x_2 : fsm.S}, x fsm x_1 x_2 → Bisim.Shape fsm x x_1 x_2
 -/
 #guard_msgs in
 #print Bisim.Is
 
 /--
 info: def Bisim : (fsm : FSM) → fsm.S → fsm.S → Prop :=
-fun fsm x x_1 => ∃ R, Bisim.Is fsm R ∧ R fsm x x_1
+fun fsm x x_1 => ∃ x_2, Bisim.Is fsm x_2 ∧ x_2 fsm x x_1
 -/
 #guard_msgs in
 #print Bisim
