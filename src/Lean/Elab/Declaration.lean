@@ -185,9 +185,9 @@ def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
   let v ← inductiveSyntaxToView modifiers stx
   elabInductiveViews #[v]
 
-def elabCoInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
-  let v ← CoInductiveView.ofModifiersAndStx modifiers stx
-  elabCoInductiveViews #[v]
+def elabCoinductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
+  let v ← CoinductiveView.ofModifiersAndStx modifiers stx
+  elabCoinductiveViews #[v]
 
 def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   let modifiers := modifiers.addAttr { name := `class }
@@ -224,7 +224,7 @@ def elabDeclaration : CommandElab := fun stx => do
       elabInductive modifiers decl
     else if declKind == ``Lean.Parser.Command.«coinductive» then
       let modifiers ← elabModifiers stx[0]
-      elabCoInductive modifiers decl
+      elabCoinductive modifiers decl
     else if declKind == ``Lean.Parser.Command.classInductive then
       let modifiers ← elabModifiers stx[0]
       elabClassInductive modifiers decl
