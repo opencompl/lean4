@@ -1786,4 +1786,62 @@ theorem getLsb_replicate {n w : Nat} (x : BitVec w) :
       simp only [show ¬i < w * n by omega, decide_False, cond_false, hi, Bool.false_and]
       apply BitVec.getLsb_ge (x := x) (i := i - w * n) (ge := by omega)
 
+/-! ### sdiv -/
+
+theorem sdiv_eq {x y : BitVec n} : sdiv x y =
+  match x.msb, y.msb with
+  | false, false => udiv x y
+  | false, true  => .neg (udiv x (.neg y))
+  | true,  false => .neg (udiv (.neg x) y)
+  | true,  true  => udiv (.neg x) (.neg y) := rfl
+
+theorem msb_neg (x : BitVec w) : (- x).msb =
+  if x = 0#w then false
+  else if x = intMin then true
+  else !x.msb := by
+  rcases w with rfl | w
+  · simp
+    apply Subsingleton.elim
+  · by_cases h : x.msb
+    · simp only [msb_eq_decide, Nat.add_one_sub_one, toNat_neg, Bool.if_false_left]
+      have := msb_eq_true_iff_two_mul_ge x |>.mp h
+      simp only [show x.toNat ≥ 2 ^ w by omega, decide_True, Bool.not_true, Bool.and_false,
+        decide_eq_false_iff_not, Nat.not_le, gt_iff_lt]
+      rw [Nat.mod_eq_of_lt (by omega)]
+      ·
+        have : x.toNat ≥ 2^w := by omega
+        have : 2^(w + 1) - x.toNat ≤ 2^w := by omega
+        omega
+    · simp [msb_eq_decide]
+      simp at h
+      have :=  msb_eq_false_iff_two_mul_lt x |>.mp h
+      simp [show ¬ 2^w ≤ x.toNat by omega]
+      by_cases hx : x = (0#(w+1))
+      · simp [hx]
+        omega
+      · simp [hx]
+        omega
+
+
+
+theorem toInt_neg {x : BitVec n} : (- x).toInt = if x = intMin then x else - x.toInt := by
+  rw [toInt_eq_toNat_cond]
+  simp
+  by_cases h : x = 0#n
+  · subst h
+    simp [show 0 < 2^n by sorry]
+    sorry
+  · have : x.toNat > 0 := by sorry
+    rw [Nat.mod_eq_of_lt (by omega)]
+    sorry
+
+theorem toInt_sdiv {x y : BitVec n} : (x.sdiv y).toInt = x.toInt / y.toInt := by
+  simp only [sdiv_eq]
+  cases hx : x.msb
+  · cases hy : y.msb
+    · sorry
+    · simp [hx, hy]
+      rw [toInt_neg]
+  · sorry
+
 end BitVec
