@@ -1835,13 +1835,22 @@ theorem toInt_neg {x : BitVec n} : (- x).toInt = if x = intMin then x else - x.t
     rw [Nat.mod_eq_of_lt (by omega)]
     sorry
 
+@[simp]
+theorem msb_ofNat (n : Nat) (x : Nat) : (BitVec.ofNat n x).msb = decide (2 ^ (n - 1) ≤ x % 2 ^ n) := by
+  simp [msb_eq_decide, toNat_ofNat]
+
 theorem toInt_sdiv {x y : BitVec n} : (x.sdiv y).toInt = x.toInt / y.toInt := by
   simp only [sdiv_eq]
   cases hx : x.msb
   · cases hy : y.msb
-    · sorry
     · simp [hx, hy]
-      rw [toInt_neg]
+      rw [udiv_eq]
+      rw [toInt_eq_msb_cond]
+      simp
+      simp [show x.toNat / y.toNat % 2^n = x.toNat / y.toNat by sorry]
+      sorry
+    · simp [hx, hy]
+      sorry
   · sorry
 
 end BitVec
