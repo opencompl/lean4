@@ -138,13 +138,12 @@ def adcb (x y c : Bool) : Bool × Bool := (atLeastTwo x y c, x ^^ (y ^^ c))
 def adc (x y : BitVec w) : Bool → Bool × BitVec w :=
   iunfoldr fun (i : Fin w) c => adcb (x.getLsbD i) (y.getLsbD i) c
 
-theorem getLsbD_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool) :
-    getLsbD (x + y + setWidth w (ofBool c)) i =
-      (getLsbD x i ^^ (getLsbD y i ^^ carry i x y c)) := by
+theorem getElem_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool) :
+    (x + y + setWidth w (ofBool c))[i] = (x[i] ^^ (y[i] ^^ carry i x y c)) := by
   let ⟨x, x_lt⟩ := x
   let ⟨y, y_lt⟩ := y
-  simp only [getLsbD, toNat_add, toNat_setWidth, i_lt, toNat_ofFin, toNat_ofBool,
-    Nat.mod_add_mod, Nat.add_mod_mod]
+  simp only [getElem_eq_testBit_toNat, toNat_add, toNat_setWidth, toNat_ofFin, toNat_ofBool,
+    mod_add_mod, Nat.add_mod_mod]
   apply Eq.trans
   rw [← Nat.div_add_mod x (2^i), ← Nat.div_add_mod y (2^i)]
   simp only
@@ -159,10 +158,10 @@ theorem getLsbD_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool
     ]
   simp [testBit_to_div_mod, carry, Nat.add_assoc]
 
-theorem getLsbD_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
-    getLsbD (x + y) i =
-      (getLsbD x i ^^ (getLsbD y i ^^ carry i x y false)) := by
-  simpa using getLsbD_add_add_bool i_lt x y false
+theorem getElem_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
+    (x + y)[i] =
+      (x[i] ^^ (y[i] ^^ carry i x y false)) := by
+  simpa using getElem_add_add_bool i_lt x y false
 
 theorem adc_spec (x y : BitVec w) (c : Bool) :
     adc x y c = (carry w x y c, x + y + setWidth w (ofBool c)) := by
@@ -175,7 +174,8 @@ theorem adc_spec (x y : BitVec w) (c : Bool) :
     simp [carry, Nat.mod_one]
     cases c <;> rfl
   case step =>
-    simp [adcb, Prod.mk.injEq, carry_succ, getLsbD_add_add_bool]
+    simp [adcb, Prod.mk.injEq, carry_succ, getElem_add_add_bool]
+
 
 theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := by
   simp [adc_spec]
