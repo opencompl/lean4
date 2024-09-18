@@ -1334,13 +1334,6 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
   split
   rename_i h
   simp [h]
-
-
-
-
-  apply eq_of_getLsbD_eq
-
-  intro i
   simp only [getLsbD_setWidth, Fin.is_lt, decide_True, getLsbD_append, Bool.true_and]
   simp
   split
