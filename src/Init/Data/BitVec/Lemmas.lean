@@ -500,7 +500,7 @@ theorem getElem_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) (hi : i < v) :
     (setWidth' h x)[i] = x.getLsbD i := by
   rw [getElem_eq_testBit_toNat, toNat_setWidth', getLsbD]
 
-theorem getElem_setWidth (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
+@[simp] theorem getElem_setWidth (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
     (setWidth m x)[i] = x.getLsbD i := by
   rw [setWidth]
   split
@@ -877,6 +877,10 @@ theorem zero_shiftLeft (n : Nat) : 0#w <<< n = 0#w := by
   cases h₁ : decide (i < m) <;> cases h₂ : decide (n ≤ i) <;> cases h₃ : decide (i < n)
   all_goals { simp_all <;> omega }
 
+@[simp] theorem getElem_shiftLeft (x : BitVec m) (n) (h : i < m) :
+    (x <<< n)[i] = (!decide (i < n) && getLsbD x (i - n)) := by
+  simp [h, ←getLsbD_eq_getElem, getLsbD_shiftLeft]
+
 theorem shiftLeft_xor_distrib (x y : BitVec w) (n : Nat) :
     (x ^^^ y) <<< n = (x <<< n) ^^^ (y <<< n) := by
   ext i
@@ -929,6 +933,15 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
   cases h₁ : decide (i < n) <;> cases h₂ : decide (i - n < m + n) <;> cases h₃ : decide (i < m + n)
     <;> simp_all
     <;> (rw [getLsbD_ge]; omega)
+
+@[simp] theorem getElem_shiftLeftZeroExtend {x : BitVec m} {n : Nat} (h : i < n) :
+    (shiftLeftZeroExtend x n)[i] = ((!decide (i < n)) && getLsbD x (i - n)) := by
+  rw [shiftLeftZeroExtend_eq]
+  rw [getElem_shiftLeft]
+  simp [getElem_shiftLeft, getElem_setWidth]
+  cases h₁ : decide (i < n)
+    <;> simp_all
+    <;> (rw [getLsbD_ge] ; omega)
 
 @[simp] theorem getMsbD_shiftLeftZeroExtend (x : BitVec m) (n : Nat) :
     getMsbD (shiftLeftZeroExtend x n) i = getMsbD x i := by
@@ -1060,8 +1073,7 @@ theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
     · simp only [hi, decide_True, Bool.not_true, Bool.false_and]
       apply getLsbD_ge
       omega
-    · simp only [hi, decide_False, Bool.not_false, Bool.true_and, Bool.iff_and_self,
-        decide_eq_true_eq]
+    · simp only [hi, decide_False, Bool.not_false, Bool.true_and, Bool.iff_and_self, decide_eq_true_eq]
       intros hlsb
       apply BitVec.lt_of_getLsbD hlsb
   · by_cases hi : i ≥ w
@@ -1071,6 +1083,15 @@ theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
         Bool.and_iff_right_iff_imp, Bool.or_eq_true, Bool.not_eq_true', decide_eq_false_iff_not,
         Nat.not_lt, decide_eq_true_eq]
       omega
+
+@[simp] theorem getElem_sshiftRight (x : BitVec w) (s i : Nat) (h : i < w):
+    (x.sshiftRight s)[i] = if s + i < w then x.getLsbD (s + i) else x.msb := by
+  rcases hmsb : x.msb with rfl | rfl
+  · simp only [sshiftRight_eq_of_msb_false hmsb, getElem_ushiftRight, Bool.if_false_right,
+    Bool.iff_and_self, decide_eq_true_eq]
+    intros hlsb
+    apply BitVec.lt_of_getLsbD hlsb
+  · simp [sshiftRight_eq_of_msb_true hmsb]
 
 theorem sshiftRight_xor_distrib (x y : BitVec w) (n : Nat) :
     (x ^^^ y).sshiftRight n = (x.sshiftRight n) ^^^ (y.sshiftRight n) := by
@@ -1236,6 +1257,19 @@ theorem append_def (x : BitVec v) (y : BitVec w) :
   by_cases h : i < m
   · simp [h]
   · simp [h]; simp_all
+
+@[simp] theorem getElem_append {x : BitVec n} {y : BitVec m} (h : i < m + n):
+    (x ++ y)[i] = bif i < m then getLsbD y i else getLsbD x (i - m) := by
+  simp only [append_def, getElem_or]
+  by_cases h' : i < m
+  ·
+    simp [getElem_shiftLeftZeroExtend h']
+    simp [h', *]
+
+
+  ·
+    simp [h', *]
+    simp_all
 
 @[simp] theorem getMsbD_append {x : BitVec n} {y : BitVec m} :
     getMsbD (x ++ y) i = bif n ≤ i then getMsbD y (i - n) else getMsbD x i := by
