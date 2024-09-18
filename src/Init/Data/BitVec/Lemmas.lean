@@ -1337,6 +1337,7 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
 
 
 
+
   apply eq_of_getLsbD_eq
 
   intro i
