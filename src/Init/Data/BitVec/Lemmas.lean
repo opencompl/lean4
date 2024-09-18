@@ -232,15 +232,6 @@ theorem ofNat_one (n : Nat) : BitVec.ofNat 1 n = BitVec.ofBool (n % 2 = 1) :=  b
 theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b' ↔ b = b' := by
   decide
 
-@[simp] theorem and_ofBool : ofBool a &&& ofBool b = ofBool (a && b) := by
-  cases a <;> cases b <;> rfl
-
-@[simp] theorem or_ofBool : ofBool a ||| ofBool b = ofBool (a || b) := by
-  cases a <;> cases b <;> rfl
-
-@[simp] theorem xor_ofBool : ofBool a ^^^ ofBool b = ofBool (a ^^ b) := by
-  cases a <;> cases b <;> rfl
-
 @[simp] theorem not_ofBool : ~~~ (ofBool b) = ofBool (!b) := by cases b <;> rfl
 
 @[simp] theorem ofBool_and_ofBool : ofBool b &&& ofBool b' = ofBool (b && b') := by
