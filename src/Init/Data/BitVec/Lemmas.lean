@@ -1484,31 +1484,17 @@ theorem eq_msb_cons_setWidth (x : BitVec (w+1)) : x = (cons x.msb (x.setWidth w)
 @[simp] theorem cons_or_cons (x y : BitVec w) (a b : Bool) :
     (cons a x) ||| (cons b y) = cons (a || b) (x ||| y) := by
   ext i
-  simp only [cons]
-  by_cases h : i < w
-  · simp [h]
-  · simp only [or_cast, or_append, Fin.is_lt, getLsbD_eq_getElem, getElem_cast, getElem_append,
-    getLsbD_or, getLsbD_ofBool]
-    simp [show i = w by omega]
+  simp [cons]
 
 @[simp] theorem cons_and_cons (x y : BitVec w) (a b : Bool) :
     (cons a x) &&& (cons b y) = cons (a && b) (x &&& y) := by
   ext i
-  simp only [cons]
-  by_cases h : i < w
-  · simp [h]
-  ·
-    simp? [show i = w by omega]
-    rw [
-
-
-
-    simp only [and_cast, and_append, Fin.is_lt, getLsbD_eq_getElem, getElem_cast, getElem_append,
-    getLsbD_and, getLsbD_ofBool]
+  simp [cons]
 
 @[simp] theorem cons_xor_cons (x y : BitVec w) (a b : Bool) :
     (cons a x) ^^^ (cons b y) = cons (a ^^ b) (x ^^^ y) := by
-  ext i; cases i using Fin.succRecOn <;> simp <;> split <;> rfl
+  ext i
+  simp [cons]
 
 /-! ### concat -/
 
