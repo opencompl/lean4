@@ -2016,16 +2016,18 @@ theorem getLsbD_twoPow (i j : Nat) : (twoPow w i).getLsbD j = ((i < w) && (i = j
         simp_all
 
 @[simp]
-theorem getElem_twoPow (i j : Nat) (h : j < w) : (twoPow w i)[j] = (i = j) := by
+theorem getElem_twoPow (i j : Nat) (h : j < w) : (twoPow w i)[j] = decide (i = j) := by
   simp [←getLsbD_eq_getElem]
   omega
 
 theorem and_twoPow (x : BitVec w) (i : Nat) :
     x &&& (twoPow w i) = if x.getLsbD i then twoPow w i else 0#w := by
   ext j
-  simp [Fin.is_lt, -getLsbD_eq_getElem, getElem_and]
+  simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_and, getElem_twoPow]
   by_cases hj : i = j <;> by_cases hx : x[j.val] <;> simp_all
-  simp
+  <;> split
+  <;> simp [show j < w by omega]
+  <;> omega
 
 theorem twoPow_and (x : BitVec w) (i : Nat) :
     (twoPow w i) &&& x = if x.getLsbD i then twoPow w i else 0#w := by
@@ -2080,9 +2082,11 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) ||| (twoPow w i) := by
   ext k
-  simp only [getLsbD_setWidth, Fin.is_lt, decide_True, Bool.true_and, getLsbD_or, getLsbD_and]
+  simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_setWidth, getLsbD_setWidth, getElem_or,
+    getElem_twoPow]
   by_cases hik : i = k
   · subst hik
+    simp at hx
     simp [hx]
   · by_cases hik' : k < i + 1 <;> simp [hik, hik'] <;> omega
 
