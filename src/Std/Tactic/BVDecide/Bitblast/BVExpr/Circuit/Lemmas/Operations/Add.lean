@@ -204,14 +204,14 @@ end blastAdd
 
 theorem denote_blastAdd (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
       (input : BinaryRefVec aig w)
-      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
-      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
+      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs[idx])
+      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs[idx]) :
       ∀ (idx : Nat) (hidx : idx < w),
           ⟦(blastAdd aig input).aig, (blastAdd aig input).vec.get idx hidx, assign⟧
             =
-          (lhs + rhs).getLsbD idx := by
+          (lhs + rhs)[idx] := by
   intro idx hidx
-  rw [BitVec.getLsbD_add]
+  rw [BitVec.getElem_add]
   · rw [← hleft idx hidx]
     rw [← hright idx hidx]
     unfold blastAdd
@@ -222,15 +222,16 @@ theorem denote_blastAdd (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Boo
       rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
     · simp
     · omega
-    · intros
+    · intros idx hidx
       simp only [BinaryRefVec.lhs_get_cast, Ref.cast_eq]
       rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
       rw [hleft]
-    · intros
+      simp [hidx]
+    · intros idx hidx
       simp only [BinaryRefVec.rhs_get_cast, Ref.cast_eq]
       rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
       rw [hright]
-  · assumption
+      simp [hidx]
 
 end bitblast
 end BVExpr

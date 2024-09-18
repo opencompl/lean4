@@ -27,12 +27,12 @@ namespace blastMul
 
 theorem go_denote_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (hcurr : curr + 1 ≤ w)
     (acc : AIG.RefVec aig w) (lhs rhs : AIG.RefVec aig w) (lexpr rexpr : BitVec w) (assign : Assignment)
-    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, lhs.get idx hidx, assign.toAIGAssignment⟧ = lexpr.getLsbD idx)
-    (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, rhs.get idx hidx, assign.toAIGAssignment⟧ = rexpr.getLsbD idx)
+    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, lhs.get idx hidx, assign.toAIGAssignment⟧ = lexpr[idx])
+    (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, rhs.get idx hidx, assign.toAIGAssignment⟧ = rexpr[idx])
     (hacc : ∀ (idx : Nat) (hidx : idx < w),
                 ⟦aig, acc.get idx hidx, assign.toAIGAssignment⟧
                   =
-                (BitVec.mulRec lexpr rexpr curr).getLsbD idx) :
+                (BitVec.mulRec lexpr rexpr curr)[idx]) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
           (go aig lhs rhs (curr + 1) hcurr acc).aig,
@@ -40,7 +40,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (hcurr : curr + 1 
           assign.toAIGAssignment
         ⟧
           =
-        (BitVec.mulRec lexpr rexpr w).getLsbD idx := by
+        (BitVec.mulRec lexpr rexpr w)[idx] := by
   intro idx hidx
   generalize hgo: go aig lhs rhs (curr + 1) hcurr acc = res
   unfold go at hgo
@@ -65,7 +65,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (hcurr : curr + 1 
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq, BitVec.ofNat_eq_ofNat]
       split
       · next hdiscr =>
-        have : rexpr.getLsbD (curr + 1) = true := by
+        have : rexpr[curr + 1] = true := by
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastAdd)] at hdiscr
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)] at hdiscr
           rw [hright] at hdiscr
@@ -77,12 +77,13 @@ theorem go_denote_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (hcurr : curr + 1 
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)]
           rw [hacc]
         · intros
-          simp only [denote_blastShiftLeftConst, BitVec.getLsbD_shiftLeft]
+          simp only [denote_blastShiftLeftConst, BitVec.getElem_shiftLeft]
           split
           · next hdiscr => simp [hdiscr]
           · next hidx hdiscr =>
             rw [hleft]
             simp [hdiscr, hidx]
+
       · next hdiscr =>
         have : rexpr.getLsbD (curr + 1) = false := by
           rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastAdd)] at hdiscr
@@ -112,14 +113,14 @@ end blastMul
 
 theorem denote_blastMul (aig : AIG BVBit) (lhs rhs : BitVec w) (assign : Assignment)
       (input : BinaryRefVec aig w)
-      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign.toAIGAssignment⟧ = lhs.getLsbD idx)
-      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign.toAIGAssignment⟧ = rhs.getLsbD idx) :
+      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign.toAIGAssignment⟧ = lhs[idx])
+      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign.toAIGAssignment⟧ = rhs[idx]) :
       ∀ (idx : Nat) (hidx : idx < w),
         ⟦(blastMul aig input).aig, (blastMul aig input).vec.get idx hidx, assign.toAIGAssignment⟧
           =
-        (lhs * rhs).getLsbD idx := by
+        (lhs * rhs)[idx] := by
   intro idx hidx
-  rw [BitVec.getLsbD_mul]
+  rw [BitVec.getElem_mul]
   generalize hb : blastMul aig input = res
   unfold blastMul at hb
   dsimp only at hb
@@ -145,8 +146,8 @@ theorem denote_blastMul (aig : AIG BVBit) (lhs rhs : BitVec w) (assign : Assignm
       rw [BitVec.mulRec_zero_eq]
       simp only [Nat.succ_eq_add_one, RefVec.denote_ite, BinaryRefVec.rhs_get_cast,
         Ref.gate_cast, BinaryRefVec.lhs_get_cast, denote_blastConst,
-        BitVec.ofNat_eq_ofNat, eval_const, BitVec.getLsbD_zero, Bool.if_false_right,
-        Bool.decide_eq_true]
+        BitVec.ofNat_eq_ofNat, eval_const, BitVec.getElem_zero, Bool.if_false_right,
+        Bool.decide_eq_true, hidx]
       split
       · next heq =>
         rw [← hright] at heq

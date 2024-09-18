@@ -263,7 +263,7 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
   simp [getLsbD, BitVec.ofNat, Fin.val_ofNat']
 
 @[simp] theorem getLsbD_zero : (0#w).getLsbD i = false := by simp [getLsbD]
-
+@[simp] theorem getElem_zero (h : i < w) : (0#w)[i] = false := by simp [getElem_eq_testBit_toNat]
 @[simp] theorem getMsbD_zero : (0#w).getMsbD i = false := by simp [getMsbD]
 
 @[simp] theorem toNat_mod_cancel (x : BitVec n) : x.toNat % (2^n) = x.toNat :=
@@ -634,6 +634,10 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 
 @[simp] theorem extractLsb_toNat (hi lo : Nat) (x : BitVec n) :
   (extractLsb hi lo x).toNat = (x.toNat >>> lo) % 2^(hi-lo+1) := rfl
+
+@[simp] theorem getElem_extractLsb' (start len : Nat) (x : BitVec n) (i : Nat) (h : i < len):
+    (extractLsb' start len x)[i] = x.getLsbD (start+i) := by
+  simp [getElem_eq_testBit_toNat, getLsbD, h]
 
 @[simp] theorem getLsbD_extractLsb' (start len : Nat) (x : BitVec n) (i : Nat) :
     (extractLsb' start len x).getLsbD i = (i < len && x.getLsbD (start+i)) := by
@@ -1464,7 +1468,6 @@ theorem setWidth_succ (x : BitVec w) :
     have j_lt : j.val < i := Nat.lt_of_le_of_ne (Nat.le_of_succ_le_succ j.isLt) j_eq
     simp [j_eq, j_lt]
 
-@[simp]
 theorem getElem_eq_msb {x : BitVec (w + 1)} : x[w] = x.msb := by
   simp [BitVec.msb, BitVec.getMsbD]
 
@@ -1475,7 +1478,7 @@ theorem eq_msb_cons_setWidth (x : BitVec (w+1)) : x = (cons x.msb (x.setWidth w)
   · simp [h]
   · simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_cast, getElem_append, getLsbD_setWidth,
     getLsbD_ofBool]
-    simp [show i = w by omega]
+    simp [show i = w by omega, getElem_eq_msb]
 
 @[simp] theorem not_cons (x : BitVec w) (b : Bool) : ~~~(cons b x) = cons (!b) (~~~x) := by
   simp [cons]
