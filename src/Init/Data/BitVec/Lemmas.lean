@@ -496,7 +496,7 @@ theorem nat_eq_toNat {x : BitVec w} {y : Nat}
   rw [@eq_comm _ _ x.toNat]
   apply toNat_eq_nat
 
-theorem getElem_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) (hi : i < v) :
+@[simp] theorem getElem_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) (hi : i < v) :
     (setWidth' h x)[i] = x.getLsbD i := by
   rw [getElem_eq_testBit_toNat, toNat_setWidth', getLsbD]
 
@@ -934,14 +934,16 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
     <;> simp_all
     <;> (rw [getLsbD_ge]; omega)
 
-@[simp] theorem getElem_shiftLeftZeroExtend {x : BitVec m} {n : Nat} (h : i < n) :
+@[simp] theorem getElem_shiftLeftZeroExtend {x : BitVec m} {n : Nat} (h : i < m + n) :
     (shiftLeftZeroExtend x n)[i] = ((!decide (i < n)) && getLsbD x (i - n)) := by
   rw [shiftLeftZeroExtend_eq]
   rw [getElem_shiftLeft]
   simp [getElem_shiftLeft, getElem_setWidth]
   cases h₁ : decide (i < n)
+  cases h₁ : decide (i < n) <;> cases h₂ : decide (i - n < m + n) <;> cases h₃ : decide (i < m + n)
     <;> simp_all
     <;> (rw [getLsbD_ge] ; omega)
+  simp
 
 @[simp] theorem getMsbD_shiftLeftZeroExtend (x : BitVec m) (n : Nat) :
     getMsbD (shiftLeftZeroExtend x n) i = getMsbD x i := by
@@ -1260,16 +1262,11 @@ theorem append_def (x : BitVec v) (y : BitVec w) :
 
 @[simp] theorem getElem_append {x : BitVec n} {y : BitVec m} (h : i < m + n):
     (x ++ y)[i] = bif i < m then getLsbD y i else getLsbD x (i - m) := by
-  simp only [append_def, getElem_or]
+  simp only [append_def, getElem_or, getElem_setWidth']
   by_cases h' : i < m
-  ·
-    simp [getElem_shiftLeftZeroExtend h']
-    simp [h', *]
-
-
-  ·
-    simp [h', *]
-    simp_all
+  · rw [getElem_shiftLeftZeroExtend (by omega)]
+    simp [h']
+  · simp_all
 
 @[simp] theorem getMsbD_append {x : BitVec n} {y : BitVec m} :
     getMsbD (x ++ y) i = bif n ≤ i then getMsbD y (i - n) else getMsbD x i := by
@@ -1321,13 +1318,24 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
   apply eq_of_getLsbD_eq
   intro i
   simp only [getLsbD_setWidth, Fin.is_lt, decide_True, getLsbD_append, Bool.true_and]
+  simp
   split
   · have t : i < v := by omega
     simp [t]
   · by_cases t : i < v
-    · simp [t]
-    · have t' : i - v < k - v := by omega
+    ·
+      simp [t]
+      rw [getElem_append]
+      simp [*]
+
+
+      simp
+    ·
+      have t' : i - v < k - v := by omega
       simp [t, t']
+      rw [getElem_append]
+      simp
+
 
 @[simp] theorem setWidth_append_of_eq {x : BitVec v} {y : BitVec w} (h : w' = w) : setWidth (v' + w') (x ++ y) = setWidth v' x ++ setWidth w' y := by
   subst h
