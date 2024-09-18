@@ -1270,7 +1270,7 @@ theorem append_def (x : BitVec v) (y : BitVec w) :
   · simp [h]
   · simp [h]; simp_all
 
-@[simp] theorem getElem_append {x : BitVec n} {y : BitVec m} (h : i < m + n) :
+@[simp] theorem getElem_append {x : BitVec n} {y : BitVec m} (h : i < n + m) :
     (x ++ y)[i] = bif i < m then getLsbD y i else getLsbD x (i - m) := by
   simp only [append_def, getElem_or, getElem_setWidth']
   by_cases h' : i < m
@@ -1362,21 +1362,20 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
 @[simp] theorem and_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
     (x₁ ++ y₁) &&& (x₂ ++ y₂) = (x₁ &&& x₂) ++ (y₁ &&& y₂) := by
   ext i
-  have h : i < v + w := by omega
-  by_cases h' : i < v <;> simp [h, h']
+  by_cases h : i < v
+  <;> simp [h]
 
 @[simp] theorem or_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
     (x₁ ++ y₁) ||| (x₂ ++ y₂) = (x₁ ||| x₂) ++ (y₁ ||| y₂) := by
   ext i
-  have h : i < v + w := by omega
-  by_cases h' : i < v <;> simp [h, h']
+  by_cases h : i < v
+  <;> simp [h]
 
 @[simp] theorem xor_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
     (x₁ ++ y₁) ^^^ (x₂ ++ y₂) = (x₁ ^^^ x₂) ++ (y₁ ^^^ y₂) := by
   ext i
-  have h : i < v + w := by omega
-  by_cases h' : i < v
-  <;> simp [h, h']
+  by_cases h : i < v
+  <;> simp [h]
 
 theorem shiftRight_add {w : Nat} (x : BitVec w) (n m : Nat) :
     x >>> (n + m) = (x >>> n) >>> m:= by
