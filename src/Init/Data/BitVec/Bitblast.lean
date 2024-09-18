@@ -138,7 +138,7 @@ def adcb (x y c : Bool) : Bool × Bool := (atLeastTwo x y c, x ^^ (y ^^ c))
 def adc (x y : BitVec w) : Bool → Bool × BitVec w :=
   iunfoldr fun (i : Fin w) c => adcb (x.getLsbD i) (y.getLsbD i) c
 
-theorem getElem_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool) :
+theorem getElem_add_add_setWidth_ofBool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool) :
     (x + y + setWidth w (ofBool c))[i] = (x[i] ^^ (y[i] ^^ carry i x y c)) := by
   let ⟨x, x_lt⟩ := x
   let ⟨y, y_lt⟩ := y
@@ -159,9 +159,8 @@ theorem getElem_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool
   simp [testBit_to_div_mod, carry, Nat.add_assoc]
 
 theorem getElem_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
-    (x + y)[i] =
-      (x[i] ^^ (y[i] ^^ carry i x y false)) := by
-  simpa using getElem_add_add_bool i_lt x y false
+    (x + y)[i] = (x[i] ^^ (y[i] ^^ carry i x y false)) := by
+  simpa using getElem_add_add_setWidth_ofBool i_lt x y false
 
 theorem adc_spec (x y : BitVec w) (c : Bool) :
     adc x y c = (carry w x y c, x + y + setWidth w (ofBool c)) := by
@@ -174,7 +173,7 @@ theorem adc_spec (x y : BitVec w) (c : Bool) :
     simp [carry, Nat.mod_one]
     cases c <;> rfl
   case step =>
-    simp [adcb, Prod.mk.injEq, carry_succ, getElem_add_add_bool]
+    simp [adcb, Prod.mk.injEq, carry_succ, getElem_add_add_setWidth_ofBool]
 
 
 theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := by
