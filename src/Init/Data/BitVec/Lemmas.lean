@@ -1443,6 +1443,7 @@ theorem toNat_cons' {x : BitVec w} :
 
 @[simp] theorem getElem_cons (b : Bool) {n} (x : BitVec n) (i : Nat) (h : i < 1 + n):
     (cons b x)[i] = if i = n then b else getLsbD x i := by
+
   stop
   simp only [getLsbD, toNat_cons, Nat.testBit_or]
   rw [Nat.testBit_shiftLeft]
