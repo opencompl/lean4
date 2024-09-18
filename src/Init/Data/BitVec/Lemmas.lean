@@ -1543,8 +1543,7 @@ theorem getElem_concat {x : BitVec w} {b : Bool} {i : Nat} (h : i < w + 1):
 
 @[simp] theorem concat_and_concat (x y : BitVec w) (a b : Bool) :
     (concat x a) &&& (concat y b) = concat (x &&& y) (a && b) := by
-  ext i;
-  cases i using Fin.succRecOn <;> simp
+  ext i; cases i using Fin.succRecOn <;> simp
 
 @[simp] theorem concat_xor_concat (x y : BitVec w) (a b : Bool) :
     (concat x a) ^^^ (concat y b) = concat (x ^^^ y) (a ^^ b) := by
