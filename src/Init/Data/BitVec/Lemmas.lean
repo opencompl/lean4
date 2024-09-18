@@ -1330,29 +1330,12 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 theorem setWidth_append {x : BitVec w} {y : BitVec v} :
     (x ++ y).setWidth k = if h : k ≤ v then y.setWidth k else (x.setWidth (k - v) ++ y).cast (by omega) := by
   ext i
-  simp
-  split
-  rename_i h
-  simp [h]
-  simp only [getLsbD_setWidth, Fin.is_lt, decide_True, getLsbD_append, Bool.true_and]
-  simp
-  split
-  · have t : i < v := by omega
-    simp [t]
-  · by_cases t : i < v
-    ·
-      simp [t]
-      rw [getElem_append]
-      simp [*]
-
-
-      simp
-    ·
-      have t' : i - v < k - v := by omega
-      simp [t, t']
-      rw [getElem_append]
-      simp
-
+  simp only [Fin.is_lt, getLsbD_eq_getElem]
+  by_cases h : k ≤ v
+  · simp [h, show i < v by omega]
+  · by_cases h' : i < v
+    <;> simp [h, h', show i < v + (k - v) by omega]
+    <;> omega
 
 @[simp] theorem setWidth_append_of_eq {x : BitVec v} {y : BitVec w} (h : w' = w) : setWidth (v' + w') (x ++ y) = setWidth v' x ++ setWidth w' y := by
   subst h
