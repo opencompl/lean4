@@ -1238,13 +1238,19 @@ theorem signExtend_eq_not_setWidth_not_of_msb_true {x : BitVec w} {v : Nat} (hms
     · apply Nat.le_refl
   · omega
 
-@[simp] theorem getLsbD_signExtend (x  : BitVec w) {v i : Nat} :
-    (x.signExtend v).getLsbD i = (decide (i < v) && if i < w then x.getLsbD i else x.msb) := by
+@[simp] theorem getElem_signExtend (x  : BitVec w) {v i : Nat} (h : i < v) :
+    (x.signExtend v)[i] = if i < w then x.getLsbD i else x.msb := by
   rcases hmsb : x.msb with rfl | rfl
   · rw [signExtend_eq_not_setWidth_not_of_msb_false hmsb]
     by_cases (i < v) <;> by_cases (i < w) <;> simp_all <;> omega
   · rw [signExtend_eq_not_setWidth_not_of_msb_true hmsb]
     by_cases (i < v) <;> by_cases (i < w) <;> simp_all <;> omega
+
+@[simp] theorem getLsbD_signExtend (x  : BitVec w) {v i : Nat} :
+    (x.signExtend v).getLsbD i = (decide (i < v) && if i < w then x.getLsbD i else x.msb) := by
+  by_cases h : i < v
+  · simp [h]
+  · simp [h, getLsbD_ge (x.signExtend v) i (by omega)]
 
 /-- Sign extending to a width smaller than the starting width is a truncation. -/
 theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w):

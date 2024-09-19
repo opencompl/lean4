@@ -58,30 +58,39 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦(go aig expr).val.aig, (go aig expr).val.vec.get idx hidx, assign.toAIGAssignment⟧
           =
-        (expr.eval assign).getLsbD idx := by
+        (expr.eval assign)[idx] := by
   intro idx hidx
   induction expr generalizing aig idx with
   | const =>
-    simp [go, denote_blastConst]
+    simp [go, denote_blastConst, hidx]
   | var =>
     simp [go, hidx, denote_blastVar]
   | zeroExtend v inner ih =>
     simp only [go, denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
-      eval_zeroExtend, BitVec.getLsbD_setWidth, hidx, decide_True, Bool.true_and,
+      eval_zeroExtend, BitVec.getElem_setWidth, hidx, decide_True, Bool.true_and,
       Bool.and_iff_right_iff_imp, decide_eq_true_eq]
-    apply BitVec.lt_of_getLsbD
+    rename_i ww
+    by_cases h : idx < ww
+    ·
+      simp [h]
+    ·
+      simp [h]
+      have := @BitVec.getLsbD_ge ww (eval assign inner) idx (by omega)
+      rw [this]
   | append lhs rhs lih rih =>
     rename_i lw rw
     simp only [go, denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append,
-      BitVec.getLsbD_append]
+      BitVec.getElem_append]
     split
     · next hsplit =>
       simp only [hsplit, decide_True, cond_true]
       rw [rih]
+      simp [hsplit]
     · next hsplit =>
       simp only [hsplit, decide_False, cond_false]
       rw [go_denote_mem_prefix, lih]
-  | replicate n expr ih => simp [go, ih, hidx]
+      simp [←BitVec.getLsbD_eq_getElem]
+  | replicate n expr ih => simp [go, ih, hidx, ←BitVec.getLsbD_eq_getElem]
   | signExtend v inner ih =>
     rename_i originalWidth
     generalize hgo : (go aig (signExtend v inner)).val = res
@@ -105,19 +114,22 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       rw [← hgo]
       rw [denote_blastSignExtend]
       simp only [eval_signExtend]
-      rw [BitVec.getLsbD_signExtend]
-      · simp only [hidx, decide_True, Bool.true_and]
-        split
-        · rw [ih]
-        · rw [BitVec.msb_eq_getLsbD_last]
-          rw [ih]
-      · dsimp only; omega
+      rw [BitVec.getElem_signExtend]
+      split
+      · rw [ih]
+        rename_i hhh
+        simp [hhh]
+      · rw [BitVec.msb_eq_getLsbD_last]
+        rename_i hhh
+        rw [ih]
+        simp [←BitVec.getLsbD_eq_getElem]
   | @extract w start len inner ih =>
     simp only [go, denote_blastExtract, Bool.if_false_right, eval_extract,
-      BitVec.getLsbD_extractLsb', hidx, decide_True, Bool.true_and]
+      BitVec.getElem_extractLsb', hidx, decide_True, Bool.true_and]
     split
     · next hsplit =>
       rw [ih]
+      simp [←BitVec.getLsbD_eq_getElem]
     · apply Eq.symm
       apply BitVec.getLsbD_ge
       omega
@@ -127,11 +139,13 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     · intros
       dsimp only
       rw [go_denote_mem_prefix]
+      rw [BitVec.getLsbD_eq_getElem]
       rw [← lih (aig := aig)]
       · simp
       · assumption
       · simp [Ref.hgate]
     · intros
+      rw [BitVec.getLsbD_eq_getElem]
       rw [← rih]
   | shiftRight lhs rhs lih rih =>
     simp only [go, eval_shiftRight]
@@ -139,31 +153,33 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     · intros
       dsimp only
       rw [go_denote_mem_prefix]
+      rw [BitVec.getLsbD_eq_getElem]
       rw [← lih (aig := aig)]
       · simp
       · assumption
       · simp [Ref.hgate]
     · intros
+      rw [BitVec.getLsbD_eq_getElem]
       rw [← rih]
   | bin lhs op rhs lih rih =>
     cases op with
     | and =>
       simp only [go, RefVec.denote_zip, denote_mkAndCached, rih, eval_bin, BVBinOp.eval_and,
-        BitVec.getLsbD_and]
+        BitVec.getElem_and]
       simp only [go_val_eq_bitblast, RefVec.get_cast]
       rw [AIG.LawfulVecOperator.denote_input_vec (f := bitblast)]
       rw [← go_val_eq_bitblast]
       rw [lih]
     | or =>
       simp only [go, RefVec.denote_zip, denote_mkOrCached, rih, eval_bin, BVBinOp.eval_or,
-        BitVec.getLsbD_or]
+        BitVec.getElem_or]
       simp only [go_val_eq_bitblast, RefVec.get_cast]
       rw [AIG.LawfulVecOperator.denote_input_vec (f := bitblast)]
       rw [← go_val_eq_bitblast]
       rw [lih]
     | xor =>
       simp only [go, RefVec.denote_zip, denote_mkXorCached, rih, eval_bin, BVBinOp.eval_xor,
-        BitVec.getLsbD_xor]
+        BitVec.getElem_xor]
       simp only [go_val_eq_bitblast, RefVec.get_cast]
       rw [AIG.LawfulVecOperator.denote_input_vec (f := bitblast)]
       rw [← go_val_eq_bitblast]
@@ -176,7 +192,6 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
         rw [go_denote_mem_prefix]
         rw [← lih (aig := aig)]
         · simp
-        · assumption
         · simp [Ref.hgate]
       · intros
         rw [← rih]
@@ -188,22 +203,20 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
         rw [go_denote_mem_prefix]
         rw [← lih (aig := aig)]
         · simp
-        · assumption
         · simp [Ref.hgate]
       · intros
         rw [← rih]
   | un op expr ih =>
     cases op with
     | not => simp [go, ih, hidx]
-    | shiftLeftConst => simp [go, ih, hidx]
+    | shiftLeftConst => simp [go, ih, hidx]; simp only [←BitVec.getLsbD_eq_getElem]; rename_i nn; by_cases hh : idx < nn; simp [hh]; simp[hh]
     | shiftRightConst =>
       simp only [go, denote_blastShiftRightConst, ih, dite_eq_ite, Bool.if_false_right, eval_un,
-        BVUnOp.eval_shiftRightConst, BitVec.getLsbD_ushiftRight, Bool.and_iff_right_iff_imp,
+        BVUnOp.eval_shiftRightConst, BitVec.getElem_ushiftRight, Bool.and_iff_right_iff_imp,
         decide_eq_true_eq]
-      intro h
-      apply BitVec.lt_of_getLsbD
+      rw [BitVec.getLsbD_eq_getElem]
       assumption
-    | rotateLeft => simp [go, ih, hidx]
+    | rotateLeft => ;simp [go, ih, hidx]
     | rotateRight => simp [go, ih, hidx]
     | arithShiftRightConst n =>
       rename_i w
@@ -217,7 +230,7 @@ theorem denote_bitblast (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦(bitblast aig expr).aig, (bitblast aig expr).vec.get idx hidx, assign.toAIGAssignment⟧
           =
-        (expr.eval assign).getLsbD idx
+        (expr.eval assign)[idx]
     := by
   intros
   rw [← bitblast.go_val_eq_bitblast]
