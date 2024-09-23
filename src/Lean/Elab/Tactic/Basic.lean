@@ -377,8 +377,13 @@ def getMainTag : TacticM Name :=
 def getMainTarget : TacticM Expr := do
   instantiateMVars (← getMainDecl).type
 
+variable {m} [Monad m] [MonadLiftT TacticM m] [MonadControlT MetaM m] in
+/-- Execute `x` using the main goal local context and instances, in a generic monad `m` -/
+def withMainContext (x : m α) : m α := do
+  (← getMainGoal).withContext x
+
 /-- Execute `x` using the main goal local context and instances -/
-def withMainContext (x : TacticM α) : TacticM α := do
+def withMainContext' (x : TacticM α) : TacticM α := do
   (← getMainGoal).withContext x
 
 /-- Evaluate `tac` at `mvarId`, and return the list of resulting subgoals. -/
