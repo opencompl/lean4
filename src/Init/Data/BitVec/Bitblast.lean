@@ -479,7 +479,7 @@ private theorem Nat.div_add_eq_left_of_lt {x y z : Nat} (hx : z ∣ x) (hy : y <
 
 /-- If the division equation `d.toNat * q.toNat + r.toNat = n.toNat` holds,
 then `n.udiv d = q`. -/
-theorem udiv_eq_of_mul_add_toNat {d n q r : BitVec w} (hd : 0 < d)
+theorem udiv_eq_of_mul_add_toNat {d n r : BitVec w} {q : BitVec w} (hd : 0 < d)
     (hrd : r < d)
     (hdqnr : d.toNat * q.toNat + r.toNat = n.toNat) :
     n.udiv d = q := by
@@ -519,9 +519,9 @@ structure DivModState (w : Nat) : Type where
   /-- The number of bits in the remainder (and quotient) -/
   wr : Nat
   /-- The current quotient. -/
-  q : BitVec w
+  q : BitVec wr
   /-- The current remainder. -/
-  r : BitVec w
+  r : BitVec wr
 
 
 /-- `DivModArgs` contains the arguments to a `divrem` call which remain constant throughout
@@ -572,8 +572,8 @@ def DivModState.Lawful.hw {args : DivModArgs w} {qr : DivModState w}
 def DivModState.init (w : Nat) : DivModState w := {
   wn := w
   wr := 0
-  q := 0#w
-  r := 0#w
+  q := 0#0
+  r := 0#0
 }
 
 /-- The initial state is lawful. -/
@@ -592,6 +592,10 @@ def DivModState.lawful_init {w : Nat} (args : DivModArgs w) (hd : 0#w < args.d) 
       apply Nat.div_eq_of_lt args.n.isLt
   }
 
+theorem DivModState.wr_eq_w_of {qr : DivModState w} (h : qr.wn = 0) :
+    qr.wr = w := by
+  sorry
+
 /--
 A lawful DivModState with a fully consumed dividend (`wn = 0`) witnesses that the
 quotient has been correctly computed.
@@ -599,10 +603,14 @@ quotient has been correctly computed.
 theorem DivModState.udiv_eq_of_lawful {n d : BitVec w} {qr : DivModState w}
     (h_lawful : DivModState.Lawful {n, d} qr)
     (h_final  : qr.wn = 0) :
-    n.udiv d = qr.q := by
+    n.udiv d = qr.q.cast (qr.wr_eq_w_of h_final) := by
+  have := (qr.wr_eq_w_of h_final).symm
+  obtain ⟨wn, wr, q, r⟩ := qr
+  simp only at this h_final
+  subst this h_final
   apply udiv_eq_of_mul_add_toNat h_lawful.hdPos h_lawful.hrLtDivisor
   have hdiv := h_lawful.hdiv
-  simp only [h_final] at *
+  simp only [shiftRight_zero, cast_eq] at *
   omega
 
 /--
@@ -612,11 +620,14 @@ remainder has been correctly computed.
 theorem DivModState.umod_eq_of_lawful {qr : DivModState w}
     (h : DivModState.Lawful {n, d} qr)
     (h_final  : qr.wn = 0) :
-    n.umod d = qr.r := by
+    n.umod d = qr.r.cast (qr.wr_eq_w_of h_final) := by
+  have := (qr.wr_eq_w_of h_final).symm
+  obtain ⟨wn, wr, q, r⟩ := qr
+  simp only at this h_final
+  subst this h_final
   apply umod_eq_of_mul_add_toNat h.hrLtDivisor
   have hdiv := h.hdiv
   simp only [shiftRight_zero] at hdiv
-  simp only [h_final] at *
   exact hdiv.symm
 
 /-! ### DivModState.Poised -/
@@ -652,14 +663,14 @@ def divSubtractShift (args : DivModArgs w) (qr : DivModState w) : DivModState w 
   let {n, d} := args
   let wn := qr.wn - 1
   let wr := qr.wr + 1
-  let r' := shiftConcat qr.r (n.getLsbD wn)
-  if r' < d then {
-    q := qr.q.shiftConcat false, -- If `r' < d`, then we do not have a quotient bit.
+  let r' := qr.r.concat (n.getLsbD wn)
+  if r'.zeroExtend _ < d then {
+    q := qr.q.concat false, -- If `r' < d`, then we do not have a quotient bit.
     r := r'
     wn, wr
   } else {
-    q := qr.q.shiftConcat true, -- Otherwise, `r' ≥ d`, and we have a quotient bit.
-    r := r' - d -- we subtract to maintain the invariant that `r < d`.
+    q := qr.q.concat true, -- Otherwise, `r' ≥ d`, and we have a quotient bit.
+    r := r' - (d.truncate _) -- we subtract to maintain the invariant that `r < d`.
     wn, wr
   }
 
@@ -696,42 +707,44 @@ theorem lawful_divSubtractShift (qr : DivModState w) (h : qr.Poised args) :
   -- We add these hypotheses for `omega` to find them later.
   have ⟨⟨hrwn, hd, hrd, hr, hn, hrnd⟩, hwn_lt⟩ := h
   have : d.toNat * (qr.q.toNat * 2) = d.toNat * qr.q.toNat * 2 := by rw [Nat.mul_assoc]
-  by_cases rltd : shiftConcat qr.r (n.getLsbD (qr.wn - 1)) < d
-  · simp only [rltd, ↓reduceIte]
+  split
+  case isTrue rltd =>
     constructor <;> try bv_omega
-    case pos.hrWidth => apply toNat_shiftConcat_lt_of_lt <;> omega
-    case pos.hqWidth => apply toNat_shiftConcat_lt_of_lt <;> omega
-    case pos.hdiv =>
-      simp [qr.toNat_shiftRight_sub_one_eq h, h.hdiv, this,
-        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth,
-        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hqWidth]
+    case hrLtDivisor =>
+      simp at hd ⊢
+      rw [zeroExtend, ← setWidth'_eq (by omega)] at rltd
+      simpa [BitVec.lt_def] using rltd
+    case hdiv =>
+      simp [qr.toNat_shiftRight_sub_one_eq h, h.hdiv, this]
       omega
-  · simp only [rltd, ↓reduceIte]
+  case isFalse rltd =>
     constructor <;> try bv_omega
-    case neg.hrLtDivisor =>
-      simp only [lt_def, Nat.not_lt] at rltd
-      rw [BitVec.toNat_sub_of_le rltd,
-        toNat_shiftConcat_eq_of_lt (hk := qr.wr_lt_w h) (hx := h.hrWidth),
-        Nat.mul_comm]
-      apply two_mul_add_sub_lt_of_lt_of_lt_two <;> bv_omega
-    case neg.hrWidth =>
+    case hrLtDivisor =>
+      rw [zeroExtend, ← setWidth'_eq (by omega)] at rltd
       simp only
-      have hdr' : d ≤ (qr.r.shiftConcat (n.getLsbD (qr.wn - 1))) :=
-        BitVec.le_iff_not_lt.mp rltd
-      have hr' : ((qr.r.shiftConcat (n.getLsbD (qr.wn - 1)))).toNat < 2 ^ (qr.wr + 1) := by
-        apply toNat_shiftConcat_lt_of_lt <;> bv_omega
-      rw [BitVec.toNat_sub_of_le hdr']
-      omega
-    case neg.hqWidth =>
-      apply toNat_shiftConcat_lt_of_lt <;> omega
-    case neg.hdiv =>
+      have : (d.truncate (qr.wr + 1)).toNat = d.toNat := by
+        sorry
+      simp [lt_def, Nat.not_lt] at rltd
+      have toNat_sub_eq_of_le {w} (a b : BitVec w) (h : b ≤ a) :
+          (a - b).toNat = a.toNat - b.toNat :=
+        sorry
+      rw [toNat_sub_eq_of_le , this]
+      · have : (n.getLsbD (qr.wn - 1)).toNat ≤ 1 := toNat_le _
+        simp at hrd ⊢
+        omega
+      · simp [le_def, this]; omega
+    case hdiv =>
       have rltd' := (BitVec.le_iff_not_lt.mp rltd)
       simp only [qr.toNat_shiftRight_sub_one_eq h,
-        BitVec.toNat_sub_of_le rltd',
-        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth]
-      simp only [BitVec.le_def,
-        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth] at rltd'
-      simp only [toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hqWidth, h.hdiv, Nat.mul_add]
+        BitVec.toNat_sub_of_le rltd']
+
+        -- toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth]
+      simp only [BitVec.le_def] at rltd'
+     --
+        -- toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth] at rltd'
+      -- simp only [toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hqWidth, h.hdiv, Nat.mul_add]
+      simp only [h.hdiv, Nat.mul_add]
+
       bv_omega
 
 /-! ### Core division algorithm circuit -/
