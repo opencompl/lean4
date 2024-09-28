@@ -7,6 +7,8 @@ This file implements lazy ackermannization [1, 2]
 
 [1] https://lara.epfl.ch/w/_media/model-based.pdf
 [2]  https://leodemoura.github.io/files/oregon08.pdf
+[3] https://github.com/Z3Prover/z3/blob/d047b86439ec209446d211f0f6b251ebfba070d8/src/ackermannization/lackr.cpp#L206
+[4]https://github.com/Z3Prover/z3/blob/d047b86439ec209446d211f0f6b251ebfba070d8/src/ackermannization/lackr_model_constructor.cpp#L344
 -/
 prelude
 import Std.Tactic.BVDecide.Bitblast
