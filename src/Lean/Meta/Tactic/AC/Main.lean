@@ -140,18 +140,7 @@ where
     | .op l r => mkApp2 preContext.op (convertTarget vars l) (convertTarget vars r)
     | .var x => vars[x]!
 
-def rewriteUnnormalized (mvarId : MVarId) : MetaM MVarId := do
-  let simpCtx :=
-    {
-      simpTheorems  := {}
-      congrTheorems := (← getSimpCongrTheorems)
-      config        := Simp.neutralConfig
-    }
-  let tgt ← instantiateMVars (← mvarId.getType)
-  let (res, _) ← Simp.main tgt simpCtx (methods := { post })
-  applySimpResultToTarget mvarId tgt res
-where
-  post (e : Expr) : SimpM Simp.Step := do
+def post (e : Expr) : SimpM Simp.Step := do
     let ctx ← Simp.getContext
     match e, ctx.parent? with
     | bin op₁ l r, some (bin op₂ _ _) =>
@@ -170,6 +159,17 @@ where
       | none => return Simp.Step.done { expr := e }
     | e, _ => return Simp.Step.done { expr := e }
 
+def rewriteUnnormalized (mvarId : MVarId) : MetaM MVarId := do
+  let simpCtx :=
+    {
+      simpTheorems  := {}
+      congrTheorems := (← getSimpCongrTheorems)
+      config        := Simp.neutralConfig
+    }
+  let tgt ← instantiateMVars (← mvarId.getType)
+  let (res, _) ← Simp.main tgt simpCtx (methods := { post })
+  applySimpResultToTarget mvarId tgt res
+
 def rewriteUnnormalizedRefl (goal : MVarId) : MetaM Unit := do
   let newGoal ← rewriteUnnormalized goal
   newGoal.refl
@@ -182,9 +182,38 @@ def rewriteUnnormalizedNormalForm (goal : MVarId) : TacticM Unit := do
   let goal ← getMainGoal
   goal.withContext <| rewriteUnnormalizedRefl goal
 
-@[builtin_tactic acNf] def acNfTactic : Lean.Elab.Tactic.Tactic := fun _ => do
-  let goal ← getMainGoal
-  goal.withContext <| rewriteUnnormalizedNormalForm goal
+/-- Implementation of the `norm_cast` tactic when operating on the main goal. -/
+def acNfTarget : TacticM Unit :=
+  liftMetaTactic1 fun goal => do
+    goal.withContext <| rewriteUnnormalized goal
+
+/-- Implementation of the `norm_cast` tactic when operating on a hypothesis. -/
+def acNfHyp (fvarId : FVarId) : TacticM Unit :=
+  liftMetaTactic1 fun goal => do
+    let simpCtx :=
+    {
+      simpTheorems  := {}
+      congrTheorems := (← getSimpCongrTheorems)
+      config        := Simp.neutralConfig
+    }
+    let tgt ← instantiateMVars (← fvarId.getType)
+    let (res, _) ← Simp.main tgt simpCtx (methods := { post })
+    applySimpResultToTarget goal tgt res
+
+@[builtin_tactic acNf0]
+def evalNormCast0 : Tactic := fun stx => do
+  match stx with
+  | `(tactic| norm_cast0 $[$loc?]?) =>
+    let loc := if let some loc := loc? then expandLocation loc else Location.targets #[] true
+    withMainContext do
+      match loc with
+      | Location.targets hyps target =>
+        if target then acNfTarget
+        (← getFVarIds hyps).forM acNfHyp
+      | Location.wildcard =>
+        acNfTarget
+        (← (← getMainGoal).getNondepPropHyps).forM acNfHyp
+  | _ => Lean.Elab.throwUnsupportedSyntax
 
 builtin_initialize
   registerTraceClass `Meta.AC
