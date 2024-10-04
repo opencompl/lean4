@@ -185,7 +185,9 @@ def rewriteUnnormalizedNormalForm (goal : MVarId) : TacticM Unit := do
 /-- Implementation of the `norm_cast` tactic when operating on the main goal. -/
 def acNfTarget : TacticM Unit :=
   liftMetaTactic1 fun goal => do
-    goal.withContext <| rewriteUnnormalized goal
+    let newGoal ← rewriteUnnormalized goal
+    return newGoal
+    --replaceMainGoal [newGoal]
 
 /-- Implementation of the `norm_cast` tactic when operating on a hypothesis. -/
 def acNfHyp (fvarId : FVarId) : TacticM Unit :=
@@ -198,12 +200,12 @@ def acNfHyp (fvarId : FVarId) : TacticM Unit :=
     }
     let tgt ← instantiateMVars (← fvarId.getType)
     let (res, _) ← Simp.main tgt simpCtx (methods := { post })
-    applySimpResultToTarget goal tgt res
+    return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)
 
 @[builtin_tactic acNf0]
 def evalNormCast0 : Tactic := fun stx => do
   match stx with
-  | `(tactic| norm_cast0 $[$loc?]?) =>
+  | `(tactic| ac_nf0 $[$loc?]?) =>
     let loc := if let some loc := loc? then expandLocation loc else Location.targets #[] true
     withMainContext do
       match loc with
