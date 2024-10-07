@@ -924,6 +924,32 @@ theorem mul_add_mod (m x y : Nat) : (m * x + y) % m = y % m := by
   · exact (m % 0).div_zero
   · case succ n => exact Nat.div_eq_of_lt (m.mod_lt n.succ_pos)
 
+theorem shiftLeft_or_mod {x y n : Nat}:
+  (x <<< n ||| y) % 2 ^ n = y % 2 ^ n := by
+  by_cases h₀ : n = 0
+  · simp [h₀]; omega
+  · simp only [shiftLeft_eq]
+    rw [Nat.mod_eq]
+    rw [Nat.mod_eq (x := y)]
+    by_cases h : 0 < 2 ^ n
+    · simp only [h₀, h, true_and]
+      by_cases h₁ : 2 ^ n ≤ x * 2 ^ n ||| y
+      · simp only [h₁, ↓reduceIte]
+        by_cases h₂ : 2 ^ n ≤ y
+        · simp [h₀, h, h₁, h₂]
+          sorry
+        · simp [h₀, h, h₁, h₂]
+          sorry
+      · simp only [h₁, ↓reduceIte]
+        by_cases h₂ : 2 ^ n ≤ y
+        · simp [h₀, h, h₁, h₂]
+          sorry
+        · simp [h₀, h, h₁, h₂]
+          sorry
+    · simp [h₀, h]
+
+      sorry
+
 /-! ### Decidability of predicates -/
 
 instance decidableBallLT :

@@ -483,6 +483,17 @@ theorem truncate_eq_setWidth {v : Nat} {x : BitVec w} :
 theorem zeroExtend_eq_setWidth {v : Nat} {x : BitVec w} :
   zeroExtend v x = setWidth v x := rfl
 
+theorem zeroExtend_concat_eq (w : Nat) (x y : BitVec w) :
+  zeroExtend w (x ++ y) = y := by
+  simp [BitVec.toNat_eq, BitVec.shiftConcat, Nat.shiftLeft_or_mod]
+
+theorem zeroExtend_zeroExtend (w : Nat) (x : BitVec w) :
+  zeroExtend w (zeroExtend (w + w) x) =
+  zeroExtend w x := by
+  rw [Nat.le_add_right]
+
+  simp only [Nat.le_add_right, zeroExtend_zeroExtend_of_le, zeroExtend_e]
+
 @[simp, bv_toNat] theorem toNat_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
     (setWidth' p x).toNat = x.toNat := by
   simp [setWidth']
