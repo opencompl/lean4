@@ -24,7 +24,7 @@ example : ∀ (a b : BitVec 64), (a &&& b) + (a ^^^ b) = a ||| b := by
   bv_decide
 ```
 -/
-syntax (name := bvAckermannize) "bv_ackermannize " str : tactic
+syntax (name := bvAckEager) "bv_ack_eager" : tactic
 
 end Tactic
 

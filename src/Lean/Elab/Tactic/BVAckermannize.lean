@@ -11,8 +11,19 @@ This file implements lazy ackermannization [1, 2]
 [4]https://github.com/Z3Prover/z3/blob/d047b86439ec209446d211f0f6b251ebfba070d8/src/ackermannization/lackr_model_constructor.cpp#L344
 -/
 prelude
+import Lean.Expr
+import Lean.Message
 import Std.Tactic.BVDecide.Bitblast
 import Std.Tactic.BVAckermannize.Syntax
+import Lean.Meta.Basic
+import Lean.Elab.Tactic.Basic
+import Lean.Meta.LitValues
+import Lean.Meta.InferType
+import Lean.Elab.Tactic.FalseOrByContra
+import Lean.Meta.Tactic.Assert
+import Lean.Meta.Tactic.Util
+
+open Lean Elab Meta Tactic
 
 structure Result where
 
@@ -23,50 +34,124 @@ structure Config where
 structure Context where
  config : Config
 
+ /-- Types that can be bitblasted by bv_decide -/
+ inductive BVTy
+ /-- booleans -/
+ | Bool
+ /-- Bitvectors of a fixed width `w` -/
+ | BitVec (w : Nat)
+ deriving Hashable, DecidableEq, Inhabited
+
+instance : ToMessageData BVTy where
+  toMessageData 
+  | .Bool => m!"bool"
+  | .BitVec w => m!"BitVec {w}"
+
+namespace BVTy
+
+/-- Reify a raw expression into the types of bitvectors we can bitblast -/
+def ofExpr? (e : Expr) : OptionT MetaM BVTy :=
+  match_expr e.consumeMData with
+  | Bool => return Bool
+  | BitVec w => do
+     let w ← getNatValue? w
+     return .BitVec w
+  | _ => OptionT.fail
+
+def toExpr : BVTy → Expr
+| .Bool => mkConst ``Bool
+| .BitVec w => mkApp (mkConst ``BitVec) (mkNatLit w)
+
+end BVTy
+
 structure Argument where
   /-- The expression corresponding to the argument -/
   x : Expr
   /-- The cached type of the expression x -/
-  xTy : Expr
+  xTy : BVTy
 deriving Hashable, BEq, Inhabited
+
+namespace Argument
+
+instance : ToMessageData Argument where
+  toMessageData arg := m!"{arg.x} : {arg.xTy}"
+
+/-- Build an `Argument` from a raw expression -/
+def ofExpr? (e : Expr) : OptionT MetaM Argument := do
+  let t ← BVTy.ofExpr? (← inferType e)
+  return { x := e, xTy := t}
+
+end Argument
+
+
+structure Function where
+  /-- The function -/
+  f : Expr
+  codTy : BVTy
+ deriving Hashable, BEq, Inhabited
+
+
+namespace Function
+
+instance : ToMessageData Function where
+  toMessageData fn := m!"{fn.f} (cod: {fn.codTy})"
 
 /--
-A lazily unfolded applied call to a function.
+Reify an expression `e` of the kind 
+`f x₁ ... xₙ`, where all the arguments and the return type are a `BVTy` into an Ap
 -/
-structure Call where
-  -- | TODO: replace with `Array Argument`.
-  -- -- The name of the call (?) 
-  -- name : Name
-  /-- the expression for the function argument -/
-  x : Expr 
-  /-- the free variable for for `(f x)`. -/
-  fx : FVarId 
-  /- Cached type of domain of f, which is also the type of the argument `x` -/
-  xTy : Expr 
-  /-- Cached type of codomain of f, which is the also the type of the result `fx`. -/
-  fxTy : Expr 
-  /-- heqProof : The proof that the fvar `fx` eauals the function application `f x`  -/
-  heqProof : Expr 
+def reifyAp (f : Expr) : OptionT MetaM (Function × Array Argument) := do
+  let xs := f.getAppArgs
+  /- We need at least one argument for this to be a function call we can ackermannize -/
+  guard <| xs.size > 0
+  let codTy ← BVTy.ofExpr? (← inferType f)
+  let args ← xs.mapM Argument.ofExpr?
+  let fn : Function := { f, codTy }
+  return (fn, args)
+end Function
+
+
+/--
+TODO: is it sensible to hash an array of arguments?
+We may want to use something like a trie to index these.
+Consider swiching to something like `Trie`.
+-/
+abbrev ArgumentList := Array Argument
+
+
+/--
+The data stored for an ackermannized call to allow us to build proofs.
+-/
+structure CallVal where
+  /-- the free variable `ack_fx₁...xₙ := (f x₁ x₂ ... xₙ)`. -/
+  fvar : FVarId 
+  /-- heqProof : The proof that the value of the fvar `ack_fx₁...fxₙ` equals the application `f x₁ x₂ ... xₙ`. -/
+  heqProof : Expr  
 deriving Hashable, BEq, Inhabited
 
-instance : ToMessageData Call where
-  toMessageData c := m!"{Expr.fvar c.fx} : {c.fxTy} = f ({c.x} : {c.xTy}) with proof {c.heqProof}"
+namespace CallVal
+instance : ToMessageData CallVal where
+  toMessageData cv := m!"{Expr.fvar cv.fvar} ({cv.heqProof})"
+end CallVal
+
 
 structure State where
   /--
-  A maping from a function `f` to all calls of the function `{fx₁, fx₂, ...}`.
-  This is used to generate equations of the form `x₁ = x₂ → fx₁ = fx₂` on-demand.
+  A maping from a function `f`, to a map of arguments `x₁ ... xₙ`, to the information stored about the call.
+  This is used to generate equations of the form `x₁ = y₁ → x₂ = y₂ → ... → xₙ = yₙ → ack_fx₁...xₙ = ack_fy₁...yₙ on-demand.
   -/
-  fn2apps : HashMap Expr (Std.HashSet Call) := {}
+  fn2args2call : Std.HashMap Function (Std.HashMap ArgumentList CallVal) := {}
   /-- A counter for generating fresh names. -/
   gensymCounter : Nat := 0
 
 
 def State.init (_cfg : Config) : State where
 
-abbrev AckM := StateRefT State (ReaderT Context TacticM)
+abbrev AckM := StateRefT State (ReaderT Context MetaM)
 
-def run (m : AckM α) (ctx : Context) : TacticM α :=
+namespace AckM
+
+def run (m : AckM α) (ctx : Context) : MetaM α :=
   m.run' (State.init ctx.config) |>.run ctx
 
 /-- Generate a fresh name. -/
@@ -74,19 +159,58 @@ def gensym : AckM Name := do
   modify fun s => { s with gensymCounter := s.gensymCounter + 1 }
   return Name.mkNum `ack (← get).gensymCounter
 
-def withMainContext (ma : AckM α) : AckM α := (← getMainGoal).withContext ma
-
 def withContext (g : MVarId) (ma : AckM α) : AckM α := g.withContext ma
 
-/-- Get the calls to a function `f`. -/
-def getCalls (f : Expr) : AckM (Std.HashSet Call) := do
-  return (← get).fn2apps.findD fn {}
+/-- Get the calls to a function `fn`. -/
+def getCallMap (fn : Function) : AckM (Std.HashMap ArgumentList CallVal) := do
+  return (← get).fn2args2call.getD fn {}
 
-/-- Track a call to the function `f` -/
--- TODO: do we need the `fn` argument? Isn't this already in `Call`?
-def addCall (fn : Expr) (call : Call) : AckM Unit := do
-  let calls ← getCalls fn
-  modify fun s => { s with fn2apps := s.fn2apps.insert fn (calls.insert call) }
+/-- Get the calls to a function `fn`. -/
+def getCallVal? (fn : Function) (args : Array Argument) : AckM (Option CallVal) := do
+  let calls ← getCallMap fn
+  if let .some val := calls.get? args then
+    return some val
+  return none
+
+structure IntroDefResult where
+  -- the new fvar of the defn.
+  defn : FVarId
+  -- a proof 'hdefn : defn = expr'
+  eqProof : FVarId
+  
+/-
+Introduce a new definition with name `name : hdefTy` into the local context,
+and return the FVarId of the new definition in the new goal (the MVarId) returned.
+-/
+def introDefExt (g : MVarId) (name : Name) (hdefTy : Expr) (hdefVal : Expr) : AckM (IntroDefResult × MVarId) := do
+  withContext g do
+    let g ← g.assertExt name hdefTy hdefVal
+    let (defn, g) ← g.intro1P
+    let (eqProof, g) ← g.intro1P
+    return ({ defn, eqProof}, g)
+
+/-- Insert the CallVal `cv` at `(fn, args)` into the state. -/
+private def _insertCallVal (fn : Function) (args : ArgumentList) (cv : CallVal) : AckM Unit := do
+  let calls ← getCallMap fn
+  modify fun s => { s with fn2args2call := s.fn2args2call.insert fn (calls.insert args cv) }
+      
+
+/--
+Replace a call to the function `f` with an `fvar`. Since the `fvar` is defeq to the call,
+we can just replace occurrences of the call with the fvar `f`.
+
+We will later need to add another hypothesis with the equality that the `fvar = f x₁ ... xₙ`
+-/
+
+def replaceCallWithFVar (g : MVarId) (fn : Function) (args : ArgumentList) : AckM (CallVal × MVarId) := do
+  if let some val ← getCallVal? fn args then 
+    return (val, g)
+  let name ← gensym
+  let e := (mkAppN fn.f (args.map Argument.x))
+  let (introDef, g) ← introDefExt g name fn.codTy.toExpr e
+  let cv := { fvar := introDef.defn, heqProof := Expr.fvar introDef.eqProof : CallVal }
+  _insertCallVal fn args cv
+  return (cv, g)
 
 /-- create a trace node in trace class (i.e. `set_option traceClass true`),
 with header `header`, whose default collapsed state is `collapsed`. -/
@@ -127,115 +251,37 @@ def isBitblastTy (e : Expr) : Bool :=
   | Bool => true
   | _ => false
 
-/-
-Introduce a new definition into the local context,
-and return the FVarId of the new definition in the goal.
--/
-def introDef (name : Name) (hdefVal : Expr) : AckM FVarId  := do
-  withMainContext do
-    let goal ← getMainGoal
-    let hdefTy ← inferType hdefVal
+partial def doAck (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
+  g.withContext do
+    traceLargeMsg m!"🔝 TOPLEVEL '{e}'" m!"{toString e}"
+    match e with
+    | .mdata _ e => doAck g e
+    | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .proj .. | .lit .. => return (e, g)
+    | .lam .. | .letE .. => lambdaLetTelescope e (fun _args e => doAck g e)
+    | .forallE .. => forallTelescope e (fun _args e => doAck g e)
+    | .app .. => do 
+      let f := e.getAppFn
+      let .some codTy ← BVTy.ofExpr? (← inferType e) |>.run
+        -- return type of `f` cannot be ackermannized, so bail out of processing `f`.
+        | return (e, g)
+      let fn := { f, codTy : Function }
 
-    let goal ← goal.assert name hdefTy hdefVal
-    let (fvar, goal) ← goal.intro1P
-    replaceMainGoal [goal]
-    return fvar
-
-def doAck (eorig : Expr) : AckM Unit := do
-  withMainContext do
-  traceLargeMsg m!"🔝 TOPLEVEL '{eorig}'" m!"{toString eorig}"
-  match eorig with
-  | .mdata _ e => doAck e
-  | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .proj .. | .lit .. => return ()
-  | .app f args => do
-      withTraceNode m!"processing '{eorig}'..." do
-        doAck f
-        doAck args
-        withMainContext do
-          let e := Expr.app f args
-          let args := e.getAppArgs
-
-          let ety ← inferType e
-          if ! isBitblastTy ety then
-            trace[ack] "{crossEmoji} '{eorig}' : '{ety}' not bitblastable.."
-            return ()
-          trace[ack] "{checkEmoji} found bitblastable call ('{f}' '{args}') : '{ety}'."
-
-          let newName : Name ← gensym
-          -- TODO: build the larger application...
-          if h : args.size ≠  1 then
-            trace[ack] "{crossEmoji} Expected fn app ('{f}' '{args}'). to have exactly one argument. Skipping..."
-            return ()
-          else
-            let arg := args[0]
-            -- let fxName : Name := name.appendAfter s!"App"
-            -- let fx ← introDef fxName e -- this changes the main context.
-            -- Implementation modeled after `Lean.MVarId.generalizeHyp`.
-            let transparency := TransparencyMode.reducible
-            let hyps := (← getLCtx).getFVarIds
-            let hyps ← hyps.filterM fun h => do
-              let type ← instantiateMVars (← h.getType)
-              return (← withTransparency transparency <| kabstract type e).hasLooseBVars
-
-            let goal ← getMainGoal
-            let (reverted, goal) ← goal.revert hyps true
-            let garg : GeneralizeArg := {
-              expr := e,
-              xName? := .some newName,
-              hName? := newName.appendAfter "h"
-            }
-            let (fxs, goal) ← goal.generalize #[garg]
-            let (reintros, goal) ← goal.introNP reverted.size
-            replaceMainGoal [goal]
-
-            withMainContext do
-              let mut i := 0
-              for r in reintros do
-                trace[ack] "REINTROS[{i}]: {← r.getUserName} : {← r.getType}"
-                i := i + 1
-
-            withMainContext do
-              let mut i := 0
-              for r in fxs do
-                trace[ack] "FXS[{i}]: {← r.getUserName} : {← r.getType}"
-                i := i + 1
-
-            let .some fx := fxs[0]?
-              | throwTacticEx `ack goal m!"expected generalized variable"
-            let .some f_x_eq_fx := fxs[1]?
-              | throwTacticEx `ack goal m!"expected proof of generalized variable"
-
-            withMainContext do
-              trace[ack] "{processingEmoji} introduced new defn {Expr.fvar fx} := {e}."
-
-              let calls ← getCalls f
-              let call : Call := {
-                name := newName
-                x := arg,
-                xTy := ← inferType arg,
-                fx := fx,
-                fxTy := ← fx.getType,
-                heqProof := Expr.fvar f_x_eq_fx
-              }
-
-              trace[ack] "built ackermannization: {call} • {Expr.fvar fx}"
-
-              for otherCall in calls do
-                trace[ack] "building interference: {call.x} = {otherCall.x} => {call.fx.name} = {otherCall.fx.name}"
-                let eqName := (otherCall.name).appendAfter s!"Sim" |>.append call.name
-                let ackEq ← mkAppM ``Ack.ackermannize_proof
-                  #[call.xTy, ety, -- A B
-                    f, -- f
-                    call.x, otherCall.x, -- x y
-                    .fvar call.fx, .fvar otherCall.fx, -- fx fy
-                    call.heqProof, otherCall.heqProof -- hfx hfy
-                  ]
-                let _ ← introDef eqName ackEq
-                -- make a call of ackermannize_proof.
-              addCall f call
-            -- the application is now this fvar.
-  | .lam .. | .letE .. => return ()
-  | .forallE .. => return ()
+      let args := e.getAppArgs
+      assert! args.size > 0 -- since we are an application, we must have at least one argument.
+       -- run ackermannization on all the arguments.
+      -- This ensures that we process bottom-up, and at this stage, our argument
+      -- has been ackermannized, if such an opportunity exists.
+      let mut ackArgs := #[]
+      for arg in args do
+        let (arg, g) ← doAck g arg
+        if let .some ackArg ← Argument.ofExpr? arg |>.run then
+          ackArgs := ackArgs.push ackArg
+        else
+          -- we can't ackermannize this argument, so we bail out.
+          return (e, g) 
+         
+      let (call, g) ← replaceCallWithFVar g fn ackArgs
+      return (Expr.fvar call.fvar, g)
 
 
 /-
@@ -246,21 +292,24 @@ walk every function application (f x), and add a new fvar (fx : BitVec w').
   add a hypothesis that says `x = y => fx = fy, with proof.
 -/
 def ack (g : MVarId) : AckM Unit := do
-  withContext g do
-    for hyp in (← getLocalHyps) do
-      doAck (← inferType hyp)
-    doAck (← getMainTarget)
+    let mut g := g
+    for hyp in (← g.getNondepPropHyps) do
+      (_, g) ← doAck g (← hyp.getType)
+
+end AckM
 
 /-- Entry point for programmatic usage of `bv_ackermannize` -/
-def ackTac (g : MVarId) (ctx : Context) : TacticM Unit := do
-  run ack ctx
-
+def ackTac (ctx : Context) : TacticM Unit := do
+  liftMetaFinishingTactic fun g => do
+    let some g ← g.falseOrByContra | return ()
+    (AckM.ack g).run ctx
 
 end Ack
 
-@[builtin_tactic Lean.Parser.Tactic.bvAckermannize]
-def evalBvAckermannize : Tactic := fun
-  | `(tactic| bv_ackermannize) => do
-      liftMetaFinishingTactic fun g => do
-        discard <| ackTac g cfg
+@[builtin_tactic Lean.Parser.Tactic.bvAckEager]
+def evalBvAckEager : Tactic := fun
+  | `(tactic| bv_ack_eager) => 
+    let config : Ack.Config := {}
+    let ctx : Ack.Context := { config := config }
+    Ack.ackTac ctx
   | _ => throwUnsupportedSyntax
