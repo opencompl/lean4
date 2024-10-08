@@ -22,6 +22,7 @@ import Lean.Meta.InferType
 import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Congr
 
 open Lean Elab Meta Tactic
 
@@ -251,14 +252,14 @@ def isBitblastTy (e : Expr) : Bool :=
   | Bool => true
   | _ => false
 
-partial def doAck (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
+partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
   g.withContext do
     traceLargeMsg m!"🔝 TOPLEVEL '{e}'" m!"{toString e}"
     match e with
-    | .mdata _ e => doAck g e
+    | .mdata _ e => introAckForExpr g e
     | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .proj .. | .lit .. => return (e, g)
-    | .lam .. | .letE .. => lambdaLetTelescope e (fun _args e => doAck g e)
-    | .forallE .. => forallTelescope e (fun _args e => doAck g e)
+    | .lam .. | .letE .. => lambdaLetTelescope e (fun _args e => introAckForExpr g e)
+    | .forallE .. => forallTelescope e (fun _args e => introAckForExpr g e)
     | .app .. => do 
       let f := e.getAppFn
       let .some codTy ← BVTy.ofExpr? (← inferType e) |>.run
@@ -273,7 +274,7 @@ partial def doAck (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
       -- has been ackermannized, if such an opportunity exists.
       let mut ackArgs := #[]
       for arg in args do
-        let (arg, g) ← doAck g arg
+        let (arg, g) ← introAckForExpr g arg
         if let .some ackArg ← Argument.ofExpr? arg |>.run then
           ackArgs := ackArgs.push ackArg
         else
@@ -284,6 +285,65 @@ partial def doAck (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
       return (Expr.fvar call.fvar, g)
 
 
+/--
+Return true if the argument lists are trivially different.
+This is an optimization that we do not yet implement.
+-/
+def areArgListsTriviallyDifferent (_arg₁ _arg₂ : Array Argument) : AckM Bool := return false
+
+/-
+Return true if the argument lists are trivially the same.
+This is an optimization that we do not yet implement.
+If possible, return the simplified hypothesis of the equality of these expressions.
+TODO: -- def areArgListsTriviallySame (arg₁ arg₂ : Array Argument) : AckM (Option Expr) := return none
+-/
+
+
+/-- info: congr.{u, v} {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : α} (h₁ : f₁ = f₂) (h₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ -/
+#guard_msgs in #check congr
+
+/-
+f : δ → ε → ω
+want : (h₁ : x1 = y1) -> (h₂ : x2 = y2) -> f x1 x2 = f y1 y2
+
+c1 : congr δ (ε → ω) f f x1 y1 rfl h₁ : f x1 = f y1
+c2 : congr ε ω (f x1) (f y1) x2 y2 c1 h₂ : f x2 = f y2
+
+-/
+
+/- We can reuse `congr` to prove this -/
+example (f : α → β → γ) (x x' : α) (y y' : β) (hx : x = x') (hy : y = y') : f x y = f x' y' := by congr
+
+
+/-
+Make the ackermannization theorem, which states that: `(∀ i, arg₁[i] = arg₂[i]) -> call₁ = call₂`.
+Formally, we build an expr such as `arg₁ = arg'₁ -> arg₂ = arg'₂ -> ... argₙ = arg'ₙ -> call₁ = call₂`,
+where the proof is by congruence over the equalities.
+-/
+def mkAckThm (g : MVarId) (fn : Function) (args args' : Array Argument) (call call' : CallVal): AckM MVarId := do
+  if args.size = 0 then
+    throwError "expected {args} to have more than zero arguments when building congr theorem for {fn}."
+
+  if args'.size = 0 then
+    throwError "expected {args'} to have more than zero arguments when building congr theorem for {fn}."
+
+  if args.size ≠ args'.size then
+    throwError "internal error: expected {args} to have the same size as {args'} when building congr thm for {fn}."
+  let mut eqHyps := #[]
+  for (arg, arg') in args.zip args' do
+    eqHyps := eqHyps.push (← mkEq arg.x arg'.x)
+  eqHyps := eqHyps.push call.heqProof
+  eqHyps := eqHyps.push call'.heqProof
+  let fArgsEq ← mkEq (.fvar call.fvar) (.fvar call'.fvar)
+  let thmTy ← mkArrowN eqHyps fArgsEq 
+  let mvar ← mkFreshExprMVar thmTy
+  if ! (← mvar.mvarId!.congrN).length = 0 then
+    throwError "expected congr theorem '{mvar}' to be automatically proved with 'congr', but failed."
+  let outExpr ← instantiateMVars mvar
+  -- Add the ackermannization theorem
+  let (_fvar, g) ← g.note (Name.mkSimple "ack_" ++ call.fvar.name ++ call'.fvar.name) outExpr
+  return g
+
 /-
 For every bitvector (x : BitVec w), for every function `(f : BitVec w → BitVec w')`,
 walk every function application (f x), and add a new fvar (fx : BitVec w').
@@ -291,18 +351,26 @@ walk every function application (f x), and add a new fvar (fx : BitVec w').
 - For function application of f, for each pair of bitvectors x, y,
   add a hypothesis that says `x = y => fx = fy, with proof.
 -/
-def ack (g : MVarId) : AckM Unit := do
+def ack (g : MVarId) : AckM MVarId := do
     let mut g := g
     for hyp in (← g.getNondepPropHyps) do
-      (_, g) ← doAck g (← hyp.getType)
+      (_, g) ← introAckForExpr g (← hyp.getType)
+    for (fn, arg2call) in (← get).fn2args2call do
+      for (arg₁, call₁) in arg2call do
+        for (arg₂, call₂) in arg2call do
+          if ← areArgListsTriviallyDifferent arg₁ arg₂ then
+            continue
+          g ← mkAckThm g fn arg₁ arg₂ call₁ call₂
+    return g
 
 end AckM
 
 /-- Entry point for programmatic usage of `bv_ackermannize` -/
 def ackTac (ctx : Context) : TacticM Unit := do
-  liftMetaFinishingTactic fun g => do
-    let some g ← g.falseOrByContra | return ()
-    (AckM.ack g).run ctx
+  liftMetaTactic fun g => do
+    let some g ← g.falseOrByContra | return []
+    let g ← (AckM.ack g).run ctx
+    return [g]
 
 end Ack
 
