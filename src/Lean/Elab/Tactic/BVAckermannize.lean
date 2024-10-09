@@ -410,10 +410,12 @@ def ack (g : MVarId) : AckM MVarId := do
     let g ← g.replaceTargetDefEq target'
 
     let hyps ← g.getNondepPropHyps
-    -- for hyp in hyps do
-    --   trace[bv_ack] "ackermannizing '{← hyp.getType}'"
-    --   let (_, g) ← introAckForExpr g (← hyp.getType)
-    --   trace[bv_ack] "acerkmannized, new goal {g}"
+    let mut g := g
+    for hyp in hyps do
+      g ← g.withContext do
+        withTraceNode m!"@ hyp '{← hyp.getType}'" do
+          let hypG ← introAckForExpr g (← hyp.getType)
+          pure hypG.2
 
     -- trace[bv_ack] "done with ackermannization collection, now adding new theorems..."
     -- let mut g := g
@@ -428,7 +430,7 @@ def ack (g : MVarId) : AckM MVarId := do
     --       -- g ← mkAckThm g fn arg₁ arg₂ call₁ call₂
     --       continue
 
-    trace[bv_ack] "{checkEmoji} ack. {g}"
+    trace[bv_ack] "{checkEmoji} ack.{indentD g}"
     return g
 
 end AckM
