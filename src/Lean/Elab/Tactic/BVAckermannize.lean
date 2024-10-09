@@ -162,7 +162,7 @@ def run (m : AckM α) (ctx : Context) : MetaM α :=
 /-- Generate a fresh name. -/
 def gensym : AckM Name := do
   modify fun s => { s with gensymCounter := s.gensymCounter + 1 }
-  return Name.mkNum (Name.mkSimple "hack") (← get).gensymCounter
+  return Name.mkNum (Name.mkSimple "ackConst") (← get).gensymCounter
 
 def withContext (g : MVarId) (ma : AckM α) : AckM α := g.withContext ma
 
@@ -189,7 +189,7 @@ and return the FVarId of the new definition in the new goal (the MVarId) returne
 -/
 def introDefExt (g : MVarId) (name : Name) (hdefTy : Expr) (hdefVal : Expr) : AckM (IntroDefResult × MVarId) := do
   withContext g do
-    let g ← g.assertExt name (hName := Name.str name "ack_eqn") hdefTy hdefVal
+    let g ← g.assertExt name (hName := Name.str name "value") hdefTy hdefVal
     let (defn, g) ← g.intro1P
     let (eqProof, g) ← g.intro1P
     return ({ defn, eqProof}, g)
@@ -418,18 +418,16 @@ def ack (g : MVarId) : AckM MVarId := do
           pure hypG.2
 
     -- trace[bv_ack] "done with ackermannization collection, now adding new theorems..."
-    -- let mut g := g
-    -- for (fn, arg2call) in (← get).fn2args2call do
-    --   let argCallsArr := arg2call.toArray
-    --   for i in [0:argCallsArr.size] do
-    --     let (arg₁, call₁) := argCallsArr[i]!
-    --     for j in [i+1:argCallsArr.size] do
-    --       let (arg₂, call₂) := argCallsArr[j]!
-    --       if ← areArgListsTriviallyDifferent arg₁ arg₂ then
-    --         continue
-    --       -- g ← mkAckThm g fn arg₁ arg₂ call₁ call₂
-    --       continue
-
+    for (fn, arg2call) in (← get).fn2args2call do
+      let argCallsArr := arg2call.toArray
+      for i in [0:argCallsArr.size] do
+        let (arg₁, call₁) := argCallsArr[i]!
+        for j in [i+1:argCallsArr.size] do
+          let (arg₂, call₂) := argCallsArr[j]!
+          if ← areArgListsTriviallyDifferent arg₁ arg₂ then
+            continue
+          g ← withContext g do
+                mkAckThm g fn arg₁ arg₂ call₁ call₂
     trace[bv_ack] "{checkEmoji} ack.{indentD g}"
     return g
 
