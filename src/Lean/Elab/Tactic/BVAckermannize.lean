@@ -252,14 +252,14 @@ partial def ackAppChildren (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
     trace[bv_ack] "{crossEmoji} bailing out on illegal application {e}"
     let f := e.getAppFn
     let (f, g) ← introAckForExpr g f
-    -- | Rewrite as a fold? It's not too much cleaner, sadly.
+    -- NOTE: Rewrite as a fold? It's not too much cleaner, sadly.
     let mut args := #[]
     let mut g := g
     for arg in e.getAppArgs do
       let gArg ← introAckForExpr g arg
       g := gArg.2
       args := args.push gArg.1
-    return (mkAppN f args, g)
+    return (mkAppN f args, g) -- NOTE: is there some way to use update to update this?
     
 
 partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
@@ -267,23 +267,19 @@ partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := d
     match e with
     | .mdata _ e => introAckForExpr g e
     | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .proj .. | .lit .. => return (e, g)
-    | .lam .. | .letE .. => 
-      lambdaLetTelescope e fun args e => do 
-        let (e, g) ← introAckForExpr g e
-        return (← mkLambdaFVars args e, g)
-    | .forallE .. => 
-      trace[bv_ack] "∀ '{e}':"
-      forallTelescope e fun args e => do 
-        let mut newArgs := #[]
-        let mut g := g
-        for arg in args do
-          let (newArg, g') ← introAckForExpr g arg
-          newArgs := newArgs.push newArg
-          g := g'
-          
-        let (e, g') ← introAckForExpr g e
-        g := g'
-        return (← mkForallFVars newArgs e, g)
+    | .lam _binderName binderTy body _binderInfo =>
+        let (binderTy, g) ← introAckForExpr g binderTy
+        let (body, g) ← introAckForExpr g body
+        return (e.updateLambdaE! binderTy body, g)
+    | .letE _declName type value body _nonDep =>      
+        let (type, g) ← introAckForExpr g type
+        let (value, g) ← introAckForExpr g value
+        let (body, g) ← introAckForExpr g body
+        return (e.updateLet! type value body, g)
+    | .forallE _binderName binderTy body _binderInfo => 
+        let (binderTy, g) ← introAckForExpr g binderTy
+        let (body, g) ← introAckForExpr g body
+        return (e.updateForallE! binderTy body, g)
     | .app .. => do 
       withTraceNode m!"@ Expr.app '{e}'" do
         let f := e.getAppFn
