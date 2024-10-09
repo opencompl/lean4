@@ -226,19 +226,6 @@ def withTraceNode (header : MessageData) (k : AckM α)
     (traceClass : Name := `bv_ack) : AckM α :=
   Lean.withTraceNode traceClass (fun _ => return header) k (collapsed := collapsed)
 
-/-- An emoji used to report intemediate states where the tactic is processing hypotheses. -/
-def processingEmoji : String := "⚙️"
-
-/--
-Create a trace note that folds `header` with `(NOTE: can be large)`,
-and prints `msg` under such a trace node.
-Used to print goal states, which can be quite noisy in the trace.
--/
-def traceLargeMsg (header : MessageData) (msg : MessageData) : AckM Unit :=
-    withTraceNode m!"{header} (NOTE: can be large)" do
-      trace[ack] msg
-
-
 /-- Returns `True` if the type is a function type that is understood by the bitblaster. -/
 def isBitblastTy (e : Expr) : Bool :=
   match_expr e with
@@ -263,7 +250,7 @@ partial def ackAppChildren (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
     
 
 partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
-    withTraceNode m!"🪵 {e}" do
+  Lean.withTraceNode `bv_ack (fun _ => g.withContext do pure m!"🎯 {e}") (collapsed := false) do
     match e with
     | .mdata _ e => introAckForExpr g e
     | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .proj .. | .lit .. => return (e, g)
@@ -281,7 +268,7 @@ partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := d
         let (body, g) ← introAckForExpr g body
         return (e.updateForallE! binderTy body, g)
     | .app .. => do 
-      withTraceNode m!"@ Expr.app '{e}'" do
+      withTraceNode m!"🎯 Expr.app '{e}'" (collapsed := false) do
         let f := e.getAppFn
         let te ← inferType e
         let .some codTy ← BVTy.ofExpr? te |>.run
@@ -299,7 +286,7 @@ partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := d
         -- has been ackermannized, if such an opportunity exists.
         let mut ackArgs := #[]
         for arg in args do
-          trace[bv_ack] "@ arg {arg}"
+          trace[bv_ack] "🎯 arg {arg}"
           let (arg, g) ← introAckForExpr g arg
           -- do I need a `withContext` here? :(
           if let .some ackArg ← Argument.ofExpr? arg |>.run then
@@ -311,7 +298,7 @@ partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := d
             return (← ackAppChildren g e)
            
         let (call, g) ← replaceCallWithFVar g fn ackArgs
-        trace[bv_ack] "{e} → {call}."
+        trace[bv_ack] "{checkEmoji} {e} → {call}."
         return (Expr.fvar call.fvar, g)
 end
 
@@ -352,7 +339,7 @@ Make the ackermannization theorem, which states that: `(∀ i, arg₁[i] = arg�
 Formally, we build an expr such as `arg₁ = arg'₁ -> arg₂ = arg'₂ -> ... argₙ = arg'ₙ -> call₁ = call₂`,
 where the proof is by congruence over the equalities.
 -/
-def mkAckThm (g : MVarId) (fn : Function) (args args' : Array Argument) (call call' : CallVal): AckM MVarId := do
+def mkAckThm (g : MVarId) (fn : Function) (args args' : Array Argument) (call call' : CallVal) : AckM MVarId := do
     trace[bv_ack] "making ack congr thm for '{fn}' '{args}' ~ '{args'}',  calls '{call}', '{call'}'"
     if args.size = 0 then
       throwTacticEx `bv_ack g
@@ -400,7 +387,7 @@ def ack (g : MVarId) : AckM MVarId := do
     let mut g := g
     for hyp in hyps do
       g ← g.withContext do
-        withTraceNode m!"@ hyp '{← hyp.getType}'" do
+        withTraceNode m!"🎯 hyp '{← hyp.getType}'" (collapsed := false) do
           let hypG ← introAckForExpr g (← hyp.getType)
           pure hypG.2
 
