@@ -24,11 +24,22 @@ open Language
 
 builtin_initialize
   registerTraceClass `Meta.instantiateMVars
+  registerTraceClass `Meta.instantiateMVars.info
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
   profileitM Exception s!"instantiate metavars" (← getOptions) do
-  withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
-    instantiateMVars e
+  withTraceNode `Meta.instantiateMVars (fun _ => pure "") do
+    trace[Meta.instantiateMVars.info] "hasMVar: {e.hasMVar}"
+    trace[Meta.instantiateMVars.info] "original: {e}"
+    if e.isMVar then
+      let id := e.mvarId!
+      trace[Meta.instantiateMVars.info] "mvarId: {id}"
+      trace[Meta.instantiateMVars.info] "isAssigned: {← id.isAssigned}"
+      trace[Meta.instantiateMVars.info] "isDelayedAssigned: {← id.isDelayedAssigned}"
+    let e' ← instantiateMVars e
+    withTraceNode `Meta.instantiateMVars.info (fun  _ => pure "assignment result …") <| do
+      trace[Meta.instantiateMVars.info] e'
+    return e'
 
 /-- `DefView` plus header elaboration data and snapshot. -/
 structure DefViewElabHeader extends DefView, DefViewElabHeaderData where
