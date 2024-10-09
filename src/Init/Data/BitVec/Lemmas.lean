@@ -770,6 +770,17 @@ instance : Std.LawfulCommIdentity (α := BitVec n) (· ||| · ) (0#n) where
   ext i
   simp
 
+theorem extractLsb'_or (x y : BitVec w) (start len : Nat) :
+    (x ||| y).extractLsb' start len = (x.extractLsb' start len ||| y.extractLsb' start len) := by
+  ext i
+  simp [getLsbD_extract, getLsbD_or,
+    getLsbD_extractLsb', Fin.is_lt, decide_True, getLsbD_or, Bool.true_and]
+
+theorem extractLsb_or (x y : BitVec w) (hi lo : Nat) :
+    (x ||| y).extractLsb hi lo = (x.extractLsb hi lo ||| y.extractLsb hi lo) := by
+  rw [extractLsb]
+  apply extractLsb'_or
+
 /-! ### and -/
 
 @[simp] theorem toNat_and (x y : BitVec v) :
