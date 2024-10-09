@@ -23,6 +23,7 @@ import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Congr
+import Lean.Meta.Tactic.Replace
 
 open Lean Elab Meta Tactic
 
@@ -161,7 +162,7 @@ def run (m : AckM α) (ctx : Context) : MetaM α :=
 /-- Generate a fresh name. -/
 def gensym : AckM Name := do
   modify fun s => { s with gensymCounter := s.gensymCounter + 1 }
-  return Name.mkNum `ack (← get).gensymCounter
+  return Name.mkNum (Name.mkSimple "hack") (← get).gensymCounter
 
 def withContext (g : MVarId) (ma : AckM α) : AckM α := g.withContext ma
 
@@ -188,7 +189,7 @@ and return the FVarId of the new definition in the new goal (the MVarId) returne
 -/
 def introDefExt (g : MVarId) (name : Name) (hdefTy : Expr) (hdefVal : Expr) : AckM (IntroDefResult × MVarId) := do
   withContext g do
-    let g ← g.assertExt name hdefTy hdefVal
+    let g ← g.assertExt name (hName := Name.str name "ack_eqn") hdefTy hdefVal
     let (defn, g) ← g.intro1P
     let (eqProof, g) ← g.intro1P
     return ({ defn, eqProof}, g)
@@ -211,8 +212,8 @@ def replaceCallWithFVar (g : MVarId) (fn : Function) (args : ArgumentList) : Ack
     if let some val ← getCallVal? fn args then 
       trace[bv_ack] "using cached call {val} for {fn} {args}"
       return (val, g)
+    let e := mkAppN fn.f (args.map Argument.x)
     let name ← gensym
-    let e := (mkAppN fn.f (args.map Argument.x))
     let (introDef, g) ← introDefExt g name fn.codTy.toExpr e
     let cv := { fvar := introDef.defn, heqProof := Expr.fvar introDef.eqProof : CallVal }
     _insertCallVal fn args cv
@@ -261,35 +262,39 @@ mutual
 partial def ackAppChildren (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
   g.withContext do
     trace[bv_ack] "{crossEmoji} bailing out on illegal application {e}"
-    let mut g := g
     let f := e.getAppFn
-    let args := e.getAppArgs
-
-    g ← g.withContext do
-          pure (← introAckForExpr g f).2
-    for arg in args do
-      g ← g.withContext do
-            pure (← introAckForExpr g arg).2
-    return (e, g)
+    let (f, g) ← introAckForExpr g f
+    -- | Rewrite as a fold? It's not too much cleaner, sadly.
+    let mut args := #[]
+    let mut g := g
+    for arg in e.getAppArgs do
+      let gArg ← introAckForExpr g arg
+      g := gArg.2
+      args := args.push gArg.1
+    return (mkAppN f args, g)
     
 
 partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
   g.withContext do
-    traceLargeMsg m!"🔝 TOPLEVEL '{e}'" m!"{toString e}"
     match e with
     | .mdata _ e => introAckForExpr g e
     | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .proj .. | .lit .. => return (e, g)
-    | .lam .. | .letE .. => lambdaLetTelescope e (fun _args e => introAckForExpr g e)
-    | .forallE .. => forallTelescope e (fun _args e => introAckForExpr g e)
+    | .lam .. | .letE .. => 
+      lambdaLetTelescope e fun args e => do 
+        let (e, g) ← introAckForExpr g e
+        return (← mkLambdaFVars args e, g)
+    | .forallE .. => forallTelescope e fun args e => do 
+        let (e, g) ← introAckForExpr g e
+        return (← mkForallFVars args e, g)
     | .app .. => do 
-      withTraceNode m!"ackermannizing application '{e}'" do
+      withTraceNode m!"@ Expr.app '{e}'" do
         let f := e.getAppFn
         let te ← inferType e
         let .some codTy ← BVTy.ofExpr? te |>.run
           | do
-            trace[bv_ack] "unable to convert type of the expression '{te}' into a 'BVTy'."
-            ackAppChildren g e
-        trace[bv_ack] "found application with legal codomain '{f}'"
+            trace[bv_ack] "{crossEmoji} '{te}' not BitVec/Bool."
+            return (← ackAppChildren g e)
+        trace[bv_ack] "{checkEmoji} {e}'s codomain '{te}'"
 
         let fn := { f, codTy : Function }
 
@@ -300,20 +305,20 @@ partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := d
         -- has been ackermannized, if such an opportunity exists.
         let mut ackArgs := #[]
         for arg in args do
+          trace[bv_ack] "@ arg {arg}"
           let (arg, g) ← introAckForExpr g arg
           -- do I need a `withContext` here? :(
           if let .some ackArg ← Argument.ofExpr? arg |>.run then
-            trace[bv_ack] "found legal argument {arg}"
+            trace[bv_ack] "{checkEmoji} arg {arg}"
             ackArgs := ackArgs.push ackArg
           else
             -- bail out, and recurse into the `app` since we can't ackermannize it.
-            trace[bv_ack] "{crossEmoji} bailing out on illegal argument {arg}"
+            trace[bv_ack] "{crossEmoji} {arg}"
             return (← ackAppChildren g e)
            
-        trace[bv_ack] "replacing call with fvar..."
         let (call, g) ← replaceCallWithFVar g fn ackArgs
         g.withContext do
-          trace[bv_ack] "replaced! call {call}."
+          trace[bv_ack] "{e} → {call}."
           return (Expr.fvar call.fvar, g)
 end
 
@@ -335,17 +340,18 @@ TODO: -- def areArgListsTriviallySame (arg₁ arg₂ : Array Argument) : AckM (O
 /-- info: congr.{u, v} {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : α} (h₁ : f₁ = f₂) (h₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ -/
 #guard_msgs in #check congr
 
-/-
-f : δ → ε → ω
-want : (h₁ : x1 = y1) -> (h₂ : x2 = y2) -> f x1 x2 = f y1 y2
-
-c1 : congr δ (ε → ω) f f x1 y1 rfl h₁ : f x1 = f y1
-c2 : congr ε ω (f x1) (f y1) x2 y2 c1 h₂ : f x2 = f y2
-
--/
-
-/- We can reuse `congr` to prove this -/
-example (f : α → β → γ) (x x' : α) (y y' : β) (hx : x = x') (hy : y = y') : f x y = f x' y' := by congr
+/-- This is how we build the congruence lemma for `n` arguments -/
+private example (f : X1 → X2 → O) 
+    -- we have these already.
+    (x1 x1' : X1) (x2 x2' : X2)
+    (ackEqApp : fx1x2 = f x1 x2)
+    (ackEqApp' : fx1'x2' = f x1' x2') 
+    -- to be intros'd
+    (h1 : x1 = x1')
+    (h2 : x2 = x2') :
+  fx1x2 = fx1'x2' := 
+  let appEqApp : f x1 x2 = f x1' x2' := congr (congr (Eq.refl f) h1) h2
+  (ackEqApp.trans appEqApp).trans ackEqApp'.symm
 
 
 /-
@@ -357,41 +363,39 @@ def mkAckThm (g : MVarId) (fn : Function) (args args' : Array Argument) (call ca
   withContext g do
     trace[bv_ack] "making ack congr thm for '{fn}' '{args}' ~ '{args'}',  calls '{call}', '{call'}'"
     if args.size = 0 then
-      throwTacticEx `bv_ack_eagerg g m!"expected {args} to have more than zero arguments when building congr theorem for {fn}."
+      throwTacticEx `bv_ack g
+        m!"expected {args} to have more than zero arguments when building congr theorem for {fn}."
     if args'.size = 0 then
-      throwTacticEx `bv_ack_eagerg g m!"expected {args'} to have more than zero arguments when building congr theorem for {fn}."
+      throwTacticEx `bv_ack g
+        m!"expected {args'} to have more than zero arguments when building congr theorem for {fn}."
 
     if args.size ≠ args'.size then
-      throwTacticEx `bv_ack_eagerg g m!"internal error: expected {args} to have the same size as {args'} when building congr thm for {fn}."
+      throwTacticEx `bv_ack g 
+        m!"internal error: expected {args} to have the same size as {args'} when building congr thm for {fn}."
     let mut eqHyps := #[]
     for (arg, arg') in args.zip args' do
       eqHyps := eqHyps.push (← mkEq arg.x arg'.x)
     -- | TODO: cache info to not need inferType here.
-    eqHyps := eqHyps.push (← inferType call.heqProof)
-    eqHyps := eqHyps.push (← inferType  call'.heqProof)
-    trace[bv_ack] "made equality hypotheses {eqHyps}"
-    let fArgsEq ← mkEq (.fvar call.fvar) (.fvar call'.fvar)
-    trace[bv_ack] "made arguments equal theorem {fArgsEq}"
-    let thmTy ← mkArrowN eqHyps fArgsEq 
-    trace[bv_ack] "making proof obligation ⊢ {thmTy} for congr."
-    let mvar ← mkFreshExprMVar thmTy
-    trace[bv_ack] "made new goal mvar {mvar}"
-    mvar.mvarId!.withContext do
-      let mvarId := mvar.mvarId!
-      let (_, mvarId) ← mvarId.note .anonymous call.heqProof
-      let (_, mvarId) ← mvarId.note .anonymous call'.heqProof
-      let congrResult ← mvarId.congrN
-      if congrResult.length ≠ 0 then
-        trace[bv_ack] m!"expected congr theorem '{mvarId}' to be automatically proved with 'congr', but failed."
-        throwTacticEx `bv_ack_eager g m!"expected congr theorem '{mvar}' to be automatically proved with 'congr', but failed."
-      trace[bv_ack] "proved goal with type {mvar}. Now reifying value"
-      let outExpr ← instantiateMVars mvar
-      trace[bv_ack] "proved goal with value {outExpr}"
-      -- Add the ackermannization theorem
-      g.withContext do
-        trace[bv_ack] "made congr thm for {fn} {args} ~ {args'} for calls {call} and {call'}. outExpr is {outExpr}"
-        let (_fvar, g) ← g.note (Name.mkSimple "ack_" ++ call.fvar.name ++ call'.fvar.name) outExpr
-      return g
+    -- eqHyps := eqHyps.push (← inferType call.heqProof)
+    -- eqHyps := eqHyps.push (← inferType  call'.heqProof)
+    -- trace[bv_ack] "made equality hypotheses {eqHyps}"
+    -- let fArgsEq ← mkEq (.fvar call.fvar) (.fvar call'.fvar)
+    -- trace[bv_ack] "made arguments equal theorem {fArgsEq}"
+    -- let (_hAckEqApp, g) ← g.note .anonymous call.heqProof
+    -- let (_hAckEqApp', g) ← g.note .anonymous call'.heqProof
+    let mut localDecls : Array (Name × BinderInfo × (Array Expr → AckM Expr)) := #[]
+    let mut i := 0
+    for (arg, arg') in args.zip args' do
+      let name := Name.num (Name.mkSimple "ack_arg") i
+      localDecls := localDecls.push (name, BinderInfo.default, fun _ => mkEq arg.x arg'.x)
+    let ackEqn ← withLocalDecls localDecls fun argsEq => do 
+      let mut fEq ← mkEqRefl fn.f
+      for argEq in argsEq do
+        fEq ← mkCongr fEq argEq
+      mkLambdaFVars argsEq fEq
+    trace[bv_ack] "made ackermann equation: {ackEqn}"
+    let (_ackEqn, g) ← g.note (Name.mkSimple s!"ackEqn{fn.f}") ackEqn
+    return g
 
 /-
 For every bitvector (x : BitVec w), for every function `(f : BitVec w → BitVec w')`,
@@ -402,22 +406,29 @@ walk every function application (f x), and add a new fvar (fx : BitVec w').
 -/
 def ack (g : MVarId) : AckM MVarId := do
   g.withContext do
-    let mut g := g
-    let hyps ← g.getNondepPropHyps
-    (_, g) ← introAckForExpr g (← inferType (Expr.mvar g))
-    for hyp in hyps do
-      trace[bv_ack] "ackermannizing '{← hyp.getType}'"
-      (_, g) ← introAckForExpr g (← hyp.getType)
-      trace[bv_ack] "acerkmannized, new goal {g}"
-    trace[bv_ack] "done with ackermannization, now adding new theorems..."
-    for (fn, arg2call) in (← get).fn2args2call do
-      for (arg₁, call₁) in arg2call do
-        for (arg₂, call₂) in arg2call do
-          if ← areArgListsTriviallyDifferent arg₁ arg₂ then
-            continue
-          if arg₁ == arg₂ then continue
-          g ← mkAckThm g fn arg₁ arg₂ call₁ call₂
+    let (target', g) ← introAckForExpr g (← inferType (Expr.mvar g))
+    let g ← g.replaceTargetDefEq target'
 
+    let hyps ← g.getNondepPropHyps
+    -- for hyp in hyps do
+    --   trace[bv_ack] "ackermannizing '{← hyp.getType}'"
+    --   let (_, g) ← introAckForExpr g (← hyp.getType)
+    --   trace[bv_ack] "acerkmannized, new goal {g}"
+
+    -- trace[bv_ack] "done with ackermannization collection, now adding new theorems..."
+    -- let mut g := g
+    -- for (fn, arg2call) in (← get).fn2args2call do
+    --   let argCallsArr := arg2call.toArray
+    --   for i in [0:argCallsArr.size] do
+    --     let (arg₁, call₁) := argCallsArr[i]!
+    --     for j in [i+1:argCallsArr.size] do
+    --       let (arg₂, call₂) := argCallsArr[j]!
+    --       if ← areArgListsTriviallyDifferent arg₁ arg₂ then
+    --         continue
+    --       -- g ← mkAckThm g fn arg₁ arg₂ call₁ call₂
+    --       continue
+
+    trace[bv_ack] "{checkEmoji} ack. {g}"
     return g
 
 end AckM
