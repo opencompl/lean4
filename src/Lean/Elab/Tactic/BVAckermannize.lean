@@ -263,7 +263,7 @@ partial def ackAppChildren (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
     
 
 partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
-  g.withContext do
+    withTraceNode m!"🪵 {e}" do
     match e with
     | .mdata _ e => introAckForExpr g e
     | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .proj .. | .lit .. => return (e, g)
@@ -271,9 +271,19 @@ partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := d
       lambdaLetTelescope e fun args e => do 
         let (e, g) ← introAckForExpr g e
         return (← mkLambdaFVars args e, g)
-    | .forallE .. => forallTelescope e fun args e => do 
-        let (e, g) ← introAckForExpr g e
-        return (← mkForallFVars args e, g)
+    | .forallE .. => 
+      trace[bv_ack] "∀ '{e}':"
+      forallTelescope e fun args e => do 
+        let mut newArgs := #[]
+        let mut g := g
+        for arg in args do
+          let (newArg, g') ← introAckForExpr g arg
+          newArgs := newArgs.push newArg
+          g := g'
+          
+        let (e, g') ← introAckForExpr g e
+        g := g'
+        return (← mkForallFVars newArgs e, g)
     | .app .. => do 
       withTraceNode m!"@ Expr.app '{e}'" do
         let f := e.getAppFn
@@ -305,9 +315,8 @@ partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := d
             return (← ackAppChildren g e)
            
         let (call, g) ← replaceCallWithFVar g fn ackArgs
-        g.withContext do
-          trace[bv_ack] "{e} → {call}."
-          return (Expr.fvar call.fvar, g)
+        trace[bv_ack] "{e} → {call}."
+        return (Expr.fvar call.fvar, g)
 end
 
 
@@ -348,7 +357,6 @@ Formally, we build an expr such as `arg₁ = arg'₁ -> arg₂ = arg'₂ -> ... 
 where the proof is by congruence over the equalities.
 -/
 def mkAckThm (g : MVarId) (fn : Function) (args args' : Array Argument) (call call' : CallVal): AckM MVarId := do
-  withContext g do
     trace[bv_ack] "making ack congr thm for '{fn}' '{args}' ~ '{args'}',  calls '{call}', '{call'}'"
     if args.size = 0 then
       throwTacticEx `bv_ack g
