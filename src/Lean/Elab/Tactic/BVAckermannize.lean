@@ -6,9 +6,9 @@ Authors: Siddharth Bhat
 This file implements lazy ackermannization [1, 2]
 
 [1] https://lara.epfl.ch/w/_media/model-based.pdf
-[2]  https://leodemoura.github.io/files/oregon08.pdf
+[2] https://leodemoura.github.io/files/oregon08.pdf
 [3] https://github.com/Z3Prover/z3/blob/d047b86439ec209446d211f0f6b251ebfba070d8/src/ackermannization/lackr.cpp#L206
-[4]https://github.com/Z3Prover/z3/blob/d047b86439ec209446d211f0f6b251ebfba070d8/src/ackermannization/lackr_model_constructor.cpp#L344
+[4] https://github.com/Z3Prover/z3/blob/d047b86439ec209446d211f0f6b251ebfba070d8/src/ackermannization/lackr_model_constructor.cpp#L344
 -/
 prelude
 import Lean.Expr
@@ -117,7 +117,7 @@ end Function
 
 
 /--
-TODO: is it sensible to hash an array of arguments?
+NOTE: is it sensible to hash an array of arguments?
 We may want to use something like a trie to index these.
 Consider swiching to something like `Trie`.
 -/
@@ -135,8 +135,10 @@ structure CallVal where
 deriving Hashable, BEq, Inhabited
 
 namespace CallVal
+
 instance : ToMessageData CallVal where
   toMessageData cv := m!"{Expr.fvar cv.fvar} ({cv.heqProof})"
+
 end CallVal
 
 
@@ -351,6 +353,7 @@ def mkAckThm (g : MVarId) (fn : Function) (args args' : Array Argument) (call ca
     if args.size ≠ args'.size then
       throwTacticEx `bv_ack g 
         m!"internal error: expected {args} to have the same size as {args'} when building congr thm for {fn}."
+
     let mut eqHyps := #[]
     for (arg, arg') in args.zip args' do
       eqHyps := eqHyps.push (← mkEq arg.x arg'.x)
@@ -360,12 +363,12 @@ def mkAckThm (g : MVarId) (fn : Function) (args args' : Array Argument) (call ca
     for (arg, arg') in args.zip args' do
       let name := Name.num (Name.mkSimple "ack_arg") i
       localDecls := localDecls.push (name, BinderInfo.default, fun _ => mkEq arg.x arg'.x)
-    let ackEqn ← withLocalDecls localDecls fun argsEq => do 
+    let ackEqn ← g.withContext <| withLocalDecls localDecls fun argsEq => do 
       let mut fEq ← mkEqRefl fn.f
       for argEq in argsEq do
         fEq ← mkCongr fEq argEq
-      -- now fEq  ~ appEqApp
-      let finalEq ←  mkEqTrans (← mkEqTrans call.heqProof fEq) (← mkEqSymm call'.heqProof)
+
+      let finalEq ← mkEqTrans (← mkEqTrans call.heqProof fEq) (← mkEqSymm call'.heqProof)
       mkLambdaFVars argsEq  finalEq
     trace[bv_ack] "made ackermann equation: {ackEqn}"
     let (_ackEqn, g) ← g.note (Name.mkSimple s!"ackEqn{fn.f}") ackEqn
@@ -391,7 +394,6 @@ def ack (g : MVarId) : AckM MVarId := do
           let hypG ← introAckForExpr g (← hyp.getType)
           pure hypG.2
 
-    -- trace[bv_ack] "done with ackermannization collection, now adding new theorems..."
     for (fn, arg2call) in (← get).fn2args2call do
       let argCallsArr := arg2call.toArray
       for i in [0:argCallsArr.size] do
@@ -400,8 +402,7 @@ def ack (g : MVarId) : AckM MVarId := do
           let (arg₂, call₂) := argCallsArr[j]!
           if ← areArgListsTriviallyDifferent arg₁ arg₂ then
             continue
-          g ← withContext g do
-                mkAckThm g fn arg₁ arg₂ call₁ call₂
+          g ← mkAckThm g fn arg₁ arg₂ call₁ call₂
     trace[bv_ack] "{checkEmoji} ack.{indentD g}"
     return g
 
