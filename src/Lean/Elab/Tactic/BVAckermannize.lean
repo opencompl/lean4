@@ -130,7 +130,7 @@ The data stored for an ackermannized call to allow us to build proofs.
 structure CallVal where
   /-- the free variable `ack_fx₁...xₙ := (f x₁ x₂ ... xₙ)`. -/
   fvar : FVarId 
-  /-- heqProof : The proof that the value of the fvar `ack_fx₁...fxₙ` equals the application `f x₁ x₂ ... xₙ`. -/
+  /-- heqProof : The proof that `ack_fx₁...fxₙ = f x₁ x₂ ... xₙ` (name/fvar = value/expr). -/
   heqProof : Expr  
 deriving Hashable, BEq, Inhabited
 
@@ -178,9 +178,9 @@ def getCallVal? (fn : Function) (args : Array Argument) : AckM (Option CallVal) 
   return none
 
 structure IntroDefResult where
-  -- the new fvar of the defn.
+  -- the new name/fvar of the defn.
   defn : FVarId
-  -- a proof 'hdefn : defn = expr'
+  -- a proof 'hdefn : name = value
   eqProof : FVarId
   
 /-
@@ -238,18 +238,6 @@ def traceLargeMsg (header : MessageData) (msg : MessageData) : AckM Unit :=
     withTraceNode m!"{header} (NOTE: can be large)" do
       trace[ack] msg
 
-
-/-- The proof of correctness of the Ackermannization transform. -/
-theorem ackermannize_proof (A : Type _) (B : Type _)
-    (f : A → B)
-    (x y : A)
-    (fx fy : B)
-    (hfx : f x = fx) -- In the same order that `generalize h : f x = fx` would produce.
-    (hfy : f y = fy) :
-    x = y → fx = fy := by
-  intros h
-  subst h
-  simp [← hfx, ← hfy]
 
 /-- Returns `True` if the type is a function type that is understood by the bitblaster. -/
 def isBitblastTy (e : Expr) : Bool :=
@@ -351,7 +339,7 @@ private example (f : X1 → X2 → O)
     (h2 : x2 = x2') :
   fx1x2 = fx1'x2' := 
   let appEqApp : f x1 x2 = f x1' x2' := congr (congr (Eq.refl f) h1) h2
-  (ackEqApp.trans appEqApp).trans ackEqApp'.symm
+  Eq.trans (Eq.trans ackEqApp appEqApp) (Eq.symm ackEqApp')
 
 
 /-
@@ -375,14 +363,7 @@ def mkAckThm (g : MVarId) (fn : Function) (args args' : Array Argument) (call ca
     let mut eqHyps := #[]
     for (arg, arg') in args.zip args' do
       eqHyps := eqHyps.push (← mkEq arg.x arg'.x)
-    -- | TODO: cache info to not need inferType here.
-    -- eqHyps := eqHyps.push (← inferType call.heqProof)
-    -- eqHyps := eqHyps.push (← inferType  call'.heqProof)
-    -- trace[bv_ack] "made equality hypotheses {eqHyps}"
-    -- let fArgsEq ← mkEq (.fvar call.fvar) (.fvar call'.fvar)
-    -- trace[bv_ack] "made arguments equal theorem {fArgsEq}"
-    -- let (_hAckEqApp, g) ← g.note .anonymous call.heqProof
-    -- let (_hAckEqApp', g) ← g.note .anonymous call'.heqProof
+    -- we build the equality according to the example above.
     let mut localDecls : Array (Name × BinderInfo × (Array Expr → AckM Expr)) := #[]
     let mut i := 0
     for (arg, arg') in args.zip args' do
@@ -392,7 +373,9 @@ def mkAckThm (g : MVarId) (fn : Function) (args args' : Array Argument) (call ca
       let mut fEq ← mkEqRefl fn.f
       for argEq in argsEq do
         fEq ← mkCongr fEq argEq
-      mkLambdaFVars argsEq fEq
+      -- now fEq  ~ appEqApp
+      let finalEq ←  mkEqTrans (← mkEqTrans call.heqProof fEq) (← mkEqSymm call'.heqProof)
+      mkLambdaFVars argsEq  finalEq
     trace[bv_ack] "made ackermann equation: {ackEqn}"
     let (_ackEqn, g) ← g.note (Name.mkSimple s!"ackEqn{fn.f}") ackEqn
     return g
