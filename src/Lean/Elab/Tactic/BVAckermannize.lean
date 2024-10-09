@@ -38,7 +38,7 @@ structure Context extends Config where
 
  /-- Types that can be bitblasted by bv_decide -/
  inductive BVTy
- /-- booleans -/
+ /-- Booleans -/
  | Bool
  /-- Bitvectors of a fixed width `w` -/
  | BitVec (w : Nat)
@@ -81,54 +81,46 @@ namespace Argument
 instance : ToMessageData Argument where
   toMessageData arg := m!"{arg.x} : {arg.xTy}"
 
-/-- Build an `Argument` from a raw expression -/
+/-- Build an `Argument` from a raw expression. -/
 def ofExpr? (e : Expr) : OptionT MetaM Argument := do
   let t ← BVTy.ofExpr? (← inferType e)
   return { x := e, xTy := t}
 
 end Argument
-
-
 structure Function where
   /-- The function -/
   f : Expr
   codTy : BVTy
  deriving Hashable, BEq, Inhabited
-
-
 namespace Function
 
 instance : ToMessageData Function where
   toMessageData fn := m!"{fn.f} (cod: {fn.codTy})"
 
 /--
-Reify an expression `e` of the kind 
-`f x₁ ... xₙ`, where all the arguments and the return type are a `BVTy` into an Ap
+Reify an expression `e` of the kind `f x₁ ... xₙ`, where all the arguments and the return type are
+a `BVTy` into an App.
 -/
 def reifyAp (f : Expr) : OptionT MetaM (Function × Array Argument) := do
   let xs := f.getAppArgs
-  /- We need at least one argument for this to be a function call we can ackermannize -/
+  /- We need at least one argument for this to be a function call we can ackermannize. -/
   guard <| xs.size > 0
   let codTy ← BVTy.ofExpr? (← inferType f)
   let args ← xs.mapM Argument.ofExpr?
   let fn : Function := { f, codTy }
   return (fn, args)
 end Function
-
-
 /--
 NOTE: is it sensible to hash an array of arguments?
 We may want to use something like a trie to index these.
 Consider swiching to something like `Trie`.
 -/
 abbrev ArgumentList := Array Argument
-
-
 /--
 The data stored for an ackermannized call to allow us to build proofs.
 -/
 structure CallVal where
-  /-- the free variable `ack_fx₁...xₙ := (f x₁ x₂ ... xₙ)`. -/
+  /-- The free variable `ack_fx₁...xₙ := (f x₁ x₂ ... xₙ)`. -/
   fvar : FVarId 
   /-- heqProof : The proof that `ack_fx₁...fxₙ = f x₁ x₂ ... xₙ` (name/fvar = value/expr). -/
   heqProof : Expr  
@@ -140,18 +132,14 @@ instance : ToMessageData CallVal where
   toMessageData cv := m!"{Expr.fvar cv.fvar} ({cv.heqProof})"
 
 end CallVal
-
-
 structure State where
   /--
-  A maping from a function `f`, to a map of arguments `x₁ ... xₙ`, to the information stored about the call.
+  A mapping from a function `f`, to a map of arguments `x₁ ... xₙ`, to the information stored about the call.
   This is used to generate equations of the form `x₁ = y₁ → x₂ = y₂ → ... → xₙ = yₙ → ack_fx₁...xₙ = ack_fy₁...yₙ on-demand.
   -/
   fn2args2call : Std.HashMap Function (Std.HashMap ArgumentList CallVal) := {}
   /-- A counter for generating fresh names. -/
   gensymCounter : Nat := 0
-
-
 def State.init (_cfg : Config) : State where
 
 abbrev AckM := StateRefT State (ReaderT Context MetaM)
@@ -206,9 +194,8 @@ private def _insertCallVal (fn : Function) (args : ArgumentList) (cv : CallVal) 
 Replace a call to the function `f` with an `fvar`. Since the `fvar` is defeq to the call,
 we can just replace occurrences of the call with the fvar `f`.
 
-We will later need to add another hypothesis with the equality that the `fvar = f x₁ ... xₙ`
+We will later need to add another hypothesis with the equality that `fvar = f x₁ ... xₙ`
 -/
-
 def replaceCallWithFVar (g : MVarId) (fn : Function) (args : ArgumentList) : AckM (CallVal × MVarId) := do
   g.withContext do
     if let some val ← getCallVal? fn args then 
@@ -221,7 +208,7 @@ def replaceCallWithFVar (g : MVarId) (fn : Function) (args : ArgumentList) : Ack
     _insertCallVal fn args cv
     return (cv, g)
 
-/-- create a trace node in trace class (i.e. `set_option traceClass true`),
+/-- Create a trace node in trace class (i.e. `set_option traceClass true`),
 with header `header`, whose default collapsed state is `collapsed`. -/
 def withTraceNode (header : MessageData) (k : AckM α)
     (collapsed : Bool := true)
@@ -303,8 +290,6 @@ partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := d
         trace[bv_ack] "{checkEmoji} {e} → {call}."
         return (Expr.fvar call.fvar, g)
 end
-
-
 /--
 Return true if the argument lists are trivially different.
 This is an optimization that we do not yet implement.
@@ -334,8 +319,6 @@ private example (f : X1 → X2 → O)
   fx1x2 = fx1'x2' := 
   let appEqApp : f x1 x2 = f x1' x2' := congr (congr (Eq.refl f) h1) h2
   Eq.trans (Eq.trans ackEqApp appEqApp) (Eq.symm ackEqApp')
-
-
 /-
 Make the ackermannization theorem, which states that: `(∀ i, arg₁[i] = arg₂[i]) -> call₁ = call₂`.
 Formally, we build an expr such as `arg₁ = arg'₁ -> arg₂ = arg'₂ -> ... argₙ = arg'ₙ -> call₁ = call₂`,
