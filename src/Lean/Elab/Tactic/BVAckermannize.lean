@@ -188,7 +188,6 @@ def introDefExt (g : MVarId) (name : Name) (hdefTy : Expr) (hdefVal : Expr) : Ac
 private def _insertCallVal (fn : Function) (args : ArgumentList) (cv : CallVal) : AckM Unit := do
   let calls ← getCallMap fn
   modify fun s => { s with fn2args2call := s.fn2args2call.insert fn (calls.insert args cv) }
-      
 
 /--
 Replace a call to the function `f` with an `fvar`. Since the `fvar` is defeq to the call,
