@@ -11,6 +11,7 @@ import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Mod
 import Init.Data.Int.Bitwise.Lemmas
+import Init.Data.Int.Lemmas
 import Init.Data.Int.Pow
 
 set_option linter.missingDocs true
@@ -206,6 +207,7 @@ theorem eq_of_getMsbD_eq {x y : BitVec w}
 theorem of_length_zero {x : BitVec 0} : x = 0#0 := by ext; simp
 
 theorem toNat_zero_length (x : BitVec 0) : x.toNat = 0 := by simp [of_length_zero]
+theorem toInt_length_zero (x : BitVec 0) : x.toInt = 0 := by simp [of_length_zero]
 theorem getLsbD_zero_length (x : BitVec 0) : x.getLsbD i = false := by simp
 theorem getMsbD_zero_length (x : BitVec 0) : x.getMsbD i = false := by simp
 theorem msb_zero_length (x : BitVec 0) : x.msb = false := by simp [BitVec.msb, of_length_zero]
@@ -2070,16 +2072,6 @@ theorem smod_zero {x : BitVec n} : x.smod 0#n = x := by
   · simp
   · by_cases h : x = 0#n <;> simp [h]
 
-/-! ### abs -/
-
-@[simp, bv_toNat]
-theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat else x.toNat := by
-  simp only [BitVec.abs, neg_eq]
-  by_cases h : x.msb = true
-  · simp only [h, ↓reduceIte, toNat_neg]
-    have : 2 * x.toNat ≥ 2 ^ w := BitVec.msb_eq_true_iff_two_mul_ge.mp h
-    rw [Nat.mod_eq_of_lt (by omega)]
-  · simp [h]
 
 /-! ### mul -/
 
@@ -2673,6 +2665,92 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
   · simp [h]
   · rw [Nat.sub_add_cancel (Nat.two_pow_pos (w - 1)), Nat.two_pow_pred_mod_two_pow (by omega)]
 
+
+/-! ### abs -/
+
+private theorem two_pow_plus_one_div_two (w : Nat) : ((2^w + 1) / 2) = 2^(w - 1) := by
+  apply Nat.div_eq_of_lt_le
+  · rcases w with rfl | w
+    · decide
+    · simp
+      omega
+  · rcases w with rfl | w
+    · decide
+    · rw [Nat.add_one_sub_one, Nat.add_mul,
+        Nat.one_mul, Nat.add_lt_add_iff_right,
+        Nat.pow_add]
+      omega
+
+theorem abs_def {x : BitVec w} : x.abs = if x.msb then .neg x else x := rfl
+
+/-- The value of the bitvector (interpreted as an integer) is always less than 2^w -/
+theorem toInt_lt (x : BitVec w) : x.toInt < 2 ^ w := by
+  rw [toInt_eq_msb_cond]
+  norm_cast
+  omega
+
+/-- The negation value of the bitvector (interpreted as an integer) is always less than 2^w -/
+theorem neg_toInt_lt (x : BitVec w) : - x.toInt < 2 ^ w := by
+  have := toInt_lt x
+  rw [toInt_eq_msb_cond]
+  split 
+  case isTrue h => 
+    simp only [gt_iff_lt]
+    norm_cast
+    have := msb_eq_true_iff_two_mul_ge.mp h
+    omega
+  case isFalse h => 
+    norm_cast
+    omega
+
+/-- The msb of `intMin w` is `true` for all  `w > 0` -/
+@[simp]
+theorem msb_intMin : (intMin w).msb = decide (w > 0) := by
+  rw [intMin]
+  rw [msb_eq_decide]
+  simp
+  rcases w with rfl | w 
+  · rfl
+  · simp
+    have : 0 < 2^w := Nat.pow_pos (by decide)
+    have : 2^w < 2^(w + 1) := by
+      rw [Nat.pow_succ]
+      omega
+    rw [Nat.mod_eq_of_lt (by omega)]
+    simp
+
+@[simp]
+theorem abs_intMin : (intMin w).abs = intMin w := by
+  rw [abs_def]
+  simp [msb_intMin]
+
+
+@[simp]
+theorem msb_neg (x : BitVec w) : (- x).msb = (decide ((w != 0) && ((x = intMin w) || !x.msb))) := by
+  rw [msb_eq_decide]
+  rcases w with rfl | w 
+  · simp [BitVec.of_length_zero]
+  · simp
+    by_cases h : x = intMin (w + 1)
+    · simp [h]
+      simp [Nat.pow_succ]
+      rw [Nat.mod_eq_of_lt (by sorry)]
+      rw [Nat.mod_eq_of_lt (by sorry)]
+      omega
+    · simp [h]
+      sorry
+
+theorem toInt_abs (x : BitVec w) : x.abs.toInt = if x = intMin w then (intMin w).toInt else x.toInt.abs := by
+  · rw [abs_def]
+    rw [toInt_eq_msb_cond]
+    split 
+    case isTrue h =>
+      -- rw [Int.Int.abs_eq_neg (by omega)]
+      simp [h]
+      sorry
+    case isFalse h =>
+      simp [h]
+      sorry
 
 /-! ### Non-overflow theorems -/
 
