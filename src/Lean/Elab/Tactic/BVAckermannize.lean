@@ -3,7 +3,7 @@ Copyright (c) 2024 Siddharth Bhat. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Siddharth Bhat
 
-This file implements lazy ackermannization [1, 2]
+This file implements strict ackermannization [1, 2]
 
 [1] https://lara.epfl.ch/w/_media/model-based.pdf
 [2] https://leodemoura.github.io/files/oregon08.pdf
@@ -31,11 +31,6 @@ initialize Lean.registerTraceClass `bv_ack
 
 namespace Ack
 
-structure Config where
-
-structure Context extends Config where
- config : Config
-
  /-- Types that can be bitblasted by bv_decide -/
  inductive BVTy
  /-- Booleans -/
@@ -51,9 +46,6 @@ instance : ToMessageData BVTy where
 
 namespace BVTy
 
- /-- info: _root_.BitVec (w : Nat) : Type -/
- #guard_msgs in #check _root_.BitVec
-
 /-- Reify a raw expression of type `Type` into the types of bitvectors we can bitblast,
 returning `none` if `e` was not recognized as either `Bool` or `BitVec ?w`, 
 with `?w` a literal `Nat`  -/
@@ -65,12 +57,14 @@ def ofExpr? (e : Expr) : OptionT MetaM BVTy :=
      return .BitVec w
   | _ => OptionT.fail
 
+/-- Convert a `BVTy` back into an `Expr` -/
 def toExpr : BVTy → Expr
 | .Bool => mkConst ``_root_.Bool
 | .BitVec w => mkApp (mkConst ``_root_.BitVec) (mkNatLit w)
 
 end BVTy
 
+/-- An argument to an uninterpreted function, which we track for ackermannization. -/
 structure Argument where
   /-- The expression corresponding to the argument -/
   x : Expr
@@ -89,15 +83,21 @@ def ofExpr? (e : Expr) : OptionT MetaM Argument := do
   return { x := e, xTy := t}
 
 end Argument
+
+/--
+A function, which packs the expression and the type of the codomain of the function.
+We use the type of the codomain to build an abstracted value for every call of this function.
+-/
 structure Function where
   /-- The function -/
   f : Expr
-  codTy : BVTy
+  /-- The type of the function's codomain -/
+  codomain : BVTy
  deriving Hashable, BEq, Inhabited
 namespace Function
 
 instance : ToMessageData Function where
-  toMessageData fn := m!"{fn.f} (cod: {fn.codTy})"
+  toMessageData fn := m!"{fn.f} (cod: {fn.codomain})"
 
 /--
 Reify an expression `e` of the kind `f x₁ ... xₙ`, where all the arguments and the return type are
@@ -107,9 +107,9 @@ def reifyAp (f : Expr) : OptionT MetaM (Function × Array Argument) := do
   let xs := f.getAppArgs
   /- We need at least one argument for this to be a function call we can ackermannize. -/
   guard <| xs.size > 0
-  let codTy ← BVTy.ofExpr? (← inferType f)
+  let codomain ← BVTy.ofExpr? (← inferType f)
   let args ← xs.mapM Argument.ofExpr?
-  let fn : Function := { f, codTy }
+  let fn : Function := { f, codomain }
   return (fn, args)
 end Function
 /--
@@ -142,14 +142,14 @@ structure State where
   fn2args2call : Std.HashMap Function (Std.HashMap ArgumentList CallVal) := {}
   /-- A counter for generating fresh names. -/
   gensymCounter : Nat := 0
-def State.init (_cfg : Config) : State where
 
-abbrev AckM := StateRefT State (ReaderT Context MetaM)
+def State.init : State where
+
+abbrev AckM := StateRefT State MetaM
 
 namespace AckM
 
-def run (m : AckM α) (ctx : Context) : MetaM α :=
-  m.run' (State.init ctx.config) |>.run ctx
+def run (m : AckM α) : MetaM α := m.run' State.init 
 
 /-- Generate a fresh name. -/
 def gensym : AckM Name := do
@@ -204,7 +204,7 @@ def replaceCallWithFVar (g : MVarId) (fn : Function) (args : ArgumentList) : Ack
       return (val, g)
     let e := mkAppN fn.f (args.map Argument.x)
     let name ← gensym
-    let (introDef, g) ← introDefExt g name fn.codTy.toExpr e
+    let (introDef, g) ← introDefExt g name fn.codomain.toExpr e
     let cv := { fvar := introDef.defn, heqProof := Expr.fvar introDef.eqProof : CallVal }
     _insertCallVal fn args cv
     return (cv, g)
@@ -261,13 +261,13 @@ partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := d
       withTraceNode m!"🎯 Expr.app '{e}'" (collapsed := false) do
         let f := e.getAppFn
         let te ← inferType e
-        let .some codTy ← BVTy.ofExpr? te |>.run
+        let .some codomain ← BVTy.ofExpr? te |>.run
           | do
             trace[bv_ack] "{crossEmoji} '{te}' not BitVec/Bool."
             return (← ackAppChildren g e)
         trace[bv_ack] "{checkEmoji} {e}'s codomain '{te}'"
 
-        let fn := { f, codTy : Function }
+        let fn := { f, codomain : Function }
 
         let args := e.getAppArgs
         assert! args.size > 0 -- since we are an application, we must have at least one argument.
@@ -278,7 +278,6 @@ partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := d
         for arg in args do
           trace[bv_ack] "🎯 arg {arg}"
           let (arg, g) ← introAckForExpr g arg
-          -- do I need a `withContext` here? :(
           if let .some ackArg ← Argument.ofExpr? arg |>.run then
             trace[bv_ack] "{checkEmoji} arg {arg}"
             ackArgs := ackArgs.push ackArg
@@ -393,10 +392,10 @@ def ack (g : MVarId) : AckM MVarId := do
 end AckM
 
 /-- Entry point for programmatic usage of `bv_ackermannize` -/
-def ackTac (ctx : Context) : TacticM Unit := do
+def ackTac : TacticM Unit := do
   withoutRecover do
     liftMetaTactic fun g => do
-      let g ← (AckM.ack g).run ctx
+      let g ← (AckM.ack g).run
       return [g]
 
 end Ack
@@ -404,7 +403,5 @@ end Ack
 @[builtin_tactic Lean.Parser.Tactic.bvAckEager]
 def evalBvAckEager : Tactic := fun
   | `(tactic| bv_ack_eager) => 
-    let config : Ack.Config := {}
-    let ctx : Ack.Context := { config := config }
-    Ack.ackTac ctx
+    Ack.ackTac
   | _ => throwUnsupportedSyntax
