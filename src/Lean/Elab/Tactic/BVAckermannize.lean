@@ -54,7 +54,9 @@ namespace BVTy
  /-- info: _root_.BitVec (w : Nat) : Type -/
  #guard_msgs in #check _root_.BitVec
 
-/-- Reify a raw expression into the types of bitvectors we can bitblast -/
+/-- Reify a raw expression of type `Type` into the types of bitvectors we can bitblast,
+returning `none` if `e` was not recognized as either `Bool` or `BitVec ?w`, 
+with `?w` a literal `Nat`  -/
 def ofExpr? (e : Expr) : OptionT MetaM BVTy :=
   match_expr e.consumeMData with
   | _root_.Bool => return Bool
@@ -81,7 +83,7 @@ namespace Argument
 instance : ToMessageData Argument where
   toMessageData arg := m!"{arg.x} : {arg.xTy}"
 
-/-- Build an `Argument` from a raw expression. -/
+/-- Build an `Argument` from a raw expression of type `Bool` or `BitVec _`. -/
 def ofExpr? (e : Expr) : OptionT MetaM Argument := do
   let t ← BVTy.ofExpr? (← inferType e)
   return { x := e, xTy := t}
