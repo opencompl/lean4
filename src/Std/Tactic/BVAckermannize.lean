@@ -8,5 +8,5 @@ import Std.Tactic.BVAckermannize.Syntax
 
 /-!
 This directory contains the lazy ackermannization tactic.
-This uses lean's inbuilt bitblaster to uninterpreted functions + bitvectors to SAT.
+This uses lean's builtin bitblaster to reduce uninterpreted functions + bitvectors to SAT.
 -/
