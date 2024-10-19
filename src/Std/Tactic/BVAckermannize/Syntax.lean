@@ -26,6 +26,17 @@ example : ∀ (a b : BitVec 64), (a &&& b) + (a ^^^ b) = a ||| b := by
 -/
 syntax (name := bvAckEager) "bv_ack_eager" : tactic
 
+
+/--
+Close fixed-width `BitVec`, `Bool`, and uninterpreted function goals by obtaining a proof from an external SAT solver and
+verifying it inside Lean. The solvable goals are currently limited to the Lean equivalent of
+[`QF_BV`](https://smt-lib.org/logics-all.shtml#QF_BV) + [`QF_UF`](https://smt-lib.org/logics-all.shtml#QF_UF)
+
+Note that this uses *lazy* ackermannization,
+and will therefore lazily add hypotheses of functional extensionality based on the SAT solver's counterexample model.
+-/
+syntax (name := bvAckLazy) "bv_ack_lazy" : tactic
+
 end Tactic
 
 end Lean.Parser

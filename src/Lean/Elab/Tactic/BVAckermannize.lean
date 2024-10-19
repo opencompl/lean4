@@ -145,6 +145,7 @@ structure State where
 
 def State.init : State where
 
+
 abbrev AckM := StateRefT State MetaM
 
 namespace AckM
@@ -211,7 +212,7 @@ def replaceCallWithFVar (g : MVarId) (fn : Function) (args : ArgumentList) : Ack
 
 /-- Create a trace node in trace class (i.e. `set_option traceClass true`),
 with header `header`, whose default collapsed state is `collapsed`. -/
-def withTraceNode (header : MessageData) (k : AckM α)
+private def withTraceNode (header : MessageData) (k : AckM α)
     (collapsed : Bool := true)
     (traceClass : Name := `bv_ack) : AckM α :=
   Lean.withTraceNode traceClass (fun _ => return header) k (collapsed := collapsed)
@@ -290,6 +291,8 @@ partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := d
         trace[bv_ack] "{checkEmoji} {e} → {call}."
         return (Expr.fvar call.fvar, g)
 end
+
+#check ackAppChildren
 /--
 Return true if the argument lists are trivially different.
 This is an optimization that we do not yet implement.
