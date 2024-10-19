@@ -8,6 +8,7 @@ import Lean.Util.CollectLevelParams
 import Lean.Elab.DeclUtil
 import Lean.Elab.DefView
 import Lean.Elab.Inductive
+import Lean.Elab.Coinductive
 import Lean.Elab.Structure
 import Lean.Elab.MutualDef
 import Lean.Elab.DeclarationRange
@@ -47,6 +48,7 @@ private def isNamedDef (stx : Syntax) : Bool :=
     k == ``Lean.Parser.Command.opaque ||
     k == ``Lean.Parser.Command.axiom ||
     k == ``Lean.Parser.Command.inductive ||
+    k == ``Lean.Parser.Command.coinductive ||
     k == ``Lean.Parser.Command.classInductive ||
     k == ``Lean.Parser.Command.structure
 
@@ -187,6 +189,10 @@ def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
   let v ← inductiveSyntaxToView modifiers stx
   elabInductiveViews #[v]
 
+def elabCoinductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
+  let v ← CoinductiveView.ofModifiersAndStx modifiers stx
+  elabCoinductiveViews #[v]
+
 def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   let modifiers := modifiers.addAttr { name := `class }
   let v ← classInductiveSyntaxToView modifiers stx
@@ -221,6 +227,9 @@ def elabDeclaration : CommandElab := fun stx => do
     else if declKind == ``Lean.Parser.Command.«inductive» then
       let modifiers ← elabModifiers modifiers
       elabInductive modifiers decl
+    else if declKind == ``Lean.Parser.Command.«coinductive» then
+      let modifiers ← elabModifiers stx[0]
+      elabCoinductive modifiers decl
     else if declKind == ``Lean.Parser.Command.classInductive then
       let modifiers ← elabModifiers modifiers
       elabClassInductive modifiers decl
