@@ -2363,6 +2363,43 @@ theorem toNat_sdiv {x y : BitVec w} : (x.sdiv y).toNat =
   simp only [sdiv_eq, toNat_udiv]
   by_cases h : x.msb <;> by_cases h' : y.msb <;> simp [h, h']
 
+theorem toInt_sdiv (x y : BitVec w) :
+    (x.sdiv y).toInt = (x.toInt / y.toInt).bmod (2 ^ w) := by
+  rw [BitVec.toInt_eq_toNat_bmod, toNat_sdiv]
+  simp only [toInt_eq_msb_cond]
+  cases hx : x.msb <;> cases hy : y.msb
+  <;> simp only [Bool.false_eq_true, ↓reduceIte]
+  · simp
+  · simp only [udiv_eq, toNat_neg, toNat_udiv, Int.ofNat_emod, Int.emod_bmod_congr]
+
+    sorry
+  · simp only [udiv_eq, toNat_neg, toNat_udiv, Int.ofNat_emod, Int.emod_bmod_congr]
+    sorry
+
+  · simp only [udiv_eq, toNat_udiv, toNat_neg, Int.ofNat_ediv, Int.ofNat_emod]
+    have : x ≠ 0#_ := by
+      rintro rfl; simp at hx
+    have : 0 < 2 ^ w := by
+      sorry
+    have : 0 < x.toNat := by
+      sorry
+    have : 0 < y.toNat := by
+      sorry
+    rw [Int.emod_eq_of_lt (by omega) (by omega),
+        Int.emod_eq_of_lt (by omega) (by omega)]
+    norm_cast
+    simp only [Int.ofNat_ediv]
+    rw [Int.ofNat_sub (by omega), Int.ofNat_sub (by omega)]
+    congr 1
+    calc
+      (((2 ^ w : Nat) : Int) - (x.toNat : Int)) / (((2 ^ w : Nat) : Int) - y.toNat)
+        = ((2 ^ w) - x.toNat) / ((2 ^ w) - y.toNat)              := by norm_cast
+      -- _ = (-1 * - 1) * ((2 ^ w) - x.toNat) / ((2 ^ w) - y.toNat) := by simp
+      _ = -1 * (- 1 * ((2 ^ w) - x.toNat) / ((2 ^ w) - y.toNat)) := by simp [Int.mul_assoc]
+      _ = (↑x.toNat - ↑(2 ^ w)) / (↑y.toNat - ↑(2 ^ w)) := by sorry
+
+    sorry
+
 @[simp]
 theorem zero_sdiv {x : BitVec w} : (0#w).sdiv x = 0#w := by
   simp only [sdiv_eq]
