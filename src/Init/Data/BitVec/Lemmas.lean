@@ -2884,6 +2884,25 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
   rw [← testBit_toNat, toNat_intMax, Nat.testBit_two_pow_sub_one, decide_eq_decide]
   omega
 
+@[simp]
+theorem msb_intMax (w : Nat) : (intMax w).msb = false := by
+  simp [BitVec.msb, getMsbD, getLsbD_intMax]; omega
+
+@[simp]
+theorem toInt_intMax : (intMax w).toInt = 2 ^ (w - 1) - 1 := by
+  simp [toInt_eq_msb_cond, Int.ofNat_sub (Nat.one_le_two_pow)]
+  norm_cast
+
+theorem le_toInt_intMax (x : BitVec w) : x.toInt ≤ (intMax w).toInt := by
+  rw [toInt_eq_toNat_bmod, toInt_intMax]
+  have := Int.bmod_le (x := x.toNat) (m := 2 ^ w) sorry
+  apply Int.le_trans this
+  norm_cast
+  sorry
+
+theorem sle_intMax (x : BitVec w) : x.sle (intMax w) := by
+  simp only [BitVec.sle, le_toInt_intMax, decide_True]
+
 @[simp] theorem intMax_add_one {w : Nat} : intMax w + 1#w = intMin w := by
   simp only [toNat_eq, toNat_intMax, toNat_add, toNat_intMin, toNat_ofNat, Nat.add_mod_mod]
   by_cases h : w = 0
