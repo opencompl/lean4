@@ -2152,8 +2152,11 @@ instance : Std.LawfulCommIdentity (fun (x y : BitVec w) => x * y) (1#w) where
 
 @[simp]
 theorem BitVec.mul_zero {x : BitVec w} : x * 0#w = 0#w := by
-  apply eq_of_toNat_eq
-  simp [toNat_mul]
+  simp [bv_toNat]
+
+@[simp]
+theorem BitVec.zero_mul {x : BitVec w} : 0#w * x = 0#w := by
+  simp [bv_toNat]
 
 theorem BitVec.mul_add {x y z : BitVec w} :
     x * (y + z) = x * y + x * z := by
@@ -2640,6 +2643,8 @@ theorem getElem_rotateRight {x : BitVec w} {r i : Nat} (h : i < w) :
 
 /- ## twoPow -/
 
+#check Nat.two_pow_pred_mod_two_pow
+
 @[simp, bv_toNat]
 theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
   rcases w with rfl | w
@@ -2681,11 +2686,10 @@ theorem getMsbD_twoPow {i j w: Nat} :
 
 @[simp]
 theorem msb_twoPow {i w: Nat} :
-    (twoPow w i).msb = (decide (i < w) && decide (i = w - 1)) := by
-  simp only [BitVec.msb, getMsbD_eq_getLsbD, Nat.sub_zero, getLsbD_twoPow,
+    (BitVec.twoPow w i).msb = decide (i + 1 = w) := by
+  simp only [BitVec.msb, BitVec.getMsbD_eq_getLsbD, Nat.sub_zero, BitVec.getLsbD_twoPow,
     Bool.and_iff_right_iff_imp, Bool.and_eq_true, decide_eq_true_eq, and_imp]
-  intros
-  omega
+  by_cases h : i + 1 = w <;> simp [h] <;> omega
 
 theorem and_twoPow (x : BitVec w) (i : Nat) :
     x &&& (twoPow w i) = if x.getLsbD i then twoPow w i else 0#w := by
@@ -3034,6 +3038,123 @@ instance instDecidableExistsBitVec :
   | n + 1, _, _ =>
     have := instDecidableExistsBitVec n
     inferInstance
+
+theorem div_twoPow_div_twoPow_eq_mul {n m : Nat} (x : BitVec w) :
+    x / (BitVec.twoPow w n) / (BitVec.twoPow w m) =
+      x / ((BitVec.twoPow w n) * (BitVec.twoPow w m)) := by
+  simp only [BitVec.toNat_eq, BitVec.toNat_udiv, BitVec.toNat_twoPow, BitVec.toNat_mul,
+    Nat.mul_mod_mod, Nat.mod_mul_mod]
+  by_cases hzz : x = 0
+  · subst hzz
+    simp
+  · by_cases h : n + m < w
+    ·
+      have hl : 2^n * 2^m < 2^w := by
+        rw [← Nat.pow_add]
+        have asdd := (@Nat.pow_lt_pow_iff_right 2 (n + m) w (by omega)).mpr h
+        apply asdd
+      simp [Nat.mod_eq_of_lt hl]
+      have := @Nat.mul_lt_mul_of_le_of_lt
+      have := @Nat.mul_lt_mul_right (2 ^ n) (2 ^ m) (2 ^ w) (by apply Nat.two_pow_pos)
+      have := @Nat.lt_of_mul_lt (2^n) (2^m) (2^w) (by apply Nat.two_pow_pos) h
+      rw [Nat.mul_comm] at hl
+      have := @Nat.lt_of_mul_lt (2^m) (2^n) (2^w) (by apply Nat.two_pow_pos) h
+      have : 2 ^ m < 2 ^ w := by omega
+      simp [Nat.mod_eq_of_lt, *]
+      rw [Nat.div_div_eq_div_mul]
+    ·
+      rw [←Nat.pow_add]
+      rw [Nat.two_pow_mod_two_pow_iff (by omega)]
+      rw [Nat.two_pow_mod_two_pow_iff (by omega)]
+      rw [Nat.two_pow_mod_two_pow_iff (by omega)]
+      simp [h]
+      by_cases h₄ : n < w
+      · by_cases h₅ : m < w
+        · simp [h₄, h₅]
+          simp at h
+          rw [Nat.div_div_eq_div_mul]
+          rw [←Nat.pow_add]
+          rw [Nat.div_eq_zero_iff]
+          have xzero := BitVec.isLt x
+          simp [bv_toNat] at hzz
+          have := @Nat.pow_pos 2 w (by omega)
+          have : 2 ^ w ≤ 2 ^ (n + m) := by
+            apply Nat.pow_le_pow_of_le (by omega) h
+          omega
+          have := @Nat.pow_pos 2 (n + m) (by omega)
+          omega
+        · simp [h₄, h₅]
+      · by_cases h₅ : m < w
+        · simp [h₄, h₅]
+        · simp [h₄, h₅]
+
+theorem udiv_twoPow {n : Nat} {x : BitVec w} :
+    x / (BitVec.twoPow w n) = x >>> n := by
+  simp only [BitVec.toNat_eq, BitVec.toNat_ushiftRight, Nat.shiftRight_eq_div_pow,
+    BitVec.toNat_udiv, BitVec.toNat_twoPow]
+  by_cases h : n < w
+  · rw [Nat.mod_eq_of_lt ((Nat.pow_lt_pow_iff_right (by omega)).mpr h)]
+  · by_cases hh : x.toNat = 0
+    · simp [hh]
+    · have : 2 ^ w ≤ 2 ^ n := (Nat.pow_le_pow_iff_right (by omega)).mpr (by omega)
+      rw [(@Nat.div_eq_zero_iff (2 ^ n) x.toNat (by omega)).mpr (by omega),
+        Nat.mod_eq_zero_of_dvd, Nat.div_zero]
+      apply Nat.pow_dvd_pow 2 (by omega)
+
+theorem neg_twoPow' {i w: Nat} :
+    (BitVec.twoPow w i).neg = (BitVec.twoPow w i) := by
+  simp [bv_toNat]
+  rw [Nat.two_pow_mod_two_pow_iff (by omega)]
+  by_cases h : i < w
+  · simp [h]
+  · simp [h]
+
+
+
+
+
+  sorry
+
+
+theorem sdiv_twoPow {n : Nat} {x : BitVec w} :
+    x.sdiv (BitVec.twoPow w n) = x.sshiftRight n := by
+  by_cases h : x.msb
+  ·
+    simp only [BitVec.sdiv_eq, msb_twoPow, BitVec.udiv_eq]
+    by_cases hh : n + 1 = w
+    ·
+      simp [hh, h]
+
+      sorry
+    ·
+      simp [hh, h]
+      rw [BitVec.sshiftRight_eq_of_msb_true h]
+      simp [bv_toNat]
+      rw [Nat.two_pow_mod_two_pow_iff (by omega)]
+      have al : n < w := by sorry
+      simp [al]
+
+
+      simp [hh]
+      sorry
+  ·
+    simp only [BitVec.sdiv_eq, msb_twoPow, BitVec.udiv_eq]
+    by_cases hh : n + 1 = w
+    · simp [hh, h]
+      simp at h
+      rw [BitVec.sshiftRight_eq_of_msb_false h]
+      simp only [toNat_eq, toNat_neg, toNat_udiv, toNat_twoPow, toNat_ushiftRight]
+      rw [Nat.shiftRight_eq_div_pow]
+
+
+
+
+      sorry
+    · simp only [h, hh, decide_False]
+      simp only [Bool.not_eq_true] at h
+      rw [BitVec.sshiftRight_eq_of_msb_false h]
+      rw [udiv_twoPow]
+
 
 /-! ### Deprecations -/
 

@@ -549,6 +549,12 @@ protected theorem mul_left_cancel_iff {n : Nat} (p : 0 < n) {m k : Nat} : n * m 
 protected theorem mul_right_cancel_iff {m : Nat} (p : 0 < m) {n k : Nat} : n * m = k * m ↔ n = k :=
   ⟨Nat.mul_right_cancel p, fun | rfl => rfl⟩
 
+protected theorem mul_left_inj (ha : a ≠ 0) : b * a = c * a ↔ b = c :=
+  Nat.mul_right_cancel_iff (Nat.pos_iff_ne_zero.2 ha)
+
+protected theorem mul_right_inj (ha : a ≠ 0) : a * b = a * c ↔ b = c :=
+  Nat.mul_left_cancel_iff (Nat.pos_iff_ne_zero.2 ha)
+
 protected theorem ne_zero_of_mul_ne_zero_right (h : n * m ≠ 0) : m ≠ 0 :=
   (Nat.mul_ne_zero_iff.1 h).2
 
@@ -663,6 +669,9 @@ theorem mul_mod (a b n : Nat) : a * b % n = (a % n) * (b % n) % n := by
 
 @[simp] theorem add_mod_mod (m n k : Nat) : (m + n % k) % k = (m + n) % k := by
   rw [Nat.add_comm, mod_add_mod, Nat.add_comm]
+
+@[simp] theorem mul_mod_mod (a b c : Nat) : (a * (b % c)) % c = a * b % c := by
+  rw [mul_mod, mod_mod, ← mul_mod]
 
 theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
   rw [add_mod_mod, mod_add_mod]
@@ -894,6 +903,11 @@ protected theorem div_eq_iff_eq_mul_left {a b c : Nat} (H : 0 < b) (H' : b ∣ a
     a / b = c ↔ a = c * b := by
   rw [Nat.mul_comm]; exact Nat.div_eq_iff_eq_mul_right H H'
 
+protected theorem div_eq_zero_iff (hb : 0 < b) : a / b = 0 ↔ a < b where
+  mp h := by rw [← mod_add_div a b, h, Nat.mul_zero, Nat.add_zero]; exact mod_lt _ hb
+  mpr h := by rw [← Nat.mul_right_inj (Nat.ne_of_gt hb), ← Nat.add_left_cancel_iff, mod_add_div,
+      mod_eq_of_lt h, Nat.mul_zero, Nat.add_zero]
+
 theorem pow_dvd_pow_iff_pow_le_pow {k l : Nat} :
     ∀ {x : Nat}, 0 < x → (x ^ k ∣ x ^ l ↔ x ^ k ≤ x ^ l)
   | x + 1, w => by
@@ -922,6 +936,17 @@ protected theorem pow_dvd_pow {m n : Nat} (a : Nat) (h : m ≤ n) : a ^ m ∣ a 
     subst p
     rw [Nat.pow_add]
     apply Nat.dvd_mul_right
+
+protected theorem two_pow_mod_two_pow_iff {b m n : Nat} (h : 1 < b):
+    (b ^ n % b ^ m) = if n < m then b ^ n else 0 := by
+  by_cases h : n < m
+  · simp only [h, ↓reduceIte]
+    apply Nat.mod_eq_of_lt
+    apply Nat.pow_lt_pow_of_lt (by omega) h
+  · simp only [h, ↓reduceIte]
+    simp only [Nat.not_lt] at h
+    apply Nat.mod_eq_zero_of_dvd
+    apply Nat.pow_dvd_pow b (by omega)
 
 protected theorem pow_sub_mul_pow (a : Nat) {m n : Nat} (h : m ≤ n) :
     a ^ (n - m) * a ^ m = a ^ n := by

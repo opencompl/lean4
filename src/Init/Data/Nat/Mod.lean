@@ -21,6 +21,17 @@ which should probably be moved to their own file.
 
 namespace Nat
 
+protected theorem lt_of_mul_lt {a b c : Nat} (h : 0 < b) (h₂ : a * b < c) : a < c := by
+  induction a generalizing c
+  case zero =>
+    simp only [Nat.zero_mul] at h₂
+    simp [h₂]
+  case succ i ih =>
+    simp only [Nat.add_mul, Nat.one_mul] at h₂
+    apply Nat.add_lt_of_lt_sub
+    apply ih
+    omega
+
 @[simp] protected theorem mul_lt_mul_left (a0 : 0 < a) : a * b < a * c ↔ b < c := by
   induction a with
   | zero => simp_all
