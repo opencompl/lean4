@@ -127,12 +127,12 @@ results `y` for which `f x` returns `some y`.
 @[inline]
 def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m (Option β)) (as : List α) : m (List β) :=
   let rec @[specialize] loop
-    | [],     bs => pure bs
+    | [],     bs => pure bs.reverse
     | a :: as, bs => do
       match (← f a) with
       | none   => loop as bs
       | some b => loop as (b::bs)
-  loop as.reverse []
+  loop as []
 
 /--
 Folds a monadic function over a list from left to right:
@@ -227,6 +227,8 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
 instance : ForIn m (List α) α where
   forIn := List.forIn
 
+@[simp] theorem forIn_eq_forIn [Monad m] : @List.forIn α β m _ = forIn := rfl
+
 @[simp] theorem forIn_nil [Monad m] (f : α → β → m (ForInStep β)) (b : β) : forIn [] b f = pure b :=
   rfl
 
@@ -251,6 +253,8 @@ instance : ForIn m (List α) α where
 
 instance : ForIn' m (List α) α inferInstance where
   forIn' := List.forIn'
+
+@[simp] theorem forIn'_eq_forIn' [Monad m] : @List.forIn' α β m _ = forIn' := rfl
 
 @[simp] theorem forIn'_eq_forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : α → β → m (ForInStep β)) : forIn' as init (fun a _ b => f a b) = forIn as init f := by
   simp [forIn', forIn, List.forIn, List.forIn']

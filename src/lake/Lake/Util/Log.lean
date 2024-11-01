@@ -89,18 +89,31 @@ def LogLevel.ansiColor : LogLevel → String
 | .warning => "33"
 | .error => "31"
 
+protected def LogLevel.ofString? (s : String) : Option LogLevel :=
+  match s.toLower with
+  | "trace" => some .trace
+  | "info" | "information" => some .info
+  | "warn" | "warning" => some .warning
+  | "error" => some .error
+  | _ => none
+
 protected def LogLevel.toString : LogLevel → String
 | .trace => "trace"
 | .info => "info"
 | .warning => "warning"
 | .error => "error"
 
+instance : ToString LogLevel := ⟨LogLevel.toString⟩
+
 protected def LogLevel.ofMessageSeverity : MessageSeverity → LogLevel
 | .information => .info
 | .warning => .warning
 | .error => .error
 
-instance : ToString LogLevel := ⟨LogLevel.toString⟩
+protected def LogLevel.toMessageSeverity : LogLevel → MessageSeverity
+| .info | .trace => .information
+| .warning => .warning
+| .error => .error
 
 def Verbosity.minLogLv : Verbosity → LogLevel
 | .quiet => .warning
@@ -279,7 +292,7 @@ instance : Append Log := ⟨Log.append⟩
 
 /-- Removes log entries after `pos` (inclusive). -/
 @[inline] def dropFrom (log : Log) (pos : Log.Pos) : Log :=
-  .mk <| log.entries.shrink pos.val
+  .mk <| log.entries.take pos.val
 
 /-- Takes log entries before `pos` (exclusive). -/
 @[inline] def takeFrom (log : Log) (pos : Log.Pos) : Log :=

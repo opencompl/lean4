@@ -126,7 +126,6 @@ constructor_val::constructor_val(name const & n, names const & lparams, expr con
     object_ref(lean_mk_constructor_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), induct.to_obj_arg(),
                                        nat(cidx).to_obj_arg(), nat(nparams).to_obj_arg(), nat(nfields).to_obj_arg(), is_unsafe)) {
 }
-
 bool constructor_val::is_unsafe() const { return lean_constructor_val_is_unsafe(to_obj_arg()); }
 
 extern "C" object * lean_mk_recursor_val(object * n, object * lparams, object * type, object * all,
@@ -142,6 +141,18 @@ recursor_val::recursor_val(name const & n, names const & lparams, expr const & t
                                     nat(nparams).to_obj_arg(), nat(nindices).to_obj_arg(), nat(nmotives).to_obj_arg(),
                                     nat(nminors).to_obj_arg(), rules.to_obj_arg(), k, is_unsafe)) {
 }
+
+name const & recursor_val::get_major_induct() const {
+    unsigned int n = get_major_idx();
+    expr const * t = &(to_constant_val().get_type());
+    for (unsigned int i = 0; i < n; i++) {
+        t = &(binding_body(*t));
+    }
+    t = &(binding_domain(*t));
+    t = &(get_app_fn(*t));
+    return const_name(*t);
+}
+
 
 bool recursor_val::is_k() const { return lean_recursor_k(to_obj_arg()); }
 bool recursor_val::is_unsafe() const { return lean_recursor_is_unsafe(to_obj_arg()); }
@@ -161,7 +172,7 @@ bool declaration::is_unsafe() const {
 
 bool use_unsafe(environment const & env, expr const & e) {
     bool found = false;
-    for_each(e, [&](expr const & e, unsigned) {
+    for_each(e, [&](expr const & e) {
             if (found) return false;
             if (is_constant(e)) {
                 if (auto info = env.find(const_name(e))) {
@@ -181,7 +192,7 @@ declaration::declaration():declaration(*g_dummy) {}
 
 static unsigned get_max_height(environment const & env, expr const & v) {
     unsigned h = 0;
-    for_each(v, [&](expr const & e, unsigned) {
+    for_each(v, [&](expr const & e) {
             if (is_constant(e)) {
                 auto d = env.find(const_name(e));
                 if (d && d->get_hints().get_height() > h)

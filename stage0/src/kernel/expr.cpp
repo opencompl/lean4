@@ -79,21 +79,22 @@ extern "C" object * lean_lit_type(obj_arg e);
 expr lit_type(literal const & lit) { return expr(lean_lit_type(lit.to_obj_arg())); }
 
 extern "C" uint64_t lean_expr_hash(obj_arg e);
-unsigned hash(expr const & e) {
-    object * o = e.raw();
-    unsigned r = static_cast<unsigned>(lean_ctor_get_uint64(o, lean_ctor_num_objs(o)*sizeof(object*)));
-    lean_assert(r == lean_expr_hash(e.to_obj_arg()));
-    return r;
+unsigned hash_core(expr const & e) {
+    return lean_expr_hash(e.to_obj_arg());
 }
 
 extern "C" uint8 lean_expr_has_fvar(obj_arg e);
-bool has_fvar(expr const & e) { return lean_expr_has_fvar(e.to_obj_arg()); }
+bool has_fvar_core(expr const & e) {
+    return lean_expr_has_fvar(e.to_obj_arg());
+}
 
 extern "C" uint8 lean_expr_has_expr_mvar(obj_arg e);
-bool has_expr_mvar(expr const & e) { return lean_expr_has_expr_mvar(e.to_obj_arg()); }
+bool has_expr_mvar_core(expr const & e) {
+    return lean_expr_has_expr_mvar(e.to_obj_arg());
+}
 
 extern "C" uint8 lean_expr_has_level_mvar(obj_arg e);
-bool has_univ_mvar(expr const & e) { return lean_expr_has_level_mvar(e.to_obj_arg()); }
+bool has_univ_mvar_core(expr const & e) { return lean_expr_has_level_mvar(e.to_obj_arg()); }
 
 extern "C" uint8 lean_expr_has_level_param(obj_arg e);
 bool has_univ_param(expr const & e) { return lean_expr_has_level_param(e.to_obj_arg()); }
@@ -498,7 +499,7 @@ optional<expr> has_expr_metavar_strict(expr const & e) {
     if (!has_expr_metavar(e))
         return none_expr();
     optional<expr> r;
-    for_each(e, [&](expr const & e, unsigned) {
+    for_each(e, [&](expr const & e) {
             if (r || !has_expr_metavar(e)) return false;
             if (is_metavar_app(e)) { r = e; return false; }
             return true;

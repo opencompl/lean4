@@ -6,6 +6,7 @@ Authors: Joachim Breitner
 
 prelude
 import Lean.Meta.AppBuilder
+import Lean.Meta.PProdN
 import Lean.Meta.ArgsPacker.Basic
 
 /-!
@@ -26,9 +27,9 @@ r'[p] = match p with | inl (x,y) => r1[x,y] | inr (x,y) => r2[x,y]
 The `ArgsPacker` data structure (defined in `Lean.Meta.ArgsPacker.Basic` for fewer module
 dependencies) contains necessary information to pack and unpack reliably. Care is taken that the
 code is not confused even if the user intentionally uses a `PSigma` or `PSum` type, e.g. as the
-ast parameter. Additionaly, “good” variable names are stored here.
+ast parameter. Additionally, “good” variable names are stored here.
 
-It is used in the transation of a possibly mutual, possibly n-ary recursive function to a single
+It is used in the translation of a possibly mutual, possibly n-ary recursive function to a single
 unary function, which can then be made non-recursive using `WellFounded.fix`.  Additional users are
 the `GuessLex` and `FunInd` modules, which also have to deal with this encoding.
 
@@ -63,13 +64,13 @@ def packType (xs : Array Expr) : MetaM Expr := do
 
 /--
 Create a unary application by packing the given arguments using `PSigma.mk`.
-The `type` should be the the expected type of the packed argument, as created with `packType`.
+The `type` should be the expected type of the packed argument, as created with `packType`.
 -/
 partial def pack (type : Expr) (args : Array Expr) : Expr := go 0 type
 where
   go (i : Nat) (type : Expr) : Expr :=
-    if i < args.size - 1 then
-      let arg := args[i]!
+    if h : i < args.size - 1 then
+      let arg := args[i]
       assert! type.isAppOfArity ``PSigma 2
       let us := type.getAppFn.constLevels!
       let α := type.appFn!.appArg!
@@ -518,7 +519,7 @@ def curry (argsPacker : ArgsPacker) (e : Expr) : MetaM Expr := do
   let mut es := #[]
   for i in [:argsPacker.numFuncs] do
     es := es.push (← argsPacker.curryProj e i)
-  mkAndIntroN es
+  PProdN.mk 0 es
 
 /--
 Given type `(a ⊗' b ⊕' c ⊗' d) → e`, brings `a → b → e` and `c → d → e`
@@ -533,7 +534,7 @@ where
   | [], acc => k acc
   | t::ts, acc => do
     let name := if argsPacker.numFuncs = 1 then name else .mkSimple s!"{name}{acc.size+1}"
-    withLocalDecl name .default t fun x => do
+    withLocalDeclD name t fun x => do
       go ts (acc.push x)
 
 /--
@@ -549,7 +550,7 @@ brings `m1 : a → b → s` and `m2 : c → d → s` into scope. The continuatio
 
 where `m : a ⊗' b ⊕' c ⊗' d → s` is the uncurried form of `m1` and `m2`.
 
-The variable names `m1` and `m2` are taken from the paramter name in `t`, with numbers added
+The variable names `m1` and `m2` are taken from the parameter name in `t`, with numbers added
 unless `numFuns = 1`
 -/
 def curryParam {α} (argsPacker : ArgsPacker) (value : Expr) (type : Expr)

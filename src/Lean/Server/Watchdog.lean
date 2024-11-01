@@ -6,6 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Init.System.IO
+import Init.System.Mutex
 import Init.Data.ByteArray
 import Lean.Data.RBMap
 
@@ -90,6 +91,10 @@ section Utils
     | crashed (e : IO.Error)
     | ioError (e : IO.Error)
 
+  inductive CrashOrigin
+    | fileWorkerToClientForwarding
+    | clientToFileWorkerForwarding
+
   inductive WorkerState where
     /-- The watchdog can detect a crashed file worker in two places: When trying to send a message
       to the file worker and when reading a request reply.
@@ -98,7 +103,7 @@ section Utils
       that are in-flight are errored. Upon receiving the next packet for that file worker, the file
       worker is restarted and the packet is forwarded to it. If the crash was detected while writing
       a packet, we queue that packet until the next packet for the file worker arrives. -/
-    | crashed (queuedMsgs : Array JsonRpc.Message)
+    | crashed (queuedMsgs : Array JsonRpc.Message) (origin : CrashOrigin)
     | running
 
   abbrev PendingRequestMap := RBMap RequestID JsonRpc.Message compare
@@ -108,6 +113,7 @@ section FileWorker
   structure FileWorker where
     doc                : DocumentMeta
     proc               : Process.Child workerCfg
+    exitCode           : IO.Mutex (Option UInt32)
     commTask           : Task WorkerEvent
     state              : WorkerState
     -- This should not be mutated outside of namespace FileWorker,
@@ -135,6 +141,34 @@ section FileWorker
       fun pendingRequests => (pendingRequests, RBMap.empty)
     for ⟨id, _⟩ in pendingRequests do
       hError.writeLspResponseError { id := id, code := code, message := msg }
+
+  def queuedMsgs (fw : FileWorker) : Array JsonRpc.Message :=
+    match fw.state with
+    | .running => #[]
+    | .crashed queuedMsgs _ => queuedMsgs
+
+  def waitForProc (fw : FileWorker) : IO UInt32 :=
+    fw.exitCode.atomically do
+      match ← get with
+      | none =>
+        let exitCode ← fw.proc.wait
+        set <| some exitCode
+        return exitCode
+      | some exitCode =>
+        return exitCode
+
+  def killProcAndWait (fw : FileWorker) : IO UInt32 :=
+    fw.exitCode.atomically do
+      match ← get with
+      | none =>
+        fw.proc.kill
+        let exitCode ← fw.proc.wait
+        set <| some exitCode
+        return exitCode
+      | some exitCode =>
+        -- Process is already dead
+        return exitCode
+
 
   end FileWorker
 end FileWorker
@@ -277,72 +311,76 @@ section ServerM
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
   private partial def forwardMessages (fw : FileWorker) : ServerM (Task WorkerEvent) := do
-    let o := (←read).hOut
-    let rec loop : ServerM WorkerEvent := do
-      try
-        let msg ← fw.stdout.readLspMessage
-        -- Re. `o.writeLspMessage msg`:
-        -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
-        match msg with
-          | Message.response id _ => do
-            fw.erasePendingRequest id
-            o.writeLspMessage msg
-          | Message.responseError id _ _ _ => do
-            fw.erasePendingRequest id
-            o.writeLspMessage msg
-          | Message.request id method params? =>
-            let globalID ← (←read).serverRequestData.modifyGet
-              (·.trackOutboundRequest fw.doc.uri id)
-            o.writeLspMessage (Message.request globalID method params?)
-          | Message.notification "$/lean/ileanInfoUpdate" params =>
-            if let some params := params then
-              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
-                handleIleanInfoUpdate fw params
-          | Message.notification "$/lean/ileanInfoFinal" params =>
-            if let some params := params then
-              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
-                handleIleanInfoFinal fw params
-          | Message.notification "$/lean/importClosure" params =>
-            if let some params := params then
-              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
-                handleImportClosure fw params
-          | _ => o.writeLspMessage msg
-      catch err =>
-        -- If writeLspMessage from above errors we will block here, but the main task will
-        -- quit eventually anyways if that happens
-        let exitCode ← fw.proc.wait
-        -- Remove surviving descendant processes, if any, such as from nested builds.
-        -- On Windows, we instead rely on elan doing this.
-        try fw.proc.kill catch _ => pure ()
-        match exitCode with
-        | 0 =>
-          -- Worker was terminated
-          fw.errorPendingRequests o ErrorCode.contentModified
-            (s!"The file worker for {fw.doc.uri} has been terminated. "
-            ++ "Either the header has changed, or the file was closed, "
-            ++ " or the server is shutting down.")
-          -- one last message to clear the diagnostics for this file so that stale errors
-          -- do not remain in the editor forever.
-          o.writeLspMessage <| mkPublishDiagnosticsNotification fw.doc #[]
-          return WorkerEvent.terminated
-        | 2 =>
-          return .importsChanged
-        | _ =>
-          -- Worker crashed
-          let (errorCode, errorCausePointer) :=
-            if exitCode = 1 then
-              (ErrorCode.workerExited, "see stderr for exception")
-            else
-              (ErrorCode.workerCrashed, "likely due to a stack overflow or a bug")
-          fw.errorPendingRequests o errorCode
-            s!"Server process for {fw.doc.uri} crashed, {errorCausePointer}."
-          o.writeLspMessage <| mkFileProgressAtPosNotification fw.doc 0 (kind := LeanFileProgressKind.fatalError)
-          return WorkerEvent.crashed err
-      loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
     return task.map fun
       | Except.ok ev   => ev
       | Except.error e => WorkerEvent.ioError e
+  where
+    loop : ServerM WorkerEvent := do
+      let o := (←read).hOut
+      let msg ←
+        try
+          fw.stdout.readLspMessage
+        catch err =>
+          let exitCode ← fw.waitForProc
+          -- Remove surviving descendant processes, if any, such as from nested builds.
+          -- On Windows, we instead rely on elan doing this.
+          try fw.proc.kill catch _ => pure ()
+          -- TODO: Wait for process group to finish
+          match exitCode with
+          | 0 =>
+            -- Worker was terminated
+            fw.errorPendingRequests o ErrorCode.contentModified
+              (s!"The file worker for {fw.doc.uri} has been terminated. "
+              ++ "Either the header has changed, or the file was closed, "
+              ++ " or the server is shutting down.")
+            -- one last message to clear the diagnostics for this file so that stale errors
+            -- do not remain in the editor forever.
+            o.writeLspMessage <| mkPublishDiagnosticsNotification fw.doc #[]
+            return WorkerEvent.terminated
+          | 2 =>
+            return .importsChanged
+          | _ =>
+            -- Worker crashed
+            let (errorCode, errorCausePointer) :=
+              if exitCode = 1 then
+                (ErrorCode.workerExited, "see stderr for exception")
+              else
+                (ErrorCode.workerCrashed, "likely due to a stack overflow or a bug")
+            fw.errorPendingRequests o errorCode
+              s!"Server process for {fw.doc.uri} crashed, {errorCausePointer}."
+            o.writeLspMessage <| mkFileProgressAtPosNotification fw.doc 0 (kind := LeanFileProgressKind.fatalError)
+            return WorkerEvent.crashed err
+
+      -- Re. `o.writeLspMessage msg`:
+      -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
+      match msg with
+      | Message.response id _ => do
+        fw.erasePendingRequest id
+        o.writeLspMessage msg
+      | Message.responseError id _ _ _ => do
+        fw.erasePendingRequest id
+        o.writeLspMessage msg
+      | Message.request id method params? =>
+        let globalID ← (←read).serverRequestData.modifyGet
+          (·.trackOutboundRequest fw.doc.uri id)
+        o.writeLspMessage (Message.request globalID method params?)
+      | Message.notification "$/lean/ileanInfoUpdate" params =>
+        if let some params := params then
+          if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+            handleIleanInfoUpdate fw params
+      | Message.notification "$/lean/ileanInfoFinal" params =>
+        if let some params := params then
+          if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+            handleIleanInfoFinal fw params
+      | Message.notification "$/lean/importClosure" params =>
+        if let some params := params then
+          if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+            handleImportClosure fw params
+      | _ =>
+        o.writeLspMessage msg
+
+      loop
 
   def startFileWorker (m : DocumentMeta) : ServerM Unit := do
     (← read).hOut.writeLspMessage <| mkFileProgressAtPosNotification m 0
@@ -354,6 +392,7 @@ section ServerM
       -- open session for `kill` above
       setsid        := true
     }
+    let exitCode ← IO.Mutex.new none
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
     let initialDependencyBuildMode := m.dependencyBuildMode
     let updatedDependencyBuildMode :=
@@ -367,6 +406,7 @@ section ServerM
     let fw : FileWorker := {
       doc                := { m with dependencyBuildMode := updatedDependencyBuildMode}
       proc               := workerProc
+      exitCode
       commTask           := Task.pure WorkerEvent.terminated
       state              := WorkerState.running
       pendingRequestsRef := pendingRequestsRef
@@ -404,10 +444,23 @@ section ServerM
       return
     eraseFileWorker uri
 
-  def handleCrash (uri : DocumentUri) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
+  def handleCrash (uri : DocumentUri) (queuedMsgs : Array JsonRpc.Message) (origin: CrashOrigin) : ServerM Unit := do
     let some fw ← findFileWorker? uri
       | return
-    updateFileWorkers { fw with state := WorkerState.crashed queuedMsgs }
+    updateFileWorkers { fw with state := WorkerState.crashed queuedMsgs origin }
+
+  def tryDischargeQueuedMessages (uri : DocumentUri) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
+      let some fw ← findFileWorker? uri
+        | throwServerError "Cannot find file worker for '{uri}'."
+      let mut crashedMsgs := #[]
+      -- Try to discharge all queued msgs, tracking the ones that we can't discharge
+      for msg in queuedMsgs do
+        try
+          fw.stdin.writeLspMessage msg
+        catch _ =>
+          crashedMsgs := crashedMsgs.push msg
+      if ¬ crashedMsgs.isEmpty then
+        handleCrash uri crashedMsgs .clientToFileWorkerForwarding
 
   /-- Tries to write a message, sets the state of the FileWorker to `crashed` if it does not succeed
       and restarts the file worker if the `crashed` flag was already set. Just logs an error if
@@ -423,7 +476,7 @@ section ServerM
     let some fw ← findFileWorker? uri
       | return
     match fw.state with
-    | WorkerState.crashed queuedMsgs =>
+    | WorkerState.crashed queuedMsgs _ =>
       let mut queuedMsgs := queuedMsgs
       if queueFailedMessage then
         queuedMsgs := queuedMsgs.push msg
@@ -432,17 +485,7 @@ section ServerM
       -- restart the crashed FileWorker
       eraseFileWorker uri
       startFileWorker fw.doc
-      let some newFw ← findFileWorker? uri
-        | throwServerError "Cannot find file worker for '{uri}'."
-      let mut crashedMsgs := #[]
-      -- try to discharge all queued msgs, tracking the ones that we can't discharge
-      for msg in queuedMsgs do
-        try
-          newFw.stdin.writeLspMessage msg
-        catch _ =>
-          crashedMsgs := crashedMsgs.push msg
-      if ¬ crashedMsgs.isEmpty then
-        handleCrash uri crashedMsgs
+      tryDischargeQueuedMessages uri queuedMsgs
     | WorkerState.running =>
       let initialQueuedMsgs :=
         if queueFailedMessage then
@@ -452,7 +495,7 @@ section ServerM
       try
         fw.stdin.writeLspMessage msg
       catch _ =>
-        handleCrash uri initialQueuedMsgs
+        handleCrash uri initialQueuedMsgs .clientToFileWorkerForwarding
 
   /--
   Sends a notification to the file worker identified by `uri` that its dependency `staleDependency`
@@ -518,7 +561,8 @@ private def callHierarchyItemOf?
     | return none
 
   match ident with
-  | .const definitionModule definitionName =>
+  | .const definitionModule definitionNameString =>
+    let definitionName := definitionNameString.toName
     -- If we have a constant with a proper name, use it.
     -- If `callHierarchyItemOf?` is used either on the name of a definition itself or e.g. an
     -- `inductive` constructor, this is the right thing to do and using the parent decl is
@@ -533,14 +577,15 @@ private def callHierarchyItemOf?
       range          := definitionLocation.range,
       selectionRange := definitionLocation.range
       data?          := toJson {
-        module := definitionModule
+        module := definitionModule.toName
         name   := definitionName
         : CallHierarchyItemData
       }
     }
   | _ =>
-    let some ⟨parentDeclName, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
+    let some ⟨parentDeclNameString, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
       | return none
+    let parentDeclName := parentDeclNameString.toName
 
     let some definitionModule ← srcSearchPath.searchModuleNameOfUri definitionLocation.uri
       | return none
@@ -584,12 +629,14 @@ def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
   let srcSearchPath := (← read).srcSearchPath
 
   let references ← (← read).references.get
-  let identRefs ← references.referringTo srcSearchPath (.const itemData.module itemData.name) false
+  let identRefs ← references.referringTo srcSearchPath (.const itemData.module.toString itemData.name.toString) false
 
   let incomingCalls ← identRefs.filterMapM fun ⟨location, parentDecl?⟩ => do
 
-    let some ⟨parentDeclName, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
+    let some ⟨parentDeclNameString, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
       | return none
+
+    let parentDeclName := parentDeclNameString.toName
 
     let some refModule ← srcSearchPath.searchModuleNameOfUri location.uri
       | return none
@@ -622,7 +669,7 @@ where
     let grouped := incomingCalls.groupByKey (·.«from»)
     let collapsed := grouped.toArray.map fun ⟨_, group⟩ => {
       «from» := group[0]!.«from»
-      fromRanges := group.concatMap (·.fromRanges)
+      fromRanges := group.flatMap (·.fromRanges)
     }
     collapsed
 
@@ -638,14 +685,14 @@ def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
 
   let references ← (← read).references.get
 
-  let some refs := references.allRefs.find? module
+  let some refs := references.allRefs[module]?
     | return #[]
 
   let items ← refs.toArray.filterMapM fun ⟨ident, info⟩ => do
     let outgoingUsages := info.usages.filter fun usage => Id.run do
       let some parentDecl := usage.parentDecl?
         | return false
-      return itemData.name == parentDecl.name
+      return itemData.name == parentDecl.name.toName
 
     let outgoingUsages := outgoingUsages.map (·.range)
     if outgoingUsages.isEmpty then
@@ -669,7 +716,7 @@ where
     let grouped := outgoingCalls.groupByKey (·.to)
     let collapsed := grouped.toArray.map fun ⟨_, group⟩ => {
       to := group[0]!.to
-      fromRanges := group.concatMap (·.fromRanges)
+      fromRanges := group.flatMap (·.fromRanges)
     }
     collapsed
 
@@ -702,9 +749,9 @@ def handlePrepareRename (p : PrepareRenameParams) : ServerM (Option Range) := do
 def handleRename (p : RenameParams) : ServerM Lsp.WorkspaceEdit := do
   if (String.toName p.newName).isAnonymous then
     throwServerError s!"Can't rename: `{p.newName}` is not an identifier"
-  let mut refs : HashMap DocumentUri (RBMap Lsp.Position Lsp.Position compare) := ∅
+  let mut refs : Std.HashMap DocumentUri (RBMap Lsp.Position Lsp.Position compare) := ∅
   for { uri, range } in (← handleReference { p with context.includeDeclaration := true }) do
-    refs := refs.insert uri <| (refs.findD uri ∅).insert range.start range.end
+    refs := refs.insert uri <| (refs.getD uri ∅).insert range.start range.end
   -- We have to filter the list of changes to put the ranges in order and
   -- remove any duplicates or overlapping ranges, or else the rename will not apply
   let changes := refs.fold (init := ∅) fun changes uri map => Id.run do
@@ -740,7 +787,9 @@ section NotificationHandling
     let newDoc : DocumentMeta := ⟨doc.uri, newVersion, newDocText, oldDoc.dependencyBuildMode⟩
     updateFileWorkers { fw with doc := newDoc }
     let notification := Notification.mk "textDocument/didChange" p
-    tryWriteMessage doc.uri notification (restartCrashedWorker := true)
+    -- Don't queue failed `didChange` notifications because we already accumulate them in the
+    -- document and hand the updated document to the file worker when restarting it.
+    tryWriteMessage doc.uri notification (restartCrashedWorker := true) (queueFailedMessage := false)
 
   /--
   When a file is saved, notifies all file workers for files that depend on this file that this
@@ -932,7 +981,8 @@ section MainLoop
     for ⟨uri, _⟩ in fileWorkers do
       terminateFileWorker uri
     for ⟨_, fw⟩ in fileWorkers do
-      discard <| IO.wait fw.commTask
+      -- TODO: Wait for process group to finish instead
+      try let _ ← fw.killProcAndWait catch _ => pure ()
 
   inductive ServerEvent where
     | workerEvent (fw : FileWorker) (ev : WorkerEvent)
@@ -945,7 +995,7 @@ section MainLoop
       /- Runs asynchronously. -/
       let msg ← st.hIn.readLspMessage
       pure <| ServerEvent.clientMsg msg
-    let clientTask := (← IO.asTask readMsgAction).map fun
+    let clientTask := (← IO.asTask (prio := Task.Priority.dedicated) readMsgAction).map fun
       | Except.ok ev   => ev
       | Except.error e => ServerEvent.clientError e
     return clientTask
@@ -955,7 +1005,16 @@ section MainLoop
     let workers ← st.fileWorkersRef.get
     let mut workerTasks := #[]
     for (_, fw) in workers do
-      if let WorkerState.running := fw.state then
+      -- When the forwarding task crashes, its return value will be stuck at
+      -- `WorkerEvent.crashed _`.
+      -- We want to handle this event only once, not over and over again,
+      -- so once the state becomes `WorkerState.crashed _ .fileWorkerToClientForwarding`
+      -- as a result of `WorkerEvent.crashed _`, we stop handling this event until
+      -- eventually the file worker is restarted by a notification from the client.
+      -- We do not want to filter the forwarding task in case of
+      -- `WorkerState.crashed _ .clientToFileWorkerForwarding`, since the forwarding task
+      -- exit code may still contain valuable information in this case (e.g. that the imports changed).
+      if !(fw.state matches WorkerState.crashed _ .fileWorkerToClientForwarding) then
         workerTasks := workerTasks.push <| fw.commTask.map (ServerEvent.workerEvent fw)
 
     let ev ← IO.waitAny (clientTask :: workerTasks.toList)
@@ -984,13 +1043,16 @@ section MainLoop
       | WorkerEvent.ioError e =>
         throwServerError s!"IO error while processing events for {fw.doc.uri}: {e}"
       | WorkerEvent.crashed _ =>
-        handleCrash fw.doc.uri #[]
+        handleCrash fw.doc.uri fw.queuedMsgs .fileWorkerToClientForwarding
         mainLoop clientTask
       | WorkerEvent.terminated =>
         throwServerError <| "Internal server error: got termination event for worker that "
           ++ "should have been removed"
       | .importsChanged =>
+        let uri := fw.doc.uri
+        let queuedMsgs := fw.queuedMsgs
         startFileWorker fw.doc
+        tryDischargeQueuedMessages uri queuedMsgs
         mainLoop clientTask
 end MainLoop
 
@@ -1099,7 +1161,7 @@ results in requests that need references.
 def startLoadingReferences (references : IO.Ref References) : IO Unit := do
   -- Discard the task; there isn't much we can do about this failing,
   -- but we should try to continue server operations regardless
-  let _ ← IO.asTask do
+  let _ ← IO.asTask (prio := Task.Priority.dedicated) do
     let oleanSearchPath ← Lean.searchPathRef.get
     for path in ← oleanSearchPath.findAllWithExt "ilean" do
       try
@@ -1160,9 +1222,9 @@ def watchdogMain (args : List String) : IO UInt32 := do
   let e ← IO.getStderr
   try
     initAndRunWatchdog args i o e
-    return 0
+    IO.Process.exit 0 -- Terminate all tasks of this process
   catch err =>
     e.putStrLn s!"Watchdog error: {err}"
-    return 1
+    IO.Process.exit 1 -- Terminate all tasks of this process
 
 end Lean.Server.Watchdog

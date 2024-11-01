@@ -7,7 +7,6 @@ prelude
 import Lean.Util.RecDepth
 import Lean.Util.Trace
 import Lean.Log
-import Lean.Eval
 import Lean.ResolveName
 import Lean.Elab.InfoTree.Types
 import Lean.MonadEnv
@@ -31,7 +30,16 @@ register_builtin_option maxHeartbeats : Nat := {
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
 
-def useDiagnosticMsg := s!"use `set_option {diagnostics.name} true` to get diagnostic information"
+/--
+If the `diagnostics` option is not already set, gives a message explaining this option.
+Begins with a `\n`, so an error message can look like `m!"some error occurred{useDiagnosticMsg}"`.
+-/
+def useDiagnosticMsg : MessageData :=
+  MessageData.lazy fun ctx =>
+    if diagnostics.get ctx.opts then
+      pure ""
+    else
+      pure s!"\nAdditional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
 
 namespace Core
 
@@ -268,12 +276,6 @@ def mkFreshUserName (n : Name) : CoreM Name :=
   | Except.error (Exception.internal id _) => throw <| IO.userError <| "internal exception #" ++ toString id.idx
   | Except.ok a                            => return a
 
-instance [MetaEval α] : MetaEval (CoreM α) where
-  eval env opts x _ := do
-    let x : CoreM α := do try x finally printTraces
-    let (a, s) ← (withConsistentCtx x).toIO { fileName := "<CoreM>", fileMap := default, options := opts } { env := env }
-    MetaEval.eval s.env opts a (hideUnit := true)
-
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
 protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
@@ -300,8 +302,10 @@ register_builtin_option debug.moduleNameAtTimeout : Bool := {
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
   let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
   let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
-  let msg := s!"(deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\nuse `set_option {optionName} <num>` to set the limit\n{useDiagnosticMsg}"
-  throw <| Exception.error (← getRef) (MessageData.ofFormat (Std.Format.text msg))
+  throw <| Exception.error (← getRef) <| .tagged `runtime.maxHeartbeats m!"\
+    (deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\n\
+    Use `set_option {optionName} <num>` to set the limit.\
+    {useDiagnosticMsg}"
 
 def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do
   unless max == 0 do
@@ -384,10 +388,7 @@ export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
   This function is a bit hackish. The heartbeat exception should probably be an internal exception.
   We used a similar hack at `Exception.isMaxRecDepth` -/
 def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
-  match ex with
-  | Exception.error _ (MessageData.ofFormatWithInfos ⟨Std.Format.text msg, _⟩) =>
-    "(deterministic) timeout".isPrefixOf msg
-  | _ => false
+  ex matches Exception.error _ (.tagged `runtime.maxHeartbeats _)
 
 /-- Creates the expression `d → b` -/
 def mkArrow (d b : Expr) : CoreM Expr :=

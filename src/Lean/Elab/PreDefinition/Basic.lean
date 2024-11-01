@@ -7,8 +7,12 @@ prelude
 import Init.ShareCommon
 import Lean.Compiler.NoncomputableAttr
 import Lean.Util.CollectLevelParams
+import Lean.Util.NumObjs
+import Lean.Util.NumApps
+import Lean.PrettyPrinter
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.ForEachExpr
+import Lean.Meta.Eqns
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.DefView
 import Lean.Elab.PreDefinition.TerminationHint
@@ -16,7 +20,6 @@ import Lean.Elab.PreDefinition.TerminationHint
 namespace Lean.Elab
 open Meta
 open Term
-
 
 /--
   A (potentially recursive) definition.
@@ -36,14 +39,26 @@ structure PreDefinition where
 def PreDefinition.filterAttrs (preDef : PreDefinition) (p : Attribute → Bool) : PreDefinition :=
   { preDef with modifiers := preDef.modifiers.filterAttrs p }
 
+/--
+Applies `Lean.instantiateMVars` to the types of values of each predefinition.
+-/
 def instantiateMVarsAtPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
   preDefs.mapM fun preDef => do
     pure { preDef with type := (← instantiateMVars preDef.type), value := (← instantiateMVars preDef.value) }
 
-def levelMVarToParamPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
+/--
+Applies `Lean.Elab.Term.levelMVarToParam` to the types of each predefinition.
+-/
+def levelMVarToParamTypesPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
   preDefs.mapM fun preDef => do
-    pure { preDef with type := (← levelMVarToParam preDef.type), value := (← levelMVarToParam preDef.value) }
+    pure { preDef with type := (← levelMVarToParam preDef.type) }
 
+/--
+Collects all the level parameters in sorted order from the types and values of each predefinition.
+Throws an "unused universe parameter" error if there is an unused `.{...}` parameter.
+
+See `Lean.collectLevelParams`.
+-/
 private def getLevelParamsPreDecls (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (List Name) := do
   let mut s : CollectLevelParams.State := {}
   for preDef in preDefs do
@@ -98,15 +113,33 @@ private def compileDecl (decl : Declaration) : TermElabM Bool := do
       throw ex
   return true
 
+register_builtin_option diagnostics.threshold.proofSize : Nat := {
+  defValue := 16384
+  group    := "diagnostics"
+  descr    := "only display proof statistics when proof has at least this number of terms"
+}
+
+private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
+  if (← isDiagnosticsEnabled) then
+    let proofSize ← d.value.numObjs
+    if proofSize > diagnostics.threshold.proofSize.get (← getOptions) then
+      let sizeMsg := MessageData.trace { cls := `size } m!"{proofSize}" #[]
+      let constOccs ← d.value.numApps (threshold := diagnostics.threshold.get (← getOptions))
+      let constOccsMsg ← constOccs.mapM fun (declName, numOccs) => return MessageData.trace { cls := `occs } m!"{.ofConstName declName} ↦ {numOccs}" #[]
+      -- let info
+      logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
+
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs preDef
     let decl ←
       match preDef.kind with
       | DefKind.«theorem» =>
-        pure <| Declaration.thmDecl {
+        let d := {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
         }
+        reportTheoremDiag d
+        pure <| Declaration.thmDecl d
       | DefKind.«opaque»  =>
         pure <| Declaration.opaqueDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
@@ -133,6 +166,7 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
     if compile && shouldGenCodeFor preDef then
       discard <| compileDecl decl
     if applyAttrAfterCompilation then
+      generateEagerEqns preDef.declName
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
 def addAndCompileNonRec (preDef : PreDefinition) (all : List Name := [preDef.declName]) : TermElabM Unit := do
@@ -144,8 +178,11 @@ def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all 
 /--
   Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module
   to produce better error messages. -/
-def eraseRecAppSyntaxExpr (e : Expr) : CoreM Expr :=
-  Core.transform e (post := fun e => pure <| TransformStep.done <| if (getRecAppSyntax? e).isSome then e.mdataExpr! else e)
+def eraseRecAppSyntaxExpr (e : Expr) : CoreM Expr := do
+  if e.find? hasRecAppSyntax |>.isSome then
+    Core.transform e (post := fun e => pure <| TransformStep.done <| if hasRecAppSyntax e then e.mdataExpr! else e)
+  else
+    return e
 
 def eraseRecAppSyntax (preDef : PreDefinition) : CoreM PreDefinition :=
   return { preDef with value := (← eraseRecAppSyntaxExpr preDef.value) }
@@ -184,7 +221,7 @@ def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := 
               else
                 none
             | _ => none
-          modifiers := {} }
+          modifiers := default }
 
 private def containsRecFn (recFnNames : Array Name) (e : Expr) : Bool :=
   (e.find? fun e => e.isConst && recFnNames.contains e.constName!).isSome

@@ -6,6 +6,7 @@ Authors: Dany Fabian
 prelude
 import Lean.Meta.Constructions.CasesOn
 import Lean.Meta.Match.Match
+import Lean.Meta.Tactic.SolveByElim
 
 namespace Lean.Meta.IndPredBelow
 open Match
@@ -53,7 +54,7 @@ def mkContext (declName : Name) : MetaM Context := do
   let typeInfos ← indVal.all.toArray.mapM getConstInfoInduct
   let motiveTypes ← typeInfos.mapM motiveType
   let motives ← motiveTypes.mapIdxM fun j motive =>
-    return (← motiveName motiveTypes j.val, motive)
+    return (← motiveName motiveTypes j, motive)
   let headers ← typeInfos.mapM $ mkHeader motives indVal.numParams
   return {
     motives := motives
@@ -118,8 +119,8 @@ where
       modifyBinders { vars with target := vars.target ++ xs, motives := xs } 0
 
   modifyBinders (vars : Variables) (i : Nat) := do
-    if i < vars.args.size then
-      let binder := vars.args[i]!
+    if h : i < vars.args.size then
+      let binder := vars.args[i]
       let binderType ← inferType binder
       if (← checkCount binderType) then
         mkBelowBinder vars binder binderType fun indValIdx x =>
@@ -213,7 +214,7 @@ def mkConstructor (ctx : Context) (i : Nat) (ctor : Name) : MetaM Constructor :=
 
 def mkInductiveType
     (ctx : Context)
-    (i : Fin ctx.typeInfos.size)
+    (i : Nat)
     (indVal : InductiveVal) : MetaM InductiveType := do
   return {
     name := ctx.belowNames[i]!
@@ -230,22 +231,28 @@ def mkBelowDecl (ctx : Context) : MetaM Declaration := do
     ctx.typeInfos[0]!.isUnsafe
 
 partial def backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
-  if depth = 0 then return false
-  else
-    m.withContext do
-    let lctx ← getLCtx
+  m.withContext do
     let mTy ← m.getType
-    lctx.anyM fun localDecl =>
-      if localDecl.isAuxDecl then
-        return false
-      else
-        commitWhen do
-        let (mvars, _, t) ← forallMetaTelescope localDecl.type
-        if ←isDefEq mTy t then
-          m.assign (mkAppN localDecl.toExpr mvars)
-          mvars.allM fun v =>
-            v.mvarId!.isAssigned <||> backwardsChaining v.mvarId! (depth - 1)
-        else return false
+    if depth = 0 then
+      trace[Meta.IndPredBelow.search] "searching for {mTy}: ran out of max depth"
+      return false
+    else
+      let lctx ← getLCtx
+      let r ← lctx.anyM fun localDecl =>
+        if localDecl.isAuxDecl then
+          return false
+        else
+          commitWhen do
+          let (mvars, _, t) ← forallMetaTelescope localDecl.type
+          if (← isDefEq mTy t) then
+            trace[Meta.IndPredBelow.search] "searching for {mTy}: trying {mkFVar localDecl.fvarId} : {localDecl.type}"
+            m.assign (mkAppN localDecl.toExpr mvars)
+            mvars.allM fun v =>
+              v.mvarId!.isAssigned <||> backwardsChaining v.mvarId! (depth - 1)
+          else return false
+      unless r do
+        trace[Meta.IndPredBelow.search] "searching for {mTy} failed"
+      return r
 
 partial def proveBrecOn (ctx : Context) (indVal : InductiveVal) (type : Expr) : MetaM Expr := do
   let main ← mkFreshExprSyntheticOpaqueMVar type
@@ -333,11 +340,11 @@ where
   mkIH
       (params : Array Expr)
       (motives : Array Expr)
-      (idx : Fin ctx.motives.size)
+      (idx : Nat)
       (motive : Name × Expr) : MetaM $ Name × (Array Expr → MetaM Expr) := do
     let name :=
       if ctx.motives.size > 1
-      then mkFreshUserName <| .mkSimple s!"ih_{idx.val.succ}"
+      then mkFreshUserName <| .mkSimple s!"ih_{idx + 1}"
       else mkFreshUserName <| .mkSimple "ih"
     let ih ← instantiateForall motive.2 params
     let mkDomain (_ : Array Expr) : MetaM Expr :=
@@ -346,7 +353,7 @@ where
         let args := params ++ motives ++ ys
         let premise :=
           mkAppN
-            (mkConst ctx.belowNames[idx.val]! levels) args
+            (mkConst ctx.belowNames[idx]! levels) args
         let conclusion :=
           mkAppN motives[idx]! ys
         mkForallFVars ys (←mkArrow premise conclusion)
@@ -365,8 +372,8 @@ where
       (rest : Expr)
       (belowIndices : Array Nat)
       (xIdx yIdx : Nat) : MetaM $ Array Nat := do
-    if xIdx ≥ xs.size then return belowIndices else
-    let x := xs[xIdx]!
+    if h : xIdx ≥ xs.size then return belowIndices else
+    let x := xs[xIdx]
     let xTy ← inferType x
     let yTy := rest.bindingDomain!
     if (← isDefEq xTy yTy) then
@@ -377,7 +384,7 @@ where
       loop xs rest belowIndices xIdx (yIdx + 1)
 
 private def belowType (motive : Expr) (xs : Array Expr) (idx : Nat) : MetaM $ Name × Expr := do
-  (← inferType xs[idx]!).withApp fun type args => do
+  (← whnf (← inferType xs[idx]!)).withApp fun type args => do
     let indName := type.constName!
     let indInfo ← getConstInfoInduct indName
     let belowArgs := args[:indInfo.numParams] ++ #[motive] ++ args[indInfo.numParams:] ++ #[xs[idx]!]
@@ -554,8 +561,7 @@ where
 
 def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat) := do
   xs.findSomeM? fun x => do
-  let xTy ← inferType x
-  xTy.withApp fun f _ =>
+  (← whnf (← inferType x)).withApp fun f _ =>
   match f.constName?, xs.indexOf? x with
   | some name, some idx => do
     if (← isInductivePredicate name) then
@@ -563,7 +569,7 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
       let below ← mkFreshExprSyntheticOpaqueMVar belowTy
       try
         trace[Meta.IndPredBelow.match] "{←Meta.ppGoal below.mvarId!}"
-        if (← backwardsChaining below.mvarId! 10) then
+        if (← below.mvarId!.applyRules { backtracking := false, maxDepth := 1 } []).isEmpty then
           trace[Meta.IndPredBelow.match] "Found below term in the local context: {below}"
           if (← xs.anyM (isDefEq below)) then pure none else pure (below, idx.val)
         else
@@ -596,5 +602,6 @@ def mkBelow (declName : Name) : MetaM Unit := do
 builtin_initialize
   registerTraceClass `Meta.IndPredBelow
   registerTraceClass `Meta.IndPredBelow.match
+  registerTraceClass `Meta.IndPredBelow.search
 
 end Lean.Meta.IndPredBelow

@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 prelude
 import Init.Data.Nat.Power2
 import Lean.Data.AssocList
+import Std.Data.HashMap.Basic
+import Std.Data.HashMap.Raw
 namespace Lean
 
 def HashMapBucket (α : Type u) (β : Type v) :=
@@ -44,7 +46,7 @@ private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.isPowerOfTwo) : { u : USize
   if h' : u.toNat < sz then
     ⟨u, h'⟩
   else
-    ⟨0, by simp [USize.toNat, OfNat.ofNat, USize.ofNat, Fin.ofNat']; apply Nat.pos_of_isPowerOfTwo h⟩
+    ⟨0, by simp; apply Nat.pos_of_isPowerOfTwo h⟩
 
 @[inline] def reinsertAux (hashFn : α → UInt64) (data : HashMapBucket α β) (a : α) (b : β) : HashMapBucket α β :=
   let ⟨i, h⟩ := mkIdx (hashFn a) data.property
@@ -193,7 +195,7 @@ def insert' (m : HashMap α β) (a : α) (b : β) : HashMap α β × Bool :=
 
 /--
 Similar to `insert`, but returns `some old` if the map already had an entry `α → old`.
-If the result is `some old`, the the resulting map is equal to `m`. -/
+If the result is `some old`, the resulting map is equal to `m`. -/
 def insertIfNew (m : HashMap α β) (a : α) (b : β) : HashMap α β × Option β :=
   match m with
   | ⟨ m, hw ⟩ =>
@@ -269,17 +271,11 @@ def ofListWith (l : List (α × β)) (f : β → β → β) : HashMap α β :=
         | none   => m.insert p.fst p.snd
         | some v => m.insert p.fst $ f v p.snd)
 
-end Lean.HashMap
+attribute [deprecated Std.HashMap (since := "2024-08-08")] HashMap
+attribute [deprecated Std.HashMap.Raw (since := "2024-08-08")] HashMapImp
+attribute [deprecated Std.HashMap.Raw.empty (since := "2024-08-08")] mkHashMapImp
+attribute [deprecated Std.HashMap.empty (since := "2024-08-08")] mkHashMap
+attribute [deprecated Std.HashMap.empty (since := "2024-08-08")] HashMap.empty
+attribute [deprecated Std.HashMap.ofList (since := "2024-08-08")] HashMap.ofList
 
-/--
-Groups all elements `x`, `y` in `xs` with `key x == key y` into the same array
-`(xs.groupByKey key).find! (key x)`. Groups preserve the relative order of elements in `xs`.
--/
-def Array.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : Array β)
-    : Lean.HashMap α (Array β) := Id.run do
-  let mut groups := ∅
-  for x in xs do
-    let group := groups.findD (key x) #[]
-    groups := groups.erase (key x) -- make `group` referentially unique
-    groups := groups.insert (key x) (group.push x)
-  return groups
+end Lean.HashMap

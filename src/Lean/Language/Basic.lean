@@ -12,6 +12,7 @@ prelude
 import Init.System.Promise
 import Lean.Message
 import Lean.Parser.Types
+import Lean.Elab.InfoTree
 
 set_option linter.missingDocs true
 
@@ -46,6 +47,8 @@ def Snapshot.Diagnostics.empty : Snapshot.Diagnostics where
   The base class of all snapshots: all the generic information the language server needs about a
   snapshot. -/
 structure Snapshot where
+  /-- Debug description shown by `trace.Elab.snapshotTree`, defaults to the caller's decl name. -/
+  desc : String := by exact decl_name%.toString
   /--
     The messages produced by this step. The union of message logs of all finished snapshots is
     reported to the user. -/
@@ -71,7 +74,7 @@ structure SnapshotTask (α : Type) where
   range? : Option String.Range
   /-- Underlying task producing the snapshot. -/
   task : Task α
-deriving Nonempty
+deriving Nonempty, Inhabited
 
 /-- Creates a snapshot task from a reporting range and a `BaseIO` action. -/
 def SnapshotTask.ofIO (range? : Option String.Range) (act : BaseIO α) : BaseIO (SnapshotTask α) := do
@@ -202,16 +205,19 @@ abbrev SnapshotTree.element : SnapshotTree → Snapshot
 abbrev SnapshotTree.children : SnapshotTree → Array (SnapshotTask SnapshotTree)
   | mk _ children => children
 
-/-- Produces debug tree format of given snapshot tree, synchronously waiting on all children. -/
-partial def SnapshotTree.format : SnapshotTree → Format := go none
-where go range? s :=
-  let range := match range? with
-    | some range => f!"{range.start}..{range.stop} "
-    | none => ""
-  let element := f!"{s.element.diagnostics.msgLog.unreported.size} diagnostics"
-  let children := Std.Format.prefixJoin .line <|
-    s.children.toList.map fun c => go c.range? c.get
-  .nestD f!"• {range}{element}{children}"
+/-- Produces trace of given snapshot tree, synchronously waiting on all children. -/
+partial def SnapshotTree.trace (s : SnapshotTree) : CoreM Unit :=
+  go none s
+where go range? s := do
+  let file ← getFileMap
+  let mut desc := f!"{s.element.desc}"
+  if let some range := range? then
+    desc := desc ++ f!"{file.toPosition range.start}-{file.toPosition range.stop} "
+  desc := desc ++ .prefixJoin "\n• " (← s.element.diagnostics.msgLog.toList.mapM (·.toString))
+  if let some t := s.element.infoTree? then
+    trace[Elab.info] (← t.format)
+  withTraceNode `Elab.snapshotTree (fun _ => pure desc) do
+    s.children.toList.forM fun c => go c.range? c.get
 
 /--
   Helper class for projecting a heterogeneous hierarchy of snapshot classes to a homogeneous
@@ -237,11 +243,16 @@ instance : ToSnapshotTree SnapshotLeaf where
 structure DynamicSnapshot where
   /-- Concrete snapshot value as `Dynamic`. -/
   val  : Dynamic
-  /-- Snapshot tree retrieved from `val` before erasure. -/
-  tree : SnapshotTree
+  /--
+  Snapshot tree retrieved from `val` before erasure. We do thunk even the first level as accessing
+  it too early can create some unnecessary tasks from `toSnapshotTree` that are otherwise avoided by
+  `(sync := true)` when accessing only after elaboration has finished. Early access can even lead to
+  deadlocks when later forcing these unnecessary tasks on a starved thread pool.
+  -/
+  tree : Thunk SnapshotTree
 
 instance : ToSnapshotTree DynamicSnapshot where
-  toSnapshotTree s := s.tree
+  toSnapshotTree s := s.tree.get
 
 /-- Creates a `DynamicSnapshot` from a typed snapshot value. -/
 def DynamicSnapshot.ofTyped [TypeName α] [ToSnapshotTree α] (val : α) : DynamicSnapshot where

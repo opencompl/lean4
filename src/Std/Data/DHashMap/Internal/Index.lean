@@ -48,15 +48,15 @@ cf. https://github.com/leanprover/lean4/issues/4157
   ⟨(scrambleHash hash).toUSize &&& (sz.toUSize - 1), by
     -- Making this proof significantly less painful will be a good test for our USize API
     by_cases h' : sz < USize.size
-    · rw [USize.and_toNat, ← USize.ofNat_one, USize.sub_toNat_of_le, USize.toNat_ofNat_of_lt]
+    · rw [USize.and_toNat, ← USize.ofNat_one, USize.toNat_sub_of_le, USize.toNat_ofNat_of_lt]
       · refine Nat.lt_of_le_of_lt Nat.and_le_right (Nat.sub_lt h ?_)
         rw [USize.toNat_ofNat_of_lt]
         · exact Nat.one_pos
         · exact Nat.lt_of_le_of_lt h h'
       · exact h'
-      · rw [USize.le_def, Fin.le_def]
+      · rw [USize.le_def, BitVec.le_def]
         change _ ≤ (_ % _)
-        rw [Nat.mod_eq_of_lt h', USize.ofNat, Fin.val_ofNat', Nat.mod_eq_of_lt]
+        rw [Nat.mod_eq_of_lt h', USize.ofNat, BitVec.toNat_ofNat, Nat.mod_eq_of_lt]
         · exact h
         · exact Nat.lt_of_le_of_lt h h'
     · exact Nat.lt_of_lt_of_le (USize.toNat_lt_size _) (Nat.le_of_not_lt h')⟩

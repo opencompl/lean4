@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
 prelude
-import Init.Core
 import Init.Control.Basic
-import Init.Coe
 
 namespace Option
 
@@ -202,7 +200,7 @@ result.
 instance (α) [BEq α] [LawfulBEq α] : LawfulBEq (Option α) where
   rfl {x} :=
     match x with
-    | some x => LawfulBEq.rfl (α := α)
+    | some _ => LawfulBEq.rfl (α := α)
     | none => rfl
   eq_of_beq {x y h} := by
     match x, y with
@@ -211,6 +209,9 @@ instance (α) [BEq α] [LawfulBEq α] : LawfulBEq (Option α) where
 
 @[simp] theorem all_none : Option.all p none = true := rfl
 @[simp] theorem all_some : Option.all p (some x) = p x := rfl
+
+@[simp] theorem any_none : Option.any p none = false := rfl
+@[simp] theorem any_some : Option.any p (some x) = p x := rfl
 
 /-- The minimum of two optional values. -/
 protected def min [Min α] : Option α → Option α → Option α

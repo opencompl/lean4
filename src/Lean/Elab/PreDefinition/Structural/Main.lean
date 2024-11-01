@@ -65,7 +65,7 @@ where
   go (fvars : Array Expr) (vals : Array Expr) : M α := do
     if !(vals.all fun val => val.isLambda) then
       k fvars vals
-    else if !(← vals.allM fun val => return val.bindingName! == vals[0]!.bindingName! && val.binderInfo == vals[0]!.binderInfo && (← isDefEq val.bindingDomain! vals[0]!.bindingDomain!)) then
+    else if !(← vals.allM fun val=> isDefEq val.bindingDomain! vals[0]!.bindingDomain!) then
       k fvars vals
     else
       withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
@@ -107,9 +107,9 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr
     check valueNew
     return #[{ preDef with value := valueNew }]
 
-  -- Sort the (indices of the) definitions by their position in indInfo.all
+  -- Groups the (indices of the) definitions by their position in indInfo.all
   let positions : Positions := .groupAndSort (·.indIdx) recArgInfos (Array.range indInfo.numTypeFormers)
-  trace[Elab.definition.structural] "positions: {positions}"
+  trace[Elab.definition.structural] "assignments of type formers of {indInfo.name} to functions: {positions}"
 
   -- Construct the common `.brecOn` arguments
   let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
@@ -117,7 +117,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr
   let brecOnConst ← mkBRecOnConst recArgInfos positions motives
   let FTypes ← inferBRecOnFTypes recArgInfos positions brecOnConst
   trace[Elab.definition.structural] "FTypes: {FTypes}"
-  let FArgs ← (recArgInfos.zip  (values.zip FTypes)).mapM fun (r, (v, t)) =>
+  let FArgs ← (recArgInfos.zip (values.zip FTypes)).mapM fun (r, (v, t)) =>
     mkBRecOnF recArgInfos positions r v t
   trace[Elab.definition.structural] "FArgs: {FArgs}"
   -- Assemble the individual `.brecOn` applications
@@ -128,7 +128,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr
   return (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }
 
 private def inferRecArgPos (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) :
-    M (Array Nat × Array PreDefinition) := do
+    M (Array Nat × (Array PreDefinition) × Nat) := do
   withoutModifyingEnv do
     preDefs.forM (addAsAxiom ·)
     let fnNames := preDefs.map (·.declName)
@@ -154,7 +154,7 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termArg?s : Array (O
         withErasedFVars (xs.extract numFixed xs.size |>.map (·.fvarId!)) do
           let xs := xs[:numFixed]
           let preDefs' ← elimMutualRecursion preDefs xs recArgInfos
-          return (recArgPoss, preDefs')
+          return (recArgPoss, preDefs', numFixed)
 
 def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
   if let some ref := preDef.termination.terminationBy?? then
@@ -167,7 +167,7 @@ def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
 
 def structuralRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) : TermElabM Unit := do
   let names := preDefs.map (·.declName)
-  let ((recArgPoss, preDefsNonRec), state) ← run <| inferRecArgPos preDefs termArg?s
+  let ((recArgPoss, preDefsNonRec, numFixed), state) ← run <| inferRecArgPos preDefs termArg?s
   for recArgPos in recArgPoss, preDef in preDefs do
     reportTermArg preDef recArgPos
   state.addMatchers.forM liftM
@@ -190,9 +190,10 @@ def structuralRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Opti
         for theorems and definitions that are propositions.
         See issue #2327
         -/
-        registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos
+        registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos numFixed
     addSmartUnfoldingDef preDef recArgPos
     markAsRecursive preDef.declName
+    generateEagerEqns preDef.declName
   applyAttributesOf preDefsNonRec AttributeApplicationTime.afterCompilation
 
 

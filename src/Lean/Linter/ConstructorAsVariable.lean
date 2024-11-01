@@ -34,10 +34,10 @@ def constructorNameAsVariable : Linter where
       | return
 
     let infoTrees := (← get).infoState.trees.toArray
-    let warnings : IO.Ref (Lean.HashMap String.Range (Syntax × Name × Name)) ← IO.mkRef {}
+    let warnings : IO.Ref (Std.HashMap String.Range (Syntax × Name × Name)) ← IO.mkRef {}
 
     for tree in infoTrees do
-      tree.visitM' (preNode := fun ci info _ => do
+      tree.visitM' (postNode := fun ci info _ => do
         match info with
         | .ofTermInfo ti =>
           match ti.expr with

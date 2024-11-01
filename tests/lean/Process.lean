@@ -8,12 +8,8 @@ def usingIO {α} (x : IO α) : IO α := x
   child.wait
 
 #eval usingIO do
-  let child ← spawn { cmd := "sh", args := #["-c", "echo hi!"] };
-  child.wait
-
-#eval usingIO do
   let child ← spawn { cmd := "sh", args := #["-c", "echo ho!"], stdout := Stdio.piped };
-  discard $ child.wait;
+  child.wait >>= IO.println;
   child.stdout.readToEnd
 
 #eval usingIO do
@@ -22,12 +18,6 @@ def usingIO {α} (x : IO α) : IO α := x
   child.stdin.flush;
   discard $ child.wait;
   child.stdout.readToEnd
-
-#eval usingIO do
-  let child ← spawn { cmd := "true", stdin := Stdio.piped };
-  discard $ child.wait;
-  child.stdin.putStrLn "ha!";
-  child.stdin.flush <|> IO.println "flush of broken pipe failed"
 
 #eval usingIO do
   -- produce enough output to fill both pipes on all platforms
@@ -53,10 +43,12 @@ def usingIO {α} (x : IO α) : IO α := x
     cmd := "lean",
     args := #["--stdin"]
     stdin := IO.Process.Stdio.piped
+    stdout := IO.Process.Stdio.piped
   }
   let (stdin, lean) ← lean.takeStdin
   stdin.putStr "#exit\n"
-  lean.wait
+  let _ ← lean.wait
+  lean.stdout.readToEnd
 
 #eval usingIO do
   let child ← spawn { cmd := "sh", args := #["-c", "cat"], stdin := .piped, stdout := .piped }

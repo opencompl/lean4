@@ -68,9 +68,7 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
       throwError "it is a let-binding"
     let xType ← whnfD localDecl.type
     matchConstInduct xType.getAppFn (fun _ => throwError "its type is not an inductive") fun indInfo us => do
-    if !(← hasConst (mkBRecOnName indInfo.name)) then
-      throwError "its type {indInfo.name} does not have a recursor"
-    else if indInfo.isReflexive && !(← hasConst (mkBInductionOnName indInfo.name)) && !(← isInductivePredicate indInfo.name) then
+    if indInfo.isReflexive && !(← hasConst (mkBInductionOnName indInfo.name)) && !(← isInductivePredicate indInfo.name) then
       throwError "its type {indInfo.name} is a reflexive inductive, but {mkBInductionOnName indInfo.name} does not exist and it is not an inductive predicate"
     else
       let indArgs    : Array Expr := xType.getAppArgs
@@ -79,7 +77,7 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
       if !indIndices.all Expr.isFVar then
         throwError "its type {indInfo.name} is an inductive family and indices are not variables{indentExpr xType}"
       else if !indIndices.allDiff then
-        throwError " its type {indInfo.name} is an inductive family and indices are not pairwise distinct{indentExpr xType}"
+        throwError "its type {indInfo.name} is an inductive family and indices are not pairwise distinct{indentExpr xType}"
       else
         let indexMinPos := getIndexMinPos xs indIndices
         let numFixed    := if indexMinPos < numFixed then indexMinPos else numFixed
@@ -121,7 +119,7 @@ def getRecArgInfos (fnName : Name) (xs : Array Expr) (value : Expr)
     (termArg? : Option TerminationArgument) : MetaM (Array RecArgInfo × MessageData) := do
   lambdaTelescope value fun ys _ => do
     if let .some termArg := termArg? then
-      -- User explictly asked to use a certain argument, so throw errors eagerly
+      -- User explicitly asked to use a certain argument, so throw errors eagerly
       let recArgInfo ← withRef termArg.ref do
         mapError (f := (m!"cannot use specified parameter for structural recursion:{indentD ·}")) do
           getRecArgInfo fnName xs.size (xs ++ ys) (← termArg.structuralArg)
@@ -148,7 +146,7 @@ See issue #837 for an example where we can show termination using the index of a
 we don't get the desired definitional equalities.
 -/
 def nonIndicesFirst (recArgInfos : Array RecArgInfo) : Array RecArgInfo := Id.run do
-  let mut indicesPos : HashSet Nat := {}
+  let mut indicesPos : Std.HashSet Nat := {}
   for recArgInfo in recArgInfos do
     for pos in recArgInfo.indicesPos do
       indicesPos := indicesPos.insert pos
@@ -191,7 +189,7 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
     if (← group.isDefEq recArgInfo.indGroupInst) then
       return (.some recArgInfo)
 
-    -- Can this argument be understood as the auxillary type former of a nested inductive?
+    -- Can this argument be understood as the auxiliary type former of a nested inductive?
     if nestedTypeFormers.isEmpty then return .none
     lambdaTelescope value fun ys _ => do
       let x := (xs++ys)[recArgInfo.recArgPos]!
@@ -228,7 +226,7 @@ def allCombinations (xss : Array (Array α)) : Option (Array (Array α)) :=
   else
     let rec go i acc : Array (Array α):=
       if h : i < xss.size then
-        xss[i].concatMap fun x => go (i + 1) (acc.push x)
+        xss[i].flatMap fun x => go (i + 1) (acc.push x)
       else
         #[acc]
     some (go 0 #[])
@@ -263,6 +261,11 @@ def tryAllArgs (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
     if let some combs := allCombinations recArgInfoss' then
       for comb in combs do
         try
+          -- Check that the group actually has a brecOn (we used to check this in getRecArgInfo,
+          -- but in the first phase we do not want to rule-out non-recursive types like `Array`, which
+          -- are ok in a nested group. This logic can maybe simplified)
+          unless (← hasConst (group.brecOnName false 0)) do
+            throwError "the type {group} does not have a `.brecOn` recursor"
           -- TODO: Here we used to save and restore the state. But should the `try`-`catch`
           -- not suffice?
           let r ← k comb

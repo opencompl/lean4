@@ -17,10 +17,13 @@ def noBuildCode : ExitCode := 3
 
 /-- Configuration options for a Lake build. -/
 structure BuildConfig where
+  /-- Use modification times for trace checking. -/
   oldMode : Bool := false
+  /-- Whether to trust `.hash` files. -/
   trustHash : Bool := true
   /-- Early exit if a target has to be rebuilt. -/
   noBuild : Bool := false
+  /-- Verbosity level (`-q`, `-v`, or neither). -/
   verbosity : Verbosity := .normal
   /--
   Fail the top-level build if entries of at least this level have been logged.
@@ -30,6 +33,8 @@ structure BuildConfig where
   dependent jobs will still continue unimpeded).
   -/
   failLv : LogLevel := .error
+  /-- The minimum log level for an log entry to be reported. -/
+  outLv : LogLevel := verbosity.minLogLv
   /--
   The stream to which Lake reports build progress.
   By default, Lake uses `stderr`.
@@ -37,10 +42,6 @@ structure BuildConfig where
   out : OutStream := .stderr
   /-- Whether to use ANSI escape codes in build output. -/
   ansiMode : AnsiMode := .auto
-
-/-- The minimum log level for an log entry to be reported. -/
-@[inline] def BuildConfig.outLv (cfg : BuildConfig) : LogLevel :=
-  cfg.verbosity.minLogLv
 
 /--
 Whether the build should show progress information.

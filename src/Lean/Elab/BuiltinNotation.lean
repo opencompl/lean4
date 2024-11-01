@@ -55,8 +55,8 @@ open Meta
             let cinfo ← getConstInfoCtor ctor
             let numExplicitFields ← forallTelescopeReducing cinfo.type fun xs _ => do
               let mut n := 0
-              for i in [cinfo.numParams:xs.size] do
-                if (← getFVarLocalDecl xs[i]!).binderInfo.isExplicit then
+              for h : i in [cinfo.numParams:xs.size] do
+                if (← getFVarLocalDecl xs[i]).binderInfo.isExplicit then
                   n := n + 1
               return n
             let args := args.getElems
@@ -135,13 +135,21 @@ open Meta
   | _                                                => Macro.throwUnsupported
 
 @[builtin_macro Lean.Parser.Term.suffices] def expandSuffices : Macro
-  | `(suffices%$tk $x:ident      : $type from $val; $body)            => `(have%$tk $x : $type := $body; $val)
-  | `(suffices%$tk _%$x          : $type from $val; $body)            => `(have%$tk _%$x : $type := $body; $val)
-  | `(suffices%$tk $hy:hygieneInfo $type from $val; $body)            => `(have%$tk $hy:hygieneInfo : $type := $body; $val)
-  | `(suffices%$tk $x:ident      : $type by%$b $tac:tacticSeq; $body) => `(have%$tk $x : $type := $body; by%$b $tac)
-  | `(suffices%$tk _%$x          : $type by%$b $tac:tacticSeq; $body) => `(have%$tk _%$x : $type := $body; by%$b $tac)
-  | `(suffices%$tk $hy:hygieneInfo $type by%$b $tac:tacticSeq; $body) => `(have%$tk $hy:hygieneInfo : $type := $body; by%$b $tac)
-  | _                                                                 => Macro.throwUnsupported
+  | `(suffices%$tk $x:ident      : $type from $val; $body)   => `(have%$tk $x : $type := $body; $val)
+  | `(suffices%$tk _%$x          : $type from $val; $body)   => `(have%$tk _%$x : $type := $body; $val)
+  | `(suffices%$tk $hy:hygieneInfo $type from $val; $body)   => `(have%$tk $hy:hygieneInfo : $type := $body; $val)
+  | `(suffices%$tk $x:ident      : $type $b:byTactic'; $body) =>
+    -- Pass on `SourceInfo` of `b` to `have`. This is necessary to display the goal state in the
+    -- trailing whitespace of `by` and sound since `byTactic` and `byTactic'` are identical.
+    let b := ⟨b.raw.setKind `Lean.Parser.Term.byTactic⟩
+    `(have%$tk $x : $type := $body; $b:byTactic)
+  | `(suffices%$tk _%$x          : $type $b:byTactic'; $body) =>
+    let b := ⟨b.raw.setKind `Lean.Parser.Term.byTactic⟩
+    `(have%$tk _%$x : $type := $body; $b:byTactic)
+  | `(suffices%$tk $hy:hygieneInfo $type $b:byTactic'; $body) =>
+    let b := ⟨b.raw.setKind `Lean.Parser.Term.byTactic⟩
+    `(have%$tk $hy:hygieneInfo : $type := $body; $b:byTactic)
+  | _ => Macro.throwUnsupported
 
 open Lean.Parser in
 private def elabParserMacroAux (prec e : Term) (withAnonymousAntiquot : Bool) : TermElabM Syntax := do
@@ -257,31 +265,52 @@ partial def hasCDot : Syntax → Bool
   Return `some` if succeeded expanding `·` notation occurring in
   the given syntax. Otherwise, return `none`.
   Examples:
-  - `· + 1` => `fun _a_1 => _a_1 + 1`
-  - `f · · b` => `fun _a_1 _a_2 => f _a_1 _a_2 b` -/
+  - `· + 1` => `fun x => x + 1`
+  - `f · · b` => `fun x1 x2 => f x1 x2 b` -/
 partial def expandCDot? (stx : Term) : MacroM (Option Term) := do
   if hasCDot stx then
-    let (newStx, binders) ← (go stx).run #[]
-    `(fun $binders* => $(⟨newStx⟩))
+    withFreshMacroScope do
+      let mut (newStx, binders) ← (go stx).run #[]
+      if binders.size == 1 then
+        -- It is nicer using `x` over `x1` if there's only a single binder.
+        let x1 := binders[0]!
+        let x := mkIdentFrom x1 (← MonadQuotation.addMacroScope `x) (canonical := true)
+        binders := binders.set! 0 x
+        newStx ← newStx.replaceM fun s => pure (if s == x1 then x else none)
+      `(fun $binders* => $(⟨newStx⟩))
   else
     pure none
 where
   /--
-    Auxiliary function for expanding the `·` notation.
-    The extra state `Array Syntax` contains the new binder names.
-    If `stx` is a `·`, we create a fresh identifier, store in the
-    extra state, and return it. Otherwise, we just return `stx`. -/
+  Auxiliary function for expanding the `·` notation.
+  The extra state `Array Syntax` contains the new binder names.
+  If `stx` is a `·`, we create a fresh identifier, store it in the
+  extra state, and return it. Otherwise, we just return `stx`.
+  -/
   go : Syntax → StateT (Array Ident) MacroM Syntax
-    | stx@`(($(_))) => pure stx
-    | stx@`(·) => withFreshMacroScope do
-      let id ← mkFreshIdent stx (canonical := true)
-      modify (·.push id)
-      pure id
-    | stx => match stx with
-      | .node _ k args => do
-        let args ← args.mapM go
-        return .node (.fromRef stx (canonical := true)) k args
-      | _ => pure stx
+  | stx@`(($(_))) => pure stx
+  | stx@`(·) => do
+    let name ← MonadQuotation.addMacroScope <| Name.mkSimple s!"x{(← get).size + 1}"
+    let id := mkIdentFrom stx name (canonical := true)
+    modify (fun s => s.push id)
+    pure id
+  | stx => match stx with
+    | .node _ k args => do
+      let args ←
+        if k == choiceKind then
+          if args.isEmpty then
+            return stx
+          let s ← get
+          let args' ← args.mapM (fun arg => go arg |>.run s)
+          let s' := args'[0]!.2
+          unless args'.all (fun (_, s'') => s''.size == s'.size) do
+            Macro.throwErrorAt stx "Ambiguous notation in cdot function has different numbers of '·' arguments in each alternative."
+          set s'
+          pure <| args'.map Prod.fst
+        else
+          args.mapM go
+      return .node (.fromRef stx (canonical := true)) k args
+    | _ => pure stx
 
 /--
   Helper method for elaborating terms such as `(.+.)` where a constant name is expected.

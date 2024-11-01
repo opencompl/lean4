@@ -23,6 +23,55 @@ private def isImplies (e : Expr) : MetaM Bool :=
   else
     return false
 
+private partial def mkCongrThm (origTag : Name) (f : Expr) (args : Array Expr) (addImplicitArgs := false) (nameSubgoals := true) :
+    MetaM (Expr × Array (Option MVarId) × Array (Option MVarId)) := do
+  let funInfo ← getFunInfoNArgs f args.size
+  let some congrThm ← mkCongrSimpCore? f funInfo (← getCongrSimpKinds f funInfo) (subsingletonInstImplicitRhs := false)
+    | throwError "'congr' conv tactic failed to create congruence theorem"
+  let mut eNew := f
+  let mut proof := congrThm.proof
+  let mut mvarIdsNew := #[]
+  let mut mvarIdsNewInsts := #[]
+  for h : i in [:congrThm.argKinds.size] do
+    let arg := args[i]!
+    let argInfo := funInfo.paramInfo[i]!
+    match congrThm.argKinds[i] with
+    | .fixed | .cast =>
+      eNew := mkApp eNew arg
+      proof := mkApp proof arg;
+      if addImplicitArgs || argInfo.isExplicit then
+        mvarIdsNew := mvarIdsNew.push none
+    | .eq =>
+      if addImplicitArgs || argInfo.isExplicit then
+        let tag ← if nameSubgoals then
+          pure (appendTag origTag (← whnf (← inferType proof)).bindingName!)
+        else pure origTag
+        let (rhs, mvarNew) ← mkConvGoalFor arg tag
+        eNew := mkApp eNew rhs
+        proof := mkApp3 proof arg rhs mvarNew
+        mvarIdsNew := mvarIdsNew.push (some mvarNew.mvarId!)
+      else
+        eNew := mkApp eNew arg
+        proof := mkApp3 proof arg arg (← mkEqRefl arg)
+    | .subsingletonInst =>
+      proof := mkApp proof arg
+      let rhs ← mkFreshExprMVar (← whnf (← inferType proof)).bindingDomain!
+      eNew := mkApp eNew rhs
+      proof := mkApp proof rhs
+      mvarIdsNewInsts := mvarIdsNewInsts.push (some rhs.mvarId!)
+    | .heq | .fixedNoParam => unreachable!
+  if congrThm.argKinds.size < args.size then
+    if congrThm.argKinds.size == 0 then
+      throwError "'congr' conv tactic failed to create congruence theorem"
+    let (proof', mvarIdsNew', mvarIdsNewInsts') ←
+      mkCongrThm origTag eNew args[funInfo.getArity:] addImplicitArgs nameSubgoals
+    for arg in args[funInfo.getArity:] do
+      proof ← Meta.mkCongrFun proof arg
+    proof ← mkEqTrans proof proof'
+    mvarIdsNew := mvarIdsNew ++ mvarIdsNew'
+    mvarIdsNewInsts := mvarIdsNewInsts ++ mvarIdsNewInsts'
+  return (proof, mvarIdsNew, mvarIdsNewInsts)
+
 def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
     MetaM (List (Option MVarId)) := mvarId.withContext do
   let origTag ← mvarId.getTag
@@ -31,39 +80,8 @@ def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
   if (← isImplies lhs) then
     return (← congrImplies mvarId).map Option.some
   else if lhs.isApp then
-    let funInfo ← getFunInfo lhs.getAppFn
-    let args := lhs.getAppArgs
-    let some congrThm ← mkCongrSimp? lhs.getAppFn (subsingletonInstImplicitRhs := false)
-      | throwError "'congr' conv tactic failed to create congruence theorem"
-    unless args.size == congrThm.argKinds.size do
-      throwError "'congr' conv tactic failed, unexpected number of arguments in congruence theorem"
-    let mut proof := congrThm.proof
-    let mut mvarIdsNew := #[]
-    let mut mvarIdsNewInsts := #[]
-    for i in [:args.size] do
-      let arg := args[i]!
-      let argInfo := funInfo.paramInfo[i]!
-      match congrThm.argKinds[i]! with
-      | .fixed | .cast =>
-        proof := mkApp proof arg;
-        if addImplicitArgs || argInfo.isExplicit then
-          mvarIdsNew := mvarIdsNew.push none
-      | .eq    =>
-        if addImplicitArgs || argInfo.isExplicit then
-          let tag ← if nameSubgoals then
-            pure (appendTag origTag (← whnf (← inferType proof)).bindingName!)
-          else pure origTag
-          let (rhs, mvarNew) ← mkConvGoalFor arg tag
-          proof := mkApp3 proof arg rhs mvarNew
-          mvarIdsNew := mvarIdsNew.push (some mvarNew.mvarId!)
-        else
-          proof := mkApp3 proof arg arg (← mkEqRefl arg)
-      | .subsingletonInst =>
-        proof := mkApp proof arg
-        let rhs ← mkFreshExprMVar (← whnf (← inferType proof)).bindingDomain!
-        proof := mkApp proof rhs
-        mvarIdsNewInsts := mvarIdsNewInsts.push (some rhs.mvarId!)
-      | .heq | .fixedNoParam => unreachable!
+    let (proof, mvarIdsNew, mvarIdsNewInsts) ←
+      mkCongrThm origTag lhs.getAppFn lhs.getAppArgs addImplicitArgs nameSubgoals
     let some (_, _, rhs') := (← whnf (← inferType proof)).eq? | throwError "'congr' conv tactic failed, equality expected"
     unless (← isDefEqGuarded rhs rhs') do
       throwError "invalid 'congr' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
@@ -75,20 +93,28 @@ def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
 @[builtin_tactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun _ => do
   replaceMainGoal <| List.filterMap id (← congr (← getMainGoal))
 
+-- mvarIds is the list of goals produced by congr. We only want to change the one at position `i`
+-- so this closes all other equality goals with `rfl.`. There are non-equality goals produced
+-- by `congr` (e.g. dependent instances), these are kept as goals.
 private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i : Int) :
   TacticM Unit := do
   if i >= 0 then
     let i := i.toNat
     if h : i < mvarIds.length then
+      let mut otherGoals := #[]
       for mvarId? in mvarIds, j in [:mvarIds.length] do
         match mvarId? with
         | none => pure ()
         | some mvarId =>
           if i != j then
-            mvarId.refl
+            if (← mvarId.getType').isEq then
+              mvarId.refl
+            else
+              -- If its not an equality, it's likely a class constraint, to be left open
+              otherGoals := otherGoals.push mvarId
       match mvarIds[i] with
       | none => throwError "cannot select argument"
-      | some mvarId => replaceMainGoal [mvarId]
+      | some mvarId => replaceMainGoal (mvarId :: otherGoals.toList)
       return ()
   throwError "invalid '{tacticName}' conv tactic, application has only {mvarIds.length} (nondependent) argument(s)"
 

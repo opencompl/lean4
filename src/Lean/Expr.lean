@@ -8,6 +8,7 @@ import Init.Data.Hashable
 import Lean.Data.KVMap
 import Lean.Data.SMap
 import Lean.Level
+import Std.Data.HashSet.Basic
 
 namespace Lean
 
@@ -244,7 +245,7 @@ def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
 A set of unique free variable identifiers implemented using hashtables.
 Hashtables are faster than red-black trees if they are used linearly.
 They are not persistent data-structures. -/
-def FVarIdHashSet := HashSet FVarId
+def FVarIdHashSet := Std.HashSet FVarId
   deriving Inhabited, EmptyCollection
 
 /--
@@ -1038,6 +1039,14 @@ def getForallBinderNames : Expr → List Name
   | _ => []
 
 /--
+Returns the number of leading `∀` binders of an expression. Ignores metadata.
+-/
+def getNumHeadForalls : Expr → Nat
+  | mdata _ b => getNumHeadForalls b
+  | forallE _ _ body _ => getNumHeadForalls body + 1
+  | _ => 0
+
+/--
 If the given expression is a sequence of
 function applications `f a₁ .. aₙ`, return `f`.
 Otherwise return the input expression.
@@ -1083,6 +1092,16 @@ private def getAppNumArgsAux : Expr → Nat → Nat
 /-- Counts the number `n` of arguments for an expression `f a₁ .. aₙ`. -/
 def getAppNumArgs (e : Expr) : Nat :=
   getAppNumArgsAux e 0
+
+/-- Like `getAppNumArgs` but ignores metadata. -/
+def getAppNumArgs' (e : Expr) : Nat :=
+  go e 0
+where
+  /-- Auxiliary definition for `getAppNumArgs'`. -/
+  go : Expr → Nat → Nat
+    | mdata _ b, n => go b n
+    | app f _  , n => go f (n + 1)
+    | _        , n => n
 
 /--
 Like `Lean.Expr.getAppFn` but assumes the application has up to `maxArgs` arguments.
@@ -1388,11 +1407,11 @@ def mkDecIsTrue (pred proof : Expr) :=
 def mkDecIsFalse (pred proof : Expr) :=
   mkAppB (mkConst `Decidable.isFalse) pred proof
 
-abbrev ExprMap (α : Type)  := HashMap Expr α
+abbrev ExprMap (α : Type)  := Std.HashMap Expr α
 abbrev PersistentExprMap (α : Type) := PHashMap Expr α
 abbrev SExprMap (α : Type)  := SMap Expr α
 
-abbrev ExprSet := HashSet Expr
+abbrev ExprSet := Std.HashSet Expr
 abbrev PersistentExprSet := PHashSet Expr
 abbrev PExprSet := PersistentExprSet
 
@@ -1417,7 +1436,7 @@ instance : ToString ExprStructEq := ⟨fun e => toString e.val⟩
 
 end ExprStructEq
 
-abbrev ExprStructMap (α : Type) := HashMap ExprStructEq α
+abbrev ExprStructMap (α : Type) := Std.HashMap ExprStructEq α
 abbrev PersistentExprStructMap (α : Type) := PHashMap ExprStructEq α
 
 namespace Expr
@@ -1452,28 +1471,26 @@ partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) (preser
   else
     let sz := revArgs.size
     let rec go (e : Expr) (i : Nat) : Expr :=
+      let done (_ : Unit) : Expr :=
+        let n := sz - i
+        mkAppRevRange (e.instantiateRange n sz revArgs) 0 n revArgs
       match e with
-      | Expr.lam _ _ b _ =>
+      | .lam _ _ b _ =>
         if i + 1 < sz then
           go b (i+1)
         else
-          let n := sz - (i + 1)
-          mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
-      | Expr.letE _ _ v b _ =>
+          b.instantiate revArgs
+      | .letE _ _ v b _ =>
         if useZeta && i < sz then
           go (b.instantiate1 v) i
         else
-          let n := sz - i
-          mkAppRevRange (e.instantiateRange n sz revArgs) 0 n revArgs
-      | Expr.mdata k b =>
+          done ()
+      | .mdata _ b =>
         if preserveMData then
-          let n := sz - i
-          mkMData k (mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs)
+          done ()
         else
           go b i
-      | b =>
-        let n := sz - i
-        mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
+      | _ => done ()
     go f 0
 
 /--
@@ -1629,7 +1646,7 @@ def nat? (e : Expr) : Option Nat := do
 /--
 Checks if an expression is an "integer numeral in normal form",
 i.e. of type `Nat` or `Int`, and either a natural number numeral in normal form (as specified by `nat?`),
-or the negation of a positive natural number numberal in normal form,
+or the negation of a positive natural number numeral in normal form,
 and if so returns the integer.
 -/
 def int? (e : Expr) : Option Int :=
@@ -1899,6 +1916,22 @@ def traverseChildren [Applicative M] (f : Expr → M Expr) : Expr → M Expr
 with initial value `a`. -/
 def foldlM {α : Type} {m} [Monad m] (f : α → Expr → m α) (init : α) (e : Expr) : m α :=
   Prod.snd <$> StateT.run (e.traverseChildren (fun e' => fun a => Prod.mk e' <$> f a e')) init
+
+/--
+Returns the size of `e` as a tree, i.e. nodes reachable via multiple paths are counted multiple
+times.
+
+This is a naive implementation that visits shared subterms multiple times instead of caching their
+sizes. It is primarily meant for debugging.
+-/
+def sizeWithoutSharing : (e : Expr) → Nat
+  | .forallE _ d b _ => 1 + d.sizeWithoutSharing + b.sizeWithoutSharing
+  | .lam _ d b _     => 1 + d.sizeWithoutSharing + b.sizeWithoutSharing
+  | .mdata _ e       => 1 + e.sizeWithoutSharing
+  | .letE _ t v b _  => 1 + t.sizeWithoutSharing + v.sizeWithoutSharing + b.sizeWithoutSharing
+  | .app f a         => 1 + f.sizeWithoutSharing + a.sizeWithoutSharing
+  | .proj _ _ e      => 1 + e.sizeWithoutSharing
+  | .lit .. | .const .. | .sort .. | .mvar .. | .fvar .. | .bvar .. => 1
 
 end Expr
 

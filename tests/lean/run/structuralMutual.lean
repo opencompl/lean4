@@ -1,4 +1,4 @@
-import Lean.Elab.Command
+set_option guard_msgs.diff true
 
 /-!
 Mutual structural recursion.
@@ -185,12 +185,12 @@ inductive B (m : Nat) : Nat → Type
 end
 
 mutual
-def A.size (m n : Nat) : A m n → Nat
+def A.size {m n : Nat} : A m n → Nat
   | .self a => a.size + m
   | .other b => b.size + m
   | .empty => 0
 termination_by structural x => x
-def B.size (m n : Nat): B m n → Nat
+def B.size {m n : Nat} : B m n → Nat
   | .self b => b.size + m
   | .other a => a.size + m
   | .empty => 0
@@ -214,6 +214,8 @@ end Index
 namespace EvenOdd
 
 -- Mutual structural recursion over a non-mutual inductive type
+
+-- (The functions don't actually implement even/odd, but that isn't the point here.)
 
 mutual
   def Even : Nat → Prop
@@ -281,12 +283,17 @@ def A.self_size : A → Nat
   | .empty => 0
 termination_by structural x => x
 
-#guard_msgs in
 def B.self_size : B → Nat
   | .self b => b.self_size + 1
   | .other _ => 0
   | .empty => 0
 termination_by structural x => x
+
+def A.self_size_with_param : Nat → A → Nat
+  | n, .self a => a.self_size_with_param n + n
+  | _, .other _ => 0
+  | _, .empty => 0
+termination_by structural _ x => x
 
 -- Structural recursion with more than one function per types of the mutual inductive
 
@@ -463,7 +470,7 @@ error: cannot use specified parameter for structural recursion:
   which does not come before the varying parameters and before the indices of the recursion parameter.
 -/
 #guard_msgs in
-def T.a (n : Nat) : T n n → Nat
+def T.a {n : Nat} : T n n → Nat
   | .z => 0
   | .n t => t.a + 1
 termination_by structural t => t
@@ -518,13 +525,13 @@ Too many possible combinations of parameters of type Nattish (or please indicate
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from ManyCombinations.f to ManyCombinations.g at 550:15-29:
+Call from ManyCombinations.f to ManyCombinations.g at 557:15-29:
    #1 #2 #3 #4
 #5  ?  ?  ?  ?
 #6  ?  =  ?  ?
 #7  ?  ?  =  ?
 #8  ?  ?  ?  =
-Call from ManyCombinations.g to ManyCombinations.f at 553:15-29:
+Call from ManyCombinations.g to ManyCombinations.f at 560:15-29:
    #5 #6 #7 #8
 #1  _  _  _  _
 #2  _  =  _  _
@@ -568,71 +575,132 @@ end
 
 end ManyCombinations
 
+namespace WithTuple
+
+inductive Tree (α : Type) where
+  | node : α → (Tree α × Tree α) → Tree α
+
+mutual
+
+def Tree.map (f : α → β) (x : Tree α): Tree β :=
+  match x with
+    | node x arrs => node (f x) $ Tree.map_tup f arrs
+termination_by structural x
+
+def Tree.map_tup (f : α → β) (x : Tree α × Tree α): (Tree β × Tree β) :=
+  match x with
+    | (t₁,t₂) => (Tree.map f t₁, Tree.map f t₂)
+termination_by structural x
+
+end
+
+end WithTuple
+
+namespace WithArray
+
+inductive Tree (α : Type) where
+  | node : α → Array (Tree α) → Tree α
+
+mutual
+
+def Tree.map (f : α → β) (x : Tree α): Tree β :=
+  match x with
+    | node x arr₁ => node (f x) $ Tree.map_arr f arr₁
+termination_by structural x
+
+def Tree.map_arr (f : α → β) (x : Array (Tree α)): Array (Tree β) :=
+  match x with
+    | .mk arr₁ => .mk (Tree.map_list f arr₁)
+termination_by structural x
+
+def Tree.map_list (f : α → β) (x : List (Tree α)): List (Tree β) :=
+  match x with
+    | [] => []
+    | h₁::t₁ => (Tree.map f h₁)::Tree.map_list f t₁
+termination_by structural x
+end
+
+end WithArray
+
 namespace FunIndTests
 
 -- FunInd does not handle mutual structural recursion yet, so make sure we error
 -- out nicely
 
 /--
-error: Failed to realize constant A.size.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: Failed to realize constant A.size.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: unknown identifier 'A.size.induct'
+info: A.size.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀ (a : A), motive_1 a → motive_1 a.self)
+  (case2 : ∀ (b : B), motive_2 b → motive_1 (A.other b)) (case3 : motive_1 A.empty)
+  (case4 : ∀ (b : B), motive_2 b → motive_2 b.self) (case5 : ∀ (a : A), motive_1 a → motive_2 (B.other a))
+  (case6 : motive_2 B.empty) (a✝ : A) : motive_1 a✝
 -/
 #guard_msgs in
 #check A.size.induct
 
 /--
-error: Failed to realize constant A.subs.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: Failed to realize constant A.subs.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: unknown identifier 'A.subs.induct'
+info: A.subs.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀ (a : A), motive_1 a → motive_1 a.self)
+  (case2 : ∀ (b : B), motive_2 b → motive_1 (A.other b)) (case3 : motive_1 A.empty)
+  (case4 : ∀ (b : B), motive_2 b → motive_2 b.self) (case5 : ∀ (a : A), motive_1 a → motive_2 (B.other a))
+  (case6 : motive_2 B.empty) (a : A) : motive_1 a
 -/
 #guard_msgs in
 #check A.subs.induct
 
 /--
-error: Failed to realize constant MutualIndNonMutualFun.A.self_size.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: Failed to realize constant MutualIndNonMutualFun.A.self_size.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: unknown identifier 'MutualIndNonMutualFun.A.self_size.induct'
+info: MutualIndNonMutualFun.A.self_size.induct (motive : MutualIndNonMutualFun.A → Prop)
+  (case1 : ∀ (a : MutualIndNonMutualFun.A), motive a → motive a.self)
+  (case2 : ∀ (a : MutualIndNonMutualFun.B), motive (MutualIndNonMutualFun.A.other a))
+  (case3 : motive MutualIndNonMutualFun.A.empty) (a✝ : MutualIndNonMutualFun.A) : motive a✝
 -/
 #guard_msgs in
 #check MutualIndNonMutualFun.A.self_size.induct
 
 /--
-error: Failed to realize constant A.hasNoBEmpty.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: Failed to realize constant A.hasNoBEmpty.induct:
-  functional induction: cannot handle mutual or nested inductives
----
-error: unknown identifier 'A.hasNoBEmpty.induct'
+info: MutualIndNonMutualFun.A.self_size_with_param.induct (motive : Nat → MutualIndNonMutualFun.A → Prop)
+  (case1 : ∀ (n : Nat) (a : MutualIndNonMutualFun.A), motive n a → motive n a.self)
+  (case2 : ∀ (x : Nat) (a : MutualIndNonMutualFun.B), motive x (MutualIndNonMutualFun.A.other a))
+  (case3 : ∀ (x : Nat), motive x MutualIndNonMutualFun.A.empty) (a✝ : Nat) (a✝¹ : MutualIndNonMutualFun.A) :
+  motive a✝ a✝¹
+-/
+#guard_msgs in
+#check MutualIndNonMutualFun.A.self_size_with_param.induct
+
+/--
+info: A.hasNoBEmpty.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀ (a : A), motive_1 a → motive_1 a.self)
+  (case2 : ∀ (b : B), motive_2 b → motive_1 (A.other b)) (case3 : motive_1 A.empty)
+  (case4 : ∀ (b : B), motive_2 b → motive_2 b.self) (case5 : ∀ (a : A), motive_1 a → motive_2 (B.other a))
+  (case6 : motive_2 B.empty) (a✝ : A) : motive_1 a✝
 -/
 #guard_msgs in
 #check A.hasNoBEmpty.induct
 
 /--
-error: Failed to realize constant EvenOdd.isEven.induct:
-  Function EvenOdd.isEven does not look like a function defined by recursion.
-  NB: If EvenOdd.isEven is not itself recursive, but contains an inner recursive function (via `let rec` or `where`), try `EvenOdd.isEven.go` where `go` is name of the inner function.
----
-error: Failed to realize constant EvenOdd.isEven.induct:
-  Function EvenOdd.isEven does not look like a function defined by recursion.
-  NB: If EvenOdd.isEven is not itself recursive, but contains an inner recursive function (via `let rec` or `where`), try `EvenOdd.isEven.go` where `go` is name of the inner function.
----
-error: unknown identifier 'EvenOdd.isEven.induct'
+info: EvenOdd.isEven.induct (motive_1 motive_2 : Nat → Prop) (case1 : motive_1 0)
+  (case2 : ∀ (n : Nat), motive_2 n → motive_1 n.succ) (case3 : motive_2 0)
+  (case4 : ∀ (n : Nat), motive_1 n → motive_2 n.succ) (a✝ : Nat) : motive_1 a✝
 -/
 #guard_msgs in
-#check EvenOdd.isEven.induct -- TODO: This error message can be improved
+#check EvenOdd.isEven.induct
+
+/--
+info: WithTuple.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithTuple.Tree α → Prop)
+  (motive_2 : WithTuple.Tree α × WithTuple.Tree α → Prop)
+  (case1 :
+    ∀ (x : α) (arrs : WithTuple.Tree α × WithTuple.Tree α), motive_2 arrs → motive_1 (WithTuple.Tree.node x arrs))
+  (case2 : ∀ (t₁ t₂ : WithTuple.Tree α), motive_1 t₁ → motive_1 t₂ → motive_2 (t₁, t₂)) (x : WithTuple.Tree α) :
+  motive_1 x
+-/
+#guard_msgs in
+#check WithTuple.Tree.map.induct
+
+/--
+info: WithArray.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithArray.Tree α → Prop)
+  (motive_2 : Array (WithArray.Tree α) → Prop) (motive_3 : List (WithArray.Tree α) → Prop)
+  (case1 : ∀ (x : α) (arr₁ : Array (WithArray.Tree α)), motive_2 arr₁ → motive_1 (WithArray.Tree.node x arr₁))
+  (case2 : ∀ (arr₁ : List (WithArray.Tree α)), motive_3 arr₁ → motive_2 { toList := arr₁ }) (case3 : motive_3 [])
+  (case4 : ∀ (h₁ : WithArray.Tree α) (t₁ : List (WithArray.Tree α)), motive_1 h₁ → motive_3 t₁ → motive_3 (h₁ :: t₁))
+  (x : WithArray.Tree α) : motive_1 x
+-/
+#guard_msgs in
+#check WithArray.Tree.map.induct
 
 end FunIndTests
