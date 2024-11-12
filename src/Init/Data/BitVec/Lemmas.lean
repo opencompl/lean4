@@ -2357,6 +2357,7 @@ theorem udiv_self {x : BitVec w} :
       ↓reduceIte, toNat_udiv]
     rw [Nat.div_self (by omega), Nat.mod_eq_of_lt (by omega)]
 
+
 /-! ### umod -/
 
 theorem umod_def {x y : BitVec n} :
@@ -2459,6 +2460,9 @@ theorem sdiv_self {x : BitVec w} :
     · subst h
       rcases x.msb with msb | msb <;> simp
     · rcases x.msb with msb | msb <;> simp [h]
+
+theorem sdiv_eq_udiv {x y : BitVec w} (hx : x.msb = false) (hy : y.msb = false) : x.sdiv y = x / y := by
+  simp [sdiv_eq, hx, hy]
 
 /-! ### smtSDiv -/
 
@@ -2817,6 +2821,7 @@ theorem udiv_twoPow_eq_of_lt {w : Nat} {x : BitVec w} {k : Nat} (hk : k < w) : x
   have : 2^k < 2^w := Nat.pow_lt_pow_of_lt (by decide) hk
   simp [bv_toNat, Nat.shiftRight_eq_div_pow, Nat.mod_eq_of_lt this]
 
+
 /- ### cons -/
 
 @[simp] theorem true_cons_zero : cons true 0#w = twoPow (w + 1) w := by
@@ -3006,6 +3011,95 @@ theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
   simp only [msb_eq_decide, toNat_intMin, decide_eq_decide]
   by_cases h : 0 < w <;> simp_all
 
+/--
+If `x = 0`, then `-x = 0`, and thus `x.msb = false`.
+Otherwise, if `x = intMin w`, then `-x = intMin w`, and thus `x.msb = true`.
+Otherwise, the `msb`is the negation of the msb of `x`.
+-/
+@[simp]
+theorem msb_neg_eq_decide (x : BitVec w) : (- x).msb = (decide (x ≠ 0) && (!x.msb || (x = intMin w))) := by
+  rcases w with rfl | w
+  · simp [BitVec.eq_nil x]
+  · simp only [Nat.zero_lt_succ, decide_true, Bool.true_and, msb_eq_decide]
+    simp
+    by_cases hx : x = 0#(w + 1)
+    · simp [hx]
+      have : 0 < 2^w := Nat.pow_pos (by decide) 
+      omega
+    · simp [hx]
+      have : 2^w < 2^(w + 1) := Nat.pow_lt_pow_of_lt (by simp) (by simp)
+      by_cases hx' : x.toNat = 2^w
+      · have : x = intMin (w + 1) := by
+          apply eq_of_toNat_eq
+          simp [hx']
+          rw [Nat.mod_eq_of_lt (by omega)]
+        subst this
+        simp
+        rw [Nat.mod_eq_of_lt (by omega)]
+        omega
+      · have : x ≠ intMin (w + 1) := by
+          rw [toNat_ne]
+          simp
+          rw [Nat.mod_eq_of_lt (by omega)]
+          assumption
+        simp [this]
+        by_cases hmsb : 2 ^ w ≤ x.toNat
+        · simp [hmsb]
+          omega
+        · simp [hmsb]
+          omega
+
+
+/--
+If both the numerator and denominator is positive,
+then `(x.sdiv y).toInt` equals computing `x.toInt / y.toInt`.
+-/
+theorem toInt_sdiv_eq_toInt_div_toInt_of_msb_eq_false {x y : BitVec n} (hx : x.msb = false) (hy : y.msb = false) :
+    (x.sdiv y).toInt = x.toInt / y.toInt := by
+ rcases n with rfl | n
+ · simp [eq_nil x, eq_nil y]
+ · have hxLt := msb_eq_false_iff_two_mul_lt.mp hx
+   have hyLt := msb_eq_false_iff_two_mul_lt.mp hy
+   simp [sdiv_eq, hx, hy]
+   rw [toInt_eq_toNat_cond]
+   have xToInt : x.toInt = x.toNat := by simp [toInt_eq_msb_cond, hx]
+   have yToInt : y.toInt = y.toNat := by simp [toInt_eq_msb_cond, hy]
+   simp [xToInt, yToInt]
+   intros h
+   have : x.toNat / y.toNat < 2^n := by
+     apply Nat.lt_of_le_of_lt
+     · apply Nat.div_le_self
+     · omega
+   omega
+
+@[simp, bv_toNat]
+theorem toInt_sdiv {x y : BitVec n} : (x.sdiv y).toInt = x.toInt / y.toInt := by
+ rcases n with rfl | n
+ · simp [eq_nil x, eq_nil y]
+ · by_cases hx : x.msb
+   · sorry
+   · by_cases hy : y.msb
+     · simp at hx hy
+       rw [sdiv_eq]
+       simp [hx, hy]
+       
+     · simp at hx hy
+       apply toInt_sdiv_eq_toInt_div_toInt_of_msb_eq_false <;> assumption
+       
+
+   -- by_cases hxZero : x = 0
+   -- · simp [hxZero]
+   -- · by_cases hyZero : y = 0
+   --   · simp [hyZero]
+   --   · by_cases hxIntMin : x = intMin (n + 1)
+   --     · by_cases hyIntMin : y = intMin (n + 1)
+   --       ·
+   --       · sorry
+   --     · by_cases hyIntMin : y = intMin (n + 1)
+   --       · sorry
+   --       · sorry
+        
+
 /-! ### intMax -/
 
 /-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
@@ -3130,6 +3224,65 @@ theorem getLsbD_abs {i : Nat} {x : BitVec w} :
 theorem getMsbD_abs {i : Nat} {x : BitVec w} :
     getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
   by_cases h : x.msb <;> simp [BitVec.abs, h]
+
+
+/-
+This characterizes signed division as unsigned division of the absolute value,
+followed by an optional negation.
+This is useful to port theorems from `udiv` into `sdiv`.
+-/
+theorem sdiv_eq_udiv_abs {x y : BitVec n} : x.sdiv y =
+    (if x.msb  = y.msb then id else BitVec.neg) (x.abs / y.abs) := by
+  rcases n with rfl | n
+  · simp [eq_nil x, eq_nil y]
+  · rw [sdiv_eq]
+    by_cases hx : x.msb
+    have hxGe := msb_eq_true_iff_two_mul_ge.mp hx
+    · by_cases hy : y.msb
+      · have hyGe := msb_eq_true_iff_two_mul_ge.mp hy
+        simp [hx, hy]
+        apply eq_of_toNat_eq
+        simp [hx, hy]
+        congr
+        · apply Nat.mod_eq_of_lt (by omega)
+        · apply Nat.mod_eq_of_lt (by omega)
+      · simp at hy
+        have hyLt := msb_eq_false_iff_two_mul_lt.mp hy
+        simp [hx, hy]
+        apply eq_of_toNat_eq
+        simp [hx, hy]
+        congr
+        · apply Nat.mod_eq_of_lt (by omega)
+    · simp at hx
+      have hxLt := msb_eq_false_iff_two_mul_lt.mp hx
+      by_cases hy : y.msb
+      · have hyGe := msb_eq_true_iff_two_mul_ge.mp hy
+        simp at hy
+        simp [hx, hy]
+        apply eq_of_toNat_eq
+        simp [hx, hy]
+        congr
+        apply Nat.mod_eq_of_lt (by omega)
+      · simp at hx hy
+        apply eq_of_toNat_eq
+        simp [hx, hy]
+
+
+/--
+The unsigned division of `x` by `2^k` equals shifting `x` right by `k`,
+when `k` is less than the bitwidth `w`.
+-/
+theorem sdiv_twoPow_eq_sshiftRight_of_lt {w : Nat} {x : BitVec w} {k : Nat} (hk : k < w - 1) :
+    x.sdiv (twoPow w k) = x.sshiftRight k := by
+  have : 2^k < 2^w := Nat.pow_lt_pow_of_lt (by decide) (by omega)
+  rw [sdiv_eq_udiv_abs]
+  simp [hk, show k < w by omega]
+  simp [show k ≠ w - 1 by omega]
+  by_cases hx : x.msb
+  · simp [hx]
+    sorry
+  · simp [hx]
+    sorry
 
 /-! ### Decidable quantifiers -/
 
