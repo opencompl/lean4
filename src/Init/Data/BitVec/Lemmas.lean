@@ -2323,6 +2323,27 @@ theorem toNat_udiv {x y : BitVec n} : (x / y).toNat = x.toNat / y.toNat := by
   · rw [toNat_ofNat, Nat.mod_eq_of_lt]
     exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
 
+
+/-- If the LHS and RHS are both positive, then `(x udiv y)` is also positive -/
+theorem msb_udiv_eq_false_of_msb_eq_false {x y : BitVec n} (hx : x.msb = false) (hy : y.msb = false) :
+    (x / y).msb = false := by
+  rw [msb_eq_decide, toNat_udiv]
+  rcases n with rfl | n
+  · simp [@of_length_zero x, @of_length_zero y]
+  · simp
+    have xLt := msb_eq_false_iff_two_mul_lt.mp hx
+    have yLt := msb_eq_false_iff_two_mul_lt.mp hy
+    apply Nat.lt_of_le_of_lt
+    · apply Nat.div_le_self
+    · omega
+
+/-- If the LHS and RHS are both positive, then `(x udiv y).toInt` equals `(x udiv y).toNat` -/
+theorem toInt_udiv_eq_toNat_udiv_of_msb_eq_false {x y : BitVec n} (hx : x.msb = false) (hy : y.msb = false) :
+    (x / y).toInt = (x / y).toNat:= by
+  rw [toInt_eq_msb_cond]
+  have :=  msb_udiv_eq_false_of_msb_eq_false hx hy
+  simp [this]
+
 @[simp]
 theorem zero_udiv {x : BitVec w} : (0#w) / x = 0#w := by
   simp [bv_toNat]
@@ -3072,20 +3093,6 @@ theorem toInt_sdiv_eq_toInt_div_toInt_of_msb_eq_false {x y : BitVec n} (hx : x.m
      · omega
    omega
 
-@[simp, bv_toNat]
-theorem toInt_sdiv {x y : BitVec n} : (x.sdiv y).toInt = x.toInt / y.toInt := by
- rcases n with rfl | n
- · simp [eq_nil x, eq_nil y]
- · by_cases hx : x.msb
-   · sorry
-   · by_cases hy : y.msb
-     · simp at hx hy
-       rw [sdiv_eq]
-       simp [hx, hy]
-
-     · simp at hx hy
-       apply toInt_sdiv_eq_toInt_div_toInt_of_msb_eq_false <;> assumption
-
 
    -- by_cases hxZero : x = 0
    -- · simp [hxZero]
@@ -3226,7 +3233,7 @@ theorem getMsbD_abs {i : Nat} {x : BitVec w} :
   by_cases h : x.msb <;> simp [BitVec.abs, h]
 
 
-/-
+/--
 This characterizes signed division as unsigned division of the absolute value,
 followed by an optional negation.
 This is useful to port theorems from `udiv` into `sdiv`.
