@@ -3024,7 +3024,7 @@ theorem msb_neg_eq_decide (x : BitVec w) : (- x).msb = (decide (x ≠ 0) && (!x.
     simp
     by_cases hx : x = 0#(w + 1)
     · simp [hx]
-      have : 0 < 2^w := Nat.pow_pos (by decide) 
+      have : 0 < 2^w := Nat.pow_pos (by decide)
       omega
     · simp [hx]
       have : 2^w < 2^(w + 1) := Nat.pow_lt_pow_of_lt (by simp) (by simp)
@@ -3082,10 +3082,10 @@ theorem toInt_sdiv {x y : BitVec n} : (x.sdiv y).toInt = x.toInt / y.toInt := by
      · simp at hx hy
        rw [sdiv_eq]
        simp [hx, hy]
-       
+
      · simp at hx hy
        apply toInt_sdiv_eq_toInt_div_toInt_of_msb_eq_false <;> assumption
-       
+
 
    -- by_cases hxZero : x = 0
    -- · simp [hxZero]
@@ -3098,7 +3098,7 @@ theorem toInt_sdiv {x y : BitVec n} : (x.sdiv y).toInt = x.toInt / y.toInt := by
    --     · by_cases hyIntMin : y = intMin (n + 1)
    --       · sorry
    --       · sorry
-        
+
 
 /-! ### intMax -/
 
@@ -3267,22 +3267,20 @@ theorem sdiv_eq_udiv_abs {x y : BitVec n} : x.sdiv y =
         apply eq_of_toNat_eq
         simp [hx, hy]
 
-
-/--
-The unsigned division of `x` by `2^k` equals shifting `x` right by `k`,
-when `k` is less than the bitwidth `w`.
--/
-theorem sdiv_twoPow_eq_sshiftRight_of_lt {w : Nat} {x : BitVec w} {k : Nat} (hk : k < w - 1) :
-    x.sdiv (twoPow w k) = x.sshiftRight k := by
-  have : 2^k < 2^w := Nat.pow_lt_pow_of_lt (by decide) (by omega)
-  rw [sdiv_eq_udiv_abs]
-  simp [hk, show k < w by omega]
-  simp [show k ≠ w - 1 by omega]
-  by_cases hx : x.msb
-  · simp [hx]
-    sorry
-  · simp [hx]
-    sorry
+theorem sdiv_twoPow_eq_sshiftRight_of_lt
+    {w : Nat} {x : BitVec w} {k : Nat} (hk : 0 < k) (hk' : k < w - 1) :
+      x.sdiv (twoPow w k) =
+        if x.msb then (x + twoPow w k - 1).sshiftRight k else x.sshiftRight k := by
+  by_cases hx : x.msb <;> simp at hx <;> simp [hx]
+  · sorry
+  · rw [sshiftRight_eq_of_msb_false (hx)]
+    rw [sdiv_eq_udiv]
+    · apply udiv_twoPow_eq_of_lt
+      simp [show k < w by omega]
+    · assumption
+    · rw [msb_twoPow]
+      simp [show k < w by omega]
+      omega
 
 /-! ### Decidable quantifiers -/
 
