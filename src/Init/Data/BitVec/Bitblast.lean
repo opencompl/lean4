@@ -482,8 +482,7 @@ theorem msb_abs {w : Nat} {x : BitVec w} :
         and_intros
         · by_cases h₃ : x = 0#w
           · simp [h₃] at h₂
-          · simp [h₃]
-        · simp [h₁]
+          · simp [h₃, h₁]
       · simp [h₂]
   · simp [BitVec.msb, show w = 0 by omega]
 
