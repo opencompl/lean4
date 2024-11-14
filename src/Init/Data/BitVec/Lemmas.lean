@@ -3034,8 +3034,6 @@ theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
   simp only [msb_eq_decide, toNat_intMin, decide_eq_decide]
   by_cases h : 0 < w <;> simp_all
 
-theorem toInt_intMin_lt_msb_false
-
 /--
 If `x = 0`, then `-x = 0`, and thus `x.msb = false`.
 Otherwise, if `x = intMin w`, then `-x = intMin w`, and thus `x.msb = true`.
@@ -3096,20 +3094,6 @@ theorem toInt_sdiv_eq_toInt_div_toInt_of_msb_eq_false {x y : BitVec n} (hx : x.m
      · apply Nat.div_le_self
      · omega
    omega
-
-
-   -- by_cases hxZero : x = 0
-   -- · simp [hxZero]
-   -- · by_cases hyZero : y = 0
-   --   · simp [hyZero]
-   --   · by_cases hxIntMin : x = intMin (n + 1)
-   --     · by_cases hyIntMin : y = intMin (n + 1)
-   --       ·
-   --       · sorry
-   --     · by_cases hyIntMin : y = intMin (n + 1)
-   --       · sorry
-   --       · sorry
-
 
 /-! ### intMax -/
 
