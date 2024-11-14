@@ -2952,6 +2952,8 @@ theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
 /-- The bitvector of width `w` that has the smallest value when interpreted as an integer. -/
 def intMin (w : Nat) := twoPow w (w - 1)
 
+theorem intMin_eq (w : Nat) : twoPow w (w - 1) = intMin w := by rfl
+
 theorem getLsbD_intMin (w : Nat) : (intMin w).getLsbD i = decide (i + 1 = w) := by
   simp only [intMin, getLsbD_twoPow, boolToPropSimps]
   omega
@@ -3031,6 +3033,8 @@ theorem toInt_neg_of_ne_intMin {x : BitVec w} (rs : x ≠ intMin w) :
 theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
   simp only [msb_eq_decide, toNat_intMin, decide_eq_decide]
   by_cases h : 0 < w <;> simp_all
+
+theorem toInt_intMin_lt_msb_false
 
 /--
 If `x = 0`, then `-x = 0`, and thus `x.msb = false`.
@@ -3232,8 +3236,7 @@ theorem getMsbD_abs {i : Nat} {x : BitVec w} :
     getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
   by_cases h : x.msb <;> simp [BitVec.abs, h]
 
-
-/--
+/-
 This characterizes signed division as unsigned division of the absolute value,
 followed by an optional negation.
 This is useful to port theorems from `udiv` into `sdiv`.
@@ -3274,20 +3277,91 @@ theorem sdiv_eq_udiv_abs {x y : BitVec n} : x.sdiv y =
         apply eq_of_toNat_eq
         simp [hx, hy]
 
+
+theorem neq_zero_of_msb_eq_true (x : BitVec w) (hx : x.msb = true) : x ≠ 0 := by
+  have := msb_eq_true_iff_two_mul_ge.mp hx
+  rcases w with rfl | w
+  · simp at this
+    rw [@BitVec.of_length_zero x] at hx
+    simp at hx
+  · have : x.toNat ≥ 2^w := by omega
+    have : 0 < 2^w := by exact Nat.two_pow_pos w
+    apply toNat_ne.mpr
+    simp
+    omega
+
+/--
+The value of in`intMin` of width `w + 1` is equal to `2^w`.
+This avoids the corner case when `w = 0`, where the `toNat` value is itself `0`.
+-/
+theorem toNat_intMin_of_lt (w : Nat) : (intMin (w + 1)).toNat = 2^w := by
+  simp
+  apply Nat.mod_eq_of_lt
+  apply Nat.pow_lt_pow_of_lt (by decide) (by omega)
+
+
+theorem BitVec.udiv_eq_zero_of_lt (x y : BitVec w) (h : x.toNat < y.toNat ) : x / y =  0#w := by
+  apply eq_of_toNat_eq
+  simp
+  exact Nat.div_eq_of_lt h
+
+theorem sdiv_twoPow_eq_neg {w : Nat} {x : BitVec w} : x.sdiv (twoPow w (w - 1)) =
+if x = twoPow w (w - 1) then 1 else 0 := by
+  rcases w with rfl | w
+  · simp
+    apply of_length_zero
+  · by_cases hx : x = (twoPow (w + 1) (w + 1 - 1))
+    · rw [hx, intMin_eq]
+      simp
+      intro h
+      have : (intMin (w + 1)).msb = (BitVec.ofNat (w + 1) 0).msb := by simp [h]
+      simp [msb_intMin] at this
+    · rw [intMin_eq] at hx
+      rw [intMin_eq]
+      simp [hx]
+      by_cases hx' : x.msb <;> rw [sdiv_eq] <;> simp [hx', msb_intMin]
+      · have hxMsbNeg : (-x).msb = false := by
+          simp [msb_neg_eq_decide x]
+          intros h
+          simp [hx', hx]
+        have := msb_eq_false_iff_two_mul_lt.mp hxMsbNeg
+        apply BitVec.udiv_eq_zero_of_lt
+        simp only [toNat_intMin_of_lt]
+        omega
+      · apply BitVec.udiv_eq_zero_of_lt
+        simp only [toNat_intMin_of_lt]
+        simp at hx'
+        have := msb_eq_false_iff_two_mul_lt.mp hx'
+        omega
+
 theorem sdiv_twoPow_eq_sshiftRight_of_lt
-    {w : Nat} {x : BitVec w} {k : Nat} (hk : 0 < k) (hk' : k < w - 1) :
+    {w : Nat} {x : BitVec w} {k : Nat} (hk : k < w - 1) :
       x.sdiv (twoPow w k) =
-        if x.msb then (x + twoPow w k - 1).sshiftRight k else x.sshiftRight k := by
+        if x.msb then -(-x) >>> k else x >>> k := by
   by_cases hx : x.msb <;> simp at hx <;> simp [hx]
-  · sorry
-  · rw [sshiftRight_eq_of_msb_false (hx)]
-    rw [sdiv_eq_udiv]
+  · simp [sdiv_eq, hx, show (k < w) by omega, show (k ≠ w - 1) by omega]
+    rw [udiv_twoPow_eq_of_lt]
+    omega
+  · rw [sdiv_eq_udiv]
     · apply udiv_twoPow_eq_of_lt
       simp [show k < w by omega]
     · assumption
     · rw [msb_twoPow]
       simp [show k < w by omega]
       omega
+
+theorem sdiv_twoPow_eq
+  {w : Nat} {x : BitVec w} {k : Nat} (hk : k < w) :
+    x.sdiv (twoPow w k) =
+      if k = w - 1 then (if x = twoPow w (w - 1) then 1 else 0)
+      else (if x.msb then -(-x) >>> k else x >>> k) := by
+  by_cases hk : k = w - 1
+  · simp [hk]
+    apply sdiv_twoPow_eq_neg
+  · have hk' : k < w - 1 := by omega
+    simp [hk]
+    apply sdiv_twoPow_eq_sshiftRight_of_lt
+    assumption
 
 /-! ### Decidable quantifiers -/
 
