@@ -267,7 +267,11 @@ theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b'
 
 @[simp] theorem getLsbD_ofNatLt {n : Nat} (x : Nat) (lt : x < 2^n) (i : Nat) :
   getLsbD (x#'lt) i = x.testBit i := by
-  simp [getLsbD, BitVec.ofNatLt]
+  simp [getLsbD]
+
+@[simp] theorem getMsbD_ofNatLt {n : Nat} (x : Nat) (lt : x < 2^n) (i : Nat) :
+    getMsbD (x#'lt) i = (decide (i < n) && x.testBit (n - 1 - i)) := by
+  simp [getMsbD, getLsbD]
 
 @[simp, bv_toNat] theorem toNat_ofNat (x w : Nat) : (BitVec.ofNat w x).toNat = x % 2^w := by
   simp [BitVec.toNat, BitVec.ofNat, Fin.ofNat']
@@ -753,7 +757,11 @@ theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h 
   simp
 
 @[simp] theorem getLsbD_allOnes : (allOnes v).getLsbD i = decide (i < v) := by
+  simp only [allOnes, getLsbD_ofNatLt, Nat.testBit_two_pow_sub_one]
+
+@[simp] theorem getMsbD_allOnes : (allOnes v).getMsbD i = decide (i < v) := by
   simp [allOnes]
+  omega
 
 @[simp] theorem getElem_allOnes (i : Nat) (h : i < v) : (allOnes v)[i] = true := by
   simp [getElem_eq_testBit_toNat, h]
@@ -1005,6 +1013,10 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   omega
 
 @[simp] theorem getLsbD_not {x : BitVec v} : (~~~x).getLsbD i = (decide (i < v) && ! x.getLsbD i) := by
+  by_cases h' : i < v <;> simp_all [not_def]
+
+@[simp] theorem getMsbD_not {x : BitVec v} :
+    (~~~x).getMsbD i = (decide (i < v) && ! x.getMsbD i) := by
   by_cases h' : i < v <;> simp_all [not_def]
 
 @[simp] theorem getElem_not {x : BitVec w} {i : Nat} (h : i < w) : (~~~x)[i] = !x[i] := by
