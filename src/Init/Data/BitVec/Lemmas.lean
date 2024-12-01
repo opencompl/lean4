@@ -1741,6 +1741,29 @@ theorem getElem_sshiftRight {x : BitVec w} {s i : Nat} (h : i < w) :
     apply BitVec.lt_of_getLsbD hlsb
   · simp [sshiftRight_eq_of_msb_true hmsb]
 
+
+#eval ((14#4).sshiftRight 0).toInt
+#eval ((14#4).toInt >>> 0)
+
+#check Int.bmod_lt
+#check Int.bmod
+#check Int.mod_eq_of_lt
+
+#eval ((7#4).toInt).bmod 16
+#eval (9#4).toInt >>>1
+
+
+
+@[simp]
+theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
+    (x.sshiftRight n).toInt = x.toInt >>> n := by
+    simp only [BitVec.sshiftRight, toInt_ofInt]
+    rw [Int.bmod_eq_of_lt]
+    rw [Int.emod_eq_of_lt]
+    norm_cast
+    rw [Nat.mod_eq_of_lt]
+    sorry
+
 theorem sshiftRight_xor_distrib (x y : BitVec w) (n : Nat) :
     (x ^^^ y).sshiftRight n = (x.sshiftRight n) ^^^ (y.sshiftRight n) := by
   ext i
