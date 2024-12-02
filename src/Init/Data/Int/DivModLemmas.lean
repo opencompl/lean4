@@ -550,22 +550,22 @@ theorem emod_eq_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a % b = a :=
   match a, b, eq_ofNat_of_zero_le H1, eq_ofNat_of_zero_le b0 with
   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => congrArg ofNat <| Nat.mod_eq_of_lt (Int.ofNat_lt.1 H2)
 
-#check Int.ediv_eq_zero_of_lt
-#eval (-3)/10
-#eval (-3)%10
+-- #check Int.ediv_eq_zero_of_lt
+-- #eval (-3)/10
+-- #eval (-3)%10
 
-theorem emod_eq_of_gt_lt {a b : Int} (H1 : -b < a) (H2 : a < b) : a % b = a := by
-  rw [Int.emod_def]
-  have : a/b = 0 := by
-    simp [Int.ediv_]
-  rw [natAbs_eq_zero] at this
-  simp [this]
-
-
+-- theorem emod_eq_of_gt_lt {a b : Int} (H1 : -b < a) (H2 : a < b) : a % b = a := by
+--   rw [Int.emod_def]
+--   have : a/b = 0 := by
+--     simp [Int.ediv_]
+--   rw [natAbs_eq_zero] at this
+--   simp [this]
 
 
-  match a, b, eq_ofNat_of_zero_le H1, eq_ofNat_of_zero_le b0 with
-  | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => congrArg ofNat <| Nat.mod_eq_of_lt (Int.ofNat_lt.1 H2)
+
+
+  -- match a, b, eq_ofNat_of_zero_le H1, eq_ofNat_of_zero_le b0 with
+  -- | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => congrArg ofNat <| Nat.mod_eq_of_lt (Int.ofNat_lt.1 H2)
 
 @[simp] theorem emod_self_add_one {x : Int} (h : 0 ≤ x) : x % (x + 1) = x :=
   emod_eq_of_lt h (Int.lt_succ x)

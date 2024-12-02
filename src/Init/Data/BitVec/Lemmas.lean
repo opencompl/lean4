@@ -1742,27 +1742,35 @@ theorem getElem_sshiftRight {x : BitVec w} {s i : Nat} (h : i < w) :
   · simp [sshiftRight_eq_of_msb_true hmsb]
 
 
-#eval ((14#4).sshiftRight 0).toInt
-#eval ((14#4).toInt >>> 0)
+#eval ((6#4).sshiftRight 4).toInt
+#eval ((6#4).toInt >>> 4)
+
+
+
 
 #check Int.bmod_lt
 #check Int.bmod
 #check Int.mod_eq_of_lt
 
-#eval ((7#4).toInt).bmod 16
+#eval ((9#4).toInt).bmod 16
 #eval (9#4).toInt >>>1
-
-
+#eval (-4) % 16
+#check Int.bmod_lt
 
 @[simp]
 theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
     (x.sshiftRight n).toInt = x.toInt >>> n := by
-    simp only [BitVec.sshiftRight, toInt_ofInt]
-    rw [Int.bmod_eq_of_lt]
-    rw [Int.emod_eq_of_lt]
-    norm_cast
-    rw [Nat.mod_eq_of_lt]
-    sorry
+    simp only [BitVec.sshiftRight, toInt_ofInt, Int.bmod]
+    split
+    · rw [← Int.bmod_eq_of_lt, ← show (x >>> n).toInt = x.toInt >>> n by rfl]
+      rw [toInt_eq_toNat_bmod, Int.bmod_bmod]
+      assumption
+    · sorry
+    -- rw [Int.bmod_eq_of_lt]
+    -- rw [Int.emod_eq_of_lt]
+    -- norm_cast
+    -- rw [Nat.mod_eq_of_lt]
+    -- sorry
 
 theorem sshiftRight_xor_distrib (x y : BitVec w) (n : Nat) :
     (x ^^^ y).sshiftRight n = (x.sshiftRight n) ^^^ (y.sshiftRight n) := by
