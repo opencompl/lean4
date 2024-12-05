@@ -1762,20 +1762,17 @@ theorem append_def (x : BitVec v) (y : BitVec w) :
 /-- Helper theorem to show that the expression in `(x ++ y).toFin` is inbounds. -/
 theorem toNat_append_lt {m n : Nat} (x : BitVec m) (y : BitVec n) :
     x.toNat <<< n ||| y.toNat < 2 ^ (m + n) := by
-  have hm : 0 < 2^m := by exact Nat.two_pow_pos m
-  have hn : 0 < 2^n := by exact Nat.two_pow_pos n
-
   have hnLe : 2^n ≤ 2 ^(m + n) := by
     rw [Nat.pow_add]
-    exact Nat.le_mul_of_pos_left (2 ^ n) hm
+    exact Nat.le_mul_of_pos_left (2 ^ n) (Nat.two_pow_pos m)
   apply Nat.or_lt_two_pow
-  · rw [Nat.shiftLeft_eq, Nat.pow_add]
-    rw [Nat.mul_lt_mul_right] <;> omega
+  · have := Nat.two_pow_pos n
+    rw [Nat.shiftLeft_eq, Nat.pow_add, Nat.mul_lt_mul_right]
+    <;> omega
   · omega
 
-@[simp] theorem toFin_append (x : BitVec m) (y : BitVec n)
-    (h : x.toNat <<< n ||| y.toNat < 2 ^ (m + n) := toNat_append_lt x y) :
-    (x ++ y).toFin = @Fin.mk (2^(m+n)) (x.toNat <<< n ||| y.toNat) h  := by
+@[simp] theorem toFin_append (x : BitVec m) (y : BitVec n) :
+    (x ++ y).toFin = @Fin.mk (2^(m+n)) (x.toNat <<< n ||| y.toNat) (toNat_append_lt x y) := by
   ext
   simp
 
