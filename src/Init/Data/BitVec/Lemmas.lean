@@ -1759,35 +1759,23 @@ theorem append_def (x : BitVec v) (y : BitVec w) :
     (x ++ y).toNat = x.toNat <<< n ||| y.toNat :=
   rfl
 
-@[simp] theorem toFin_append (x : BitVec m) (y : BitVec n) :
-    (x ++ y).toFin = @Fin.mk (2^(m+n)) (x.toNat <<< n ||| y.toNat) (by
-      have := BitVec.isLt y
-      rw [Nat.shiftLeft_eq]
-      by_cases m0 : m = 0
-      · subst m0
-        have := BitVec.isLt x
-        simp_all
-      · by_cases x0 : x = 0
-        · subst x0
-          rw [Nat.pow_add]
-          have aa := @Nat.mul_lt_mul_of_le_of_lt y.toNat (2^n) 1 (2^m) (by omega) (by apply Nat.one_lt_two_pow (by omega)) (by omega)
-          simp only [Nat.mul_one] at aa
-          simp only [ofNat_eq_ofNat, toNat_ofNat, Nat.zero_mod, Nat.zero_mul, Nat.zero_or,
-            gt_iff_lt]
-          rw [Nat.mul_comm]
-          apply aa
-        · simp_all
-          have := @Nat.or_lt_two_pow (x.toNat * 2 ^ n) y.toNat (m+n) (by
-            simp [Nat.pow_add, Nat.two_pow_pos n, BitVec.isLt x]
-          ) (by
-            rw [Nat.pow_add, Nat.mul_comm]
-            have aa :=
-            @Nat.mul_lt_mul_of_le_of_lt y.toNat (2^n) 1 (2^m) (by omega) (Nat.one_lt_two_pow (by omega)) (by omega)
-            rw [Nat.mul_one] at aa
-            apply aa
-          )
-          apply this
-    ) := by
+/-- Helper theorem to show that the expression in `(x ++ y).toFin` is inbounds. -/
+theorem toNat_append_lt {m n : Nat} (x : BitVec m) (y : BitVec n) :
+    x.toNat <<< n ||| y.toNat < 2 ^ (m + n) := by
+  have hm : 0 < 2^m := by exact Nat.two_pow_pos m
+  have hn : 0 < 2^n := by exact Nat.two_pow_pos n
+
+  have hnLe : 2^n ≤ 2 ^(m + n) := by
+    rw [Nat.pow_add]
+    exact Nat.le_mul_of_pos_left (2 ^ n) hm
+  apply Nat.or_lt_two_pow
+  · rw [Nat.shiftLeft_eq, Nat.pow_add]
+    rw [Nat.mul_lt_mul_right] <;> omega
+  · omega
+
+@[simp] theorem toFin_append (x : BitVec m) (y : BitVec n)
+    (h : x.toNat <<< n ||| y.toNat < 2 ^ (m + n) := toNat_append_lt x y) :
+    (x ++ y).toFin = @Fin.mk (2^(m+n)) (x.toNat <<< n ||| y.toNat) h  := by
   ext
   simp
 
