@@ -1759,6 +1759,55 @@ theorem append_def (x : BitVec v) (y : BitVec w) :
     (x ++ y).toNat = x.toNat <<< n ||| y.toNat :=
   rfl
 
+@[simp] theorem toFin_append (x : BitVec m) (y : BitVec n) :
+    (x ++ y).toFin = @Fin.mk (2^(m+n)) (x.toNat <<< n ||| y.toNat) (by
+      have := BitVec.isLt x
+      have := BitVec.isLt y
+      rw [Nat.shiftLeft_eq]
+      by_cases m0 : m = 0
+      · subst m0
+        simp_all
+      · by_cases x0 : x = 0
+        · subst x0
+          simp_all
+          rw [Nat.pow_add]
+          have ax := Nat.two_pow_pos n
+          have bx := Nat.two_pow_pos m
+          simp_all
+          have aa := @Nat.mul_lt_mul_of_le_of_lt y.toNat (2^n) 1 (2^m) (by
+            omega
+          ) (by
+            have mpos : 0 < m := by omega
+            have := @Nat.one_lt_two_pow m (by omega)
+            omega
+          ) (by omega)
+          simp at aa
+          rw [Nat.mul_comm]
+          apply aa
+        · simp_all
+          have := @Nat.or_lt_two_pow (x.toNat * 2 ^ n) y.toNat (m+n) (by
+            simp only [Nat.pow_add, Nat.two_pow_pos n, Nat.mul_lt_mul_right, BitVec.isLt x]
+          ) (by
+            have ax := Nat.two_pow_pos n
+            have bx := Nat.two_pow_pos m
+            simp_all
+            simp_all [Nat.pow_add, Nat.two_pow_pos n, BitVec.isLt x]
+            have aa := @Nat.mul_lt_mul_of_le_of_lt y.toNat (2^n) 1 (2^m) (by
+              omega
+            ) (by
+              have mpos : 0 < m := by omega
+              have := @Nat.one_lt_two_pow m (by omega)
+              omega
+            ) (by omega)
+            simp at aa
+            rw [Nat.mul_comm]
+            apply aa
+          )
+          apply this
+    )  := by
+  ext
+  simp
+
 theorem getLsbD_append {x : BitVec n} {y : BitVec m} :
     getLsbD (x ++ y) i = bif i < m then getLsbD y i else getLsbD x (i - m) := by
   simp only [append_def, getLsbD_or, getLsbD_shiftLeftZeroExtend, getLsbD_setWidth']
