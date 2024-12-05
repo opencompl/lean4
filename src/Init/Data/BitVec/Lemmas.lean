@@ -1771,7 +1771,7 @@ theorem toNat_append_lt {m n : Nat} (x : BitVec m) (y : BitVec n) :
     <;> omega
   · omega
 
-@[simp] theorem toFin_append (x : BitVec m) (y : BitVec n) :
+@[simp] theorem toFin_append {x : BitVec m} {y : BitVec n} :
     (x ++ y).toFin = @Fin.mk (2^(m+n)) (x.toNat <<< n ||| y.toNat) (toNat_append_lt x y) := by
   ext
   simp
