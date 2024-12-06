@@ -3559,6 +3559,25 @@ instance instDecidableExistsBitVec :
     have := instDecidableExistsBitVec n
     inferInstance
 
+/-! ## fill -/
+
+@[simp] theorem fill_false : fill w false = 0#w := rfl
+@[simp] theorem fill_true  : fill w true = -1#w := rfl
+
+theorem toNat_fill (w : Nat) (b : Bool) :
+    (BitVec.fill w b).toNat = b.toNat * (2^w - 1) := by
+  cases w
+  case zero => simp [BitVec.of_length_zero]
+  case succ w =>
+    cases b
+    · simp
+    · simp only [fill_true, toNat_neg, toNat_ofNat, Bool.toNat_true, Nat.one_mul]
+      have h₁ : 1 < 2 ^ (w + 1) := by
+        have := Nat.two_pow_pos w
+        omega
+      rw [Nat.mod_eq_of_lt h₁, Nat.mod_eq_of_lt (by omega)]
+
+
 /-! ### Deprecations -/
 
 set_option linter.missingDocs false
