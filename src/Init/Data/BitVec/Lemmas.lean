@@ -1858,6 +1858,18 @@ def test : Bool := Id.run do
             return false
   return true
 
+private theorem Nat.lt_mul_of_le_of_lt_of_lt {a b c : Nat} (hab : a ≤ b) (ha : 0 < a) (hc : 1 < c) :
+    a < b * c := by
+  have : a * 1 < b * c := Nat.mul_lt_mul_of_le_of_lt' (by omega) (by simp [hc]) (by omega)
+  simp at this
+  simp [this]
+
+private theorem Nat.two_pow_lt_two_pow_add {n m : Nat} (h : m ≠ 0) :
+    2 ^ n < 2 ^ (n + m) := by
+  rw [Nat.pow_add]
+  have : 0 < 2 ^ n := Nat.pow_pos (by omega)
+  apply Nat.lt_mul_of_le_of_lt_of_lt (by omega) (by omega) (by simp [h])
+
 @[simp] theorem toInt_append {x : BitVec n} {y : BitVec m} :
     (x ++ y).toInt = if n == 0 then y.toInt else x.toInt * (2 ^ m) + y.toNat := by
   by_cases n0 : n = 0
@@ -1870,14 +1882,7 @@ def test : Bool := Id.run do
       by_cases y0 : y = 0
       ·
         have xlt := BitVec.isLt x
-        have hh : 2 ^ n < 2 ^ (n + m) := by
-          rw [Nat.pow_add]
-          have := @Nat.pow_pos 2 m (by omega)
-          have := @Nat.pow_pos 2 n (by omega)
-          have := @Nat.mul_lt_mul_of_le_of_lt' (2^n) (2^n) 1 (2^m) (by omega) (by simp [*]) (by omega)
-          simp at this
-          simp [this]
-
+        have hh : 2 ^ n < 2 ^ (n + m) := Nat.two_pow_lt_two_pow_add m0
         have h3 : x.toNat <<< m % 2 ^ (n + m) = x.toNat <<< m := sorry
         have h2 : x.toNat % 2 ^ (n + m) = x.toNat := by
           rw [Nat.mod_eq_of_lt]
