@@ -1868,23 +1868,24 @@ private theorem Nat.two_pow_lt_two_pow_add {n m : Nat} (h : m ≠ 0) :
     2 ^ n < 2 ^ (n + m) := by
   apply Nat.pow_lt_pow_of_lt (by omega) (by omega)
 
+@[simp] theorem signExtend_shiftLeft_of_lt {n m : Nat} {x : BitVec n} :
+    (signExtend (n + m) x <<< m).msb = x.msb := by
+  sorry
+
 @[simp] theorem toInt_append_zero {n m : Nat} {x : BitVec n} :
     (x ++ 0#m).toInt = x.toInt * (2 ^ m) := by
   by_cases m0 : m = 0
   · subst m0
     simp
-  ·
-    simp only [ofNat_eq_ofNat, append_zero]
-    rw [toInt_eq_msb_cond]
-    rw [toInt_eq_msb_cond]
-    split
-    <;> split
-
-    simp
-
-
-
-
+  · simp only [ofNat_eq_ofNat, append_zero, toInt_eq_msb_cond]
+    by_cases h1 : (signExtend (n + m) x <<< m).msb
+    · by_cases h2: x.msb
+      · sorry
+      · simp only [signExtend_shiftLeft_of_lt] at h1
+        contradiction
+    · by_cases h2: x.msb
+      · simp [signExtend_shiftLeft_of_lt, h2] at h1
+      · sorry
 
 @[simp] theorem toInt_append {x : BitVec n} {y : BitVec m} :
     (x ++ y).toInt = if n == 0 then y.toInt else x.toInt * (2 ^ m) + y.toNat := by
