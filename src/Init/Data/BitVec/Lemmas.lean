@@ -1831,8 +1831,8 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   ext
   simp only [getLsbD_append, getLsbD_zero, Bool.cond_self]
 
-@[simp] theorem append_zero {n m : Nat} {x : BitVec n} :
-    x ++ 0#m = x.setWidth (n + m) <<< m := by
+theorem append_zero {n m : Nat} {x : BitVec n} :
+    x ++ 0#m = x.signExtend (n + m) <<< m := by
   induction m
   case zero =>
     simp
@@ -1866,9 +1866,25 @@ private theorem Nat.lt_mul_of_le_of_lt_of_lt {a b c : Nat} (hab : a ≤ b) (ha :
 
 private theorem Nat.two_pow_lt_two_pow_add {n m : Nat} (h : m ≠ 0) :
     2 ^ n < 2 ^ (n + m) := by
-  rw [Nat.pow_add]
-  have : 0 < 2 ^ n := Nat.pow_pos (by omega)
-  apply Nat.lt_mul_of_le_of_lt_of_lt (by omega) (by omega) (by simp [h])
+  apply Nat.pow_lt_pow_of_lt (by omega) (by omega)
+
+@[simp] theorem toInt_append_zero {n m : Nat} {x : BitVec n} :
+    (x ++ 0#m).toInt = x.toInt * (2 ^ m) := by
+  by_cases m0 : m = 0
+  · subst m0
+    simp
+  ·
+    simp only [ofNat_eq_ofNat, append_zero]
+    rw [toInt_eq_msb_cond]
+    rw [toInt_eq_msb_cond]
+    split
+    <;> split
+
+    simp
+
+
+
+
 
 @[simp] theorem toInt_append {x : BitVec n} {y : BitVec m} :
     (x ++ y).toInt = if n == 0 then y.toInt else x.toInt * (2 ^ m) + y.toNat := by
@@ -1894,7 +1910,6 @@ private theorem Nat.two_pow_lt_two_pow_add {n m : Nat} (h : m ≠ 0) :
           omega
 
 
-        sorry
         simp only [y0]
         simp only [ofNat_eq_ofNat, append_zero]
         rw [toInt_eq_toNat_cond]
