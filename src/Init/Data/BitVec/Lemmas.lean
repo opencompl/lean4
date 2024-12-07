@@ -520,6 +520,9 @@ theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
 theorem toInt_zero {w : Nat} : (0#w).toInt = 0 := by
   simp [BitVec.toInt, show 0 < 2^w by exact Nat.two_pow_pos w]
 
+@[simp] theorem toInt_cast (h : w = v) (x : BitVec w) : (cast h x).toInt = x.toInt := by
+  simp [toInt_eq_toNat_bmod, h]
+
 /-! ### slt -/
 
 /--
@@ -1822,6 +1825,33 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 @[simp] theorem zero_append_zero : 0#v ++ 0#w = 0#(v + w) := by
   ext
   simp only [getLsbD_append, getLsbD_zero, Bool.cond_self]
+
+def lhs (x : BitVec n) (y : BitVec m) : Int := (x++y).toInt
+def rhs (x : BitVec n) (y : BitVec m) : Int := if n == 0 then y.toInt else (x.toInt * (2^m)) + y.toNat
+
+def eq (x: BitVec n) (y: BitVec m) : Bool := (lhs x y) = (rhs x y)
+
+
+#eval (-5#10 ++ 3#2).toInt
+
+def test : Bool := Id.run do
+  for i in [0, 1, 2, 3, 4, 5, 6, 7, 8] do
+    for j in [0, 1, 2, 3, 4, 5, 6, 7, 8] do
+      for n in [0, 1, 2, 3, 4] do
+        for m in [0, 1, 2, 3, 4] do
+          let x := BitVec.ofNat n i
+          let y := BitVec.ofNat m j
+          if (!eq x y) then
+            return false
+  return true
+
+@[simp] theorem toInt_append {x : BitVec n} {y : BitVec m} :
+    (x ++ y).toInt = if n == 0 then y.toInt else x.toInt * (2 ^ m) + y.toNat := by
+  by_cases n0 : n = 0
+  · subst n0
+    simp [BitVec.eq_nil x]
+  · simp [n0]
+    sorry
 
 @[simp] theorem cast_append_right (h : w + v = w + v') (x : BitVec w) (y : BitVec v) :
     cast h (x ++ y) = x ++ cast (by omega) y := by
