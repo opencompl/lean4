@@ -1863,28 +1863,75 @@ def test : Bool := Id.run do
   by_cases n0 : n = 0
   · subst n0
     simp [BitVec.eq_nil x]
-  · simp [n0]
-    by_cases y0 : y = 0
-    ·
-      have xlt := BitVec.isLt x
-      have hh : 2 ^ n < 2 ^ (n + m) := sorry
-      have h2 : x.toNat <<< m % 2 ^ (n + m) = x.toNat <<< m := sorry
-      simp only [y0]
-      simp only [ofNat_eq_ofNat, append_zero]
-      rw [toInt_eq_toNat_cond]
-      rw [toInt_eq_toNat_cond]
-      split
-      <;> split
-      <;> norm_cast
-      <;> simp
-      <;> rw [Nat.mod_eq_of_lt (a := x.toNat) (by omega)]
-      <;> norm_cast
-      <;> simp [h2]
-      rw [Nat.shiftLeft_eq]
-      <;> simp_all
+  · by_cases m0 : m = 0
+    · subst m0
+      simp [BitVec.eq_nil y, n0]
+    · simp [m0]
+      by_cases y0 : y = 0
+      ·
+        have xlt := BitVec.isLt x
+        have hh : 2 ^ n < 2 ^ (n + m) := by
+          rw [Nat.pow_add]
+          have := @Nat.pow_pos 2 m (by omega)
+          have := @Nat.pow_pos 2 n (by omega)
+          have := @Nat.mul_lt_mul_of_le_of_lt' (2^n) (2^n) 1 (2^m) (by omega) (by simp [*]) (by omega)
+          simp at this
+          simp [this]
+
+        have h3 : x.toNat <<< m % 2 ^ (n + m) = x.toNat <<< m := sorry
+        have h2 : x.toNat % 2 ^ (n + m) = x.toNat := by
+          rw [Nat.mod_eq_of_lt]
+          rw [Nat.pow_add]
+          have := @Nat.pow_pos 2 m (by omega)
+          simp_all
+          rw [Nat.mul_lt_mul_of_lt_of_lt]
+
+          omega
+
+
+        sorry
+        simp only [y0]
+        simp only [ofNat_eq_ofNat, append_zero]
+        rw [toInt_eq_toNat_cond]
+        rw [toInt_eq_toNat_cond]
+        split
+        ·
+          split
+          <;> norm_cast
+          <;> simp
+          <;> rw [Nat.mod_eq_of_lt (a := x.toNat) (by omega)]
+          <;> norm_cast
+          <;> simp [h3]
+          <;> simp_all
+          · rw [Nat.shiftLeft_eq]
+          · rename_i aa bb
+            rw [Nat.shiftLeft_eq] at aa
+            rw [Nat.pow_add] at aa
+            rw [← Nat.mul_assoc] at aa
+
+            sorry
+        ·
+          split
+          <;> norm_cast
+          <;> simp
+          <;> rw [Nat.mod_eq_of_lt (a := x.toNat) (by omega)]
+          <;> norm_cast
+          <;> simp [h3]
+          <;> simp_all
+          · rename_i aa bb
+            rw [Nat.shiftLeft_eq] at aa
+            rw [Nat.pow_add] at aa
+            rw [← Nat.mul_assoc] at aa
+
+
+
+
+            simp_all
+
+
+            sorry
+          · simp [Nat.shiftLeft_eq, Int.sub_mul, Nat.pow_add]
       · sorry
-      · sorry
-      · simp [Nat.shiftLeft_eq, Int.sub_mul, Nat.pow_add]
 
 @[simp] theorem cast_append_right (h : w + v = w + v') (x : BitVec w) (y : BitVec v) :
     cast h (x ++ y) = x ++ cast (by omega) y := by
