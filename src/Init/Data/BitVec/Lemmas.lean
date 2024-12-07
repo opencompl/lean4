@@ -1127,6 +1127,11 @@ theorem not_eq_comm {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by
     BitVec.toNat (x <<< n) = BitVec.toNat x <<< n % 2^v :=
   BitVec.toNat_ofNat _ _
 
+@[simp] theorem toInt_shiftLeft {n : Nat} {x : BitVec v} :
+    BitVec.toInt (x <<< n) = Int.bmod (BitVec.toInt x * 2^n) (2^v) := by
+  simp [toInt_eq_toNat_bmod, Nat.shiftLeft_eq]
+  norm_cast
+
 @[simp] theorem toFin_shiftLeft {n : Nat} (x : BitVec w) :
     BitVec.toFin (x <<< n) = Fin.ofNat' (2^w) (x.toNat <<< n) := rfl
 
@@ -1826,6 +1831,14 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   ext
   simp only [getLsbD_append, getLsbD_zero, Bool.cond_self]
 
+@[simp] theorem append_zero {n m : Nat} {x : BitVec n} :
+    x ++ 0#m = x.setWidth (n + m) <<< m := by
+  induction m
+  case zero =>
+    simp
+  case succ i ih =>
+    sorry
+
 def lhs (x : BitVec n) (y : BitVec m) : Int := (x++y).toInt
 def rhs (x : BitVec n) (y : BitVec m) : Int := if n == 0 then y.toInt else (x.toInt * (2^m)) + y.toNat
 
@@ -1851,7 +1864,27 @@ def test : Bool := Id.run do
   · subst n0
     simp [BitVec.eq_nil x]
   · simp [n0]
-    sorry
+    by_cases y0 : y = 0
+    ·
+      have xlt := BitVec.isLt x
+      have hh : 2 ^ n < 2 ^ (n + m) := sorry
+      have h2 : x.toNat <<< m % 2 ^ (n + m) = x.toNat <<< m := sorry
+      simp only [y0]
+      simp only [ofNat_eq_ofNat, append_zero]
+      rw [toInt_eq_toNat_cond]
+      rw [toInt_eq_toNat_cond]
+      split
+      <;> split
+      <;> norm_cast
+      <;> simp
+      <;> rw [Nat.mod_eq_of_lt (a := x.toNat) (by omega)]
+      <;> norm_cast
+      <;> simp [h2]
+      rw [Nat.shiftLeft_eq]
+      <;> simp_all
+      · sorry
+      · sorry
+      · simp [Nat.shiftLeft_eq, Int.sub_mul, Nat.pow_add]
 
 @[simp] theorem cast_append_right (h : w + v = w + v') (x : BitVec w) (y : BitVec v) :
     cast h (x ++ y) = x ++ cast (by omega) y := by
