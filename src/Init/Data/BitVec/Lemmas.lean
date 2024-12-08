@@ -582,6 +582,23 @@ theorem toInt_pos_iff {w : Nat} {x : BitVec w} :
     0 ≤ BitVec.toInt x ↔ 2 * x.toNat < 2 ^ w := by
   simp [toInt_eq_toNat_cond]; omega
 
+theorem toInt_lt {w : Nat} {x : BitVec w} : BitVec.toInt x < 2^w := by
+  simp only [toInt_eq_toNat_cond]
+  split
+  · norm_cast; simp [x.isLt]
+  · apply Int.lt_trans (Int.sub_lt_self _ (by norm_cast; apply Nat.two_pow_pos w))
+                       (by norm_cast; exact x.isLt)
+
+theorem toInt_gt {w : Nat} {x : BitVec w} : -2^w < BitVec.toInt x := by
+  simp only [toInt_eq_toNat_cond]
+  split
+  · apply Int.lt_of_lt_of_le (by apply Int.neg_neg_of_pos; norm_cast; exact Nat.two_pow_pos w)
+                             (by norm_cast; simp)
+  · norm_cast
+    rw [Int.sub_eq_add_neg]
+    apply Int.lt_add_of_pos_left
+    omega
+
 theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
   obtain ⟨a, ha⟩ := a
   simp only [Nat.reducePow]
@@ -1748,24 +1765,86 @@ theorem getElem_sshiftRight {x : BitVec w} {s i : Nat} (h : i < w) :
 
 
 
-#check Int.bmod_lt
-#check Int.bmod
-#check Int.mod_eq_of_lt
+#check Int.emod_def
+#check Int.neg_tdiv
+#check toInt_neg_iff
+
+
+#eval (-7)/16
+
 
 #eval ((9#4).toInt).bmod 16
 #eval (9#4).toInt >>>1
-#eval (-4) % 16
+#eval (-15) % 16
+#eval (-7) % 16
 #check Int.bmod_lt
+#eval (9#4).toInt
+#eval ((10#4) >>>1).toInt
+#eval 8 >>> 0
 
+-- when is x % 2^w - 2^w = x for integers x
+-- when is x % 2^w = x for integers
+
+#check Int.ediv_eq_zero_of_lt
+#check Int.neg_ofNat_succ
+#check Int.neg_emod
+#check Int.emod_def
+#eval (-3)/5
+#eval -(3/5)
+
+example (a b : Int) (h : b  < 0) (h1 : a ≤ 0): ∃ m, b = Int.negSucc m  := by
+  exact Int.eq_negSucc_of_lt_zero h
+
+#check Int.ediv_neg
+example ( a b c : Int) : a/b/c = a/(b*c) := by
+
+
+theorem toInt_shiftRights {x : BitVec w} (n : Nat) (h : n ∣ a) :
+  x.toInt >>> n = if 2*x.toNat < 2^w then x.toNat >>> n else x.toNat >>> n - 2^n := by
+  simp [toInt_eq_toNat_cond, Int.shiftRight_eq_div_pow]
+  rw [Int.bmod_def]
+  norm_cast
+  split
+  · split
+    · exact?
+
+
+#eval (-19 : Int) >>> 0
 @[simp]
 theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
     (x.sshiftRight n).toInt = x.toInt >>> n := by
-    simp only [BitVec.sshiftRight, toInt_ofInt, Int.bmod]
-    split
-    · rw [← Int.bmod_eq_of_lt, ← show (x >>> n).toInt = x.toInt >>> n by rfl]
-      rw [toInt_eq_toNat_bmod, Int.bmod_bmod]
-      assumption
-    · sorry
+    simp only [BitVec.sshiftRight, toInt_ofInt]
+    by_cases h : 2 * x.toNat < 2^w
+    · have := Nat.lt_of_le_of_lt (Nat.shiftRight_le x.toNat n) x.isLt
+      have h2 : (x.toNat >>> n) % 2^w < (2^w + 1)/2 := by sorry
+      simp only [toInt_eq_toNat_cond, h, Int.natCast_shiftRight, ite_true]
+      norm_cast
+      simp only [h2, ite_true, Int.ofNat_emod]
+      rw [Int.emod_eq_of_lt (by norm_cast; simp) (by norm_cast)]
+    · have h0 : x.toInt < 0 := by
+        simp only [toInt_eq_toNat_cond, h, ite_false]
+        apply Int.sub_neg_of_lt (by norm_cast; simp [x.isLt])
+      have h1 := Int.ediv_neg' (b := 2^n) h0 (by norm_cast; exact Nat.two_pow_pos n)
+      have ⟨a, ha⟩ := Int.eq_negSucc_of_lt_zero h1
+      have ha1 : a < 2^w := sorry
+      have h2 := Int.ofNat_le.mpr (Int.natAbs_div_le_natAbs x.toInt (2^n))
+      simp only [Int.ofNat_natAbs_of_nonpos _,
+                 Int.le_of_lt h1, Int.le_of_lt h0] at h2
+      have h3 : x.toInt ≥ -2^w/2 := by
+        simp only [toInt_eq_toNat_cond, h, ite_false]
+        norm_cast; omega
+      have h4 : ¬ Int.negSucc a + 2^w < (2^w + 1) /2 := by
+        simp only [Int.not_lt, Nat.not_lt] at *
+        rw [← ha]
+        have : 2^w/2 ≤ (2^w+1)/2 := sorry
+        omega
+      rw [Int.emod_def, Int.shiftRight_eq_div_pow]
+      push_cast
+      rw [ha, Int.negSucc_ediv _ (by norm_cast; exact Nat.two_pow_pos w),
+          ← show ∀ a b, a/b = Int.ediv a b by intros; rfl,
+          Int.ediv_eq_zero_of_lt (by norm_cast; simp) (by norm_cast)]
+      simp [h4]
+
     -- rw [Int.bmod_eq_of_lt]
     -- rw [Int.emod_eq_of_lt]
     -- norm_cast
