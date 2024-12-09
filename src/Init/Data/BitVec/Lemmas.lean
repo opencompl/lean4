@@ -2593,6 +2593,30 @@ theorem umod_eq_and {x y : BitVec 1} : x % y = x &&& (~~~y) := by
     rcases hy with rfl | rfl <;>
       rfl
 
+@[simp]
+theorem msb_umod {x y : BitVec w} :
+    (x % y).msb = (x.msb && (x < y || y == 0#w)) := by
+  -- This statement is provable up-to `w = 32` with bv_decide
+  rw [msb_eq_decide, toNat_umod]
+  cases msb_x : x.msb
+  · have := calc
+      x.toNat % y.toNat ≤ x.toNat     := by apply Nat.mod_le
+                      _ < 2 ^ (w - 1) := by simpa [msb_eq_decide] using msb_x
+    simpa
+  . simp only [msb_eq_decide, decide_eq_true_eq] at msb_x
+    simp only [Bool.true_and]
+    by_cases hy : y = 0
+    · simp [hy, msb_x]
+    . replace hy : (y == 0#w) = false := by simpa
+      have : 0 < w := by
+        cases w; simp [of_length_zero] at hy; exact Nat.zero_lt_succ _
+      simp only [hy, Bool.or_false, Bool.true_and, decide_eq_decide]
+      by_cases x_lt_y : x < y
+      . simp [x_lt_y, Nat.mod_eq_of_lt x_lt_y, msb_x]
+      . simp only [x_lt_y, iff_false, Nat.not_le, gt_iff_lt]
+        simp at x_lt_y
+        sorry
+
 /-! ### smtUDiv -/
 
 theorem smtUDiv_eq (x y : BitVec w) : smtUDiv x y = if y = 0#w then allOnes w else x / y := by
