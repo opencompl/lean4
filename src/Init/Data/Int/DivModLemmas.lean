@@ -627,6 +627,17 @@ where
   | -[_+1], 0 => Nat.zero_le _
   | -[_+1], succ _ => Nat.succ_le_succ (Nat.div_le_self _ _)
 
+theorem natAbs_div_lt_natAbs_of_pos (a b : Int) (ha : 0 < natAbs a) (hb : 1 < natAbs b) :
+  natAbs (a / b) < natAbs a :=
+  match b, eq_nat_or_neg b with
+  | _, ⟨n, .inl rfl⟩ => aux _ _ _ _
+  | _, ⟨n, .inr rfl⟩ => by simp only [natAbs_neg, Int.ediv_neg] at * ; apply aux <;> assumption
+where
+  aux : ∀ (a : Int) (n : Nat), 0 < natAbs a → 1 < n → natAbs (a / n) < natAbs a
+  | ofNat _, _ => fun h1 h2 => by simp at *; exact Nat.div_lt_self h1 h2
+  | -[_+1], 0 => sorry
+  | -[_+1], succ _ => fun h1 h2 => Nat.succ_le_succ (Nat.div_lt_self _ _ _ )
+
 theorem ediv_le_self {a : Int} (b : Int) (Ha : 0 ≤ a) : a / b ≤ a := by
   have := Int.le_trans le_natAbs (ofNat_le.2 <| natAbs_div_le_natAbs a b)
   rwa [natAbs_of_nonneg Ha] at this

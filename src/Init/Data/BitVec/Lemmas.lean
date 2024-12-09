@@ -1795,23 +1795,26 @@ theorem getElem_sshiftRight {x : BitVec w} {s i : Nat} (h : i < w) :
 example (a b : Int) (h : b  < 0) (h1 : a ≤ 0): ∃ m, b = Int.negSucc m  := by
   exact Int.eq_negSucc_of_lt_zero h
 
-#check Int.ediv_neg
-example ( a b c : Int) : a/b/c = a/(b*c) := by
+#check Nat.div_lt_self
+example ( a b c : Int) : a/b/c = a/(b*c) := sorry
+
+example ( a b c : Int) (h : 0 < b) : (a/b).natAbs < a.natAbs := by
+  push_cast
+  simp only [Int.natAbs_ediv, Int.natAbs_lt_natAbs]
 
 
-theorem toInt_shiftRights {x : BitVec w} (n : Nat) (h : n ∣ a) :
-  x.toInt >>> n = if 2*x.toNat < 2^w then x.toNat >>> n else x.toNat >>> n - 2^n := by
-  simp [toInt_eq_toNat_cond, Int.shiftRight_eq_div_pow]
-  rw [Int.bmod_def]
-  norm_cast
-  split
-  · split
-    · exact?
+
+-- theorem toInt_shiftRights {x : BitVec w} (n : Nat) (h : n ∣ a) :
+--   x.toInt >>> n = if 2*x.toNat < 2^w then x.toNat >>> n else x.toNat >>> n - 2^n := by
+--   simp [toInt_eq_toNat_cond, Int.shiftRight_eq_div_pow]
+--   rw [Int.bmod_def]
+--   norm_cast
+--   split
+--   · split
+--     · exact?
 
 
-#eval (-19 : Int) >>> 0
-@[simp]
-theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
+theorem toInt_sshiftRight_of_pos {x : BitVec w} {n : Nat} (hn : 0 < n) :
     (x.sshiftRight n).toInt = x.toInt >>> n := by
     simp only [BitVec.sshiftRight, toInt_ofInt]
     by_cases h : 2 * x.toNat < 2^w
@@ -1836,7 +1839,6 @@ theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
       have h4 : ¬ Int.negSucc a + 2^w < (2^w + 1) /2 := by
         simp only [Int.not_lt, Nat.not_lt] at *
         rw [← ha]
-        have : 2^w/2 ≤ (2^w+1)/2 := sorry
         omega
       rw [Int.emod_def, Int.shiftRight_eq_div_pow]
       push_cast
