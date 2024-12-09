@@ -2617,6 +2617,14 @@ theorem msb_umod {x y : BitVec w} :
         simp at x_lt_y
         sorry
 
+theorem toInt_umod_eq_bmod {x y : BitVec w} :
+    (x % y).toInt = (x.toNat % y.toNat : Int).bmod (2 ^ w) := by
+  simp [toInt_eq_toNat_bmod]
+
+theorem toInt_umod_of_msb {x y : BitVec w} (h : x.msb = false) :
+    (x % y).toInt = x.toInt % y.toNat := by
+  simp [toInt_eq_msb_cond, h]
+
 /-! ### smtUDiv -/
 
 theorem smtUDiv_eq (x y : BitVec w) : smtUDiv x y = if y = 0#w then allOnes w else x / y := by
