@@ -3577,6 +3577,27 @@ theorem toNat_fill (w : Nat) (b : Bool) :
         omega
       rw [Nat.mod_eq_of_lt h₁, Nat.mod_eq_of_lt (by omega)]
 
+#eval (-1#0).toInt
+#eval (-1#1).toInt
+#eval (-1#2).toInt
+#eval (-1#3).toInt
+
+private theorem Int.bmod_neg : Int.bmod (-z) m = _ := by
+  unfold Int.bmod
+  simp [Int.neg_emod]
+  rw [Int.neg_emod]
+
+theorem toInt_fill_of_pos {w : Nat} (h : 0 < w) (b : Bool) :
+    (BitVec.fill w b).toInt = b.toInt * -1 := by
+  obtain ⟨w, rfl⟩ : ∃ w', w = w' + 1 := ⟨w-1, by omega⟩
+  clear h
+  cases b
+  . simp
+  . simp only [fill_true, Bool.toInt_true, Int.reduceNeg, Int.mul_neg, Int.mul_one]
+    rw [toInt_neg, toInt_ofNat]
+    simp only [Int.Nat.cast_ofNat_Int, Int.reduceNeg]
+    rw [Int.bmod_pos 1, Int.emod_eq_of_lt (by trivial)]
+
 
 /-! ### Deprecations -/
 
