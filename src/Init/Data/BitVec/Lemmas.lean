@@ -2625,26 +2625,14 @@ theorem toInt_umod_of_msb {x y : BitVec w} (h : x.msb = false) :
     (x % y).toInt = x.toInt % y.toNat := by
   simp [toInt_eq_msb_cond, h]
 
-theorem toInt_umod_of_lt {x y : BitVec w} (h : x < y) :
-    (x % y).toInt = x.toInt % y.toNat := by
-  -- I'm not sure of this statement yet, just trying out some stuff
-  cases msb_x : x.msb
-  . rw [toInt_umod_of_msb msb_x]
-  . have : y.msb = true := by sorry
-    simp [toInt_eq_msb_cond, msb_x, h]
-     rw [Int.sub_emod]
+/-
+TODO: come up with a sensible statement for
 
-example {x y : BitVec w} : (x % y).toInt = _ := by
-  cases w
-  case zero => sorry
-  case succ w =>
-    simp [toInt_eq_msb_cond]
-    rw [msb_umod]
-    have x_lt := x.isLt
-    have y_lt := y.isLt
-    have :
-      2 * (x.toNat % y.toNat) < 2 ^ (w + 1)
-        ↔ x.toNat % y.toNat < 2 ^ w := by omega
+theorem toInt_umod_of_lt {x y : BitVec w} (h : x < y) :
+    (x % y).toInt = ?_ := by
+  -- The RHS cannot be `x.toInt % y.toNat`!
+  sorry
+-/
 
 /-! ### smtUDiv -/
 
