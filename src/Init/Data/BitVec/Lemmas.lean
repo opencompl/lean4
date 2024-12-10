@@ -235,12 +235,16 @@ theorem eq_of_getMsbD_eq {x y : BitVec w}
 theorem of_length_zero {x : BitVec 0} : x = 0#0 := by ext; simp [← getLsbD_eq_getElem]
 
 theorem toNat_zero_length (x : BitVec 0) : x.toNat = 0 := by simp [of_length_zero]
+theorem toInt_zero_length (x : BitVec 0) : x.toInt = 0 := by simp [of_length_zero]
+
 theorem getLsbD_zero_length (x : BitVec 0) : x.getLsbD i = false := by simp
 theorem getMsbD_zero_length (x : BitVec 0) : x.getMsbD i = false := by simp
 theorem msb_zero_length (x : BitVec 0) : x.msb = false := by simp [BitVec.msb, of_length_zero]
 
 theorem toNat_of_zero_length (h : w = 0) (x : BitVec w) : x.toNat = 0 := by
   subst h; simp [toNat_zero_length]
+theorem toInt_of_zero_length (h : w = 0) (x : BitVec w) : x.toInt = 0 := by
+  subst h; simp [toInt_zero_length]
 theorem getLsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getLsbD i = false := by
   subst h; simp [getLsbD_zero_length]
 theorem getMsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getMsbD i = false := by
@@ -1758,100 +1762,48 @@ theorem getElem_sshiftRight {x : BitVec w} {s i : Nat} (h : i < w) :
     apply BitVec.lt_of_getLsbD hlsb
   · simp [sshiftRight_eq_of_msb_true hmsb]
 
-
-#eval ((6#4).sshiftRight 4).toInt
-#eval ((6#4).toInt >>> 4)
-
-
-
-
-#check Int.emod_def
-#check Int.neg_tdiv
-#check toInt_neg_iff
-
-
-#eval (-7)/16
-
-
-#eval ((9#4).toInt).bmod 16
-#eval (9#4).toInt >>>1
-#eval (-15) % 16
-#eval (-7) % 16
-#check Int.bmod_lt
-#eval (9#4).toInt
-#eval ((10#4) >>>1).toInt
-#eval 8 >>> 0
-
--- when is x % 2^w - 2^w = x for integers x
--- when is x % 2^w = x for integers
-
-#check Int.ediv_eq_zero_of_lt
-#check Int.neg_ofNat_succ
-#check Int.neg_emod
-#check Int.emod_def
-#eval (-3)/5
-#eval -(3/5)
-
-example (a b : Int) (h : b  < 0) (h1 : a ≤ 0): ∃ m, b = Int.negSucc m  := by
-  exact Int.eq_negSucc_of_lt_zero h
-
-#check Nat.div_lt_self
-example ( a b c : Int) : a/b/c = a/(b*c) := sorry
-
-example ( a b c : Int) (h : 0 < b) : (a/b).natAbs < a.natAbs := by
-  push_cast
-  simp only [Int.natAbs_ediv, Int.natAbs_lt_natAbs]
-
-
-
--- theorem toInt_shiftRights {x : BitVec w} (n : Nat) (h : n ∣ a) :
---   x.toInt >>> n = if 2*x.toNat < 2^w then x.toNat >>> n else x.toNat >>> n - 2^n := by
---   simp [toInt_eq_toNat_cond, Int.shiftRight_eq_div_pow]
---   rw [Int.bmod_def]
---   norm_cast
---   split
---   · split
---     · exact?
-
-
-theorem toInt_sshiftRight_of_pos {x : BitVec w} {n : Nat} (hn : 0 < n) :
+theorem toInt_sshiftRight_of_pos {x : BitVec w} {n : Nat} :
     (x.sshiftRight n).toInt = x.toInt >>> n := by
-    simp only [BitVec.sshiftRight, toInt_ofInt]
-    by_cases h : 2 * x.toNat < 2^w
-    · have := Nat.lt_of_le_of_lt (Nat.shiftRight_le x.toNat n) x.isLt
-      have h2 : (x.toNat >>> n) % 2^w < (2^w + 1)/2 := by sorry
-      simp only [toInt_eq_toNat_cond, h, Int.natCast_shiftRight, ite_true]
-      norm_cast
-      simp only [h2, ite_true, Int.ofNat_emod]
-      rw [Int.emod_eq_of_lt (by norm_cast; simp) (by norm_cast)]
-    · have h0 : x.toInt < 0 := by
-        simp only [toInt_eq_toNat_cond, h, ite_false]
-        apply Int.sub_neg_of_lt (by norm_cast; simp [x.isLt])
-      have h1 := Int.ediv_neg' (b := 2^n) h0 (by norm_cast; exact Nat.two_pow_pos n)
-      have ⟨a, ha⟩ := Int.eq_negSucc_of_lt_zero h1
-      have ha1 : a < 2^w := sorry
-      have h2 := Int.ofNat_le.mpr (Int.natAbs_div_le_natAbs x.toInt (2^n))
-      simp only [Int.ofNat_natAbs_of_nonpos _,
-                 Int.le_of_lt h1, Int.le_of_lt h0] at h2
-      have h3 : x.toInt ≥ -2^w/2 := by
-        simp only [toInt_eq_toNat_cond, h, ite_false]
-        norm_cast; omega
-      have h4 : ¬ Int.negSucc a + 2^w < (2^w + 1) /2 := by
-        simp only [Int.not_lt, Nat.not_lt] at *
-        rw [← ha]
-        omega
-      rw [Int.emod_def, Int.shiftRight_eq_div_pow]
-      push_cast
-      rw [ha, Int.negSucc_ediv _ (by norm_cast; exact Nat.two_pow_pos w),
-          ← show ∀ a b, a/b = Int.ediv a b by intros; rfl,
-          Int.ediv_eq_zero_of_lt (by norm_cast; simp) (by norm_cast)]
-      simp [h4]
-
-    -- rw [Int.bmod_eq_of_lt]
-    -- rw [Int.emod_eq_of_lt]
-    -- norm_cast
-    -- rw [Nat.mod_eq_of_lt]
-    -- sorry
+  match w with
+  | 0 => simp [BitVec.sshiftRight, toInt_ofInt, Int.bmod_def, toInt_zero_length]
+  | w + 1 =>
+      simp only [BitVec.sshiftRight, toInt_ofInt, Int.bmod_def]
+      by_cases h : 2 * x.toNat < 2^(w + 1)
+      · have := Nat.lt_of_le_of_lt (Nat.shiftRight_le x.toNat n) x.isLt
+        have h2 : (x.toNat >>> n) % 2^(w + 1) < (2^(w + 1) + 1)/2 := by
+          rw [Nat.mod_eq_of_lt this, Nat.shiftRight_eq_div_pow]
+          apply Nat.lt_of_le_of_lt (Nat.div_le_self _ _)
+          omega
+        simp only [toInt_eq_toNat_cond, h, Int.natCast_shiftRight, ite_true]
+        norm_cast
+        simp only [h2, ite_true, Int.ofNat_emod]
+        rw [Int.emod_eq_of_lt (by norm_cast; simp) (by norm_cast)]
+      · have h0 : x.toInt < 0 := by
+          simp only [toInt_eq_toNat_cond, h, ite_false]
+          apply Int.sub_neg_of_lt (by norm_cast; simp [x.isLt])
+        have h1 := Int.ediv_neg' (b := 2^n) h0 (by norm_cast; exact Nat.two_pow_pos n)
+        have ⟨a, ha⟩ := Int.eq_negSucc_of_lt_zero h1
+        have h2 := Int.ofNat_le.mpr (Int.natAbs_div_le_natAbs x.toInt (2^n))
+        simp only [Int.ofNat_natAbs_of_nonpos _,
+                  Int.le_of_lt h1, Int.le_of_lt h0] at h2
+        have h3 : x.toInt ≥ -2^(w + 1)/2 := by
+          simp only [toInt_eq_toNat_cond, h, ite_false]
+          norm_cast; omega
+        have ha1 : a < 2^(w + 1):= by
+          simp only [← Int.ofNat_lt, Int.negSucc_eq'] at *
+          rw [show a = -(x.toInt / 2^n) - 1 by omega]
+          push_cast; omega
+        have h4 : ¬ Int.negSucc a + 2^(w + 1) < (2^(w + 1) + 1) /2 := by
+          simp only [Int.not_lt, Nat.not_lt] at *; norm_cast
+          rw [Nat.pow_succ, Nat.mul_comm, Nat.mul_add_div, ← ha]
+          push_cast
+          omega; decide
+        rw [Int.emod_def, Int.shiftRight_eq_div_pow]
+        push_cast
+        rw [ha, Int.negSucc_ediv _ (by norm_cast; exact Nat.two_pow_pos _),
+            ← show ∀ a b, a/b = Int.ediv a b by intros; rfl,
+            Int.ediv_eq_zero_of_lt (by norm_cast; simp) (by norm_cast)]
+        simp [h4]
 
 theorem sshiftRight_xor_distrib (x y : BitVec w) (n : Nat) :
     (x ^^^ y).sshiftRight n = (x.sshiftRight n) ^^^ (y.sshiftRight n) := by
