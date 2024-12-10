@@ -1260,6 +1260,9 @@ theorem bmod_lt {x : Int} {m : Nat} (h : 0 < m) : bmod x m < (m + 1) / 2 := by
       exact Int.sub_neg_of_lt this
     · exact Int.le.intro_sub _ rfl
 
+theorem bmod_eq_of_lt {x : Int} {m : Nat} (hx : x % m < (m + 1) / 2) : bmod x m = x % m := by
+  simp [bmod, hx]
+
 theorem bmod_le {x : Int} {m : Nat} (h : 0 < m) : bmod x m ≤ (m - 1) / 2 := by
   refine lt_add_one_iff.mp ?_
   calc
