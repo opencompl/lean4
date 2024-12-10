@@ -626,6 +626,7 @@ where
   | ofNat _, _ => Nat.div_le_self ..
   | -[_+1], 0 => Nat.zero_le _
   | -[_+1], succ _ => Nat.succ_le_succ (Nat.div_le_self _ _)
+
 theorem ediv_le_self {a : Int} (b : Int) (Ha : 0 ≤ a) : a / b ≤ a := by
   have := Int.le_trans le_natAbs (ofNat_le.2 <| natAbs_div_le_natAbs a b)
   rwa [natAbs_of_nonneg Ha] at this
