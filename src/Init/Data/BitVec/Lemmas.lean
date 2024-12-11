@@ -2615,7 +2615,7 @@ theorem msb_umod {x y : BitVec w} :
       . simp [x_lt_y, Nat.mod_eq_of_lt x_lt_y, msb_x]
       . simp only [x_lt_y, iff_false, Nat.not_le, gt_iff_lt]
         simp at x_lt_y
-        sorry
+        sorry -- TODO: finish proof
 
 theorem toInt_umod_eq_bmod {x y : BitVec w} :
     (x % y).toInt = (x.toNat % y.toNat : Int).bmod (2 ^ w) := by
@@ -2764,6 +2764,11 @@ theorem smod_zero {x : BitVec n} : x.smod 0#n = x := by
   rcases x.msb with msb | msb <;> apply eq_of_toNat_eq
   · simp
   · by_cases h : x = 0#n <;> simp [h]
+
+theorem toInt_smod (x y : BitVec w) :
+    (x.smod y).toInt = x.toInt % y.toInt := by
+  -- Probably this is the statement? Likely we have to add some side-conditions
+  sorry
 
 /-! ### ofBoolList -/
 
