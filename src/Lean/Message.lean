@@ -244,8 +244,8 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
       | panic! s!"MessageData.ofLazy: expected MessageData in Dynamic, got {dyn.typeName}"
     formatAux nCtx ctx? msg
 
-protected def format (msgData : MessageData) : IO Format :=
-  formatAux { currNamespace := Name.anonymous, openDecls := [] } none msgData
+protected def format (msgData : MessageData) (ctx? : Option MessageDataContext := none) : IO Format :=
+  formatAux { currNamespace := Name.anonymous, openDecls := [] } ctx? msgData
 
 protected def toString (msgData : MessageData) : IO String := do
   return toString (← msgData.format)
@@ -440,6 +440,10 @@ instance : Append MessageLog :=
 
 def hasErrors (log : MessageLog) : Bool :=
   log.hadErrors || log.unreported.any (·.severity matches .error)
+
+/-- Clears unreported messages while preserving `hasErrors`. -/
+def markAllReported (log : MessageLog) : MessageLog :=
+  { log with unreported := {}, hadErrors  := log.hasErrors }
 
 def errorsToWarnings (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.warning } | _ => m) }
