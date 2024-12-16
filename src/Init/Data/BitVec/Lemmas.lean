@@ -206,12 +206,15 @@ theorem eq_of_getMsbD_eq {x y : BitVec w}
 theorem of_length_zero {x : BitVec 0} : x = 0#0 := by ext; simp
 
 theorem toNat_zero_length (x : BitVec 0) : x.toNat = 0 := by simp [of_length_zero]
+theorem toInt_zero_length (x : BitVec 0) : x.toInt = 0 := by simp [of_length_zero]
 theorem getLsbD_zero_length (x : BitVec 0) : x.getLsbD i = false := by simp
 theorem getMsbD_zero_length (x : BitVec 0) : x.getMsbD i = false := by simp
 theorem msb_zero_length (x : BitVec 0) : x.msb = false := by simp [BitVec.msb, of_length_zero]
 
 theorem toNat_of_zero_length (h : w = 0) (x : BitVec w) : x.toNat = 0 := by
   subst h; simp [toNat_zero_length]
+theorem toInt_of_zero_length (h : w = 0) (x : BitVec w) : x.toInt = 0 := by
+  subst h; simp [toInt_zero_length]
 theorem getLsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getLsbD i = false := by
   subst h; simp [getLsbD_zero_length]
 theorem getMsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getMsbD i = false := by
@@ -1967,6 +1970,34 @@ theorem msb_concat {w : Nat} {b : Bool} {x : BitVec w} :
     intro
     omega
   · simp [h₀, show w = 0 by omega]
+
+@[simp]
+theorem toInt_concat (x : BitVec w) (b : Bool) :
+    (concat x b).toInt = if 0 < w then x.toInt * 2 + b.toNat else -b.toNat:= by
+  by_cases h1 : 0 < w
+  · simp only [toInt_eq_msb_cond, msb_concat, h1, ↓reduceIte, toNat_concat]
+    split
+    <;> push_cast
+    <;> omega
+  · simp only [Nat.not_lt, Nat.le_zero_eq] at h1
+    simp only [toInt_eq_msb_cond, msb_concat, h1, Nat.lt_irrefl, ↓reduceIte,
+               toNat_concat, toNat_of_zero_length h1]
+    split
+    <;> simp [Bool.toNat_eq_one, Bool.toNat_eq_zero, *]
+
+@[simp]
+theorem toFin_concat (x : BitVec w) (b : Bool) :
+    (concat x b).toFin = Fin.ofNat' _ (x.toFin.val * 2 + b.toNat) := by
+  apply Fin.val_inj.mp
+  have : ↑x.toFin * 2 + b.toNat < 2^(w+1) := by
+    apply Nat.lt_of_le_of_lt
+          (Nat.add_le_add_right (Nat.mul_le_mul_right 2 (Nat.le_sub_one_of_lt x.isLt)) _)
+    have := Bool.toNat_le b
+    have h1 := Nat.two_pow_pos w
+    omega
+  rw [val_toFin, Fin.val_ofNat', Nat.mod_eq_of_lt (by omega)]
+  simp [toNat_concat]
+
 
 /-! ### add -/
 
