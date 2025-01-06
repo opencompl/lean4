@@ -3569,6 +3569,25 @@ instance instDecidableExistsBitVec :
 
 /-! ### Overflow Theorems -/
 
+theorem uaddOverflow_iff (x y : BitVec w) :
+    uaddOverflow x y ↔ (x.toNat + y.toNat ≥ 2^w) := by
+  simp [uaddOverflow, UnsignedOverflow]
+  have h : x.toNat + y.toNat < 2^ (w + 1) := by 
+    rw [Nat.pow_succ, Nat.mul_two]
+    apply Nat.add_lt_add  <;> omega
+  rw [Nat.mod_eq_of_lt h] 
+  constructor
+  · intros hmod 
+    apply Classical.byContradiction
+    intros hcontra
+    simp at hcontra
+    rw [Nat.mod_eq_of_lt hcontra] at hmod
+    simp at hmod
+  · intros h'
+    rw [Nat.mod_eq_sub_mod h']
+    rw [Nat.mod_eq_of_lt (by omega)]
+    omega
+
 -- theorem udiv_overflow (x y : BitVec w) : ¬ NatOverflows w (x.toNat / y.toNat) := by sorry
 
 /-! ### Deprecations -/
