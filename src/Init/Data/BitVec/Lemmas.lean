@@ -3566,6 +3566,11 @@ instance instDecidableExistsBitVec :
   | 0, _, _ => inferInstance
   | _ + 1, _, _ => inferInstance
 
+
+/-! ### Overflow Theorems -/
+
+-- theorem udiv_overflow (x y : BitVec w) : ¬ NatOverflows w (x.toNat / y.toNat) := by sorry
+
 /-! ### Deprecations -/
 
 set_option linter.missingDocs false

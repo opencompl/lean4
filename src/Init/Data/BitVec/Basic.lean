@@ -631,6 +631,86 @@ def twoPow (w : Nat) (i : Nat) : BitVec w := 1#w <<< i
 
 end bitwise
 
+
+section overflow
+
+/--
+`UnsignedOverflow w x` denotes that the natural number `x`
+will overflow when represented as a bitvector of width `w`.
+-/
+def UnsignedOverflow (w : Nat) (x : Nat) : Prop := (BitVec.ofNat w x).toNat ≠ x
+
+instance : Decidable (UnsignedOverflow w x) :=
+  by rw [UnsignedOverflow]; infer_instance
+
+/--
+`SignedOverflow w x` denotes that the integer `x`
+will overflow when represented as a bitvector of width `w`.
+-/
+def SignedOverflow (w : Nat) (x : Int) : Prop :=
+  (BitVec.ofInt w x).toInt ≠ x
+
+instance : Decidable (SignedOverflow w x) :=
+  by rw [SignedOverflow]; infer_instance
+
+/--
+Predicate indicating if signed addition produces an overflow.
+SMT-LIB: bvnego
+-/
+def negOverflow (x : BitVec w) : Bool :=
+  SignedOverflow w (-(x.signExtend (w + 1))).toInt
+
+/--
+Predicate indicating if unsigned addition produces an overflow.
+SMT-LIB: bvuaddo
+-/
+def uaddOverflow (x y : BitVec w) : Bool :=
+  UnsignedOverflow w (x.zeroExtend (w + 1) + y.zeroExtend (w + 1)).toNat
+
+/--
+Predicate indicating if unsigned addition produces an overflow.
+SMT-LIB: bvusubo
+-/
+def usubOverflow (x y : BitVec w) : Bool :=
+  UnsignedOverflow w (x.zeroExtend (w + 1) - y.zeroExtend (w + 1)).toNat
+
+/--
+Predicate indicating if unsigned multiplication produces an overflow.
+SMT-LIB: bvumulo
+-/
+def umulOverflow (x y : BitVec w) : Bool :=
+  UnsignedOverflow w (x.zeroExtend (w * 2) * y.zeroExtend (w * 2)).toNat
+
+/--
+Predicate indicating if signed addition produces an overflow.
+SMT-LIB: bvsaddo
+-/
+def saddOverflow (x y : BitVec w) : Bool :=
+  SignedOverflow w (x.signExtend (w + 1) + y.signExtend (w + 1)).toInt
+
+/--
+Predicate indicating if signed addition produces an overflow.
+SMT-LIB: bvssubo
+-/
+def ssubOverflow (x y : BitVec w) : Bool :=
+  SignedOverflow w (x.signExtend (w + 1) - y.signExtend (w + 1)).toInt
+
+/--
+Predicate indicating if signed addition produces an overflow.
+SMT-LIB: bvsmulo
+-/
+def smulOverflow (x y : BitVec w) : Bool :=
+  SignedOverflow w (x.signExtend (w * 2) * y.signExtend (w * 2)).toInt
+
+/--
+Predicate indicating if signed addition produces an overflow.
+SMT-LIB: bvsdivo
+-/
+def sdivOverflow (x y : BitVec w) : Bool :=
+  SignedOverflow w ((x.signExtend (w + 1)).sdiv (y.signExtend (w + 1))).toInt
+
+end overflow
+
 /-- Compute a hash of a bitvector, combining 64-bit words using `mixHash`. -/
 def hash (bv : BitVec n) : UInt64 :=
   if n ≤ 64 then
