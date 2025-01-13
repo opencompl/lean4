@@ -969,6 +969,12 @@ protected theorem pow_div {x m n : Nat} (h : n ≤ m) (hx : 0 < x) : x ^ m / x ^
 /-- Shiftleft on successor with multiple moved inside. -/
 theorem shiftLeft_succ_inside (m n : Nat) : m <<< (n+1) = (2*m) <<< n := rfl
 
+theorem shiftLeft_prec_inside (m n : Nat) : (m * 2) <<< n = m <<< (n + 1) := by
+  induction n
+  case zero => omega
+  case succ n ih =>
+    simp [shiftLeft_eq, Nat.pow_add, Nat.mul_comm, Nat.mul_assoc]
+
 /-- Shiftleft on successor with multiple moved to outside. -/
 theorem shiftLeft_succ : ∀(m n), m <<< (n + 1) = 2 * (m <<< n)
 | _, 0 => rfl
@@ -982,6 +988,7 @@ theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
 | _, k + 1 => by
   rw [shiftRight_succ _ (k+1)]
   rw [shiftRight_succ_inside _ k, shiftRight_succ]
+
 
 @[simp] theorem zero_shiftLeft : ∀ n, 0 <<< n = 0
   | 0 => by simp [shiftLeft]

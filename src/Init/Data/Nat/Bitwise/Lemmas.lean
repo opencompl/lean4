@@ -102,9 +102,14 @@ may be more useful as a `simp` lemma, so neither is a global `simp` lemma.
 -/
 -- We turn `testBit_add_one` on as a `local simp` for this file.
 @[local simp]
-theorem testBit_add_one (x i : Nat) : testBit x (i + 1) = testBit (x/2) i := by
+theorem testBit_add_one (x i : Nat) : testBit x (i + 1) = testBit (x / 2) i := by
   unfold testBit
   simp [shiftRight_succ_inside]
+
+@[local simp]
+theorem testBit_sub_one (x i : Nat) : testBit x (i - 1) = testBit (x * 2) i := by
+  unfold testBit
+  sorry
 
 theorem testBit_add (x i n : Nat) : testBit x (i + n) = testBit (x / 2 ^ n) i := by
   revert x
@@ -115,11 +120,29 @@ theorem testBit_add (x i n : Nat) : testBit x (i + n) = testBit (x / 2 ^ n) i :=
     rw [← Nat.add_assoc, testBit_add_one, ih (x / 2),
       Nat.pow_succ, Nat.div_div_eq_div_mul, Nat.mul_comm]
 
+theorem testBit_sub (x i n : Nat) : testBit x (i - n) = testBit (x * 2 ^ n) i := by
+  revert x
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Nat.sub_add_eq]
+    rw [testBit_sub_one (i := i - n)]
+    intro x
+    -- simp [Nat.pow_add]
+    rw [testBit_sub_one, ih (x * 2),
+      Nat.pow_succ, Nat.div_div_eq_div_mul, Nat.mul_comm]
+
+
 theorem testBit_div_two (x i : Nat) : testBit (x / 2) i = testBit x (i + 1) := by
   simp
 
 theorem testBit_div_two_pow (x i : Nat) : testBit (x / 2 ^ n) i = testBit x (i + n) :=
   testBit_add .. |>.symm
+
+theorem testBit_mul_two_pow (x i : Nat) : testBit (x * 2 ^ n) i = testBit x (i - n) := by
+  by_cases h : 0 < i - n
+  · sorry
+  · sorry
 
 theorem testBit_to_div_mod {x : Nat} : testBit x i = decide (x / 2^i % 2 = 1) := by
   induction i generalizing x with
@@ -457,6 +480,12 @@ theorem bitwise_div_two_pow (of_false_false : f false false = false := by rfl) :
   apply Nat.eq_of_testBit_eq
   simp [testBit_bitwise of_false_false, testBit_div_two_pow]
 
+theorem bitwise_mul_two_pow (of_false_false : f false false = false := by rfl) :
+  (bitwise f x y) * 2 ^ n = bitwise f (x * 2 ^ n) (y * 2 ^ n) := by
+  apply Nat.eq_of_testBit_eq
+  simp [testBit_bitwise of_false_false, testBit_mul_two_pow]
+
+
 /-! ### and -/
 
 @[simp] theorem testBit_and (x y i : Nat) : (x &&& y).testBit i = (x.testBit i && y.testBit i) := by
@@ -719,6 +748,13 @@ theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^
 theorem shiftRight_bitwise_distrib {a b : Nat} (of_false_false : f false false = false := by rfl) :
     (bitwise f a b) >>> i = bitwise f (a >>> i) (b >>> i) := by
   simp [shiftRight_eq_div_pow, bitwise_div_two_pow of_false_false]
+
+theorem shiftLeft_bitwise_distrib {a b : Nat} (of_false_false : f false false = false := by rfl) :
+    (bitwise f a b) <<< i = bitwise f (a <<< i) (b <<< i) := by
+  simp [shiftLeft_eq]
+  simp [bitwise_mul]
+  sorry
+   bitwise_div_two_pow of_false_false]
 
 theorem shiftRight_and_distrib {a b : Nat} : (a &&& b) >>> i = a >>> i &&& b >>> i :=
   shiftRight_bitwise_distrib
