@@ -34,7 +34,7 @@ theorem short_circuit_triple_mul (x x_1 x_2 : BitVec 32) (h : ¬x_2 &&& 4096#32 
 /-! ### Scaling Test -/
 
 /-- `repeat_add $n with $t` expands to `$t + $t + ... + $t`, with `n` repetitions
-of `t`/ -/
+of `t` -/
 local macro "repeat_add" n:num "with" x:term  : term =>
   let rec go : Nat → MacroM Term
     | 0   => `($x)
