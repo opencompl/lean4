@@ -124,16 +124,18 @@ def SharedCoefficients.compute (x y : CoefficientsMap) : VarStateM SharedCoeffic
 
 /-- Compute the canonical expression for a given set of coefficients. -/
 def CoefficientsMap.toExpr (coe : CoefficientsMap) (op : Expr) : VarStateM (Option Expr) := do
-  let exprs := (← get).varExprs.toList
-  return (
-    exprs.enum
-    |>.flatMap (fun (idx, expr) =>
-      let cnt := coe[idx]?.getD 0
-      List.replicate cnt expr
-    )
-    |>.foldl (init := none) fun acc (expr : Expr) => match acc with
+  let exprs := (← get).varExprs
+  let mut acc := none
+
+  for h : idx in [0:exprs.size] do
+    let cnt := coe[idx]?.getD 0
+    for _ in [0:cnt] do
+      let expr := exprs[idx]
+      acc := match acc with
         | none => expr
-        | some acc => some <| mkApp2 op acc expr)
+        | some acc => some <| mkApp2 op acc expr
+
+  return acc
 
 open VarStateM Lean.Meta Lean.Elab Term
 

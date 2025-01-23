@@ -45,7 +45,7 @@ local macro "repeat_add" n:num "with" x:term  : term =>
 
 /-
 This test showcases that the runtime of `ac_nf!` is not a bottleneck:
-* The current example runs in about 250ms with a disabled kernel, or 5.5 seconds with,
+* The current example runs in about 250ms with a disabled kernel, or ~5 seconds with,
     showing that the tactic runtime is tiny compared to the proof-checking time, and
 * Putting in 125 for the repitition amount wil give a `maximum recursion depth has been reached`
     error thrown by simp anyway, so the runtime is not a limiting factor to begin with.
