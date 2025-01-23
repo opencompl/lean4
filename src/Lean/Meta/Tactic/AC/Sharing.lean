@@ -37,12 +37,12 @@ def VarStateM.run' (x : VarStateM α) (s : VarState := {}) : MetaM α :=
 
 /-! ### Implementation -/
 
-/-- Return a list with all variable indices that have a mapping.
+/-- Return a range with all variable indices that have a mapping.
 
 Note that this is always a complete sequence `0, 1, ..., (n-1)`, without skipping
 numbers. -/
-def getAllVarIndices : VarStateM (List VarIndex) := do
-  pure <| List.range (← get).varIndices.size
+def getAllVarIndices : VarStateM Std.Range := do
+  pure <| [0:(← get).varIndices.size]
 
 /-- Return the unique variable index for an expression.
 
