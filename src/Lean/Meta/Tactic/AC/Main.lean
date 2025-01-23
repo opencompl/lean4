@@ -56,8 +56,6 @@ def preContext (expr : Expr) : MetaM (Option PreContext) := do
 
   return none
 
-
-
 inductive PreExpr
 | op (lhs rhs : PreExpr)
 | var (e : Expr)
@@ -87,20 +85,6 @@ def toACExpr (op l r : Expr) : MetaM (Array Expr × ACExpr) := do
     toACExpr (varMap : Expr → Nat) : PreExpr → ACExpr
     | PreExpr.op l r => Data.AC.Expr.op (toACExpr varMap l) (toACExpr varMap r)
     | PreExpr.var x => Data.AC.Expr.var (varMap x)
-
-/--
-Compute a map from variable index to the number of occurences of that variable
-in the given expression
--/
-def ACExpr.coefficients : ACExpr → Std.HashMap Nat Nat :=
-  go {}
-  where go (map : Std.HashMap Nat Nat)
-    | .var idx    =>  map.alter idx (fun
-                        | some cnt => some (cnt + 1)
-                        | none     => some 0)
-    | .op lhs rhs =>
-      let map := go map lhs
-      go map rhs
 
 /--
 In order to prevent the kernel trying to reduce the atoms of the expression, we abstract the proof
