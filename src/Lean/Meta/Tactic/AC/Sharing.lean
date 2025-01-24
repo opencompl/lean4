@@ -188,7 +188,7 @@ def canonicalizeEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
                        pure op
 
   -- Check that `op` is associative and commutative, so that we don't get
-  -- inscrutable errors later
+  -- inscrutable errors later. If it's not, bail out.
   let some _ ← AC.getInstance ``Std.Associative #[op] | return .continue
   let some _ ← AC.getInstance ``Std.Commutative #[op] | return .continue
 
@@ -212,8 +212,8 @@ def canonicalizeEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
     -- Idem; it is not possible for both `commonExpr?` and `rNew?` to be none
     let some rNew := Option.merge (mkApp2 op) commonExpr? rNew? | failure
 
-    let lEq : Expr /- of type `$lhs = $lNew` -/ ← proveEqualityByAC u.succ ty lhs lNew
-    let rEq : Expr /- of type `$rhs = $rNew` -/ ← proveEqualityByAC u.succ ty rhs rNew
+    let lEq : Expr /- of type `$lhs = $lNew` -/ ← proveEqualityByAC u ty lhs lNew
+    let rEq : Expr /- of type `$rhs = $rNew` -/ ← proveEqualityByAC u ty rhs rNew
 
     let expr : Expr /- `$xNew = $yNew` -/ := -- @Eq (BitVec ?w) _ _
       mkApp3 (.const ``Eq [u]) ty lNew rNew
