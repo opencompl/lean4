@@ -15,10 +15,14 @@ open Lean Meta
 abbrev VarIndex := Nat
 
 structure VarState where
+  /-- The associative and commutative operator we are currently canonicalizing with respect to. -/
+  op : Expr
   /-- Map from atomic expressions to an index. -/
   varIndices : Std.HashMap Expr VarIndex := {}
   /-- Inverse of `varIndices`, which maps a `VarIndex` to the expression it represents. -/
   varExprs : Array Expr := #[]
+  /-- A cache of confirmed neutral elements -/
+  neutralCache : Std.HashSet Expr := {}
 
 /-!
 We don't verify the state manipulations, but if we would, these are the invariants:
@@ -52,22 +56,40 @@ numbers. -/
 def getAllVarIndices : VarStateM Std.Range := do
   pure <| [0:(← get).varIndices.size]
 
-/-- Return the unique variable index for an expression.
+/-- Return `true` if `e` is a neutral element for operation `op`.
+
+That is, if an instance of `LawfulIdentity op e` exists -/
+def VarStateM.isNeutral (e : Expr) : VarStateM Bool :=
+  --TODO: implement
+  pure false
+
+/-- Return an arbitrary neutral element for the current operations
+(i.e., `VarState.op`), or throw an error if no such element exists -/
+def VarStateM.getNeutral : VarStateM Expr :=
+  --TODO: implement
+  pure (.sort 0)
+
+/-- Return the unique variable index for an expression, or `none` if the expression
+is a neutral element (see `isNeutral`).
 
 Modifies the monadic state to add a new mapping and increment the index,
 if needed. -/
-def VarStateM.exprToVar (e : Expr) : VarStateM VarIndex := fun state =>
+def VarStateM.exprToVar (e : Expr) : VarStateM (Option VarIndex) := do
   -- TODO: we should consider normalizing `e` here using `AC.rewriteUnnormalized`, so that distinct
   --   atomic expressions which are equal up-to associativity and commutativity of another operator
   --   get mapped to the same variable id
-  return match state.varIndices[e]? with
-  | some idx => (idx, state)
+  let { varIndices, varExprs, .. } ← get
+  match varIndices[e]? with
+  | some idx => return idx
   | none =>
-    let { varIndices, varExprs } := state
+    if ← isNeutral e then
+      return none
+
     let nextIndex := varIndices.size
     let varIndices := varIndices.insert e nextIndex
     let varExprs := varExprs.push e
-    (nextIndex, { varIndices, varExprs })
+    modify ({· with varIndices, varExprs })
+    return nextIndex
 
 /-- Return the expression that is represented by a specific variable index. -/
 def VarStateM.varToExpr (idx : VarIndex) : VarStateM Expr := do
@@ -95,7 +117,7 @@ def VarStateM.computeCoefficients (op : Expr) (e : Expr) : VarStateM Coefficient
   go {} e
 where
   incrVar (coe : CoefficientsMap) (e : Expr) : VarStateM CoefficientsMap := do
-    let idx ← exprToVar e
+    let some idx ← exprToVar e | return coe
     return coe.alter idx (fun c => some <| (c.getD 0) + 1)
   go (coe : CoefficientsMap) : Expr → VarStateM CoefficientsMap
   | e@(AC.bin op' x y) => do
@@ -206,11 +228,11 @@ def canonicalizeEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
     -- Sid would appreciate examples where commonExpr? and lNew? can be none.
     -- Since commonExpr + lCoe_{new} = lCoe_{old}, and lCoe_{old} ≠ 0,
     -- it is not possible for both `commonExpr?` and `lNew?` to be none.
-    let some lNew := Option.merge (mkApp2 op) commonExpr? lNew? | failure
+    let lNew ← Option.merge (mkApp2 op) commonExpr? lNew? |>.getDM getNeutral
 
     let rNew? : Option Expr ← rCoe.toExpr op
     -- Idem; it is not possible for both `commonExpr?` and `rNew?` to be none
-    let some rNew := Option.merge (mkApp2 op) commonExpr? rNew? | failure
+    let rNew ← Option.merge (mkApp2 op) commonExpr? rNew? |>.getDM getNeutral
 
     let lEq : Expr /- of type `$lhs = $lNew` -/ ← proveEqualityByAC u ty lhs lNew
     let rEq : Expr /- of type `$rhs = $rNew` -/ ← proveEqualityByAC u ty rhs rNew
