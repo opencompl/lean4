@@ -36,8 +36,19 @@ theorem mul_eq_mul_eq_left (x y z : BitVec 64) (h : x = y) :
 theorem short_circuit_triple_mul (x x_1 x_2 : BitVec 32) (h : ¬x_2 &&& 4096#32 == 0#32) :
     (x_1 ||| 4096#32) * x * (x_1 ||| 4096#32) = (x_1 ||| x_2 &&& 4096#32) * x * (x_1 ||| 4096#32) := by
   ac_nf'
-  guard_target =ₛ x * (x_1 ||| 4096#32) * (x_1 ||| 4096#32) = x * (x_1 ||| 4096#32) * (x_1 ||| x_2 &&& 4096#32)
+  guard_target =ₛ
+    ((x_1 ||| 4096#32) * x) * (x_1 ||| 4096#32)
+    = ((x_1 ||| 4096#32) * x) * (x_1 ||| x_2 &&& 4096#32)
   sorry
+
+theorem add_mul_mixed (x y z : BitVec 64) :
+    z * (x + y) = (y + x) * z := by
+  ac_nf'; rfl
+
+theorem add_mul_mixed' (x y z : BitVec 64)
+    (h : (x + y) * z = x + y) :
+    z * (x + y) = (y + x) := by
+  ac_nf'; exact h
 
 /-! ### Scaling Test -/
 

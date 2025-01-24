@@ -231,7 +231,20 @@ def canonicalizeEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
 def post : Simp.Simproc := fun e => do
   match_expr e with
   | Eq ty lhs rhs => canonicalizeEqWithSharing ty lhs rhs
-  | _ => AC.post e
+  | _ =>
+    let mkApp2 op _ _ := e | return .continue
+    match (← Simp.getContext).parent? with
+    -- Note: the order of the following match-arms is significant, as `canonicalizeEqWithSharing`
+    -- is biased towards the operation of the left-hand-side of the equality, if present.
+    | mkApp3 (.const ``Eq _) _ (mkApp2 op' _ _) _
+    | mkApp3 (.const ``Eq _) _ _ (mkApp2 op' _ _) =>
+      if (← isDefEq op op') then
+        -- In this case, the current expression will already be canonicalized by
+        -- `canonicalizeEqWithSharing`, hence, we don't call regular ac_nf on it
+        return .continue
+      else
+        AC.post e
+    | _ => AC.post e
 
 def rewriteUnnormalizedWithSharing (mvarId : MVarId) : MetaM MVarId := do
   let simpCtx ← Simp.mkContext
