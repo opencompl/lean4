@@ -217,21 +217,18 @@ def canonicalizeEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
   VarStateM.run' <| do
     let lCoe ← computeCoefficients op lhs
     let rCoe ← computeCoefficients op rhs
-    -- FIXME: we should identify any neutral/identity elements of the operation
-    --        (e.g., 0 for addition, or 1 for multiplication), and remove the
-    --        corresponding coefficient
 
     let ⟨commonCoe, lCoe, rCoe⟩ ← SharedCoefficients.compute lCoe rCoe
     let commonExpr? : Option Expr ← commonCoe.toExpr op
     let lNew? : Option Expr ← lCoe.toExpr op
-
-    -- Sid would appreciate examples where commonExpr? and lNew? can be none.
-    -- Since commonExpr + lCoe_{new} = lCoe_{old}, and lCoe_{old} ≠ 0,
-    -- it is not possible for both `commonExpr?` and `lNew?` to be none.
-    let lNew ← Option.merge (mkApp2 op) commonExpr? lNew? |>.getDM getNeutral
-
     let rNew? : Option Expr ← rCoe.toExpr op
-    -- Idem; it is not possible for both `commonExpr?` and `rNew?` to be none
+
+    -- FIXME: Sid would appreciate examples where commonExpr? and lNew? can be none.
+    -- Since commonExpr + lCoe_{new} = lCoe_{old}, and lCoe_{old} ≠ 0,
+    -- it is only possible for both `commonExpr?` and `lNew?` to be none if
+    -- `lhs` contains only neutral elements, in which case we default to
+    -- `lNew` being some canonical neutral element.
+    let lNew ← Option.merge (mkApp2 op) commonExpr? lNew? |>.getDM getNeutral
     let rNew ← Option.merge (mkApp2 op) commonExpr? rNew? |>.getDM getNeutral
 
     let lEq : Expr /- of type `$lhs = $lNew` -/ ← proveEqualityByAC u ty lhs lNew
