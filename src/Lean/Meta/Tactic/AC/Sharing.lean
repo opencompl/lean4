@@ -75,9 +75,6 @@ is a neutral element (see `isNeutral`).
 Modifies the monadic state to add a new mapping and increment the index,
 if needed. -/
 def VarStateM.exprToVar (e : Expr) : VarStateM (Option VarIndex) := do
-  -- TODO: we should consider normalizing `e` here using `AC.rewriteUnnormalized`, so that distinct
-  --   atomic expressions which are equal up-to associativity and commutativity of another operator
-  --   get mapped to the same variable id
   let { varIndices, varExprs, .. } ← get
   match varIndices[e]? with
   | some idx => return idx
