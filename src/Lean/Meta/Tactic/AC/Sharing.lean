@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Tactic.AC.Main
 import Init.Grind.Lemmas
 
+namespace Lean.Meta.AC.Sharing
 open Lean Meta
 
 /-! ### Types -/
@@ -14,7 +15,9 @@ open Lean Meta
 abbrev VarIndex := Nat
 
 structure VarState where
+  /-- Map from atomic expressions to an index. -/
   varIndices : Std.HashMap Expr VarIndex := {}
+  /-- Inverse of `varIndices`, which maps a `VarIndex` to the expression it represents. -/
   varExprs : Array Expr := #[]
 
 /-!
@@ -26,6 +29,11 @@ structure LegalVarState extends VarState where
 ```
 -/
 
+/-- A representation of an expression as a map from variable index to the number
+of occurences of the expression represented by that variable.
+
+See `CoefficientsMap.toExpr` for the explicit conversion. -/
+-- FIXME: @bollu would like this to be `RBMap VarIndex Nat compare`
 abbrev CoefficientsMap := Std.HashMap VarIndex Nat
 
 /-! ### VarState monadic boilerplate  -/
@@ -73,14 +81,15 @@ def VarStateM.varToExpr (idx : VarIndex) : VarStateM Expr := do
 /-- Given a binary, associative and commutative operation `op`,
 decompose expression `e` into its variable coefficients.
 
-For example `a ⬝ b ⬝ (a ⋅ c)` will give the coefficients:
+For example `a ⊕ b ⊕ (a ⊕ c)` will give the coefficients:
 ```
 a => 2
 b => 1
 c => 1
 ```
 
-Any compound expression which is not an application of the given `op`
+Any compound expression which is not an application of the given `op` will be
+abstracted away and treated as a variable (see `VarStateM.exprToVar`).
 -/
 def VarStateM.computeCoefficients (op : Expr) (e : Expr) : VarStateM CoefficientsMap :=
   go {} e
@@ -108,7 +117,10 @@ mapping), extract the shared coefficients, such that `x` (resp. `y`) is the sum 
 coefficients in `common` and `x` (resp `y`) of the result. -/
 def SharedCoefficients.compute (x y : CoefficientsMap) : VarStateM SharedCoefficients := do
   let mut res : SharedCoefficients := { x, y }
-
+  -- FIXME: this could check the size of `x` and `y`, and choose to iterate over
+  --  the keys of the smaller map. This would decrease the number of iterations
+  --  needed to O(min |x| |y|), but this seems like it would be a non-linear usage
+  --  of one of the maps, thus forcing a copy.
   for idx in ← getAllVarIndices do
     match x[idx]?, y[idx]? with
     | some xCnt, some yCnt =>
@@ -122,16 +134,19 @@ def SharedCoefficients.compute (x y : CoefficientsMap) : VarStateM SharedCoeffic
 
   return res
 
-/-- Compute the canonical expression for a given set of coefficients. -/
+/-- Compute the canonical expression for a given set of coefficients.
+
+Returns `none` if all coefficients are zero.
+-/
 def CoefficientsMap.toExpr (coe : CoefficientsMap) (op : Expr) : VarStateM (Option Expr) := do
   let exprs := (← get).varExprs
   let mut acc := none
-
   for h : idx in [0:exprs.size] do
     let cnt := coe[idx]?.getD 0
     for _ in [0:cnt] do
       let expr := exprs[idx]
-      acc := match acc with
+      acc :=
+        match acc with
         | none => expr
         | some acc => some <| mkApp2 op acc expr
 
@@ -145,38 +160,28 @@ up to associativity and commutativity, construct and return a proof of `x = y`.
 Uses `ac_nf` internally to contruct said proof. -/
 def proveEqualityByAC (u : Level) (ty : Expr) (x y : Expr) : MetaM Expr := do
   let expectedType := mkApp3 (mkConst ``Eq [u]) ty x y
-  let goal ← mkFreshMVarId
-  let proof ← mkFreshExprMVarWithId goal expectedType
-  -- FIXME: this will likely fail to close the goal when the operation is not
-  --   actually associative and commutative. We likely want some `try`/`catch`
-  --   behaviour here, with a silently ignoring `Simp.Step.continue`
-  AC.rewriteUnnormalizedRefl goal -- invoke `ac_rfl`
+  let proof ← mkFreshExprMVar expectedType
+  AC.rewriteUnnormalizedRefl proof.mvarId! -- invoke `ac_rfl`
   instantiateMVars proof
 
 /--
-Given an expression `lhs = rhs`, canonicalize top-level applications of some
-associative and commutative operation  on both the `lhs` and the `rhs` such that
-the final expression is:
-  `$common ⋅ $lhs' = $common ⋅ $rhs'`
+Given an expression `lhs = rhs`, where `lhs, rhs : ty`,
+canonicalize top-level applications of some associative and commutative operation
+on both the `lhs` and the `rhs` such that the final expression is:
+  `$common ⊕ $lhs' = $common ⊕ $rhs'`
 That is, in a way that exposes terms that are shared between the lhs and rhs.
 
 Note that if both lhs and rhs are applications of a *different* operation, we
 canonicalize according to the *left* operation, meaning we treat the entire rhs
 as an atom. This is still useful, as it will pull out an occurence of the rhs
 in the lhs (if present) to the front (such an occurence would be the common
-expression).
+expression). For example `x + y + ((x * y) + x) = x * y` will be canonicalized
+to `(x * y) + ... = x * y`
 -/
-def canonicalizeWithSharing : Simp.Simproc := fun eq => do
-  let_expr Eq _ lhs rhs := eq | return .continue
-  withTraceNode  `Meta.AC (fun _ => pure m!"canonicalizeWithSharing: {eq}") <| do
+def canonicalizeEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
+  withTraceNode  `Meta.AC (fun _ => pure m!"canonicalizeEqWithSharing: {lhs} = {rhs}") <| do
 
-  let ty ← inferType lhs
-  let u ← match ← inferType ty with
-    | Expr.sort u => pure u
-    | tyOfTy => do
-      let u ← mkFreshLevelMVar
-      throwError "{ty} {← mkHasTypeButIsExpectedMsg tyOfTy (.sort u)}"
-
+  let u ← getLevel ty
   let op ← match lhs with
     | AC.bin op _ _ => pure op
     | _             => let AC.bin op .. := rhs | return .continue
@@ -194,24 +199,21 @@ def canonicalizeWithSharing : Simp.Simproc := fun eq => do
     --        (e.g., 0 for addition, or 1 for multiplication), and remove the
     --        corresponding coefficient
 
-    let ⟨commonCoe, xCoe, yCoe⟩ ← SharedCoefficients.compute lCoe rCoe
-    let mergeExpr : Option Expr → Option Expr → Option Expr
-      | some a, some b  => some <| mkApp2 op a b
-      | some e, none
-      | none,   some e  => some <| e
-      | none,   none    => none
-
+    let ⟨commonCoe, lCoe, rCoe⟩ ← SharedCoefficients.compute lCoe rCoe
     let commonExpr? : Option Expr ← commonCoe.toExpr op
-    let lNew? : Option Expr ← xCoe.toExpr op
-    -- It is not possible for both `commonExpr?` and `lNew?` to be none
-    let some lNew := mergeExpr commonExpr? lNew? | failure
+    let lNew? : Option Expr ← lCoe.toExpr op
 
-    let rNew? : Option Expr ← yCoe.toExpr op
+    -- Sid would appreciate examples where commonExpr? and lNew? can be none.
+    -- Since commonExpr + lCoe_{new} = lCoe_{old}, and lCoe_{old} ≠ 0,
+    -- it is not possible for both `commonExpr?` and `lNew?` to be none.
+    let some lNew := Option.merge (mkApp2 op) commonExpr? lNew? | failure
+
+    let rNew? : Option Expr ← rCoe.toExpr op
     -- Idem; it is not possible for both `commonExpr?` and `rNew?` to be none
-    let some rNew := mergeExpr commonExpr? rNew? | failure
+    let some rNew := Option.merge (mkApp2 op) commonExpr? rNew? | failure
 
-    let lEq : Expr /- of type `$lhs = $lNew` -/ ← proveEqualityByAC 1 ty lhs lNew
-    let rEq : Expr /- of type `$rhs = $rNew` -/ ← proveEqualityByAC 1 ty rhs rNew
+    let lEq : Expr /- of type `$lhs = $lNew` -/ ← proveEqualityByAC u.succ ty lhs lNew
+    let rEq : Expr /- of type `$rhs = $rNew` -/ ← proveEqualityByAC u.succ ty rhs rNew
 
     let expr : Expr /- `$xNew = $yNew` -/ := -- @Eq (BitVec ?w) _ _
       mkApp3 (.const ``Eq [u]) ty lNew rNew
@@ -226,15 +228,19 @@ def canonicalizeWithSharing : Simp.Simproc := fun eq => do
       proof? := some proof
     }
 
+def post : Simp.Simproc := fun e => do
+  match_expr e with
+  | Eq ty lhs rhs => canonicalizeEqWithSharing ty lhs rhs
+  | _ => AC.post e
+
 def rewriteUnnormalizedWithSharing (mvarId : MVarId) : MetaM MVarId := do
   let simpCtx ← Simp.mkContext
       (simpTheorems  := {})
       (congrTheorems := (← getSimpCongrTheorems))
       (config        := Simp.neutralConfig)
   let tgt ← instantiateMVars (← mvarId.getType)
-  let (res, _) ← Simp.main tgt simpCtx (methods := { post := canonicalizeWithSharing })
+  let (res, _) ← Simp.main tgt simpCtx (methods := { post := post })
   applySimpResultToTarget mvarId tgt res
-
 
 
 /-! ## Tactic Boilerplate -/
@@ -248,7 +254,7 @@ def acNfHypMeta (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
       (congrTheorems := (← getSimpCongrTheorems))
       (config        := Simp.neutralConfig)
     let tgt ← instantiateMVars (← fvarId.getType)
-    let (res, _) ← Simp.main tgt simpCtx (methods := { post := canonicalizeWithSharing })
+    let (res, _) ← Simp.main tgt simpCtx (methods := { post })
     return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)
 
 /-- Implementation of the `ac_nf'` tactic when operating on the main goal. -/
