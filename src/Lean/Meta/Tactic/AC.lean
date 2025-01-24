@@ -5,3 +5,4 @@ Authors: Dany Fabian
 -/
 prelude
 import Lean.Meta.Tactic.AC.Main
+import Lean.Meta.Tactic.AC.Sharing
