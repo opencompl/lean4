@@ -251,16 +251,16 @@ def acNfHypMeta (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
     let (res, _) ← Simp.main tgt simpCtx (methods := { post := canonicalizeWithSharing })
     return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)
 
-/-- Implementation of the `ac_nf!` tactic when operating on the main goal. -/
+/-- Implementation of the `ac_nf'` tactic when operating on the main goal. -/
 def acNfTargetTactic : TacticM Unit :=
   liftMetaTactic1 fun goal => rewriteUnnormalizedWithSharing goal
 
-/-- Implementation of the `ac_nf!` tactic when operating on a hypothesis. -/
+/-- Implementation of the `ac_nf'` tactic when operating on a hypothesis. -/
 def acNfHypTactic (fvarId : FVarId) : TacticM Unit :=
   liftMetaTactic1 fun goal => acNfHypMeta goal fvarId
 
 open Lean.Parser.Tactic (location) in
-elab "ac_nf!" loc?:(location)? : tactic => do
+elab "ac_nf'" loc?:(location)? : tactic => do
   let loc := match loc? with
   | some loc => expandLocation loc
   | none => Location.targets #[] true
