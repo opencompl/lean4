@@ -71,17 +71,26 @@ def VarStateM.isNeutral (e : Expr) : VarStateM Bool := do
   let { op, ty, level, .. } ← get
   let type := mkApp3 (.const ``Std.LawfulIdentity [level]) ty op e
   if let .some _ ← trySynthInstance type then
-    modify fun state@{ neutralCache, .. } => { state with }
-  -- trySynthInstance
-  --TODO: implement
+    modify fun state@{ neutralCache, .. } => { state with
+      neutralCache := neutralCache.insert e
+    }
+    return true
   pure false
 
 /-- Return an arbitrary neutral element for the current operations
 (i.e., `VarState.op`), or throw an error if no such element exists -/
-def VarStateM.getNeutral : VarStateM Expr := fun state@{ neutralCache, .. } => do
-  -- if neutralCache.contains
-  -- -- let
-  pure (.sort 0)
+def VarStateM.getNeutral : VarStateM Expr := do
+  for val in (← get).neutralCache do
+    return val
+
+  let { op, ty, level, .. } ← get
+  let e ← mkFreshExprMVar ty
+  let type := mkApp3 (.const ``Std.LawfulIdentity [level]) ty op e
+  let _ ← synthInstance type
+  modify (fun state@{ neutralCache, .. } => {state with
+    neutralCache := neutralCache.insert e
+  })
+  return e
 
 /-- Return the unique variable index for an expression, or `none` if the expression
 is a neutral element (see `isNeutral`).
@@ -226,7 +235,7 @@ def canonicalizeEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
   let some _ ← AC.getInstance ``Std.Associative #[op] | return .continue
   let some _ ← AC.getInstance ``Std.Commutative #[op] | return .continue
 
-  VarStateM.run' <| do
+  VarStateM.run' (s:= { op, ty, level := u }) <| do
     let lCoe ← computeCoefficients op lhs
     let rCoe ← computeCoefficients op rhs
 
