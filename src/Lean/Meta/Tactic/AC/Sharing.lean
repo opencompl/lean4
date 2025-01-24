@@ -66,7 +66,7 @@ def VarStateM.isNeutral (e : Expr) : VarStateM Bool :=
 /-- Return an arbitrary neutral element for the current operations
 (i.e., `VarState.op`), or throw an error if no such element exists -/
 def VarStateM.getNeutral : VarStateM Expr :=
-  --TODO: implement
+  let
   pure (.sort 0)
 
 /-- Return the unique variable index for an expression, or `none` if the expression
@@ -75,7 +75,7 @@ is a neutral element (see `isNeutral`).
 Modifies the monadic state to add a new mapping and increment the index,
 if needed. -/
 def VarStateM.exprToVar (e : Expr) : VarStateM (Option VarIndex) := do
-  let { varIndices, varExprs, .. } ← get
+  let { varIndices, .. } ← get
   match varIndices[e]? with
   | some idx => return idx
   | none =>
@@ -83,9 +83,9 @@ def VarStateM.exprToVar (e : Expr) : VarStateM (Option VarIndex) := do
       return none
 
     let nextIndex := varIndices.size
-    let varIndices := varIndices.insert e nextIndex
-    let varExprs := varExprs.push e
-    modify ({· with varIndices, varExprs })
+    modify (fun state@{varIndices, varExprs, ..} => {state with
+      varIndices := varIndices.insert e nextIndex
+      varExprs := varExprs.push e })
     return nextIndex
 
 /-- Return the expression that is represented by a specific variable index. -/
