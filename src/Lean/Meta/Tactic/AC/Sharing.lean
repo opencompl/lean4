@@ -17,6 +17,11 @@ abbrev VarIndex := Nat
 structure VarState where
   /-- The associative and commutative operator we are currently canonicalizing with respect to. -/
   op : Expr
+  /-- The type such that `op : $ty → $ty → $ty` -/
+  ty : Expr
+  /-- The universe level such that `ty : Sort $level` -/
+  level : Level
+
   /-- Map from atomic expressions to an index. -/
   varIndices : Std.HashMap Expr VarIndex := {}
   /-- Inverse of `varIndices`, which maps a `VarIndex` to the expression it represents. -/
@@ -44,7 +49,7 @@ abbrev CoefficientsMap := Std.HashMap VarIndex Nat
 
 abbrev VarStateM  := StateT VarState MetaM
 
-def VarStateM.run' (x : VarStateM α) (s : VarState := {}) : MetaM α :=
+def VarStateM.run' (x : VarStateM α) (s : VarState) : MetaM α :=
   StateT.run' x s
 
 /-! ### Implementation -/
@@ -59,14 +64,23 @@ def getAllVarIndices : VarStateM Std.Range := do
 /-- Return `true` if `e` is a neutral element for operation `op`.
 
 That is, if an instance of `LawfulIdentity op e` exists -/
-def VarStateM.isNeutral (e : Expr) : VarStateM Bool :=
+def VarStateM.isNeutral (e : Expr) : VarStateM Bool := do
+  if (← get).neutralCache.contains e then
+    return true
+
+  let { op, ty, level, .. } ← get
+  let type := mkApp3 (.const ``Std.LawfulIdentity [level]) ty op e
+  if let .some _ ← trySynthInstance type then
+    modify fun state@{ neutralCache, .. } => { state with }
+  -- trySynthInstance
   --TODO: implement
   pure false
 
 /-- Return an arbitrary neutral element for the current operations
 (i.e., `VarState.op`), or throw an error if no such element exists -/
-def VarStateM.getNeutral : VarStateM Expr :=
-  let
+def VarStateM.getNeutral : VarStateM Expr := fun state@{ neutralCache, .. } => do
+  -- if neutralCache.contains
+  -- -- let
   pure (.sort 0)
 
 /-- Return the unique variable index for an expression, or `none` if the expression
@@ -82,6 +96,7 @@ def VarStateM.exprToVar (e : Expr) : VarStateM (Option VarIndex) := do
     if ← isNeutral e then
       return none
 
+    -- TODO: is this linear usage?
     let nextIndex := varIndices.size
     modify (fun state@{varIndices, varExprs, ..} => {state with
       varIndices := varIndices.insert e nextIndex
