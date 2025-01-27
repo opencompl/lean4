@@ -1230,4 +1230,25 @@ theorem shiftRight_eq_ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
   · simp [of_length_zero]
   · simp [ushiftRightRec_eq]
 
+/- ### srem -/
+
+/-
+BitVec.srem_eq {w : Nat} (x y : BitVec w) :
+  x.srem y =
+    match x.msb, y.msb with
+    | false, false => x % y
+    | false, true => x % -y
+    | true, false => -(-x % y)
+    | true, true => -(-x % -y)
+-/
+
+-- theorem getLsbD_srem {x y : BitVec w} :
+--     srem x y = match x.msb, y.msb with
+--       | false, false => x.getLsbD_umod y
+--       | false, true => x.getLsbD_umod y
+--       | true, false => x.getLsbD_umod y
+--       | true, true => x.getLsbD_umod y
+--        := by
+--   sorry
+
 end BitVec
