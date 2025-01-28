@@ -13,6 +13,19 @@ theorem mul_mul_eq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) (h₁ : x₁ = x�
   guard_target =ₛ z * (x₁ * y₁) = z * (x₂ * y₂)
   sorry
 
+theorem ex_1 (x y z k₁ k₂ l₁ l₂ m₁ m₂ v : BitVec w)
+    (h₁ : k₁ = k₂) (h₂ : l₁ = l₂) (h₃ : m₁ = m₂) :
+    m₁ * x * (y * l₁ * k₁) * z = v * (k₂ * l₂ * x * y) * z * m₂ := by
+  ac_nf'
+  guard_target =ₛ x * y * z * (m₁ * l₁ * k₁) = x * y * z * (v * k₂ * l₂ * m₂)
+  sorry
+
+theorem ex_2 (x y : BitVec w) (h₁ : y = x) :
+    x * x * x * x = y * x * x * y := by
+  ac_nf'
+  guard_target =ₛ x * x * (x * x) = x * x * (y * y)
+  sorry
+
 -- This theorem is short-circuited and scales to standard bitwidths.
 /-- warning: declaration uses 'sorry' -/
 #guard_msgs in
