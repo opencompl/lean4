@@ -5,7 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-import Lean.Meta.Tactic.AC.Main
+import Lean.Meta.Tactic.AC.Sharing
 
 /-!
 This module contains the implementation of the associativity and commutativity normalisation pass
@@ -25,7 +25,7 @@ def acNormalizePass : Pass where
   run' goal := do
     let mut newGoal := goal
     for hyp in (← goal.getNondepPropHyps) do
-      let result ← AC.acNfHypMeta newGoal hyp
+      let result ← AC.Sharing.acNfHypMeta newGoal hyp
 
       if let .some nextGoal := result then
         newGoal := nextGoal
