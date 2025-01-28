@@ -137,18 +137,18 @@ abstracted away and treated as a variable (see `VarStateM.exprToVar`).
 def VarStateM.computeCoefficients (op : Expr) (e : Expr) : VarStateM CoefficientsMap :=
   go {} e
 where
-  incrVar (coe : CoefficientsMap) (e : Expr) : VarStateM CoefficientsMap := do
-    let some idx ← exprToVar e | return coe
-    return coe.alter idx (fun c => some <| (c.getD 0) + 1)
-  go (coe : CoefficientsMap) : Expr → VarStateM CoefficientsMap
+  incrVar (coeff : CoefficientsMap) (e : Expr) : VarStateM CoefficientsMap := do
+    let some idx ← exprToVar e | return coeff
+    return coeff.alter idx (fun c => some <| (c.getD 0) + 1)
+  go (coeff : CoefficientsMap) : Expr → VarStateM CoefficientsMap
   | e@(AC.bin op' x y) => do
       if ← isDefEq op op' then
-        let coe ← go coe x
-        let coe ← go coe y
-        return coe
+        let coeff ← go coeff x
+        let coeff ← go coeff y
+        return coeff
       else
-        incrVar coe e
-  | e => incrVar coe e
+        incrVar coeff e
+  | e => incrVar coeff e
 
 structure SharedCoefficients where
   common : CoefficientsMap := {}
@@ -160,10 +160,11 @@ mapping), extract the shared coefficients, such that `x` (resp. `y`) is the sum 
 coefficients in `common` and `x` (resp `y`) of the result. -/
 def SharedCoefficients.compute (x y : CoefficientsMap) : VarStateM SharedCoefficients := do
   let mut res : SharedCoefficients := { x, y }
-  -- FIXME: this could check the size of `x` and `y`, and choose to iterate over
+  -- TODO: this *could* check the size of `x` and `y`, and choose to iterate over
   --  the keys of the smaller map. This would decrease the number of iterations
   --  needed to O(min |x| |y|), but this seems like it would be a non-linear usage
-  --  of one of the maps, thus forcing a copy.
+  --  of one of the maps, thus forcing a copy. It's unclear whether this would
+  --  be an optimization or pessimization.
   for idx in ← getAllVarIndices do
     match x[idx]?, y[idx]? with
     | some xCnt, some yCnt =>
@@ -181,11 +182,13 @@ def SharedCoefficients.compute (x y : CoefficientsMap) : VarStateM SharedCoeffic
 
 Returns `none` if all coefficients are zero.
 -/
-def CoefficientsMap.toExpr (coe : CoefficientsMap) (op : Expr) : VarStateM (Option Expr) := do
+def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Expr) : VarStateM (Option Expr) := do
   let exprs := (← get).varExprs
   let mut acc := none
+  -- Note: we iterate over indices directly to ensure a canonical order of variables in the
+  -- returned expression. Iterating over `coeff` seems more efficient, but would not be canonical.
   for h : idx in [0:exprs.size] do
-    let cnt := coe[idx]?.getD 0
+    let cnt := coeff[idx]?.getD 0
     for _ in [0:cnt] do
       let expr := exprs[idx]
       acc :=
