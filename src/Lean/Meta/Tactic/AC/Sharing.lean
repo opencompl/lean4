@@ -284,6 +284,7 @@ def canonicalizeEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
 
 def post : Simp.Simproc := fun e => do
   match_expr e with
+  -- TODO: we should generalize `canonicalizeEqWithSharing` to also work with boolean equality!
   | Eq ty lhs rhs => canonicalizeEqWithSharing ty lhs rhs
   | _ =>
     let mkApp2 op _ _ := e | return .continue
