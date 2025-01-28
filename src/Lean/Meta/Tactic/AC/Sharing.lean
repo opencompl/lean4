@@ -133,6 +133,11 @@ c => 1
 
 Any compound expression which is not an application of the given `op` will be
 abstracted away and treated as a variable (see `VarStateM.exprToVar`).
+
+Note that the output is guaranteed to map at least one variable to a non-zero
+coefficient, *unless* the input expression only contains applications of neutral
+elements (e.g., `0 + (0 + 0)`), in which case the returned coefficients map will
+be empty.
 -/
 def VarStateM.computeCoefficients (op : Expr) (e : Expr) : VarStateM CoefficientsMap :=
   go {} e
@@ -157,7 +162,13 @@ structure SharedCoefficients where
 
 /-- Given two sets of coefficients `x` and `y` (computed with the same variable
 mapping), extract the shared coefficients, such that `x` (resp. `y`) is the sum of
-coefficients in `common` and `x` (resp `y`) of the result. -/
+coefficients in `common` and `x` (resp `y`) of the result.
+
+That is, if `{ common, x', y' } ← SharedCoeffients.compute x y`, then
+  `x[idx] = common[idx] + x'[idx]` and
+  `y[idx] = common[idx] + y'[idx]`
+for all valid variable indices `idx`.
+-/
 def SharedCoefficients.compute (x y : CoefficientsMap) : VarStateM SharedCoefficients := do
   let mut res : SharedCoefficients := { x, y }
   -- TODO: this *could* check the size of `x` and `y`, and choose to iterate over
@@ -200,7 +211,8 @@ def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Expr) : VarStateM (Op
 
 open VarStateM Lean.Meta Lean.Elab Term
 
-/-- Given two expressions `x, y : $ty`, where `ty : Sort $u`, which are equal
+/--
+Given two expressions `x, y : $ty`, where `ty : Sort $u`, which are equal
 up to associativity and commutativity, construct and return a proof of `x = y`.
 
 Uses `ac_nf` internally to contruct said proof. -/
@@ -239,19 +251,18 @@ def canonicalizeEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
   let some _ ← AC.getInstance ``Std.Commutative #[op] | return .continue
 
   VarStateM.run' (s:= { op, ty, level := u }) <| do
-    let lCoe ← computeCoefficients op lhs
-    let rCoe ← computeCoefficients op rhs
+    let lCoeff ← computeCoefficients op lhs
+    let rCoeff ← computeCoefficients op rhs
 
-    let ⟨commonCoe, lCoe, rCoe⟩ ← SharedCoefficients.compute lCoe rCoe
-    let commonExpr? : Option Expr ← commonCoe.toExpr op
-    let lNew? : Option Expr ← lCoe.toExpr op
-    let rNew? : Option Expr ← rCoe.toExpr op
+    let ⟨commonCoeff, lCoeff, rCoeff⟩ ← SharedCoefficients.compute lCoeff rCoeff
+    let commonExpr? : Option Expr ← commonCoeff.toExpr op
+    let lNew? : Option Expr ← lCoeff.toExpr op
+    let rNew? : Option Expr ← rCoeff.toExpr op
 
-    -- FIXME: Sid would appreciate examples where commonExpr? and lNew? can be none.
-    -- Since commonExpr + lCoe_{new} = lCoe_{old}, and lCoe_{old} ≠ 0,
-    -- it is only possible for both `commonExpr?` and `lNew?` to be none if
-    -- `lhs` contains only neutral elements, in which case we default to
-    -- `lNew` being some canonical neutral element.
+    -- Since `lCoeff_{old} = commonCoeff + lCoeff_{new}`, and all coefficients
+    -- of `lCoeff_{old}` are zero iff `lExpr` contains only neutral elements,
+    -- we default to `lNew` being some canonical neutral element if both
+    -- `commonExpr?` and `lNew?` are `none`.
     let lNew ← Option.merge (mkApp2 op) commonExpr? lNew? |>.getDM getNeutral
     let rNew ← Option.merge (mkApp2 op) commonExpr? rNew? |>.getDM getNeutral
 
