@@ -333,7 +333,23 @@ def acNfTargetTactic : TacticM Unit :=
 def acNfHypTactic (fvarId : FVarId) : TacticM Unit :=
   liftMetaTactic1 fun goal => acNfHypMeta goal fvarId
 
+example (x y : Nat) : x + y = y + x :=  by ac_nf
+
 open Lean.Parser.Tactic (location) in
+/--
+`ac_nf'` normalizes equalities up to application of an associative and commutative operator,
+in a way that exposes common terms among both sides of an equality.
+- `ac_nf'` normalizes all hypotheses and the goal target of the goal.
+- `ac_nf' at l` normalizes at location(s) `l`, where `l` is either `*` or a
+  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
+  can also be used, to signify the target of the goal.
+
+`ac_nf'` differs from `ac_nf` in how the canonical form of the left-hand-side of
+an equality can depend on the right-hand-side, in particular, to expose shared terms.
+For example, `x₁ * (y₁ * z) = x₂ * (y₂ * z)` is normalized to
+`z * (x₁ * y₁) = z * (x₂ * y₂)`, pulling the shared variable `z` to the front on
+both sides.
+-/
 elab "ac_nf'" loc?:(location)? : tactic => do
   let loc := match loc? with
   | some loc => expandLocation loc
