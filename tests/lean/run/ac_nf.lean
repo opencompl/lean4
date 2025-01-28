@@ -72,12 +72,12 @@ local macro "repeat_add" n:num "with" x:term  : term =>
 
 /-
 This test showcases that the runtime of `ac_nf'` is not a bottleneck:
-* The current example runs in about 250ms with a disabled kernel, or ~5 seconds with,
-    showing that the tactic runtime is tiny compared to the proof-checking time, and
-* Putting in 125 for the repitition amount wil give a `maximum recursion depth has been reached`
+* Testing with 100 as the repetition amount runs in about 200ms with `skipKernelTC` set,
+    or ~3.3 seconds without (c.q. 2.3s for `ac_rfl`), and
+* Putting in 125 for the repetition amount wil give a `maximum recursion depth has been reached`
     error thrown by simp anyway, so the runtime is not a limiting factor to begin with.
 -/
 set_option debug.skipKernelTC true in
 example (x y : BitVec 64) :
-    (repeat_add 124 with x + y) = (repeat_add 124 with x) + (repeat_add 124 with y) := by
+    (repeat_add 100 with x + y) = (repeat_add 100 with x) + (repeat_add 100 with y) := by
   ac_nf'; rfl
