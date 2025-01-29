@@ -286,7 +286,7 @@ def canonicalizeEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
 
 
 theorem beq_congr {α : Type u} [inst : BEq α] {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = a₂) (h₂ : b₁ = b₂) :
-  (a₁ == b₁) = (a₂ == b₂) := by
+    (a₁ == b₁) = (a₂ == b₂) := by
   simp only [h₁, h₂]
 
 def canonicalizeBEqWithSharing (ty inst lhs rhs : Expr) : SimpM Simp.Step := do
