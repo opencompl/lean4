@@ -6,12 +6,12 @@ Authors: Alex Keizer
 prelude
 import Lean.Meta.Tactic.AC.Main
 import Init.Grind.Lemmas
-import Std.Tactic.BVDecide
+
+namespace Lean.Meta.AC.Sharing
 
 open Lean Meta
 
 /-! ### Types -/
-namespace AcNfBEq
 
 abbrev VarIndex := Nat
 
@@ -345,7 +345,6 @@ def post : Simp.Simproc := fun e => do
   | Eq ty lhs rhs =>
     canonicalizeEqWithSharing ty lhs rhs
   | BEq.beq ty inst lhs rhs =>
-    logInfo m!"@BEq.bEq {e}"
     canonicalizeBEqWithSharing ty inst lhs rhs
   | _ =>
     let mkApp2 op _ _ := e | return .continue
@@ -378,7 +377,6 @@ open Tactic
 
 def acNfHypMeta (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
   goal.withContext do
-    throwError "yy"
     let simpCtx ← Simp.mkContext
       (simpTheorems  := {})
       (congrTheorems := (← getSimpCongrTheorems))
@@ -426,11 +424,9 @@ elab "ac_nf'" loc?:(location)? : tactic => do
       acNfTargetTactic'
       (← (← getMainGoal).getNondepPropHyps).forM acNfHypTactic'
 
-end AcNfBEq
 
 section Examples
 
-open AcNfBEq
 
 example {a b c d : Nat} : (a * b * (d + c)) == (b * a * (c + d)) := by
   ac_nf'
