@@ -325,8 +325,6 @@ def canonicalizeBEqWithSharing (ty inst lhs rhs : Expr) : SimpM Simp.Step := do
     let lEq : Expr /- of type `$lhs = $lNew` -/ ← proveEqualityByAC u ty lhs lNew
     let rEq : Expr /- of type `$rhs = $rNew` -/ ← proveEqualityByAC u ty rhs rNew
 
-    -- let uLvl ← Meta.mkFreshLevelMVar -- decrement u to go from Sort to Type.
-
     let expr : Expr /- `$lNew == $lNew` -/ :=
       mkApp4 (.const ``BEq.beq [uLvl]) ty inst lNew rNew
 
