@@ -284,7 +284,8 @@ def canonicalizeEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
       proof? := some proof
     }
 
-theorem beq_congr' {α : Type u} [inst : BEq α] {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = a₂) (h₂ : b₁ = b₂) :
+
+theorem beq_congr {α : Type u} [inst : BEq α] {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = a₂) (h₂ : b₁ = b₂) :
   (a₁ == b₁) = (a₂ == b₂) := by
   simp only [h₁, h₂]
 
@@ -292,8 +293,9 @@ def canonicalizeBEqWithSharing (ty inst lhs rhs : Expr) : SimpM Simp.Step := do
   withTraceNode (collapsed := true)  `Meta.AC (fun _ => pure m!"canonicalizeBEqWithSharing") <| do
     logInfo m!"{lhs} = {rhs}"
   /- lhs == rhs -/
-
   let u ← getLevel ty -- Sort 1
+  let uLvl ← getDecLevel ty
+
   let op ← match lhs with
     | AC.bin op _ _ => pure op
     | _             => let AC.bin op .. := rhs | return .continue
@@ -320,31 +322,18 @@ def canonicalizeBEqWithSharing (ty inst lhs rhs : Expr) : SimpM Simp.Step := do
     let lNew ← Option.merge (mkApp2 op) commonExpr? lNew? |>.getDM getNeutral
     let rNew ← Option.merge (mkApp2 op) commonExpr? rNew? |>.getDM getNeutral
 
-    /- lhs = lNew ∧ rhs = rNew -/
     let lEq : Expr /- of type `$lhs = $lNew` -/ ← proveEqualityByAC u ty lhs lNew
     let rEq : Expr /- of type `$rhs = $rNew` -/ ← proveEqualityByAC u ty rhs rNew
 
-    let uLvl ← Meta.mkFreshLevelMVar -- please decrement u to go from Sort to Type.
-    /- new expression: lNew == rNew -/
-    let expr : Expr /- `$xNew == $yNew` -/ := -- @Eq (BitVec ?w) _ _
-      -- ← mkAppM ``BEq.beq #[lNew, rNew]
-      -- Type 0 = Sort 1
-      mkApp4 (.const ``BEq.beq [uLvl]) ty inst lNew rNew
-      -- mkApp4 (.const ``BEq.beq [u]) ty inst lNew rNew
-    logWarning m!"Ty: {ty} | Level: {← getLevel ty}"
-    try
-      check expr
-    catch e =>
-      throwError m!"Level: {u} | Expr: {expr} | {e.toMessageData}"
+    -- let uLvl ← Meta.mkFreshLevelMVar -- decrement u to go from Sort to Type.
 
+    let expr : Expr /- `$lNew == $lNew` -/ :=
+      mkApp4 (.const ``BEq.beq [uLvl]) ty inst lNew rNew
 
     /- (lhs == rhs) = (lNew == rNew) -/
     let proof : Expr :=
-      mkAppN (mkConst ``beq_congr' [uLvl])
+      mkAppN (mkConst ``beq_congr [uLvl])
         #[ty, inst, lhs, rhs, lNew, rNew, lEq, rEq]
-    check proof
-
-    trace[Meta.AC] "proof is :\n\t{proof}"
 
     trace[Meta.AC] "rewrote to:\n\t{expr}"
     return Simp.Step.continue <| some {
