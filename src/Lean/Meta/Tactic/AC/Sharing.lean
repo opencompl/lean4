@@ -6,11 +6,12 @@ Authors: Alex Keizer
 prelude
 import Lean.Meta.Tactic.AC.Main
 import Init.Grind.Lemmas
+import Std.Tactic.BVDecide
 
-namespace Lean.Meta.AC.Sharing
 open Lean Meta
 
 /-! ### Types -/
+namespace AcNfBEq
 
 abbrev VarIndex := Nat
 
@@ -283,12 +284,13 @@ def canonicalizeEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
       proof? := some proof
     }
 
-def BeqEqTransitivity (lhs rhs lNew rNew : Expr) (lEq rEq):=
-  (lhs == rhs) ∧ lEq ∧ rEq → (lNew == rNew)
+theorem beq_congr' {α : Type u} [inst : BEq α] {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = a₂) (h₂ : b₁ = b₂) :
+  (a₁ == b₁) = (a₂ == b₂) := by
+  simp only [h₁, h₂]
 
-def canonicalizeBEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
-  withTraceNode  `Meta.AC (fun _ => pure m!"canonicalizeBEqWithSharing: BEq.beq {lhs} {rhs}") <| do
-
+def canonicalizeBEqWithSharing (ty inst lhs rhs : Expr) : SimpM Simp.Step := do
+  withTraceNode (collapsed := true)  `Meta.AC (fun _ => pure m!"canonicalizeBEqWithSharing") <| do
+    logInfo m!"{lhs} = {rhs}"
   /- lhs == rhs -/
 
   let u ← getLevel ty
@@ -324,12 +326,14 @@ def canonicalizeBEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
 
     /- new expression: lNew == rNew -/
     let expr : Expr /- `$xNew == $yNew` -/ := -- @Eq (BitVec ?w) _ _
-      mkApp3 (.const ``BEq.beq [u]) ty lNew rNew
+      mkApp4 (.const ``BEq.beq [u]) ty inst lNew rNew
 
     /- (lhs == rhs) = (lNew == rNew) -/
     let proof : Expr :=
-      mkAppN (mkConst ``BeqEqTransitivity)
-        #[lhs, rhs, lNew, rNew, lEq, rEq]
+      mkAppN (mkConst ``beq_congr' [u])
+        #[ty, inst, lhs, rhs, lNew, rNew, lEq, rEq]
+
+    trace[Meta.AC] "proof is :\n\t{proof}"
 
     trace[Meta.AC] "rewrote to:\n\t{expr}"
     return Simp.Step.continue <| some {
@@ -340,8 +344,11 @@ def canonicalizeBEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
 def post : Simp.Simproc := fun e => do
   match_expr e with
   -- TODO: we should generalize `canonicalizeEqWithSharing` to also work with boolean equality!
-  | Eq ty lhs rhs => canonicalizeEqWithSharing ty lhs rhs
-  | BEq.beq ty lhs rhs => canonicalizeBEqWithSharing ty lhs rhs
+  | Eq ty lhs rhs =>
+    canonicalizeEqWithSharing ty lhs rhs
+  | BEq.beq ty inst lhs rhs =>
+    logInfo m!"@BEq.bEq {e}"
+    canonicalizeBEqWithSharing ty inst lhs rhs
   | _ =>
     let mkApp2 op _ _ := e | return .continue
     match (← Simp.getContext).parent? with
@@ -373,6 +380,7 @@ open Tactic
 
 def acNfHypMeta (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
   goal.withContext do
+    throwError "yy"
     let simpCtx ← Simp.mkContext
       (simpTheorems  := {})
       (congrTheorems := (← getSimpCongrTheorems))
@@ -382,11 +390,11 @@ def acNfHypMeta (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
     return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)
 
 /-- Implementation of the `ac_nf'` tactic when operating on the main goal. -/
-def acNfTargetTactic : TacticM Unit :=
+def acNfTargetTactic' : TacticM Unit := do
   liftMetaTactic1 fun goal => rewriteUnnormalizedWithSharing goal
 
 /-- Implementation of the `ac_nf'` tactic when operating on a hypothesis. -/
-def acNfHypTactic (fvarId : FVarId) : TacticM Unit :=
+def acNfHypTactic' (fvarId : FVarId) : TacticM Unit :=
   liftMetaTactic1 fun goal => acNfHypMeta goal fvarId
 
 example (x y : Nat) : x + y = y + x :=  by ac_nf
@@ -413,16 +421,39 @@ elab "ac_nf'" loc?:(location)? : tactic => do
   withMainContext do
     match loc with
     | Location.targets hyps target =>
-      if target then acNfTargetTactic
-      (← getFVarIds hyps).forM acNfHypTactic
+      if target then do
+        acNfTargetTactic'
+      (← getFVarIds hyps).forM acNfHypTactic'
     | Location.wildcard =>
-      acNfTargetTactic
-      (← (← getMainGoal).getNondepPropHyps).forM acNfHypTactic
+      acNfTargetTactic'
+      (← (← getMainGoal).getNondepPropHyps).forM acNfHypTactic'
 
+end AcNfBEq
 
-example {a b c d : Nat} : BEq.beq (a * b * (d + c)) (b * a * (c + d)) := by
+section Examples
+
+open AcNfBEq
+
+set_option trace.Meta.AC true in
+theorem eg1 {α : Nat} {a b c d : Nat}  [i : BEq Nat ]: (a * b * (d + c)) == (b * a * (c + d)) := by
   ac_nf'
-  simp only [beq_self_eq_true]
+  sorry
 
-theorem test (a b c d : BitVec w) : ((a == b) ∧ (a = c) ∧ (b = d)) → (c == d) := by
-  simp_all only [beq_iff_eq, and_imp, implies_true]
+
+end Examples
+
+#check BEq.beq
+
+-- BEq.beq.{universeLevel} {type : Type universeLevel} [typeclassInstance : BEq type] : type → type → Bool
+
+#check Add
+
+instance instAdd1 : Add Nat where
+  add a b := a + b
+
+instance instAdd2 : Add Nat where
+  add a b := max a b
+
+#eval Add.add (self := instAdd1) (1 : Nat) (2 : Nat)
+#eval Add.add (self := instAdd2) (1 : Nat) (2 : Nat)
+-- #print eg1
