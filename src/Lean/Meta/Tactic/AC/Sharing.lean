@@ -238,58 +238,11 @@ in the lhs (if present) to the front (such an occurence would be the common
 expression). For example `x + y + ((x * y) + x) = x * y` will be canonicalized
 to `(x * y) + ... = x * y`
 -/
-def canonicalizeEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
-  withTraceNode  `Meta.AC (fun _ => pure m!"canonicalizeEqWithSharing: {lhs} = {rhs}") <| do
-
-  let u ← getLevel ty
-  let op ← match lhs with
-    | AC.bin op _ _ => pure op
-    | _             => let AC.bin op .. := rhs | return .continue
-                       pure op
-
-  -- Check that `op` is associative and commutative, so that we don't get
-  -- inscrutable errors later. If it's not, bail out.
-  let some _ ← AC.getInstance ``Std.Associative #[op] | return .continue
-  let some _ ← AC.getInstance ``Std.Commutative #[op] | return .continue
-
-  VarStateM.run' (s:= { op, ty, level := u }) <| do
-    let lCoeff ← computeCoefficients op lhs
-    let rCoeff ← computeCoefficients op rhs
-
-    let ⟨commonCoeff, lCoeff, rCoeff⟩ ← SharedCoefficients.compute lCoeff rCoeff
-    let commonExpr? : Option Expr ← commonCoeff.toExpr op
-    let lNew? : Option Expr ← lCoeff.toExpr op
-    let rNew? : Option Expr ← rCoeff.toExpr op
-
-    -- Since `lCoeff_{old} = commonCoeff + lCoeff_{new}`, and all coefficients
-    -- of `lCoeff_{old}` are zero iff `lExpr` contains only neutral elements,
-    -- we default to `lNew` being some canonical neutral element if both
-    -- `commonExpr?` and `lNew?` are `none`.
-    let lNew ← Option.merge (mkApp2 op) commonExpr? lNew? |>.getDM getNeutral
-    let rNew ← Option.merge (mkApp2 op) commonExpr? rNew? |>.getDM getNeutral
-
-    let lEq : Expr /- of type `$lhs = $lNew` -/ ← proveEqualityByAC u ty lhs lNew
-    let rEq : Expr /- of type `$rhs = $rNew` -/ ← proveEqualityByAC u ty rhs rNew
-
-    let expr : Expr /- `$xNew = $yNew` -/ := -- @Eq (BitVec ?w) _ _
-      mkApp3 (.const ``Eq [u]) ty lNew rNew
-
-    let proof : Expr /- of type `($x = $y) = ($xNew = $yNew)` -/ :=
-      mkAppN (mkConst ``Grind.eq_congr [u])
-        #[ty, lhs, rhs, lNew, rNew, lEq, rEq]
-
-    trace[Meta.AC] "rewrote to:\n\t{expr}"
-    return Simp.Step.continue <| some {
-      expr := expr
-      proof? := some proof
-    }
-
-
 theorem beq_congr {α : Type u} [inst : BEq α] {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = a₂) (h₂ : b₁ = b₂) :
     (a₁ == b₁) = (a₂ == b₂) := by
   simp only [h₁, h₂]
 
-def canonicalizeBEqWithSharing (ty inst lhs rhs : Expr) : SimpM Simp.Step := do
+def canonicalizeWithSharing (eqType : Nat) (ty inst lhs rhs : Expr) : SimpM Simp.Step := do
   withTraceNode (collapsed := true)  `Meta.AC (fun _ => pure m!"canonicalizeBEqWithSharing") <| do
     logInfo m!"{lhs} = {rhs}"
   /- lhs == rhs -/
@@ -325,27 +278,42 @@ def canonicalizeBEqWithSharing (ty inst lhs rhs : Expr) : SimpM Simp.Step := do
     let lEq : Expr /- of type `$lhs = $lNew` -/ ← proveEqualityByAC u ty lhs lNew
     let rEq : Expr /- of type `$rhs = $rNew` -/ ← proveEqualityByAC u ty rhs rNew
 
-    let expr : Expr /- `$lNew == $lNew` -/ :=
-      mkApp4 (.const ``BEq.beq [uLvl]) ty inst lNew rNew
+    match eqType with
+    | 0 =>
+      let expr : Expr /- `$lNew == $lNew` -/ :=
+          mkApp4 (.const ``BEq.beq [uLvl]) ty inst lNew rNew
 
-    /- (lhs == rhs) = (lNew == rNew) -/
-    let proof : Expr :=
-      mkAppN (mkConst ``beq_congr [uLvl])
-        #[ty, inst, lhs, rhs, lNew, rNew, lEq, rEq]
+        /- (lhs == rhs) = (lNew == rNew) -/
+        let proof : Expr :=
+          mkAppN (mkConst ``beq_congr [uLvl])
+            #[ty, inst, lhs, rhs, lNew, rNew, lEq, rEq]
 
-    trace[Meta.AC] "rewrote to:\n\t{expr}"
-    return Simp.Step.continue <| some {
-      expr := expr
-      proof? := some proof
-    }
+        trace[Meta.AC] "rewrote to:\n\t{expr}"
+        return Simp.Step.continue <| some {
+          expr := expr
+          proof? := some proof
+        }
+    | 1 =>
+      let expr : Expr /- `$xNew = $yNew` -/ := -- @Eq (BitVec ?w) _ _
+        mkApp3 (.const ``Eq [u]) ty lNew rNew
+
+      let proof : Expr /- of type `($x = $y) = ($xNew = $yNew)` -/ :=
+        mkAppN (mkConst ``Grind.eq_congr [u])
+          #[ty, lhs, rhs, lNew, rNew, lEq, rEq]
+
+      trace[Meta.AC] "rewrote to:\n\t{expr}"
+      return Simp.Step.continue <| some {
+        expr := expr
+        proof? := some proof
+      }
+    | _ => throwError "unexpected predicate"
 
 def post : Simp.Simproc := fun e => do
   match_expr e with
-  -- TODO: we should generalize `canonicalizeEqWithSharing` to also work with boolean equality!
-  | Eq ty lhs rhs =>
-    canonicalizeEqWithSharing ty lhs rhs
+  | Eq ty inst lhs rhs =>
+      canonicalizeWithSharing 0 ty inst lhs rhs
   | BEq.beq ty inst lhs rhs =>
-    canonicalizeBEqWithSharing ty inst lhs rhs
+      canonicalizeWithSharing 1 ty inst lhs rhs
   | _ =>
     let mkApp2 op _ _ := e | return .continue
     match (← Simp.getContext).parent? with
@@ -428,9 +396,9 @@ elab "ac_nf'" loc?:(location)? : tactic => do
 section Examples
 
 
-example {a b c d : Nat} : (a * b * (d + c)) == (b * a * (c + d)) := by
+example {a b c d : Nat} : (a * b * (d + c)) = ((c + d) * b * a) := by
   ac_nf'
-  simp only [beq_self_eq_true]
+  omega
 
 
 example {a b c d : BitVec 8} : (a * b * (d + c)) == (b * a * (c + d)) := by
