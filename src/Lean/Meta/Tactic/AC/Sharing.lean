@@ -293,7 +293,7 @@ def canonicalizeBEqWithSharing (ty inst lhs rhs : Expr) : SimpM Simp.Step := do
     logInfo m!"{lhs} = {rhs}"
   /- lhs == rhs -/
 
-  let u ← getLevel ty
+  let u ← getLevel ty -- Sort 1
   let op ← match lhs with
     | AC.bin op _ _ => pure op
     | _             => let AC.bin op .. := rhs | return .continue
@@ -324,14 +324,25 @@ def canonicalizeBEqWithSharing (ty inst lhs rhs : Expr) : SimpM Simp.Step := do
     let lEq : Expr /- of type `$lhs = $lNew` -/ ← proveEqualityByAC u ty lhs lNew
     let rEq : Expr /- of type `$rhs = $rNew` -/ ← proveEqualityByAC u ty rhs rNew
 
+    let uLvl ← Meta.mkFreshLevelMVar -- please decrement u to go from Sort to Type.
     /- new expression: lNew == rNew -/
     let expr : Expr /- `$xNew == $yNew` -/ := -- @Eq (BitVec ?w) _ _
-      mkApp4 (.const ``BEq.beq [u]) ty inst lNew rNew
+      -- ← mkAppM ``BEq.beq #[lNew, rNew]
+      -- Type 0 = Sort 1
+      mkApp4 (.const ``BEq.beq [uLvl]) ty inst lNew rNew
+      -- mkApp4 (.const ``BEq.beq [u]) ty inst lNew rNew
+    logWarning m!"Ty: {ty} | Level: {← getLevel ty}"
+    try
+      check expr
+    catch e =>
+      throwError m!"Level: {u} | Expr: {expr} | {e.toMessageData}"
+
 
     /- (lhs == rhs) = (lNew == rNew) -/
     let proof : Expr :=
-      mkAppN (mkConst ``beq_congr' [u])
+      mkAppN (mkConst ``beq_congr' [uLvl])
         #[ty, inst, lhs, rhs, lNew, rNew, lEq, rEq]
+    check proof
 
     trace[Meta.AC] "proof is :\n\t{proof}"
 
@@ -435,7 +446,7 @@ section Examples
 open AcNfBEq
 
 set_option trace.Meta.AC true in
-theorem eg1 {α : Nat} {a b c d : Nat}  [i : BEq Nat ]: (a * b * (d + c)) == (b * a * (c + d)) := by
+theorem eg1 {a b c d : Nat} : BEq.beq (a * b * (d + c)) (b * a * (c + d)) := by
   ac_nf'
   sorry
 
