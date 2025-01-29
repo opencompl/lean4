@@ -211,6 +211,7 @@ def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Expr) : VarStateM (Op
 
 open VarStateM Lean.Meta Lean.Elab Term
 
+
 /--
 Given two expressions `x, y : $ty`, where `ty : Sort $u`, which are equal
 up to associativity and commutativity, construct and return a proof of `x = y`.
@@ -282,10 +283,65 @@ def canonicalizeEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
       proof? := some proof
     }
 
+def BeqEqTransitivity (lhs rhs lNew rNew : Expr) (lEq rEq):=
+  (lhs == rhs) ∧ lEq ∧ rEq → (lNew == rNew)
+
+def canonicalizeBEqWithSharing (ty lhs rhs : Expr) : SimpM Simp.Step := do
+  withTraceNode  `Meta.AC (fun _ => pure m!"canonicalizeBEqWithSharing: BEq.beq {lhs} {rhs}") <| do
+
+  /- lhs == rhs -/
+
+  let u ← getLevel ty
+  let op ← match lhs with
+    | AC.bin op _ _ => pure op
+    | _             => let AC.bin op .. := rhs | return .continue
+                       pure op
+
+  -- Check that `op` is associative and commutative, so that we don't get
+  -- inscrutable errors later. If it's not, bail out.
+  let some _ ← AC.getInstance ``Std.Associative #[op] | return .continue
+  let some _ ← AC.getInstance ``Std.Commutative #[op] | return .continue
+
+  VarStateM.run' (s:= { op, ty, level := u }) <| do
+    let lCoeff ← computeCoefficients op lhs
+    let rCoeff ← computeCoefficients op rhs
+
+    let ⟨commonCoeff, lCoeff, rCoeff⟩ ← SharedCoefficients.compute lCoeff rCoeff
+    let commonExpr? : Option Expr ← commonCoeff.toExpr op
+    let lNew? : Option Expr ← lCoeff.toExpr op
+    let rNew? : Option Expr ← rCoeff.toExpr op
+
+    -- Since `lCoeff_{old} = commonCoeff + lCoeff_{new}`, and all coefficients
+    -- of `lCoeff_{old}` are zero iff `lExpr` contains only neutral elements,
+    -- we default to `lNew` being some canonical neutral element if both
+    -- `commonExpr?` and `lNew?` are `none`.
+    let lNew ← Option.merge (mkApp2 op) commonExpr? lNew? |>.getDM getNeutral
+    let rNew ← Option.merge (mkApp2 op) commonExpr? rNew? |>.getDM getNeutral
+
+    /- lhs = lNew ∧ rhs = rNew -/
+    let lEq : Expr /- of type `$lhs = $lNew` -/ ← proveEqualityByAC u ty lhs lNew
+    let rEq : Expr /- of type `$rhs = $rNew` -/ ← proveEqualityByAC u ty rhs rNew
+
+    /- new expression: lNew == rNew -/
+    let expr : Expr /- `$xNew == $yNew` -/ := -- @Eq (BitVec ?w) _ _
+      mkApp3 (.const ``BEq.beq [u]) ty lNew rNew
+
+    /- (lhs == rhs) = (lNew == rNew) -/
+    let proof : Expr :=
+      mkAppN (mkConst ``BeqEqTransitivity)
+        #[lhs, rhs, lNew, rNew, lEq, rEq]
+
+    trace[Meta.AC] "rewrote to:\n\t{expr}"
+    return Simp.Step.continue <| some {
+      expr := expr
+      proof? := some proof
+    }
+
 def post : Simp.Simproc := fun e => do
   match_expr e with
   -- TODO: we should generalize `canonicalizeEqWithSharing` to also work with boolean equality!
   | Eq ty lhs rhs => canonicalizeEqWithSharing ty lhs rhs
+  | BEq.beq ty lhs rhs => canonicalizeBEqWithSharing ty lhs rhs
   | _ =>
     let mkApp2 op _ _ := e | return .continue
     match (← Simp.getContext).parent? with
@@ -362,3 +418,11 @@ elab "ac_nf'" loc?:(location)? : tactic => do
     | Location.wildcard =>
       acNfTargetTactic
       (← (← getMainGoal).getNondepPropHyps).forM acNfHypTactic
+
+
+example {a b c d : Nat} : BEq.beq (a * b * (d + c)) (b * a * (c + d)) := by
+  ac_nf'
+  simp only [beq_self_eq_true]
+
+theorem test (a b c d : BitVec w) : ((a == b) ∧ (a = c) ∧ (b = d)) → (c == d) := by
+  simp_all only [beq_iff_eq, and_imp, implies_true]
