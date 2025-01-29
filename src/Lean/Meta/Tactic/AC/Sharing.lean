@@ -432,26 +432,11 @@ section Examples
 
 open AcNfBEq
 
-set_option trace.Meta.AC true in
-theorem eg1 {a b c d : Nat} : BEq.beq (a * b * (d + c)) (b * a * (c + d)) := by
+example {a b c d : Nat} : (a * b * (d + c)) == (b * a * (c + d)) := by
   ac_nf'
-  sorry
+  simp only [beq_self_eq_true]
 
 
-end Examples
-
-#check BEq.beq
-
--- BEq.beq.{universeLevel} {type : Type universeLevel} [typeclassInstance : BEq type] : type → type → Bool
-
-#check Add
-
-instance instAdd1 : Add Nat where
-  add a b := a + b
-
-instance instAdd2 : Add Nat where
-  add a b := max a b
-
-#eval Add.add (self := instAdd1) (1 : Nat) (2 : Nat)
-#eval Add.add (self := instAdd2) (1 : Nat) (2 : Nat)
--- #print eg1
+example {a b c d : BitVec 8} : (a * b * (d + c)) == (b * a * (c + d)) := by
+  ac_nf'
+  simp only [beq_self_eq_true]
