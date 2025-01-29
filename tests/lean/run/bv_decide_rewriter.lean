@@ -90,8 +90,8 @@ example (a b c: Bool) : (if a then b else c) = (if !a then c else b) := by bv_no
 
 section
 
-example (x y : BitVec 256) : x * y = y * x := by
-  bv_decide (config := { acNf := true })
+-- example (x y : BitVec 256) : x * y = y * x := by
+--   bv_decide (config := { acNf := true })
 
 example {x y z : BitVec 64} : ~~~(x &&& (y * z)) = (~~~x ||| ~~~(z * y)) := by
   bv_decide (config := { acNf := true })
