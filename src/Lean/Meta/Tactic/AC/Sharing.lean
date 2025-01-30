@@ -224,15 +224,11 @@ def proveEqualityByAC (x y : Expr) : MetaM Expr := do
   AC.rewriteUnnormalizedRefl proof.mvarId! -- invoke `ac_rfl`
   instantiateMVars proof
 
-structure ACPredicateBuilder where
-  /-- `mkNewExpr lhs rhs` constructs the expression `P newLhs newRhs`, for predicate `P`. -/
-  mkNewExpr : Expr → Expr → Expr
-
 /--
-Given an expression `lhs = rhs`, where `lhs, rhs : ty`,
+Given an expression `P lhs rhs`, where `lhs, rhs : ty` and `P : $ty → $ty → _`,
 canonicalize top-level applications of some associative and commutative operation
 on both the `lhs` and the `rhs` such that the final expression is:
-  `$common ⊕ $lhs' = $common ⊕ $rhs'`
+  `P ($common ⊕ $lhs') ($common ⊕ $rhs')`
 That is, in a way that exposes terms that are shared between the lhs and rhs.
 
 Note that if both lhs and rhs are applications of a *different* operation, we
@@ -242,7 +238,7 @@ in the lhs (if present) to the front (such an occurence would be the common
 expression). For example `x + y + ((x * y) + x) = x * y` will be canonicalized
 to `(x * y) + ... = x * y`
 -/
-def canonicalizeWithSharing (builder : ACPredicateBuilder) (ty lhs rhs : Expr) : SimpM Simp.Step := do
+def canonicalizeWithSharing (P : Expr) (ty lhs rhs : Expr) : SimpM Simp.Step := do
   withTraceNode (collapsed := true)  `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
 
   let u ← getLevel ty
@@ -272,8 +268,8 @@ def canonicalizeWithSharing (builder : ACPredicateBuilder) (ty lhs rhs : Expr) :
     let lNew ← Option.merge (mkApp2 op) commonExpr? lNew? |>.getDM getNeutral
     let rNew ← Option.merge (mkApp2 op) commonExpr? rNew? |>.getDM getNeutral
 
-    let oldExpr := builder.mkNewExpr lhs rhs
-    let expr := builder.mkNewExpr lNew rNew
+    let oldExpr := mkApp2 P lhs rhs
+    let expr := mkApp2 P lNew rNew
 
     let proof ← proveEqualityByAC oldExpr expr
 
@@ -287,16 +283,12 @@ def post : Simp.Simproc := fun e => do
   match_expr e with
   | Eq ty lhs rhs =>
       let u ← getLevel ty
-      let builder := {
-        mkNewExpr := mkApp3 (.const ``Eq [u]) ty
-      }
-      canonicalizeWithSharing builder ty lhs rhs
+      let P := mkApp (.const ``Eq [u]) ty
+      canonicalizeWithSharing P ty lhs rhs
   | BEq.beq ty inst lhs rhs =>
       let uLvl ← getDecLevel ty
-      let builder := {
-        mkNewExpr := mkApp4 (.const ``BEq.beq [uLvl]) ty inst
-      }
-      canonicalizeWithSharing builder ty lhs rhs
+      let P := mkApp2 (.const ``BEq.beq [uLvl]) ty inst
+      canonicalizeWithSharing P ty lhs rhs
   | _ =>
     let mkApp2 op _ _ := e | return .continue
     match (← Simp.getContext).parent? with
