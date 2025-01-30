@@ -25,7 +25,7 @@ def acNormalizePass : Pass where
   run' goal := do
     let mut newGoal := goal
     for hyp in (← goal.getNondepPropHyps) do
-      let result ← AC.Sharing.acNfHypMeta newGoal hyp
+      let result ← AC.Sharing.acNfHypMeta' newGoal hyp
 
       if let .some nextGoal := result then
         newGoal := nextGoal

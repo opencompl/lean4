@@ -238,9 +238,12 @@ in the lhs (if present) to the front (such an occurence would be the common
 expression). For example `x + y + ((x * y) + x) = x * y` will be canonicalized
 to `(x * y) + ... = x * y`
 -/
-theorem beq_congr {α : Type u} [inst : BEq α] {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = a₂) (h₂ : b₁ = b₂) :
-    (a₁ == b₁) = (a₂ == b₂) := by
-  simp only [h₁, h₂]
+
+theorem congrEqArg₂ {α : Sort v} (x y x' y' : α) (h₀ : x = x') (h₁ : y = y') :
+    (Eq x y) = (Eq x' y') := by simp [*]
+
+theorem congrBEqArg₂ {α : Type u} [inst : BEq α] (x y x' y' : α) (h₀ : x = x') (h₁ : y = y') :
+    (x == y) = (x' == y') := by simp [*]
 
 structure ACPredicateBuilder where
   /-- `mkNewExpr lhs rhs` constructs the expression `P newLhs newRhs`, for predicate `P`. -/
@@ -310,14 +313,14 @@ def post : Simp.Simproc := fun e => do
       let u ← getLevel ty
       let builder := {
         mkNewExpr := mkApp3 (.const ``Eq [u]) ty
-        mkCongrProof := mkApp7 (mkConst ``Grind.eq_congr [u]) ty lhs rhs
+        mkCongrProof := mkApp7 (mkConst ``congrEqArg₂ [u]) ty lhs rhs
       }
       canonicalizeWithSharing builder ty lhs rhs
   | BEq.beq ty inst lhs rhs =>
       let uLvl ← getDecLevel ty
       let builder := {
         mkNewExpr := mkApp4 (.const ``BEq.beq [uLvl]) ty inst
-        mkCongrProof := mkApp8 (mkConst ``beq_congr [uLvl]) ty inst lhs rhs
+        mkCongrProof := mkApp8 (mkConst ``congrBEqArg₂ [uLvl]) ty inst lhs rhs
       }
       canonicalizeWithSharing builder ty lhs rhs
   | _ =>
