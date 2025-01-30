@@ -242,12 +242,26 @@ theorem beq_congr {α : Type u} [inst : BEq α] {a₁ b₁ a₂ b₂ : α} (h₁
     (a₁ == b₁) = (a₂ == b₂) := by
   simp only [h₁, h₂]
 
-def canonicalizeWithSharing (eqType : Nat) (ty inst lhs rhs : Expr) : SimpM Simp.Step := do
-  withTraceNode (collapsed := true)  `Meta.AC (fun _ => pure m!"canonicalizeBEqWithSharing") <| do
-    logInfo m!"{lhs} = {rhs}"
+structure ACPredicateBuilder where
+  /-- `mkNewExpr lhs rhs` constructs the expression `P newLhs newRhs`, for predicate `P`. -/
+  mkNewExpr : Expr → Expr → Expr
+  /-- `mkCongrProof newLhs newRhs lEq rEq` constructs an expression of type `(P newLhs newrRhs) = (P lhs rhs)`, for predicate `P`,
+        where `lEq` is an expression of type `lhs = newLhs` and `rEq` is an expression of type `rhs = newRhs`
+    -/
+  mkCongrProof : Expr → Expr → Expr → Expr → Expr
+
+/-
+let e := mkNewExpr newLhs newRhs
+-- e == Eq lhs rhs
+
+let e := mkCongrProof newLhs newRhs lEq rEq
+-- eq == Grind.eq_congr lEq rEq
+-- inferType e == Eq (Eq lhs rhs) (Eq newLhs newRhs)
+-/
+
+def canonicalizeWithSharing (builder : ACPredicateBuilder) (ty lhs rhs : Expr) : SimpM Simp.Step := do
+  withTraceNode (collapsed := true)  `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
   /- lhs == rhs -/
-  let u ← getLevel ty -- Sort 1
-  let uLvl ← getDecLevel ty
 
   let op ← match lhs with
     | AC.bin op _ _ => pure op
@@ -258,6 +272,9 @@ def canonicalizeWithSharing (eqType : Nat) (ty inst lhs rhs : Expr) : SimpM Simp
   -- inscrutable errors later. If it's not, bail out.
   let some _ ← AC.getInstance ``Std.Associative #[op] | return .continue
   let some _ ← AC.getInstance ``Std.Commutative #[op] | return .continue
+
+  let u ← getLevel ty
+
 
   VarStateM.run' (s:= { op, ty, level := u }) <| do
     let lCoeff ← computeCoefficients op lhs
@@ -278,42 +295,31 @@ def canonicalizeWithSharing (eqType : Nat) (ty inst lhs rhs : Expr) : SimpM Simp
     let lEq : Expr /- of type `$lhs = $lNew` -/ ← proveEqualityByAC u ty lhs lNew
     let rEq : Expr /- of type `$rhs = $rNew` -/ ← proveEqualityByAC u ty rhs rNew
 
-    match eqType with
-    | 0 =>
-      let expr : Expr /- `$lNew == $lNew` -/ :=
-          mkApp4 (.const ``BEq.beq [uLvl]) ty inst lNew rNew
+    let expr := builder.mkNewExpr lNew rNew
+    let proof := builder.mkCongrProof lNew rNew lEq rEq
 
-        /- (lhs == rhs) = (lNew == rNew) -/
-        let proof : Expr :=
-          mkAppN (mkConst ``beq_congr [uLvl])
-            #[ty, inst, lhs, rhs, lNew, rNew, lEq, rEq]
-
-        trace[Meta.AC] "rewrote to:\n\t{expr}"
-        return Simp.Step.continue <| some {
-          expr := expr
-          proof? := some proof
-        }
-    | 1 =>
-      let expr : Expr /- `$xNew = $yNew` -/ := -- @Eq (BitVec ?w) _ _
-        mkApp3 (.const ``Eq [u]) ty lNew rNew
-
-      let proof : Expr /- of type `($x = $y) = ($xNew = $yNew)` -/ :=
-        mkAppN (mkConst ``Grind.eq_congr [u])
-          #[ty, lhs, rhs, lNew, rNew, lEq, rEq]
-
-      trace[Meta.AC] "rewrote to:\n\t{expr}"
-      return Simp.Step.continue <| some {
-        expr := expr
-        proof? := some proof
-      }
-    | _ => throwError "unexpected predicate"
+    trace[Meta.AC] "rewrote to:\n\t{expr}"
+    return Simp.Step.continue <| some {
+      expr := expr
+      proof? := some proof
+    }
 
 def post : Simp.Simproc := fun e => do
   match_expr e with
-  | Eq ty inst lhs rhs =>
-      canonicalizeWithSharing 0 ty inst lhs rhs
+  | Eq ty lhs rhs =>
+      let u ← getLevel ty
+      let builder := {
+        mkNewExpr := mkApp3 (.const ``Eq [u]) ty
+        mkCongrProof := mkApp7 (mkConst ``Grind.eq_congr [u]) ty lhs rhs
+      }
+      canonicalizeWithSharing builder ty lhs rhs
   | BEq.beq ty inst lhs rhs =>
-      canonicalizeWithSharing 1 ty inst lhs rhs
+      let uLvl ← getDecLevel ty
+      let builder := {
+        mkNewExpr := mkApp4 (.const ``BEq.beq [uLvl]) ty inst
+        mkCongrProof := mkApp8 (mkConst ``beq_congr [uLvl]) ty inst lhs rhs
+      }
+      canonicalizeWithSharing builder ty lhs rhs
   | _ =>
     let mkApp2 op _ _ := e | return .continue
     match (← Simp.getContext).parent? with
@@ -343,7 +349,7 @@ def rewriteUnnormalizedWithSharing (mvarId : MVarId) : MetaM MVarId := do
 
 open Tactic
 
-def acNfHypMeta (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
+def acNfHypMeta' (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
   goal.withContext do
     let simpCtx ← Simp.mkContext
       (simpTheorems  := {})
@@ -359,7 +365,7 @@ def acNfTargetTactic' : TacticM Unit := do
 
 /-- Implementation of the `ac_nf'` tactic when operating on a hypothesis. -/
 def acNfHypTactic' (fvarId : FVarId) : TacticM Unit :=
-  liftMetaTactic1 fun goal => acNfHypMeta goal fvarId
+  liftMetaTactic1 fun goal => acNfHypMeta' goal fvarId
 
 example (x y : Nat) : x + y = y + x :=  by ac_nf
 
@@ -395,12 +401,12 @@ elab "ac_nf'" loc?:(location)? : tactic => do
 
 section Examples
 
+set_option trace.Meta.AC true
 
-example {a b c d : Nat} : (a * b * (d + c)) = ((c + d) * b * a) := by
+example {a b c d : Nat} : (a * b * (d + c)) = (b * a * (c + d)) := by
   ac_nf'
-  omega
-
+  rfl
 
 example {a b c d : BitVec 8} : (a * b * (d + c)) == (b * a * (c + d)) := by
   ac_nf'
-  simp only [beq_self_eq_true]
+  simp
