@@ -214,15 +214,19 @@ open VarStateM Lean.Meta Lean.Elab Term
 
 
 /--
-Given two expressions `x, y : $ty`, where `ty : Sort $u`, which are equal
-up to associativity and commutativity, construct and return a proof of `x = y`.
+Given two expressions `x, y` which are equal up to associativity and commutativity,
+construct and return a proof of `x = y`.
 
 Uses `ac_nf` internally to contruct said proof. -/
-def proveEqualityByAC (u : Level) (ty : Expr) (x y : Expr) : MetaM Expr := do
-  let expectedType := mkApp3 (mkConst ``Eq [u]) ty x y
+def proveEqualityByAC (x y : Expr) : MetaM Expr := do
+  let expectedType ← mkEq x y
   let proof ← mkFreshExprMVar expectedType
   AC.rewriteUnnormalizedRefl proof.mvarId! -- invoke `ac_rfl`
   instantiateMVars proof
+
+structure ACPredicateBuilder where
+  /-- `mkNewExpr lhs rhs` constructs the expression `P newLhs newRhs`, for predicate `P`. -/
+  mkNewExpr : Expr → Expr → Expr
 
 /--
 Given an expression `lhs = rhs`, where `lhs, rhs : ty`,
@@ -238,34 +242,10 @@ in the lhs (if present) to the front (such an occurence would be the common
 expression). For example `x + y + ((x * y) + x) = x * y` will be canonicalized
 to `(x * y) + ... = x * y`
 -/
-
-theorem congrEqArg₂ {α : Sort v} (x y x' y' : α) (h₀ : x = x') (h₁ : y = y') :
-    (Eq x y) = (Eq x' y') := by simp [*]
-
-theorem congrBEqArg₂ {α : Type u} [inst : BEq α] (x y x' y' : α) (h₀ : x = x') (h₁ : y = y') :
-    (x == y) = (x' == y') := by simp [*]
-
-structure ACPredicateBuilder where
-  /-- `mkNewExpr lhs rhs` constructs the expression `P newLhs newRhs`, for predicate `P`. -/
-  mkNewExpr : Expr → Expr → Expr
-  /-- `mkCongrProof newLhs newRhs lEq rEq` constructs an expression of type `(P newLhs newrRhs) = (P lhs rhs)`, for predicate `P`,
-        where `lEq` is an expression of type `lhs = newLhs` and `rEq` is an expression of type `rhs = newRhs`
-    -/
-  mkCongrProof : Expr → Expr → Expr → Expr → Expr
-
-/-
-let e := mkNewExpr newLhs newRhs
--- e == Eq lhs rhs
-
-let e := mkCongrProof newLhs newRhs lEq rEq
--- eq == Grind.eq_congr lEq rEq
--- inferType e == Eq (Eq lhs rhs) (Eq newLhs newRhs)
--/
-
 def canonicalizeWithSharing (builder : ACPredicateBuilder) (ty lhs rhs : Expr) : SimpM Simp.Step := do
   withTraceNode (collapsed := true)  `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
-  /- lhs == rhs -/
 
+  let u ← getLevel ty
   let op ← match lhs with
     | AC.bin op _ _ => pure op
     | _             => let AC.bin op .. := rhs | return .continue
@@ -275,9 +255,6 @@ def canonicalizeWithSharing (builder : ACPredicateBuilder) (ty lhs rhs : Expr) :
   -- inscrutable errors later. If it's not, bail out.
   let some _ ← AC.getInstance ``Std.Associative #[op] | return .continue
   let some _ ← AC.getInstance ``Std.Commutative #[op] | return .continue
-
-  let u ← getLevel ty
-
 
   VarStateM.run' (s:= { op, ty, level := u }) <| do
     let lCoeff ← computeCoefficients op lhs
@@ -295,11 +272,10 @@ def canonicalizeWithSharing (builder : ACPredicateBuilder) (ty lhs rhs : Expr) :
     let lNew ← Option.merge (mkApp2 op) commonExpr? lNew? |>.getDM getNeutral
     let rNew ← Option.merge (mkApp2 op) commonExpr? rNew? |>.getDM getNeutral
 
-    let lEq : Expr /- of type `$lhs = $lNew` -/ ← proveEqualityByAC u ty lhs lNew
-    let rEq : Expr /- of type `$rhs = $rNew` -/ ← proveEqualityByAC u ty rhs rNew
-
+    let oldExpr := builder.mkNewExpr lhs rhs
     let expr := builder.mkNewExpr lNew rNew
-    let proof := builder.mkCongrProof lNew rNew lEq rEq
+
+    let proof ← proveEqualityByAC oldExpr expr
 
     trace[Meta.AC] "rewrote to:\n\t{expr}"
     return Simp.Step.continue <| some {
@@ -313,14 +289,12 @@ def post : Simp.Simproc := fun e => do
       let u ← getLevel ty
       let builder := {
         mkNewExpr := mkApp3 (.const ``Eq [u]) ty
-        mkCongrProof := mkApp7 (mkConst ``congrEqArg₂ [u]) ty lhs rhs
       }
       canonicalizeWithSharing builder ty lhs rhs
   | BEq.beq ty inst lhs rhs =>
       let uLvl ← getDecLevel ty
       let builder := {
         mkNewExpr := mkApp4 (.const ``BEq.beq [uLvl]) ty inst
-        mkCongrProof := mkApp8 (mkConst ``congrBEqArg₂ [uLvl]) ty inst lhs rhs
       }
       canonicalizeWithSharing builder ty lhs rhs
   | _ =>
