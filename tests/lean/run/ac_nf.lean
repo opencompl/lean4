@@ -63,10 +63,6 @@ theorem add_mul_mixed' (x y z : BitVec 64)
     z * (x + y) = (x + y) := by
   bv_ac_nf; exact h
 
-theorem neutrals (x y : Nat) :
-    y = y * 1 := by
-  bv_ac_nf; rfl
-
 /-! ### Scaling Test -/
 
 /-- `repeat_add $n with $t` expands to `$t + $t + ... + $t`, with `n` repetitions
