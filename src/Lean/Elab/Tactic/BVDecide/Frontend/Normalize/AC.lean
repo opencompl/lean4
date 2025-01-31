@@ -173,7 +173,8 @@ That is, if `{ common, x', y' } ← SharedCoeffients.compute x y`, then
 for all valid variable indices `idx`.
 -/
 def SharedCoefficients.compute (x y : CoefficientsMap) : VarStateM SharedCoefficients := do
-  let (x, y) := if x.size < y.size then (x, y) else (y, x)
+  let swappedXy := x.size > y.size
+  let (x, y) := if swappedXy then (y, x) else (x, y)
   -- This is O(|x|) = O(min(|x|, |y|)) as we sort by size above.
   let common : CoefficientsMap := x.fold (init := {}) fun common idx xCnt =>
     match y[idx]? with
@@ -186,7 +187,8 @@ def SharedCoefficients.compute (x y : CoefficientsMap) : VarStateM SharedCoeffic
   let y : CoefficientsMap := common.fold (init := y) fun y idx commonCnt =>
     y.modify idx (fun cnt => cnt - commonCnt)
 
-  return { x, y, common}
+  let (x, y) := if swappedXy then (y, x) else (x, y)
+  return { x := x, y := y, common := common}
 
 /-- Compute the canonical expression for a given set of coefficients.
 
@@ -222,6 +224,11 @@ def proveEqualityByAC (x y : Expr) : MetaM Expr := do
   AC.rewriteUnnormalizedRefl proof.mvarId! -- invoke `ac_rfl`
   instantiateMVars proof
 
+@[match_pattern]
+def mkBitVec (w : Expr) := mkApp (.const ``BitVec []) w
+
+#check HMul.hMul
+
 /--
 Given an expression `P lhs rhs`, where `lhs, rhs : ty` and `P : $ty → $ty → _`,
 canonicalize top-level applications of some associative and commutative operation
@@ -245,10 +252,14 @@ def canonicalizeWithSharing (P : Expr) (ty lhs rhs : Expr) : SimpM Simp.Step := 
     | _             => let AC.bin op .. := rhs | return .continue
                        pure op
 
-  -- Check that `op` is associative and commutative, so that we don't get
-  -- inscrutable errors later. If it's not, bail out.
-  let some _ ← AC.getInstance ``Std.Associative #[op] | return .continue
-  let some _ ← AC.getInstance ``Std.Commutative #[op] | return .continue
+  -- We match on bitvector multiplication, to ensure that we
+  -- only perform the normalization on mul.
+  let w ← match_expr op with
+  | HMul.hMul bv _bv _bv _inst =>
+    match bv with
+    | mkBitVec w => pure w
+    | _ => return .continue
+  | _ => return .continue
 
   VarStateM.run' (s:= { op, ty, level := u }) <| do
     let lCoeff ← computeCoefficients op lhs
@@ -277,7 +288,7 @@ def canonicalizeWithSharing (P : Expr) (ty lhs rhs : Expr) : SimpM Simp.Step := 
       proof? := some proof
     }
 
-def post : Simp.Simproc := fun e => do
+def post' : Simp.Simproc := fun e => do
   match_expr e with
   | Eq ty lhs rhs =>
       let u ← getLevel ty
@@ -287,20 +298,23 @@ def post : Simp.Simproc := fun e => do
       let uLvl ← getDecLevel ty
       let P := mkApp2 (.const ``BEq.beq [uLvl]) ty inst
       canonicalizeWithSharing P ty lhs rhs
-  | _ =>
+  | _ => return .continue
+/-
     let mkApp2 op _ _ := e | return .continue
     match (← Simp.getContext).parent? with
     -- Note: the order of the following match-arms is significant, as `canonicalizeEqWithSharing`
     -- is biased towards the operation of the left-hand-side of the equality, if present.
     | mkApp3 (.const ``Eq _) _ (mkApp2 op' _ _) _
     | mkApp3 (.const ``Eq _) _ _ (mkApp2 op' _ _) =>
-      if (← isDefEq op op') then
-        -- In this case, the current expression will already be canonicalized by
-        -- `canonicalizeEqWithSharing`, hence, we don't call regular ac_nf on it
-        return .continue
-      else
-        AC.post e
-    | _ => AC.post e
+      return .continue
+      -- if (← isDefEq op op') then
+      --   -- In this case, the current expression will already be canonicalized by
+      --   -- `canonicalizeEqWithSharing`, hence, we don't call regular ac_nf on it
+      --   return .continue
+      -- else
+      --   AC.post e
+    | _ => return .continue -- AC.post e
+  -/
 
 def rewriteUnnormalizedWithSharing (mvarId : MVarId) : MetaM MVarId := do
   let simpCtx ← Simp.mkContext
@@ -308,7 +322,7 @@ def rewriteUnnormalizedWithSharing (mvarId : MVarId) : MetaM MVarId := do
       (congrTheorems := (← getSimpCongrTheorems))
       (config        := Simp.neutralConfig)
   let tgt ← instantiateMVars (← mvarId.getType)
-  let (res, _) ← Simp.main tgt simpCtx (methods := { post := post })
+  let (res, _) ← Simp.main tgt simpCtx (methods := { post := post' })
   applySimpResultToTarget mvarId tgt res
 
 
@@ -323,7 +337,7 @@ def acNfHypMeta' (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
       (congrTheorems := (← getSimpCongrTheorems))
       (config        := Simp.neutralConfig)
     let tgt ← instantiateMVars (← fvarId.getType)
-    let (res, _) ← Simp.main tgt simpCtx (methods := { post })
+    let (res, _) ← Simp.main tgt simpCtx (methods := { post := post' })
     return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)
 
 /-- Implementation of the `ac_nf'` tactic when operating on the main goal. -/
@@ -379,19 +393,10 @@ section Examples
 
 
 /--
-info: a b c d : Nat
-⊢ a * b * (c + d) = a * b * (c + d)
--/
-#guard_msgs in example {a b c d : Nat} : (a * b * (d + c)) = (b * a * (c + d)) := by
-  bv_ac_nf
-  trace_state
-  rfl
-
-/--
 info: a b c d : BitVec 8
-⊢ (a * b * (c + d) == a * b * (c + d)) = true
+⊢ (a * b * (d + c) == a * b * (d + c)) = true
 -/
-#guard_msgs in example {a b c d : BitVec 8} : (a * b * (d + c)) == (b * a * (c + d)) := by
+#guard_msgs in example {a b c d : BitVec 8} : (a * b * (d + c)) == (b * a * (d + c)) := by
   bv_ac_nf
   trace_state
   simp
