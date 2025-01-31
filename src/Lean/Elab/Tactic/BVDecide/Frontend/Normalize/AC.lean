@@ -15,153 +15,107 @@ open Lean Meta
 
 /-! ### Types -/
 
-abbrev VarIndex := Nat
+abbrev AtomIndex := Nat
+
+/-- The associative commutative operator we are canonicalizing with respect to -/
+inductive OpKind
+| mul
+deriving DecidableEq, Hashable, Repr
+
 
 structure VarState where
-  /-- The associative and commutative operator we are currently canonicalizing with respect to. -/
-  op : Expr
-  /-- The type such that `op : $ty → $ty → $ty` -/
-  ty : Expr
-  /-- The universe level such that `ty : Sort $level` -/
-  level : Level
-
   /-- Map from atomic expressions to an index. -/
-  varIndices : Std.HashMap Expr VarIndex := {}
-  /-- Inverse of `varIndices`, which maps a `VarIndex` to the expression it represents. -/
-  varExprs : Array Expr := #[]
-  /-- A cache of confirmed neutral elements -/
-  neutralCache : Std.HashSet Expr := {}
-
-/-!
-We don't verify the state manipulations, but if we would, these are the invariants:
-```
-structure LegalVarState extends VarState where
-  h_size  : varExprs.size = varIndices.size := by omega
-  h_elems : ∀ h_lt : i < varExprs.size, varIndices[varExprs[i]]? = some i
-```
--/
+  exprToAtomIndex : Std.HashMap Expr AtomIndex := {}
 
 /-- A representation of an expression as a map from variable index to the number
 of occurences of the expression represented by that variable.
 
 See `CoefficientsMap.toExpr` for the explicit conversion. -/
--- FIXME: @bollu would like this to be `RBMap VarIndex Nat compare`
-abbrev CoefficientsMap := Std.HashMap VarIndex Nat
+abbrev CoefficientsMap := Std.HashMap AtomIndex Nat
 
-/-! ### VarState monadic boilerplate  -/
+/-! ### AtomM monadic boilerplate  -/
 
-abbrev VarStateM  := StateT VarState MetaM
+abbrev AtomM  := ReaderT Context (StateT VarState MetaM)
 
-def VarStateM.run' (x : VarStateM α) (s : VarState) : MetaM α :=
-  StateT.run' x s
+def AtomM.run' (x : AtomM α) (ctx : Context) (s : VarState) : MetaM α :=
+  x.run ctx |>.run' s
 
-/-! ### Implementation -/
+namespace AtomM
 
-/-- Return a range with all variable indices that have a mapping.
+def isNeutral (op : OpKind) (e : Expr) : AtomM Bool := do
+  match op with
+  | .mul =>
+    let some ⟨n, v⟩ ← getBitVecValue? e | return false
+    return v == 1#n
 
-Note that this is always a complete sequence `0, 1, ..., (n-1)`, without skipping
-numbers. -/
-def getAllVarIndices : VarStateM Std.Range := do
-  pure <| [0:(← get).varIndices.size]
-
-/-- Return `true` if `e` is a neutral element for operation `op`.
-
-That is, if an instance of `LawfulIdentity op e` exists -/
-def VarStateM.isNeutral (e : Expr) : VarStateM Bool := do
-  if (← get).neutralCache.contains e then
-    return true
-
-  let { op, ty, level, .. } ← get
-  let type := mkApp3 (.const ``Std.LawfulIdentity [level]) ty op e
-  if let .some _ ← trySynthInstance type then
-    modify fun state@{ neutralCache, .. } => { state with
-      neutralCache := neutralCache.insert e
-    }
-    return true
-  pure false
-
-/-- Return an arbitrary neutral element for the current operations
-(i.e., `VarState.op`), or throw an error if no such element exists -/
-def VarStateM.getNeutral : VarStateM Expr := do
-  for val in (← get).neutralCache do
-    return val
-
-  let { op, ty, level, .. } ← get
-  let e ← mkFreshExprMVar ty
-  let type := mkApp3 (.const ``Std.LawfulIdentity [level]) ty op e
-  let _ ← synthInstance type
-  modify (fun state@{ neutralCache, .. } => {state with
-    neutralCache := neutralCache.insert e
-  })
-  return e
-
-/-- Return the unique variable index for an expression, or `none` if the expression
-is a neutral element (see `isNeutral`).
-
-Modifies the monadic state to add a new mapping and increment the index,
-if needed. -/
-def VarStateM.exprToVar (e : Expr) : VarStateM (Option VarIndex) := do
-  let { varIndices, .. } ← get
-  match varIndices[e]? with
+def mkAtom (e : Expr) : AtomM AtomIndex := do
+  let { exprToAtomIndex, .. } ← get
+  match exprToAtomIndex[e]? with
   | some idx => return idx
   | none =>
-    if ← isNeutral e then
-      return none
-
-    -- TODO: is this linear usage?
-    let nextIndex := varIndices.size
-    modify (fun state@{varIndices, varExprs, ..} => {state with
-      varIndices := varIndices.insert e nextIndex
-      varExprs := varExprs.push e })
+    -- Insert new atom.
+    let nextIndex := exprToAtomIndex.size
+    modify fun state@{exprToAtomIndex, ..} => { state with
+      exprToAtomIndex := exprToAtomIndex.insert e nextIndex
+    }
     return nextIndex
 
-/-- Return the expression that is represented by a specific variable index. -/
-def VarStateM.varToExpr (idx : VarIndex) : VarStateM Expr := do
-  let { varExprs, .. } ← get
-  if h : idx < varExprs.size then
-    pure varExprs[idx]
-  else
-    throwError "internal error (this is a bug!): index {idx} out of range, \
-      the current state only has {varExprs.size} variables:\n\n{varExprs}"
+def getKind (e : Expr) : AtomM (Option OpKind) :=
+  match_expr e with
+  | HMul.hMul _α _β _γ _inst _a _b =>
+     return some .mul
+  | _ => return none
 
-/-- Given a binary, associative and commutative operation `op`,
-decompose expression `e` into its variable coefficients.
+def normalizeCoeffsEq (lhs rhs : Expr) : AtomM (CoefficientsMap × CoefficientsMap) := do
+  sorry
 
-For example `a ⊕ b ⊕ (a ⊕ c)` will give the coefficients:
-```
-a => 2
-b => 1
-c => 1
-```
+structure NormalizeEqMulResult where
+  left' : Expr
+  right' : Expr
 
-Any compound expression which is not an application of the given `op` will be
-abstracted away and treated as a variable (see `VarStateM.exprToVar`).
+def _normalizeEqMul (lhs rhs : Expr) (cf0 cf1 : CoefficientsMap) : AtomM NormalizeEqMulResult := do
+  sorry
 
-Note that the output is guaranteed to map at least one variable to a non-zero
-coefficient, *unless* the input expression only contains applications of neutral
-elements (e.g., `0 + (0 + 0)`), in which case the returned coefficients map will
-be empty.
+/--
+Given two expressions `x, y` which are equal up to associativity and commutativity,
+construct and return a proof of `x = y`.
+
+Uses `ac_nf` internally to contruct said proof. -/
+def proveEqualityByAC (x y : Expr) : MetaM Expr := do
+  let expectedType ← mkEq x y
+  let proof ← mkFreshExprMVar expectedType
+  AC.rewriteUnnormalizedRefl proof.mvarId! -- invoke `ac_rfl`
+  instantiateMVars proof
+
+
+structure NormalizeEqResult where
+  result : Expr
+  eqProof : Expr
+
+
+/--
+Note: In Bitwuzla, this is known as 'normalizeEqAddMul'
 -/
-def VarStateM.computeCoefficients (op : Expr) (e : Expr) : VarStateM CoefficientsMap :=
-  go {} e
-where
-  incrVar (coeff : CoefficientsMap) (e : Expr) : VarStateM CoefficientsMap := do
-    let some idx ← exprToVar e | return coeff
-    return coeff.alter idx (fun c => some <| (c.getD 0) + 1)
-  go (coeff : CoefficientsMap) : Expr → VarStateM CoefficientsMap
-  | e@(AC.bin op' x y) => do
-      if ← isDefEq op op' then
-        let coeff ← go coeff x
-        let coeff ← go coeff y
-        return coeff
-      else
-        incrVar coeff e
-  | e => incrVar coeff e
+def normalizeEq (op : OpKind) (lhs rhs : Expr) : AtomM NormalizeEqResult := do
+  let (coeffs0, coeffs1) ← normalizeCoeffsEq lhs rhs
+  let result ← match op with
+    | .mul => _normalizeEqMul lhs rhs coeffs0 coeffs1
+  -- let lhsEqProof := sorry
+  sorry -- (lhs, rhs, true)
+
 
 structure SharedCoefficients where
   common : CoefficientsMap := {}
   x : CoefficientsMap
   y : CoefficientsMap
+
+/-- Return a range with all variable indices that have a mapping.
+
+Note that this is always a complete sequence `0, 1, ..., (n-1)`, without skipping
+numbers. -/
+def getAllVarIndices : AtomM Std.Range := do
+  pure <| [0:(← get).exprToAtomIndex.size]
+
 
 /-- Given two sets of coefficients `x` and `y` (computed with the same variable
 mapping), extract the shared coefficients, such that `x` (resp. `y`) is the sum of
@@ -172,13 +126,8 @@ That is, if `{ common, x', y' } ← SharedCoeffients.compute x y`, then
   `y[idx] = common[idx] + y'[idx]`
 for all valid variable indices `idx`.
 -/
-def SharedCoefficients.compute (x y : CoefficientsMap) : VarStateM SharedCoefficients := do
+def SharedCoefficients.compute (x y : CoefficientsMap) : AtomM SharedCoefficients := do
   let mut res : SharedCoefficients := { x, y }
-  -- TODO: this *could* check the size of `x` and `y`, and choose to iterate over
-  --  the keys of the smaller map. This would decrease the number of iterations
-  --  needed to O(min |x| |y|), but this seems like it would be a non-linear usage
-  --  of one of the maps, thus forcing a copy. It's unclear whether this would
-  --  be an optimization or pessimization.
   for idx in ← getAllVarIndices do
     match x[idx]?, y[idx]? with
     | some xCnt, some yCnt =>
@@ -192,11 +141,42 @@ def SharedCoefficients.compute (x y : CoefficientsMap) : VarStateM SharedCoeffic
 
   return res
 
-/-- Compute the canonical expression for a given set of coefficients.
 
+/-- Given a binary, associative and commutative operation `op`,
+decompose expression `e` into its variable coefficients.
+
+For example `a ⊕ b ⊕ (a ⊕ c)` will give the coefficients:
+```
+a => 2
+b => 1
+c => 1
+```
+
+Any compound expression which is not an application of the given `op` will be
+abstracted away and treated as a variable (see `AtomM.mkAtom`).
+-/
+def computeCoefficients (op : Expr) (e : Expr) : AtomM CoefficientsMap :=
+  go {} e
+where
+  incrVar (coeff : CoefficientsMap) (e : Expr) : AtomM CoefficientsMap := do
+    let idx ← mkAtom e
+    return coeff.alter idx (fun c => some <| (c.getD 0) + 1)
+  go (coeff : CoefficientsMap) : Expr → AtomM CoefficientsMap
+  | e@(AC.bin op' x y) => do
+      if ← isDefEq op op' then
+        let coeff ← go coeff x
+        let coeff ← go coeff y
+        return coeff
+      else
+        incrVar coeff e
+  | e => incrVar coeff e
+
+
+/--
+Compute the canonical expression for a given set of coefficients.
 Returns `none` if all coefficients are zero.
 -/
-def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Expr) : VarStateM (Option Expr) := do
+def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Expr) : AtomM Expr := do
   let exprs := (← get).varExprs
   let mut acc := none
   -- Note: we iterate over indices directly to ensure a canonical order of variables in the
@@ -212,7 +192,85 @@ def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Expr) : VarStateM (Op
 
   return acc
 
-open VarStateM Lean.Meta Lean.Elab Term
+
+/-
+structure VarState where
+  /-- The associative and commutative operator we are currently canonicalizing with respect to. -/
+  op : OpKind
+  /-- Map from atomic expressions to an index. -/
+  exprToAtomIndex : Std.HashMap Expr AtomIndex := {}
+
+def VarState.varExprs (s : VarState) : Array Expr := Id.run do
+  let mut exprs : Array Expr := mkArray s.exprToAtomIndex.size default
+  for (e, i) in s.exprToAtomIndex do
+    exprs := exprs.set! i e
+  return exprs
+
+/-!
+We don't verify the state manipulations, but if we would, these are the invariants:
+```
+structure LegalVarState extends VarState where
+  h_size  : varExprs.size = exprToAtomIndex.size := by omega
+  h_elems : ∀ h_lt : i < varExprs.size, exprToAtomIndex[varExprs[i]]? = some i
+```
+-/
+
+/-- A representation of an expression as a map from variable index to the number
+of occurences of the expression represented by that variable.
+
+See `CoefficientsMap.toExpr` for the explicit conversion. -/
+abbrev CoefficientsMap := Std.HashMap AtomIndex Nat
+
+/-! ### VarState monadic boilerplate  -/
+
+abbrev AtomM  := StateT VarState MetaM
+
+def AtomM.run' (x : AtomM α) (s : VarState) : MetaM α :=
+  StateT.run' x s
+
+/-! ### Implementation -/
+
+
+/-- Return `true` if `e` is a neutral element for operation `op`.
+That is, if an instance of `LawfulIdentity op e` exists -/
+def AtomM.isNeutral (op : OpKind) (e : Expr) : AtomM Bool := do
+  match op with
+  | .add =>
+    let some ⟨n, v⟩ ← getBitVecValue? e | return false
+    return v == 0#n
+  | .mul =>
+    let some ⟨n, v⟩ ← getBitVecValue? e | return false
+    return v == 1#n
+
+/-- Return the unique variable index for an expression, or `none` if the expression
+is a neutral element (see `isNeutral`).
+
+Modifies the monadic state to add a new mapping and increment the index,
+if needed. -/
+def AtomM.mkAtom (e : Expr) : AtomM (Option AtomIndex) := do
+  let { exprToAtomIndex, .. } ← get
+  match exprToAtomIndex[e]? with
+  | some idx => return idx
+  | none =>
+    if ← isNeutral e then
+      return none
+
+    -- TODO: is this linear usage?
+    let nextIndex := exprToAtomIndex.size
+    modify fun state@{exprToAtomIndex, ..} => { state with
+      exprToAtomIndex := varIndices.insert e nextIndex
+    }
+    return nextIndex
+
+/-- Return the expression that is represented by a specific variable index. -/
+def AtomM.varToExpr (idx : AtomIndex) : AtomM Expr := do
+  let varExprs := (← get).varExprs
+  if h : idx < varExprs.size then
+    pure varExprs[idx]
+  else
+    throwError "internal error (this is a bug!): index {idx} out of range, \
+      the current state only has {varExprs.size} variables:\n\n{varExprs}"
+open AtomM Lean.Meta Lean.Elab Term
 
 
 /--
@@ -225,6 +283,9 @@ def proveEqualityByAC (x y : Expr) : MetaM Expr := do
   let proof ← mkFreshExprMVar expectedType
   AC.rewriteUnnormalizedRefl proof.mvarId! -- invoke `ac_rfl`
   instantiateMVars proof
+-/
+
+end AtomM
 
 /--
 Given an expression `P lhs rhs`, where `lhs, rhs : ty` and `P : $ty → $ty → _`,
@@ -254,11 +315,11 @@ def canonicalizeWithSharing (P : Expr) (ty lhs rhs : Expr) : SimpM Simp.Step := 
   let some _ ← AC.getInstance ``Std.Associative #[op] | return .continue
   let some _ ← AC.getInstance ``Std.Commutative #[op] | return .continue
 
-  VarStateM.run' (s:= { op, ty, level := u }) <| do
-    let lCoeff ← computeCoefficients op lhs
-    let rCoeff ← computeCoefficients op rhs
+  AtomM.run' (s:= { }) <| do
+    let lCoeff ← AtomM.computeCoefficients op lhs
+    let rCoeff ← AtomM.computeCoefficients op rhs
 
-    let ⟨commonCoeff, lCoeff, rCoeff⟩ ← SharedCoefficients.compute lCoeff rCoeff
+    let ⟨commonCoeff, lCoeff, rCoeff⟩ ← AtomM.SharedCoefficients.compute lCoeff rCoeff
     let commonExpr? : Option Expr ← commonCoeff.toExpr op
     let lNew? : Option Expr ← lCoeff.toExpr op
     let rNew? : Option Expr ← rCoeff.toExpr op
