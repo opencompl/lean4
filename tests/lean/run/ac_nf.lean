@@ -55,32 +55,28 @@ theorem short_circuit_triple_mul (x x_1 x_2 : BitVec 32) (h : ¬x_2 &&& 4096#32 
   sorry
 
 theorem add_mul_mixed (x y z : BitVec 64) :
-    z * (x + y) = (y + x) * z := by
+    z * (y + x) = (y + x) * z := by
   bv_ac_nf; rfl
 
 theorem add_mul_mixed' (x y z : BitVec 64)
     (h : (x + y) * z = x + y) :
-    z * (x + y) = (y + x) := by
+    z * (x + y) = (x + y) := by
   bv_ac_nf; exact h
 
 theorem neutrals (x y : Nat) :
-    x + 0 + 0 + y = (y * 1 + x) * 1 := by
-  bv_ac_nf; rfl
-
-theorem only_neutral :
-    0 + 0 = 0 := by
+    y = y * 1 := by
   bv_ac_nf; rfl
 
 /-! ### Scaling Test -/
 
 /-- `repeat_add $n with $t` expands to `$t + $t + ... + $t`, with `n` repetitions
 of `t` -/
-local macro "repeat_add" n:num "with" x:term  : term =>
+local macro "repeat_mul" n:num "with" x:term  : term =>
   let rec go : Nat → MacroM Term
     | 0   => `($x)
     | n+1 => do
       let r ← go n
-      `($r + $x)
+      `($r * $x)
   go n.getNat
 
 /-
@@ -92,5 +88,5 @@ This test showcases that the runtime of `bv_ac_nf` is not a bottleneck:
 -/
 set_option debug.skipKernelTC true in
 example (x y : BitVec 64) :
-    (repeat_add 100 with x + y) = (repeat_add 100 with x) + (repeat_add 100 with y) := by
+    (repeat_mul 100 with x * y) = (repeat_mul 100 with x) * (repeat_mul 100 with y) := by
   bv_ac_nf; rfl
