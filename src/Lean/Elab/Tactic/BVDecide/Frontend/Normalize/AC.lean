@@ -26,9 +26,9 @@ structure VarState where
   level : Level
 
   /-- Map from atomic expressions to an index. -/
-  varIndices : Std.HashMap Expr VarIndex := {}
-  /-- Inverse of `varIndices`, which maps a `VarIndex` to the expression it represents. -/
-  varExprs : Array Expr := #[]
+  exprToVarIndex : Std.HashMap Expr VarIndex := {}
+  /-- Inverse of `exprToVarIndex`, which maps a `VarIndex` to the expression it represents. -/
+  varToExpr : Array Expr := #[]
   /-- A cache of confirmed neutral elements -/
   neutralCache : Std.HashSet Expr := {}
 
@@ -36,8 +36,8 @@ structure VarState where
 We don't verify the state manipulations, but if we would, these are the invariants:
 ```
 structure LegalVarState extends VarState where
-  h_size  : varExprs.size = varIndices.size := by omega
-  h_elems : ∀ h_lt : i < varExprs.size, varIndices[varExprs[i]]? = some i
+  h_size  : varToExpr.size = exprToVarIndex.size := by omega
+  h_elems : ∀ h_lt : i < varToExpr.size, exprToVarIndex[varToExpr[i]]? = some i
 ```
 -/
 
@@ -62,7 +62,7 @@ def VarStateM.run' (x : VarStateM α) (s : VarState) : MetaM α :=
 Note that this is always a complete sequence `0, 1, ..., (n-1)`, without skipping
 numbers. -/
 def getAllVarIndices : VarStateM Std.Range := do
-  pure <| [0:(← get).varIndices.size]
+  pure <| [0:(← get).exprToVarIndex.size]
 
 /-- Return `true` if `e` is a neutral element for operation `op`.
 
@@ -101,28 +101,28 @@ is a neutral element (see `isNeutral`).
 Modifies the monadic state to add a new mapping and increment the index,
 if needed. -/
 def VarStateM.exprToVar (e : Expr) : VarStateM (Option VarIndex) := do
-  let { varIndices, .. } ← get
-  match varIndices[e]? with
+  let { exprToVarIndex, .. } ← get
+  match exprToVarIndex[e]? with
   | some idx => return idx
   | none =>
     if ← isNeutral e then
       return none
 
     -- TODO: is this linear usage?
-    let nextIndex := varIndices.size
-    modify (fun state@{varIndices, varExprs, ..} => {state with
-      varIndices := varIndices.insert e nextIndex
-      varExprs := varExprs.push e })
+    let nextIndex := exprToVarIndex.size
+    modify (fun state@{exprToVarIndex, varToExpr, ..} => {state with
+      exprToVarIndex := exprToVarIndex.insert e nextIndex
+      varToExpr := varToExpr.push e })
     return nextIndex
 
 /-- Return the expression that is represented by a specific variable index. -/
 def VarStateM.varToExpr (idx : VarIndex) : VarStateM Expr := do
-  let { varExprs, .. } ← get
-  if h : idx < varExprs.size then
-    pure varExprs[idx]
+  let { varToExpr, .. } ← get
+  if h : idx < varToExpr.size then
+    pure varToExpr[idx]
   else
     throwError "internal error (this is a bug!): index {idx} out of range, \
-      the current state only has {varExprs.size} variables:\n\n{varExprs}"
+      the current state only has {varToExpr.size} variables:\n\n{varToExpr}"
 
 /-- Given a binary, associative and commutative operation `op`,
 decompose expression `e` into its variable coefficients.
@@ -191,23 +191,20 @@ def SharedCoefficients.compute (x y : CoefficientsMap) : VarStateM SharedCoeffic
   return { x := x, y := y, common := common}
 
 /-- Compute the canonical expression for a given set of coefficients.
-
 Returns `none` if all coefficients are zero.
 -/
 def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Expr) : VarStateM (Option Expr) := do
-  let exprs := (← get).varExprs
-  let mut acc := none
-  -- Note: we iterate over indices directly to ensure a canonical order of variables in the
-  -- returned expression. Iterating over `coeff` seems more efficient, but would not be canonical.
-  for h : idx in [0:exprs.size] do
-    let cnt := coeff[idx]?.getD 0
-    for _ in [0:cnt] do
-      let expr := exprs[idx]
-      acc :=
-        match acc with
+  -- Note: we iterate over a sorted array of indices
+  -- to ensure a canonical order of variables in the returned expression.
+  -- This is O(|coeff| log |coeff|).
+  let coeffArr := coeff.toArray.qsort (fun varCoeff1 varCoeff2 => varCoeff1.fst < varCoeff2.fst)
+  let mut acc : Option Expr := none
+  for (var, coeff) in coeffArr do
+    let expr := (← get).varToExpr[var]!
+    for _ in [0:coeff] do
+      acc := match acc with
         | none => expr
         | some acc => some <| mkApp2 op acc expr
-
   return acc
 
 open VarStateM Lean.Meta Lean.Elab Term
@@ -227,7 +224,12 @@ def proveEqualityByAC (x y : Expr) : MetaM Expr := do
 @[match_pattern]
 def mkBitVec (w : Expr) := mkApp (.const ``BitVec []) w
 
-#check HMul.hMul
+
+/-- Bitvector operations -/
+inductive Op
+| mul (w : Nat)
+
+def matchOp (_e : Expr) : Option Op := none
 
 /--
 Given an expression `P lhs rhs`, where `lhs, rhs : ty` and `P : $ty → $ty → _`,
@@ -252,12 +254,20 @@ def canonicalizeWithSharing (P : Expr) (ty lhs rhs : Expr) : SimpM Simp.Step := 
     | _             => let AC.bin op .. := rhs | return .continue
                        pure op
 
+  let _lhsOp ← match lhs with
+    | AC.bin op _ _ => pure op
+    | _ => return .continue
+
+  let _rhsOp ← match rhs with
+    | AC.bin op _ _ => pure op
+    | _ => return .continue
+
   -- We match on bitvector multiplication, to ensure that we
   -- only perform the normalization on mul.
-  let w ← match_expr op with
+  match_expr op with
   | HMul.hMul bv _bv _bv _inst =>
     match bv with
-    | mkBitVec w => pure w
+    | mkBitVec _w => pure () -- We have a bitvec multiplication, continue.
     | _ => return .continue
   | _ => return .continue
 
@@ -299,22 +309,6 @@ def post' : Simp.Simproc := fun e => do
       let P := mkApp2 (.const ``BEq.beq [uLvl]) ty inst
       canonicalizeWithSharing P ty lhs rhs
   | _ => return .continue
-/-
-    let mkApp2 op _ _ := e | return .continue
-    match (← Simp.getContext).parent? with
-    -- Note: the order of the following match-arms is significant, as `canonicalizeEqWithSharing`
-    -- is biased towards the operation of the left-hand-side of the equality, if present.
-    | mkApp3 (.const ``Eq _) _ (mkApp2 op' _ _) _
-    | mkApp3 (.const ``Eq _) _ _ (mkApp2 op' _ _) =>
-      return .continue
-      -- if (← isDefEq op op') then
-      --   -- In this case, the current expression will already be canonicalized by
-      --   -- `canonicalizeEqWithSharing`, hence, we don't call regular ac_nf on it
-      --   return .continue
-      -- else
-      --   AC.post e
-    | _ => return .continue -- AC.post e
-  -/
 
 def rewriteUnnormalizedWithSharing (mvarId : MVarId) : MetaM MVarId := do
   let simpCtx ← Simp.mkContext
@@ -390,12 +384,3 @@ elab "bv_ac_nf" loc?:(location)? : tactic => do
 
 
 section Examples
-
-/--
-info: a b c d : BitVec 8
-⊢ (a * b * (d + c) == a * b * (d + c)) = true
--/
-#guard_msgs in example {a b c d : BitVec 8} : (a * b * (d + c)) == (b * a * (d + c)) := by
-  bv_ac_nf
-  trace_state
-  simp
