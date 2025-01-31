@@ -173,24 +173,20 @@ That is, if `{ common, x', y' } ← SharedCoeffients.compute x y`, then
 for all valid variable indices `idx`.
 -/
 def SharedCoefficients.compute (x y : CoefficientsMap) : VarStateM SharedCoefficients := do
-  let mut res : SharedCoefficients := { x, y }
-  -- TODO: this *could* check the size of `x` and `y`, and choose to iterate over
-  --  the keys of the smaller map. This would decrease the number of iterations
-  --  needed to O(min |x| |y|), but this seems like it would be a non-linear usage
-  --  of one of the maps, thus forcing a copy. It's unclear whether this would
-  --  be an optimization or pessimization.
-  for idx in ← getAllVarIndices do
-    match x[idx]?, y[idx]? with
-    | some xCnt, some yCnt =>
-        let com := min xCnt yCnt
-        res := {
-          common := res.common.insert idx com
-          x := res.x.insert idx (xCnt - com)
-          y := res.y.insert idx (yCnt - com)
-        }
-    | _, _ => pure ()
+  let (x, y) := if x.size < y.size then (x, y) else (y, x)
+  -- This is O(|x|) = O(min(|x|, |y|)) as we sort by size above.
+  let common : CoefficientsMap := x.fold (init := {}) fun common idx xCnt =>
+    match y[idx]? with
+    | some yCnt => common.insert idx <| min xCnt yCnt
+    | _ => common
 
-  return res
+  let x : CoefficientsMap := common.fold (init := x) fun x idx commonCnt =>
+    x.modify idx (fun cnt => cnt - commonCnt)
+
+  let y : CoefficientsMap := common.fold (init := y) fun y idx commonCnt =>
+    y.modify idx (fun cnt => cnt - commonCnt)
+
+  return { x, y, common}
 
 /-- Compute the canonical expression for a given set of coefficients.
 
