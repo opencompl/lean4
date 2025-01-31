@@ -9,20 +9,20 @@ open Lean
 #guard_msgs in
 theorem mul_mul_eq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) (h₁ : x₁ = x₂) (h₂ : y₁ = y₂) :
     x₁ * (y₁ * z) = x₂ * (y₂ * z) := by
-  ac_nf'
+  bv_ac_nf
   guard_target =ₛ z * (x₁ * y₁) = z * (x₂ * y₂)
   sorry
 
 theorem ex_1 (x y z k₁ k₂ l₁ l₂ m₁ m₂ v : BitVec w)
     (h₁ : k₁ = k₂) (h₂ : l₁ = l₂) (h₃ : m₁ = m₂) :
     m₁ * x * (y * l₁ * k₁) * z = v * (k₂ * l₂ * x * y) * z * m₂ := by
-  ac_nf'
+  bv_ac_nf
   guard_target =ₛ x * y * z * (m₁ * l₁ * k₁) = x * y * z * (v * k₂ * l₂ * m₂)
   sorry
 
 theorem ex_2 (x y : BitVec w) (h₁ : y = x) :
     x * x * x * x = y * x * x * y := by
-  ac_nf'
+  bv_ac_nf
   guard_target =ₛ x * x * (x * x) = x * x * (y * y)
   sorry
 
@@ -31,7 +31,7 @@ theorem ex_2 (x y : BitVec w) (h₁ : y = x) :
 #guard_msgs in
 theorem mul_eq_mul_eq_right (x y z : BitVec 64) (h : x = y) :
     x * z = y * z := by
-  ac_nf'
+  bv_ac_nf
   guard_target =ₛ z * x = z * y
   sorry
 
@@ -40,7 +40,7 @@ theorem mul_eq_mul_eq_right (x y z : BitVec 64) (h : x = y) :
 #guard_msgs in
 theorem mul_eq_mul_eq_left (x y z : BitVec 64) (h : x = y) :
     z * x = z * y := by
-  ac_nf'
+  bv_ac_nf
   guard_target =ₛ z * x = z * y
   sorry
 
@@ -48,7 +48,7 @@ theorem mul_eq_mul_eq_left (x y z : BitVec 64) (h : x = y) :
 #guard_msgs in
 theorem short_circuit_triple_mul (x x_1 x_2 : BitVec 32) (h : ¬x_2 &&& 4096#32 == 0#32) :
     (x_1 ||| 4096#32) * x * (x_1 ||| 4096#32) = (x_1 ||| x_2 &&& 4096#32) * x * (x_1 ||| 4096#32) := by
-  ac_nf'
+  bv_ac_nf
   guard_target =ₛ
     ((x_1 ||| 4096#32) * x) * (x_1 ||| 4096#32)
     = ((x_1 ||| 4096#32) * x) * (x_1 ||| x_2 &&& 4096#32)
@@ -56,20 +56,20 @@ theorem short_circuit_triple_mul (x x_1 x_2 : BitVec 32) (h : ¬x_2 &&& 4096#32 
 
 theorem add_mul_mixed (x y z : BitVec 64) :
     z * (x + y) = (y + x) * z := by
-  ac_nf'; rfl
+  bv_ac_nf; rfl
 
 theorem add_mul_mixed' (x y z : BitVec 64)
     (h : (x + y) * z = x + y) :
     z * (x + y) = (y + x) := by
-  ac_nf'; exact h
+  bv_ac_nf; exact h
 
 theorem neutrals (x y : Nat) :
     x + 0 + 0 + y = (y * 1 + x) * 1 := by
-  ac_nf'; rfl
+  bv_ac_nf; rfl
 
 theorem only_neutral :
     0 + 0 = 0 := by
-  ac_nf'; rfl
+  bv_ac_nf; rfl
 
 /-! ### Scaling Test -/
 
@@ -84,7 +84,7 @@ local macro "repeat_add" n:num "with" x:term  : term =>
   go n.getNat
 
 /-
-This test showcases that the runtime of `ac_nf'` is not a bottleneck:
+This test showcases that the runtime of `bv_ac_nf` is not a bottleneck:
 * Testing with 100 as the repetition amount runs in about 200ms with `skipKernelTC` set,
     or ~3.3 seconds without (c.q. 2.3s for `ac_rfl`), and
 * Putting in 125 for the repetition amount wil give a `maximum recursion depth has been reached`
@@ -93,4 +93,4 @@ This test showcases that the runtime of `ac_nf'` is not a bottleneck:
 set_option debug.skipKernelTC true in
 example (x y : BitVec 64) :
     (repeat_add 100 with x + y) = (repeat_add 100 with x) + (repeat_add 100 with y) := by
-  ac_nf'; rfl
+  bv_ac_nf; rfl
