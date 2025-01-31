@@ -391,7 +391,6 @@ elab "bv_ac_nf" loc?:(location)? : tactic => do
 
 section Examples
 
-
 /--
 info: a b c d : BitVec 8
 ⊢ (a * b * (d + c) == a * b * (d + c)) = true
