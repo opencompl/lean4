@@ -5,6 +5,7 @@ Authors: Alex Keizer
 -/
 prelude
 import Lean.Meta.Tactic.AC.Main
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 import Init.Grind.Lemmas
 
 namespace Lean.Elab.Tactic.BVDecide
@@ -338,6 +339,15 @@ def acNfHypTactic' (fvarId : FVarId) : TacticM Unit :=
   liftMetaTactic1 fun goal => acNfHypMeta' goal fvarId
 
 example (x y : Nat) : x + y = y + x :=  by ac_nf
+
+def acNormalizePass : Pass where
+  name := `ac_nf
+  run' goal := do
+    let mut newGoal := goal
+    for hyp in (← goal.getNondepPropHyps) do
+      if let .some nextGoal ← acNfHypMeta' newGoal hyp then
+        newGoal := nextGoal
+    return newGoal
 
 open Lean.Parser.Tactic (location) in
 /--
