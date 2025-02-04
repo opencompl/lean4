@@ -164,7 +164,7 @@ coefficient, *unless* the input expression only contains applications of neutral
 elements (e.g., `0 + (0 + 0)`), in which case the returned coefficients map will
 be empty.
 -/
-def VarStateM.computeCoefficients (op : Expr) (e : Expr) : VarStateM CoefficientsMap :=
+def VarStateM.computeCoefficients (op : Op) (e : Expr) : VarStateM CoefficientsMap :=
   go {} e
 where
   incrVar (coeff : CoefficientsMap) (e : Expr) : VarStateM CoefficientsMap := do
@@ -172,7 +172,7 @@ where
     return coeff.alter idx (fun c => some <| (c.getD 0) + 1)
   go (coeff : CoefficientsMap) : Expr → VarStateM CoefficientsMap
   | e@(AC.bin op' x y) => do
-      if ← isDefEq op op' then
+      if op.toExpr == op' then
         let coeff ← go coeff x
         let coeff ← go coeff y
         return coeff
@@ -215,7 +215,7 @@ def SharedCoefficients.compute (x y : CoefficientsMap) : VarStateM SharedCoeffic
 /-- Compute the canonical expression for a given set of coefficients.
 Returns `none` if all coefficients are zero.
 -/
-def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Expr) : VarStateM (Option Expr) := do
+def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Op) : VarStateM (Option Expr) := do
   -- Note: we iterate over a sorted array of indices
   -- to ensure a canonical order of variables in the returned expression.
   -- This is O(|coeff| log |coeff|).
@@ -226,7 +226,7 @@ def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Expr) : VarStateM (Op
     for _ in [0:coeff] do
       acc := match acc with
         | none => expr
-        | some acc => some <| mkApp2 op acc expr
+        | some acc => some <| mkApp2 op.toExpr acc expr
   return acc
 
 open VarStateM Lean.Meta Lean.Elab Term
@@ -266,13 +266,13 @@ def canonicalizeWithSharing (P : Expr) (ty lhs rhs : Expr) : SimpM Simp.Step := 
   let some (Op.mul ..) := Op.ofExpr? rhs | return .continue
 
   VarStateM.run' (s:= { op, ty, level := u }) <| do
-    let lCoeff ← computeCoefficients op.toExpr lhs
-    let rCoeff ← computeCoefficients op.toExpr rhs
+    let lCoeff ← computeCoefficients op lhs
+    let rCoeff ← computeCoefficients op rhs
 
     let ⟨commonCoeff, lCoeff, rCoeff⟩ ← SharedCoefficients.compute lCoeff rCoeff
-    let commonExpr? : Option Expr ← commonCoeff.toExpr op.toExpr
-    let lNew? : Option Expr ← lCoeff.toExpr op.toExpr
-    let rNew? : Option Expr ← rCoeff.toExpr op.toExpr
+    let commonExpr? : Option Expr ← commonCoeff.toExpr op
+    let lNew? : Option Expr ← lCoeff.toExpr op
+    let rNew? : Option Expr ← rCoeff.toExpr op
 
     -- Since `lCoeff_{old} = commonCoeff + lCoeff_{new}`, and all coefficients
     -- of `lCoeff_{old}` are zero iff `lExpr` contains only neutral elements,
