@@ -227,9 +227,16 @@ def mkBitVec (w : Expr) := mkApp (.const ``BitVec []) w
 
 /-- Bitvector operations -/
 inductive Op
-| mul (w : Nat)
+| mul (w : Expr)
 
-def matchOp (_e : Expr) : Option Op := none
+def matchOp (e : Expr) : Option Op :=
+  match_expr e with
+  | HMul.hMul bv _bv _bv _inst =>
+    match bv with
+    | mkBitVec w => some (.mul w)
+    | _ => .none
+  | _ => .none
+
 
 /--
 Given an expression `P lhs rhs`, where `lhs, rhs : ty` and `P : $ty → $ty → _`,
@@ -249,27 +256,8 @@ def canonicalizeWithSharing (P : Expr) (ty lhs rhs : Expr) : SimpM Simp.Step := 
   withTraceNode (collapsed := true)  `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
 
   let u ← getLevel ty
-  let op ← match lhs with
-    | AC.bin op _ _ => pure op
-    | _             => let AC.bin op .. := rhs | return .continue
-                       pure op
-
-  let _lhsOp ← match lhs with
-    | AC.bin op _ _ => pure op
-    | _ => return .continue
-
-  let _rhsOp ← match rhs with
-    | AC.bin op _ _ => pure op
-    | _ => return .continue
-
-  -- We match on bitvector multiplication, to ensure that we
-  -- only perform the normalization on mul.
-  match_expr op with
-  | HMul.hMul bv _bv _bv _inst =>
-    match bv with
-    | mkBitVec _w => pure () -- We have a bitvec multiplication, continue.
-    | _ => return .continue
-  | _ => return .continue
+  let some (Op.mul w) := matchOp lhs | return .continue
+  let some (Op.mul _) := matchOp rhs | return .continue
 
   VarStateM.run' (s:= { op, ty, level := u }) <| do
     let lCoeff ← computeCoefficients op lhs
