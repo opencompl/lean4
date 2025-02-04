@@ -17,9 +17,31 @@ open Lean Meta
 
 abbrev VarIndex := Nat
 
+
+@[match_pattern]
+def mkBitVec (w : Expr) := mkApp (.const ``BitVec []) w
+
+/-- Bitvector operations -/
+inductive Op
+| mul (w : Expr) (inst : Expr)
+
+def Op.ofExpr? (e : Expr) : Option Op :=
+  match_expr e with
+  | HMul.hMul bv _bv _bv inst =>
+    match bv with
+    | mkBitVec w => some (.mul w inst)
+    | _ => .none
+  | _ => .none
+
+def Op.toExpr : Op → Expr
+| .mul w inst =>
+  let bv := mkBitVec w
+  mkApp3 (mkConst ``HMul.hMul []) bv bv inst
+
+
 structure VarState where
   /-- The associative and commutative operator we are currently canonicalizing with respect to. -/
-  op : Expr
+  op : Op
   /-- The type such that `op : $ty → $ty → $ty` -/
   ty : Expr
   /-- The universe level such that `ty : Sort $level` -/
@@ -72,7 +94,7 @@ def VarStateM.isNeutral (e : Expr) : VarStateM Bool := do
     return true
 
   let { op, ty, level, .. } ← get
-  let type := mkApp3 (.const ``Std.LawfulIdentity [level]) ty op e
+  let type := mkApp3 (.const ``Std.LawfulIdentity [level]) ty op.toExpr e
   if let .some _ ← trySynthInstance type then
     modify fun state@{ neutralCache, .. } => { state with
       neutralCache := neutralCache.insert e
@@ -88,7 +110,7 @@ def VarStateM.getNeutral : VarStateM Expr := do
 
   let { op, ty, level, .. } ← get
   let e ← mkFreshExprMVar ty
-  let type := mkApp3 (.const ``Std.LawfulIdentity [level]) ty op e
+  let type := mkApp3 (.const ``Std.LawfulIdentity [level]) ty op.toExpr e
   let _ ← synthInstance type
   modify (fun state@{ neutralCache, .. } => {state with
     neutralCache := neutralCache.insert e
@@ -221,22 +243,6 @@ def proveEqualityByAC (x y : Expr) : MetaM Expr := do
   AC.rewriteUnnormalizedRefl proof.mvarId! -- invoke `ac_rfl`
   instantiateMVars proof
 
-@[match_pattern]
-def mkBitVec (w : Expr) := mkApp (.const ``BitVec []) w
-
-
-/-- Bitvector operations -/
-inductive Op
-| mul (w : Expr)
-
-def matchOp (e : Expr) : Option Op :=
-  match_expr e with
-  | HMul.hMul bv _bv _bv _inst =>
-    match bv with
-    | mkBitVec w => some (.mul w)
-    | _ => .none
-  | _ => .none
-
 
 /--
 Given an expression `P lhs rhs`, where `lhs, rhs : ty` and `P : $ty → $ty → _`,
@@ -256,24 +262,24 @@ def canonicalizeWithSharing (P : Expr) (ty lhs rhs : Expr) : SimpM Simp.Step := 
   withTraceNode (collapsed := true)  `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
 
   let u ← getLevel ty
-  let some (Op.mul w) := matchOp lhs | return .continue
-  let some (Op.mul _) := matchOp rhs | return .continue
+  let some op := Op.ofExpr? lhs | return .continue
+  let some (Op.mul ..) := Op.ofExpr? rhs | return .continue
 
   VarStateM.run' (s:= { op, ty, level := u }) <| do
-    let lCoeff ← computeCoefficients op lhs
-    let rCoeff ← computeCoefficients op rhs
+    let lCoeff ← computeCoefficients op.toExpr lhs
+    let rCoeff ← computeCoefficients op.toExpr rhs
 
     let ⟨commonCoeff, lCoeff, rCoeff⟩ ← SharedCoefficients.compute lCoeff rCoeff
-    let commonExpr? : Option Expr ← commonCoeff.toExpr op
-    let lNew? : Option Expr ← lCoeff.toExpr op
-    let rNew? : Option Expr ← rCoeff.toExpr op
+    let commonExpr? : Option Expr ← commonCoeff.toExpr op.toExpr
+    let lNew? : Option Expr ← lCoeff.toExpr op.toExpr
+    let rNew? : Option Expr ← rCoeff.toExpr op.toExpr
 
     -- Since `lCoeff_{old} = commonCoeff + lCoeff_{new}`, and all coefficients
     -- of `lCoeff_{old}` are zero iff `lExpr` contains only neutral elements,
     -- we default to `lNew` being some canonical neutral element if both
     -- `commonExpr?` and `lNew?` are `none`.
-    let lNew ← Option.merge (mkApp2 op) commonExpr? lNew? |>.getDM getNeutral
-    let rNew ← Option.merge (mkApp2 op) commonExpr? rNew? |>.getDM getNeutral
+    let lNew ← Option.merge (mkApp2 op.toExpr) commonExpr? lNew? |>.getDM getNeutral
+    let rNew ← Option.merge (mkApp2 op.toExpr) commonExpr? rNew? |>.getDM getNeutral
 
     let oldExpr := mkApp2 P lhs rhs
     let expr := mkApp2 P lNew rNew
