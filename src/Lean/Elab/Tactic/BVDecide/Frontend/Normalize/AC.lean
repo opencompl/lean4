@@ -17,15 +17,17 @@ open Lean Meta
 
 abbrev VarIndex := Nat
 
-
 @[match_pattern]
 def mkBitVec (w : Expr) := mkApp (.const ``BitVec []) w
 
-/-- Bitvector operations -/
+/-- Bitvector operations that we perform AC canonicalization on. -/
 inductive Op
 | mul (w : Expr) (inst : Expr)
+deriving BEq, Repr
 
-def Op.ofExpr? (e : Expr) : Option Op :=
+namespace Op
+
+def ofExpr? (e : Expr) : Option Op :=
   match_expr e with
   | HMul.hMul bv _bv _bv inst =>
     match bv with
@@ -33,20 +35,19 @@ def Op.ofExpr? (e : Expr) : Option Op :=
     | _ => .none
   | _ => .none
 
-def Op.toExpr : Op → Expr
+def toExpr : Op → Expr
 | .mul w inst =>
   let bv := mkBitVec w
   mkApp3 (mkConst ``HMul.hMul []) bv bv inst
 
+/-- The identity / neutral element of the operation we are canonicalizing with respect to -/
+def neutralElement : Op → Expr
+| .mul w .. => mkApp2 (mkConst ``BitVec.ofNat []) w (mkNatLit 1)
+end Op
 
 structure VarState where
   /-- The associative and commutative operator we are currently canonicalizing with respect to. -/
   op : Op
-  /-- The type such that `op : $ty → $ty → $ty` -/
-  ty : Expr
-  /-- The universe level such that `ty : Sort $level` -/
-  level : Level
-
   /-- Map from atomic expressions to an index. -/
   exprToVarIndex : Std.HashMap Expr VarIndex := {}
   /-- Inverse of `exprToVarIndex`, which maps a `VarIndex` to the expression it represents. -/
@@ -65,7 +66,6 @@ structure LegalVarState extends VarState where
 of occurences of the expression represented by that variable.
 
 See `CoefficientsMap.toExpr` for the explicit conversion. -/
--- FIXME: @bollu would like this to be `RBMap VarIndex Nat compare`
 abbrev CoefficientsMap := Std.HashMap VarIndex Nat
 
 /-! ### VarState monadic boilerplate  -/
@@ -76,14 +76,6 @@ def VarStateM.run' (x : VarStateM α) (s : VarState) : MetaM α :=
   StateT.run' x s
 
 /-! ### Implementation -/
-
-/-- Return a range with all variable indices that have a mapping.
-
-Note that this is always a complete sequence `0, 1, ..., (n-1)`, without skipping
-numbers. -/
-def getAllVarIndices : VarStateM Std.Range := do
-  pure <| [0:(← get).exprToVarIndex.size]
-
 
 /-- Return the unique variable index for an expression, or `none` if the expression
 is a neutral element (see `isNeutral`).
@@ -111,8 +103,6 @@ def VarStateM.varToExpr (idx : VarIndex) : VarStateM Expr := do
     throwError "internal error (this is a bug!): index {idx} out of range, \
       the current state only has {varToExpr.size} variables:\n\n{varToExpr}"
 
-def Op.getNeutralElement : Op → Expr
-| .mul w .. => mkApp2 (mkConst ``BitVec.ofNat []) w (mkNatLit 1)
 
 /-- Given a binary, associative and commutative operation `op`,
 decompose expression `e` into its variable coefficients.
@@ -226,14 +216,16 @@ in the lhs (if present) to the front (such an occurence would be the common
 expression). For example `x + y + ((x * y) + x) = x * y` will be canonicalized
 to `(x * y) + ... = x * y`
 -/
-def canonicalizeWithSharing (P : Expr) (ty lhs rhs : Expr) : SimpM Simp.Step := do
+def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
   withTraceNode (collapsed := true)  `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
 
-  let u ← getLevel ty
   let some op := Op.ofExpr? lhs | return .continue
-  let some (Op.mul ..) := Op.ofExpr? rhs | return .continue
+  let some op':= Op.ofExpr? rhs | return .continue
 
-  VarStateM.run' (s:= { op, ty, level := u }) <| do
+  -- Ignore cases where LHS and RHS ops are different.
+  if op != op' then return .continue
+
+  VarStateM.run' (s:= { op }) <| do
     let lCoeff ← computeCoefficients op lhs
     let rCoeff ← computeCoefficients op rhs
 
@@ -246,8 +238,8 @@ def canonicalizeWithSharing (P : Expr) (ty lhs rhs : Expr) : SimpM Simp.Step := 
     -- of `lCoeff_{old}` are zero iff `lExpr` contains only neutral elements,
     -- we default to `lNew` being some canonical neutral element if both
     -- `commonExpr?` and `lNew?` are `none`.
-    let lNew := Option.merge (mkApp2 op.toExpr) commonExpr? lNew? |>.getD op.getNeutralElement
-    let rNew := Option.merge (mkApp2 op.toExpr) commonExpr? rNew? |>.getD op.getNeutralElement
+    let lNew := Option.merge (mkApp2 op.toExpr) commonExpr? lNew? |>.getD op.neutralElement
+    let rNew := Option.merge (mkApp2 op.toExpr) commonExpr? rNew? |>.getD op.neutralElement
 
     let oldExpr := mkApp2 P lhs rhs
     let expr := mkApp2 P lNew rNew
@@ -265,11 +257,11 @@ def post' : Simp.Simproc := fun e => do
   | Eq ty lhs rhs =>
       let u ← getLevel ty
       let P := mkApp (.const ``Eq [u]) ty
-      canonicalizeWithSharing P ty lhs rhs
+      canonicalizeWithSharing P lhs rhs
   | BEq.beq ty inst lhs rhs =>
       let uLvl ← getDecLevel ty
       let P := mkApp2 (.const ``BEq.beq [uLvl]) ty inst
-      canonicalizeWithSharing P ty lhs rhs
+      canonicalizeWithSharing P lhs rhs
   | _ => return .continue
 
 def rewriteUnnormalizedWithSharing (mvarId : MVarId) : MetaM MVarId := do
@@ -280,7 +272,6 @@ def rewriteUnnormalizedWithSharing (mvarId : MVarId) : MetaM MVarId := do
   let tgt ← instantiateMVars (← mvarId.getType)
   let (res, _) ← Simp.main tgt simpCtx (methods := { post := post' })
   applySimpResultToTarget mvarId tgt res
-
 
 /-! ## Tactic Boilerplate -/
 
@@ -303,8 +294,6 @@ def acNfTargetTactic' : TacticM Unit := do
 /-- Implementation of the `ac_nf'` tactic when operating on a hypothesis. -/
 def acNfHypTactic' (fvarId : FVarId) : TacticM Unit :=
   liftMetaTactic1 fun goal => acNfHypMeta' goal fvarId
-
-example (x y : Nat) : x + y = y + x :=  by ac_nf
 
 def acNormalizePass : Pass where
   name := `ac_nf
@@ -343,6 +332,5 @@ elab "bv_ac_nf" loc?:(location)? : tactic => do
     | Location.wildcard =>
       acNfTargetTactic'
       (← (← getMainGoal).getNondepPropHyps).forM acNfHypTactic'
-
 
 section Examples
