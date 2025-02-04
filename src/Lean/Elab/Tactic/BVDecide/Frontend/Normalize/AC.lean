@@ -51,8 +51,6 @@ structure VarState where
   exprToVarIndex : Std.HashMap Expr VarIndex := {}
   /-- Inverse of `exprToVarIndex`, which maps a `VarIndex` to the expression it represents. -/
   varToExpr : Array Expr := #[]
-  /-- A cache of confirmed neutral elements -/
-  neutralCache : Std.HashSet Expr := {}
 
 /-!
 We don't verify the state manipulations, but if we would, these are the invariants:
@@ -86,55 +84,22 @@ numbers. -/
 def getAllVarIndices : VarStateM Std.Range := do
   pure <| [0:(← get).exprToVarIndex.size]
 
-/-- Return `true` if `e` is a neutral element for operation `op`.
-
-That is, if an instance of `LawfulIdentity op e` exists -/
-def VarStateM.isNeutral (e : Expr) : VarStateM Bool := do
-  if (← get).neutralCache.contains e then
-    return true
-
-  let { op, ty, level, .. } ← get
-  let type := mkApp3 (.const ``Std.LawfulIdentity [level]) ty op.toExpr e
-  if let .some _ ← trySynthInstance type then
-    modify fun state@{ neutralCache, .. } => { state with
-      neutralCache := neutralCache.insert e
-    }
-    return true
-  pure false
-
-/-- Return an arbitrary neutral element for the current operations
-(i.e., `VarState.op`), or throw an error if no such element exists -/
-def VarStateM.getNeutral : VarStateM Expr := do
-  for val in (← get).neutralCache do
-    return val
-
-  let { op, ty, level, .. } ← get
-  let e ← mkFreshExprMVar ty
-  let type := mkApp3 (.const ``Std.LawfulIdentity [level]) ty op.toExpr e
-  let _ ← synthInstance type
-  modify (fun state@{ neutralCache, .. } => {state with
-    neutralCache := neutralCache.insert e
-  })
-  return e
 
 /-- Return the unique variable index for an expression, or `none` if the expression
 is a neutral element (see `isNeutral`).
 
 Modifies the monadic state to add a new mapping and increment the index,
 if needed. -/
-def VarStateM.exprToVar (e : Expr) : VarStateM (Option VarIndex) := do
-  let { exprToVarIndex, .. } ← get
+def VarStateM.exprToVar (e : Expr) : VarStateM VarIndex := do
+  let { exprToVarIndex, varToExpr, .. } ← get
   match exprToVarIndex[e]? with
   | some idx => return idx
   | none =>
-    if ← isNeutral e then
-      return none
-
     -- TODO: is this linear usage?
     let nextIndex := exprToVarIndex.size
-    modify (fun state@{exprToVarIndex, varToExpr, ..} => {state with
-      exprToVarIndex := exprToVarIndex.insert e nextIndex
-      varToExpr := varToExpr.push e })
+    let exprToVarIndex := exprToVarIndex.insert e nextIndex
+    let varToExpr := varToExpr.push e
+    modify fun s => { s with exprToVarIndex, varToExpr }
     return nextIndex
 
 /-- Return the expression that is represented by a specific variable index. -/
@@ -145,6 +110,9 @@ def VarStateM.varToExpr (idx : VarIndex) : VarStateM Expr := do
   else
     throwError "internal error (this is a bug!): index {idx} out of range, \
       the current state only has {varToExpr.size} variables:\n\n{varToExpr}"
+
+def Op.getNeutralElement : Op → Expr
+| .mul w .. => mkApp2 (mkConst ``BitVec.ofNat []) w (mkNatLit 1)
 
 /-- Given a binary, associative and commutative operation `op`,
 decompose expression `e` into its variable coefficients.
@@ -168,7 +136,7 @@ def VarStateM.computeCoefficients (op : Op) (e : Expr) : VarStateM CoefficientsM
   go {} e
 where
   incrVar (coeff : CoefficientsMap) (e : Expr) : VarStateM CoefficientsMap := do
-    let some idx ← exprToVar e | return coeff
+    let idx ← exprToVar e
     return coeff.alter idx (fun c => some <| (c.getD 0) + 1)
   go (coeff : CoefficientsMap) : Expr → VarStateM CoefficientsMap
   | e@(AC.bin op' x y) => do
@@ -278,8 +246,8 @@ def canonicalizeWithSharing (P : Expr) (ty lhs rhs : Expr) : SimpM Simp.Step := 
     -- of `lCoeff_{old}` are zero iff `lExpr` contains only neutral elements,
     -- we default to `lNew` being some canonical neutral element if both
     -- `commonExpr?` and `lNew?` are `none`.
-    let lNew ← Option.merge (mkApp2 op.toExpr) commonExpr? lNew? |>.getDM getNeutral
-    let rNew ← Option.merge (mkApp2 op.toExpr) commonExpr? rNew? |>.getDM getNeutral
+    let lNew := Option.merge (mkApp2 op.toExpr) commonExpr? lNew? |>.getD op.getNeutralElement
+    let rNew := Option.merge (mkApp2 op.toExpr) commonExpr? rNew? |>.getD op.getNeutralElement
 
     let oldExpr := mkApp2 P lhs rhs
     let expr := mkApp2 P lNew rNew
