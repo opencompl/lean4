@@ -32,7 +32,7 @@ def passPipeline : PreProcessM (List Pass) := do
   let cfg ← PreProcessM.getConfig
 
   if cfg.acNf then
-    passPipeline := passPipeline ++ [acNormalizePass]
+    passPipeline := passPipeline ++ [bvAcNormalizePass]
 
   if cfg.andFlattening then
     passPipeline := passPipeline ++ [andFlatteningPass]
