@@ -880,10 +880,8 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
     getLsbD (extractLsb hi lo x) i = (decide (i < hi - lo + 1) && x.getLsbD (lo + i)) := by
   rw [extractLsb, getLsbD_extractLsb']
 
-theorem and_eq_decide_true (a b : Bool) :
-    (a && b) = decide (a = true ∧ b = true) := by
-  simp [Bool.decide_and]
-
+theorem thm1 {p : Prop} [Decidable p] {b : Bool} :
+  ((decide (p)) && b) = decide (p ∧ (b = true)) := by sorry
 
 @[simp] theorem getMsbD_extractLsb {hi lo : Nat} {x : BitVec w} {i : Nat} :
     (extractLsb hi lo x).getMsbD i =
@@ -891,8 +889,11 @@ theorem and_eq_decide_true (a b : Bool) :
       (decide ((max hi lo) - i < w) &&
       x.getMsbD (w - 1 - ((max hi lo) - i)))) := by
   rw [getMsbD_eq_getLsbD, getLsbD_extractLsb, getLsbD_eq_getMsbD]
-  simp only [bool_to_prop, and_eq_decide_true]
-  simp only [Bool.decide_and]
+  rw [show x.getMsbD (w - 1 - (lo + (hi - lo + 1 - 1 - i))) =
+        decide (x.getMsbD (w - 1 - (lo + (hi - lo + 1 - 1 - i))) = true) by simp]
+  rw [show x.getMsbD (w - 1 - (max hi lo - i)) =
+        decide (x.getMsbD (w - 1 - (max hi lo - i)) = true) by simp]
+  simp only [bool_to_prop]
   constructor
   · rintro ⟨h₁, h₂, h₃, h₄⟩
     have p : w - 1 - (lo + (hi - lo + 1 - 1 - i)) = w - 1 - (max hi lo - i) := by omega
