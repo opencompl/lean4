@@ -27,6 +27,9 @@ deriving BEq, Repr
 
 namespace Op
 
+/-- Given an expression of an (unapplied) operation, return the decoded `Op`.
+
+Return `none` if the expression is not a recognized operation. -/
 def ofExpr? (e : Expr) : Option Op :=
   match_expr e with
   | HMul.hMul bv _bv _bv inst =>
@@ -35,14 +38,27 @@ def ofExpr? (e : Expr) : Option Op :=
     | _ => .none
   | _ => .none
 
+/-- Given an *application* of a recognized binary operation (to two arguments),
+return the decoded `Op`.
+
+Return `none` if the expression is not an application of a recognized operation.
+-/
+def ofApp? : Expr → Option Op
+  | mkApp2 op _x _y => ofExpr? op
+  | _ => none
+
 def toExpr : Op → Expr
 | .mul w inst =>
   let bv := mkBitVec w
   mkApp3 (mkConst ``HMul.hMul []) bv bv inst
 
-/-- The identity / neutral element of the operation we are canonicalizing with respect to -/
+/-- The identity / neutral element of given operation -/
 def neutralElement : Op → Expr
 | .mul w .. => mkApp2 (mkConst ``BitVec.ofNat []) w (mkNatLit 1)
+
+instance : ToMessageData Op where
+  toMessageData op := m!"{toExpr op}"
+
 end Op
 
 structure VarState where
@@ -217,13 +233,26 @@ expression). For example `x + y + ((x * y) + x) = x * y` will be canonicalized
 to `(x * y) + ... = x * y`
 -/
 def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
-  withTraceNode (collapsed := true)  `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
+  withTraceNode (collapsed := true) `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
+  trace[Meta.AC] "Canonicalizing: {indentExpr <| mkApp2 P lhs rhs}"
 
-  let some op := Op.ofExpr? lhs | return .continue
-  let some op':= Op.ofExpr? rhs | return .continue
+  let some op := Op.ofApp? lhs |
+    trace[Meta.AC] "Failed to recognize operation: {indentExpr lhs}"
+    return .continue
+  let some op' := Op.ofApp? rhs |
+    trace[Meta.AC] "Failed to recognize operation: {indentExpr rhs}"
+    return .continue
 
   -- Ignore cases where LHS and RHS ops are different.
-  if op != op' then return .continue
+  if op != op' then
+    trace[Meta.AC] "Operations mismatch:\
+      the left-hand-side has operation {op}
+        {indentExpr lhs}
+      but the right-hand-side has operation {op'}
+        {indentExpr rhs}"
+    return .continue
+
+  trace[Meta.AC] "Canonicalizing with respect to operation: {op}"
 
   VarStateM.run' (s:= { op }) <| do
     let lCoeff ← computeCoefficients op lhs
@@ -339,4 +368,9 @@ elab "bv_ac_nf" loc?:(location)? : tactic => do
       bvAcNfTargetTactic
       (← (← getMainGoal).getNondepPropHyps).forM bvAcNfHypTactic
 
-section Examples
+set_option trace.Meta.AC true
+theorem bv_ac_nf_docstring (x₁ x₂ y z : BitVec 4) :
+    x₁ * y * y * z * z = x₂ * z * z * y * y := by
+  bv_ac_nf
+  -- guard_target =ₛ z * (x₁ * y₁) = z * (x₂ * y₂)
+  sorry
