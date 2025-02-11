@@ -7,6 +7,14 @@ open Lean
 
 /-- warning: declaration uses 'sorry' -/
 #guard_msgs in
+theorem bv_ac_nf_docstring (x₁ x₂ y z : BitVec 4) :
+    x₁ * y * y * z * z = x₂ * z * z * y * y := by
+  bv_ac_nf
+  guard_target =ₛ ((y * z) * (y * z)) * x₁ = ((y * z) * (y * z)) * x₂
+  sorry
+
+/-- warning: declaration uses 'sorry' -/
+#guard_msgs in
 theorem mul_mul_eq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) (h₁ : x₁ = x₂) (h₂ : y₁ = y₂) :
     x₁ * (y₁ * z) = x₂ * (y₂ * z) := by
   bv_ac_nf
