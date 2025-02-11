@@ -277,7 +277,7 @@ def rewriteUnnormalizedWithSharing (mvarId : MVarId) : MetaM MVarId := do
 
 open Tactic
 
-def acNfHypMeta' (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
+def bvAcNfHypMeta (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
   goal.withContext do
     let simpCtx ← Simp.mkContext
       (simpTheorems  := {})
@@ -287,37 +287,43 @@ def acNfHypMeta' (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
     let (res, _) ← Simp.main tgt simpCtx (methods := { post := post' })
     return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)
 
-/-- Implementation of the `ac_nf'` tactic when operating on the main goal. -/
-def acNfTargetTactic' : TacticM Unit := do
+/-- Implementation of the `bv_ac_nf` tactic when operating on the main goal. -/
+def bvAcNfTargetTactic : TacticM Unit := do
   liftMetaTactic1 fun goal => rewriteUnnormalizedWithSharing goal
 
-/-- Implementation of the `ac_nf'` tactic when operating on a hypothesis. -/
-def acNfHypTactic' (fvarId : FVarId) : TacticM Unit :=
-  liftMetaTactic1 fun goal => acNfHypMeta' goal fvarId
+/-- Implementation of the `bv_ac_nf` tactic when operating on a hypothesis. -/
+def bvAcNfHypTactic (fvarId : FVarId) : TacticM Unit :=
+  liftMetaTactic1 fun goal => bvAcNfHypMeta goal fvarId
 
-def acNormalizePass : Pass where
-  name := `ac_nf
+def bvAcNormalizePass : Pass where
+  name := `bv_ac_nf
   run' goal := do
     let mut newGoal := goal
     for hyp in (← goal.getNondepPropHyps) do
-      if let .some nextGoal ← acNfHypMeta' newGoal hyp then
+      if let .some nextGoal ← bvAcNfHypMeta newGoal hyp then
         newGoal := nextGoal
     return newGoal
 
 open Lean.Parser.Tactic (location) in
 /--
-`bv_ac_nf` normalizes equalities up to application of an associative and commutative operator,
-in a way that exposes common terms among both sides of an equality.
-- `ac_nf'` normalizes all hypotheses and the goal target of the goal.
-- `ac_nf' at l` normalizes at location(s) `l`, where `l` is either `*` or a
+`bv_ac_nf` normalizes bitvector expressions up to associativity and commutativity
+of multiplication, in in a way that exposes common terms among both sides of an
+equality.
+- `bv_ac_nf` normalizes all hypotheses and the goal target of the goal.
+- `bv_ac_nf at l` normalizes at location(s) `l`, where `l` is either `*` or a
   list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
   can also be used, to signify the target of the goal.
 
-`bv_ac_nf'` differs from `bv_ac_nf` in how the canonical form of the left-hand-side of
+`bv_ac_nf` is similar to `ac_nf`, except that it is specialized to bitvector
+multiplication, and it differs in how the canonical form of the left-hand-side of
 an equality can depend on the right-hand-side, in particular, to expose shared terms.
-For example, `x₁ * (y₁ * z) = x₂ * (y₂ * z)` is normalized to
-`z * (x₁ * y₁) = z * (x₂ * y₂)`, pulling the shared variable `z` to the front on
-both sides.
+Furthermore, `bv_ac_nf` will also promote sharing within a sequence of
+multiplications, to reduce the number of expressions that need to be bitblasted.
+
+For example, `x₁ * y * y * z * z = x₂ * z * z * y * y` is normalized to
+`((y * z) * (y * z)) * x₁ = ((y * z) * (y * z)) * x₂`,
+pulling the shared variables to the front on both sides, and minimizing the
+number of distinct expressions to be bitblasted by coupling `y * z`.
 -/
 elab "bv_ac_nf" loc?:(location)? : tactic => do
   let loc := match loc? with
@@ -327,10 +333,10 @@ elab "bv_ac_nf" loc?:(location)? : tactic => do
     match loc with
     | Location.targets hyps target =>
       if target then do
-        acNfTargetTactic'
-      (← getFVarIds hyps).forM acNfHypTactic'
+        bvAcNfTargetTactic
+      (← getFVarIds hyps).forM bvAcNfHypTactic
     | Location.wildcard =>
-      acNfTargetTactic'
-      (← (← getMainGoal).getNondepPropHyps).forM acNfHypTactic'
+      bvAcNfTargetTactic
+      (← (← getMainGoal).getNondepPropHyps).forM bvAcNfHypTactic
 
 section Examples
