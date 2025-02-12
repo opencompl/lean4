@@ -880,9 +880,6 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
     getLsbD (extractLsb hi lo x) i = (decide (i < hi - lo + 1) && x.getLsbD (lo + i)) := by
   rw [extractLsb, getLsbD_extractLsb']
 
-theorem thm1 {p : Prop} [Decidable p] {b : Bool} :
-  ((decide (p)) && b) = decide (p ∧ (b = true)) := by sorry
-
 @[simp] theorem getMsbD_extractLsb {hi lo : Nat} {x : BitVec w} {i : Nat} :
     (extractLsb hi lo x).getMsbD i =
       (decide (i < hi - lo + 1) &&
