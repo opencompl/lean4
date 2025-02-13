@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Alex Keizer
+Authors: Alex Keizer, Siddharth Bhat
 -/
 prelude
 import Lean.Meta.Tactic.AC.Main
