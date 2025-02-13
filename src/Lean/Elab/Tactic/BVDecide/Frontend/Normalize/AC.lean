@@ -50,14 +50,14 @@ def ofApp? : Expr → Option Op
 def toExpr : Op → Expr
 | .mul w inst =>
   let bv := mkBitVec w
-  mkApp3 (mkConst ``HMul.hMul []) bv bv inst
+  mkApp4 (mkConst ``HMul.hMul [.zero, .zero, .zero]) bv bv bv inst
 
 /-- The identity / neutral element of given operation -/
 def neutralElement : Op → Expr
 | .mul w .. => mkApp2 (mkConst ``BitVec.ofNat []) w (mkNatLit 1)
 
 instance : ToMessageData Op where
-  toMessageData op := m!"{toExpr op}"
+  toMessageData op := m!"Op({toExpr op})"
 
 end Op
 
@@ -146,11 +146,14 @@ where
     return coeff.alter idx (fun c => some <| (c.getD 0) + 1)
   go (coeff : CoefficientsMap) : Expr → VarStateM CoefficientsMap
   | e@(AC.bin op' x y) => do
-      if op.toExpr == op' then
+      -- trace[Meta.AC] "computeCoefficients for '{e}'"
+      if ← isDefEq op' op.toExpr then
+        -- trace[Meta.AC] "'{e}' has correct op '{op}', but has {op'}"
         let coeff ← go coeff x
         let coeff ← go coeff y
         return coeff
       else
+        -- trace[Meta.AC] "'{e}' does not have correct op '{op}', but has operation '{op'}'."
         incrVar coeff e
   | e => incrVar coeff e
 
@@ -233,7 +236,8 @@ expression). For example `x + y + ((x * y) + x) = x * y` will be canonicalized
 to `(x * y) + ... = x * y`
 -/
 def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
-  withTraceNode (collapsed := true) `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
+  -- withTraceNode (collapsed := true) `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
+  withTraceNode (collapsed := false) `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
   trace[Meta.AC] "Canonicalizing: {indentExpr <| mkApp2 P lhs rhs}"
 
   let some op := Op.ofApp? lhs |
@@ -252,13 +256,19 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
         {indentExpr rhs}"
     return .continue
 
-  trace[Meta.AC] "Canonicalizing with respect to operation: {op}"
+  trace[Meta.AC] "Canonicalizing with respect to operation: '{op}'"
 
   VarStateM.run' (s:= { op }) <| do
     let lCoeff ← computeCoefficients op lhs
+    trace[Meta.AC] "LCoeff: {lCoeff.toArray.qsort fun a b => a.fst < b.fst}"
     let rCoeff ← computeCoefficients op rhs
+    trace[Meta.AC] "RCoeff: {lCoeff.toArray.qsort fun a b => a.fst < b.fst}"
 
     let ⟨commonCoeff, lCoeff, rCoeff⟩ ← SharedCoefficients.compute lCoeff rCoeff
+
+    trace[Meta.AC] "common: {commonCoeff.toArray.qsort fun a b => a.fst < b.fst}"
+    trace[Meta.AC] "lnew: {lCoeff.toArray.qsort fun a b => a.fst < b.fst}"
+    trace[Meta.AC] "rnew: {lCoeff.toArray.qsort fun a b => a.fst < b.fst}"
     let commonExpr? : Option Expr ← commonCoeff.toExpr op
     let lNew? : Option Expr ← lCoeff.toExpr op
     let rNew? : Option Expr ← rCoeff.toExpr op
@@ -367,3 +377,4 @@ elab "bv_ac_nf" loc?:(location)? : tactic => do
     | Location.wildcard =>
       bvAcNfTargetTactic
       (← (← getMainGoal).getNondepPropHyps).forM bvAcNfHypTactic
+

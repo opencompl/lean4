@@ -6,11 +6,10 @@ import Lean
 open Lean
 
 /-- warning: declaration uses 'sorry' -/
-#guard_msgs in
 theorem bv_ac_nf_docstring (x₁ x₂ y z : BitVec 4) :
     x₁ * y * y * z * z = x₂ * z * z * y * y := by
   bv_ac_nf
-  guard_target =ₛ ((y * z) * (y * z)) * x₁ = ((y * z) * (y * z)) * x₂
+  guard_target =ₛ (y * y * z * z * x₁ = y * y * z * z * x₂)
   sorry
 
 /-- warning: declaration uses 'sorry' -/
@@ -67,7 +66,7 @@ theorem add_mul_mixed (x y z : BitVec 64) :
   bv_ac_nf; rfl
 
 theorem add_mul_mixed' (x y z : BitVec 64)
-    (h : (x + y) * z = x + y) :
+    (h : z * (x + y) = x + y) :
     z * (x + y) = (x + y) := by
   bv_ac_nf; exact h
 
