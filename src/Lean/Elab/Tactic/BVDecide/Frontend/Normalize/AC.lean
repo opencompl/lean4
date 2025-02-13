@@ -367,10 +367,3 @@ elab "bv_ac_nf" loc?:(location)? : tactic => do
     | Location.wildcard =>
       bvAcNfTargetTactic
       (← (← getMainGoal).getNondepPropHyps).forM bvAcNfHypTactic
-
-set_option trace.Meta.AC true
-theorem bv_ac_nf_docstring (x₁ x₂ y z : BitVec 4) :
-    x₁ * y * y * z * z = x₂ * z * z * y * y := by
-  bv_ac_nf
-  -- guard_target =ₛ z * (x₁ * y₁) = z * (x₂ * y₂)
-  sorry
