@@ -73,6 +73,17 @@ def toExpr : Op → Expr
 def neutralElement : Op → Expr
   | .mul w => mkBitVecLit w 1
 
+/-- Parse `op'` using `ofExpr?` and return true if the resulting operation is
+of the same kind as `op` (i.e., both are multiplications).
+Returns false if `op'` fails to parse.
+
+Note that the width of the operation is *not* compared.
+ -/
+def isSameKind (op : Op) (op' : Expr) : Bool := Id.run do
+  let some op' := ofExpr? op' | false
+  match op, op' with
+  | .mul _, .mul _ => true
+
 instance : ToMessageData Op where
   toMessageData op := m!"{toExpr op}"
 
@@ -167,7 +178,7 @@ where
     return coeff.alter idx (fun c => some <| (c.getD 0) + 1)
   go (coeff : CoefficientsMap) : Expr → VarStateM CoefficientsMap
     | e@(AC.bin op' x y) => do
-        if ← isDefEq op' op.toExpr then
+        if op.isSameKind op' then
           let coeff ← go coeff x
           let coeff ← go coeff y
           return coeff
