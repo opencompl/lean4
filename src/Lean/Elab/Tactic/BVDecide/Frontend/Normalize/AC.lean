@@ -73,7 +73,9 @@ structure VarState where
 We don't verify the state manipulations, but if we would, these are the invariants:
 ```
 structure LegalVarState extends VarState where
-  h_size  : varToExpr.size = exprToVarIndex.size := by omega
+  /-- `varToExpr` and `exprToVarIndex` have the same number of elements. -/
+  h_size  : varToExpr.size = exprToVarIndex.size
+  /-- `exprToVarIndex` is the inverse of `varToExpr`. -/
   h_elems : ∀ h_lt : i < varToExpr.size, exprToVarIndex[varToExpr[i]]? = some i
 ```
 -/
