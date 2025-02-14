@@ -71,11 +71,6 @@ theorem add_mul_mixed (x y z : BitVec 64) :
     z * (y + x) = (y + x) * z := by
   bv_ac_nf; rfl
 
-theorem add_mul_mixed' (x y z : BitVec 64)
-    (h : z * (x + y) = x + y) :
-    z * (x + y) = (x + y) := by
-  bv_ac_nf; exact h
-
 /-! ### Scaling Test -/
 
 /-- `repeat_add $n with $t` expands to `$t + $t + ... + $t`, with `n` repetitions
