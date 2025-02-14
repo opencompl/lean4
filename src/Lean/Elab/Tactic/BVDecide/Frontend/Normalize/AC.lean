@@ -317,10 +317,8 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
     }
 
 def post : Simp.Simproc := fun e => do
-  match_expr e with
-  | BEq.beq ty inst lhs rhs =>
-      let uLvl ← getDecLevel ty
-      let P := mkApp2 (.const ``BEq.beq [uLvl]) ty inst
+  match e with
+  | mkApp2 P@(mkApp2 (.const ``BEq.beq _) _ty _inst) lhs rhs =>
       canonicalizeWithSharing P lhs rhs
   | _ => return .continue
 
@@ -330,7 +328,7 @@ def rewriteUnnormalizedWithSharing (mvarId : MVarId) : MetaM MVarId := do
       (congrTheorems := (← getSimpCongrTheorems))
       (config        := Simp.neutralConfig)
   let tgt ← instantiateMVars (← mvarId.getType)
-  let (res, _) ← Simp.main tgt simpCtx (methods := { post := post' })
+  let (res, _) ← Simp.main tgt simpCtx (methods := { post := post })
   applySimpResultToTarget mvarId tgt res
 
 /-! ## Tactic Boilerplate -/
@@ -344,7 +342,7 @@ def bvAcNfHypMeta (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := d
       (congrTheorems := (← getSimpCongrTheorems))
       (config        := Simp.neutralConfig)
     let tgt ← instantiateMVars (← fvarId.getType)
-    let (res, _) ← Simp.main tgt simpCtx (methods := { post := post' })
+    let (res, _) ← Simp.main tgt simpCtx (methods := { post := post })
     return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)
 
 /--
