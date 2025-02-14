@@ -57,7 +57,7 @@ def neutralElement : Op → Expr
 | .mul w .. => mkApp2 (mkConst ``BitVec.ofNat []) w (mkNatLit 1)
 
 instance : ToMessageData Op where
-  toMessageData op := m!"Op({toExpr op})"
+  toMessageData op := m!"{toExpr op}"
 
 end Op
 
@@ -146,14 +146,12 @@ where
     return coeff.alter idx (fun c => some <| (c.getD 0) + 1)
   go (coeff : CoefficientsMap) : Expr → VarStateM CoefficientsMap
   | e@(AC.bin op' x y) => do
-      -- trace[Meta.AC] "computeCoefficients for '{e}'"
       if ← isDefEq op' op.toExpr then
-        -- trace[Meta.AC] "'{e}' has correct op '{op}', but has {op'}"
         let coeff ← go coeff x
         let coeff ← go coeff y
         return coeff
       else
-        -- trace[Meta.AC] "'{e}' does not have correct op '{op}', but has operation '{op'}'."
+        trace[Meta.AC] "Found binary operation '{op'} {x} {y}', expected '{op}'. Treating as atom."
         incrVar coeff e
   | e => incrVar coeff e
 

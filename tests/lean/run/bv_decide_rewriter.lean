@@ -88,16 +88,19 @@ example {x : BitVec 16} : x / (BitVec.ofNat 16 8) = x >>> 3 := by bv_normalize
 example {x y : Bool} (h1 : x && y) : x || y := by bv_normalize
 example (a b c: Bool) : (if a then b else c) = (if !a then c else b) := by bv_normalize
 
-section
-
--- example (x y : BitVec 256) : x * y = y * x := by
---   bv_decide (config := { acNf := true })
+namespace NormalizeMul
+/- Test examples of the multiplication normalizer -/
 
 
-example {x y z : BitVec 64} : ~~~(x &&& (y * z)) = (~~~x ||| ~~~(z * y)) := by
+example (x y : BitVec 256) : x * y = y * x := by
   bv_decide (config := { acNf := true })
 
-end
+example (x y : BitVec 256) : x * y * z = z * y * x := by
+  bv_decide (config := { acNf := true })
+
+example (x y : BitVec 256) : x * y * z = z * y * x := by
+  bv_decide (config := { acNf := true })
+end NormalizeMul
 
 def foo (x : Bool) : Prop := x = true
 
