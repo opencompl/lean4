@@ -100,17 +100,19 @@ is a neutral element (see `isNeutral`).
 
 Modifies the monadic state to add a new mapping, if needed. -/
 def VarStateM.exprToVar (e : Expr) : VarStateM VarIndex := do
-  let { exprToVarIndex, .. } ← get
-  match exprToVarIndex[e]? with
+  match ← getIndex e with
   | some idx => return idx
   | none =>
-    -- TODO: is this linear usage?
-    let nextIndex := exprToVarIndex.size
-    modify fun s => { s with
-      exprToVarIndex := s.exprToVarIndex.insert e nextIndex
-      varToExpr := s.varToExpr.push e
-    }
-    return nextIndex
+    modifyGet fun s =>
+      let nextIndex := s.exprToVarIndex.size
+      (nextIndex, { s with
+        exprToVarIndex := s.exprToVarIndex.insert e nextIndex
+        varToExpr := s.varToExpr.push e
+      })
+where
+  /-- Lookup the index of expression `e` in the monadic state. -/
+  getIndex (e : Expr) : VarStateM (Option VarIndex) := do
+    return (← get).exprToVarIndex[e]?
 
 /-- Return the expression that is represented by a specific variable index. -/
 def VarStateM.varToExpr (idx : VarIndex) : VarStateM Expr := do
