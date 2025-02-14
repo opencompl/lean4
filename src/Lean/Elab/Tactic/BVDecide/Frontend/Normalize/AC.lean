@@ -12,16 +12,30 @@ namespace Frontend.Normalize
 
 open Lean Meta
 
+/-! ### Expr helpers -/
+section Expr
+
+namespace BitVec
+
+def mkType (w : Expr) : Expr := mkApp (.const ``BitVec []) w
+
+def mkInstMul (w : Expr) : Expr := mkApp (.const ``BitVec.instMul []) w
+def mkInstHMul (w : Expr) : Expr :=
+  mkApp2 (mkConst ``instHMul [levelZero]) Nat.mkType (mkInstMul w)
+
+end BitVec
+
+end Expr
+
 /-! ### Types -/
 
 abbrev VarIndex := Nat
 
-@[match_pattern]
-def mkBitVec (w : Expr) := mkApp (.const ``BitVec []) w
+
 
 /-- Bitvector operations that we perform AC canonicalization on. -/
 inductive Op
-| mul (w : Expr) (inst : Expr)
+  | mul (w : Expr)
 deriving BEq, Repr
 
 namespace Op
@@ -31,9 +45,9 @@ namespace Op
 Return `none` if the expression is not a recognized operation. -/
 def ofExpr? (e : Expr) : Option Op :=
   match_expr e with
-  | HMul.hMul bv _bv _bv inst =>
+  | HMul.hMul bv _bv _bv _inst =>
     let_expr BitVec w := bv | none
-    some (.mul w inst)
+    some (.mul w)
   | _ => none
 
 /-- Given an *application* of a recognized binary operation (to two arguments),
@@ -46,8 +60,9 @@ def ofApp2? : Expr → Option Op
   | _ => none
 
 def toExpr : Op → Expr
-| .mul w inst =>
-  let bv := mkBitVec w
+| .mul w =>
+  let bv := BitVec.mkType w
+  let inst := BitVec.mkInstHMul w
   mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) bv bv bv inst
 
 /-- The identity / neutral element of given operation -/
