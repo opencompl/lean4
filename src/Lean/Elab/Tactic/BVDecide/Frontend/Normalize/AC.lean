@@ -389,3 +389,5 @@ def bvAcNormalizePass : Pass where
       if let .some nextGoal ← bvAcNfHypMeta newGoal hyp then
         newGoal := nextGoal
     return newGoal
+
+end Frontend.Normalize
