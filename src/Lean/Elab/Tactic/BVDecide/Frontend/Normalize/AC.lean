@@ -316,12 +316,8 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
       proof? := some proof
     }
 
-def post' : Simp.Simproc := fun e => do
+def post : Simp.Simproc := fun e => do
   match_expr e with
-  | Eq ty lhs rhs =>
-      let u ← getLevel ty
-      let P := mkApp (.const ``Eq [u]) ty
-      canonicalizeWithSharing P lhs rhs
   | BEq.beq ty inst lhs rhs =>
       let uLvl ← getDecLevel ty
       let P := mkApp2 (.const ``BEq.beq [uLvl]) ty inst
