@@ -1,6 +1,7 @@
 import Lean
 /-!
 # Tests for normalization up to associativity and commutativity
+This file tests the `bv_ac_nf` normalization pass of `bv_decide`
 -/
 
 open Lean
