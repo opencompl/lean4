@@ -101,15 +101,16 @@ is a neutral element (see `isNeutral`).
 Modifies the monadic state to add a new mapping and increment the index,
 if needed. -/
 def VarStateM.exprToVar (e : Expr) : VarStateM VarIndex := do
-  let { exprToVarIndex, varToExpr, .. } ← get
+  let { exprToVarIndex, .. } ← get
   match exprToVarIndex[e]? with
   | some idx => return idx
   | none =>
     -- TODO: is this linear usage?
     let nextIndex := exprToVarIndex.size
-    let exprToVarIndex := exprToVarIndex.insert e nextIndex
-    let varToExpr := varToExpr.push e
-    modify fun s => { s with exprToVarIndex, varToExpr }
+    modify fun s => { s with
+      exprToVarIndex := s.exprToVarIndex.insert e nextIndex
+      varToExpr := s.varToExpr.push e
+    }
     return nextIndex
 
 /-- Return the expression that is represented by a specific variable index. -/
