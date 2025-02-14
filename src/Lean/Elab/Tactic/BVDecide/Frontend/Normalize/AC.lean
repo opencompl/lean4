@@ -197,7 +197,7 @@ def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Op) : VarStateM (Opti
   -- Note: we iterate over a sorted array of indices
   -- to ensure a canonical order of variables in the returned expression.
   -- This is O(|coeff| log |coeff|).
-  let coeffArr := coeff.toArray.qsort (fun varCoeff1 varCoeff2 => varCoeff1.fst < varCoeff2.fst)
+  let coeffArr := coeff.toArray.qsort (·.fst < ·.fst)
   let mut acc : Option Expr := none
   for (var, coeff) in coeffArr do
     let expr := (← get).varToExpr[var]!
