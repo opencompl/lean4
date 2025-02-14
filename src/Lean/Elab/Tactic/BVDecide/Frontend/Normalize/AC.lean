@@ -166,15 +166,15 @@ where
     let idx ← exprToVar e
     return coeff.alter idx (fun c => some <| (c.getD 0) + 1)
   go (coeff : CoefficientsMap) : Expr → VarStateM CoefficientsMap
-  | e@(AC.bin op' x y) => do
-      if ← isDefEq op' op.toExpr then
-        let coeff ← go coeff x
-        let coeff ← go coeff y
-        return coeff
-      else
-        trace[Meta.AC] "Found binary operation '{op'} {x} {y}', expected '{op}'. Treating as atom."
-        incrVar coeff e
-  | e => incrVar coeff e
+    | e@(AC.bin op' x y) => do
+        if ← isDefEq op' op.toExpr then
+          let coeff ← go coeff x
+          let coeff ← go coeff y
+          return coeff
+        else
+          trace[Meta.AC] "Found binary operation '{op'} {x} {y}', expected '{op}'. Treating as atom."
+          incrVar coeff e
+    | e => incrVar coeff e
 
 structure SharedCoefficients where
   common : CoefficientsMap := {}
