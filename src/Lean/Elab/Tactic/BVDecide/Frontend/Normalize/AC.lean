@@ -49,7 +49,7 @@ def ofApp2? : Expr → Option Op
 def toExpr : Op → Expr
 | .mul w inst =>
   let bv := mkBitVec w
-  mkApp4 (mkConst ``HMul.hMul [.zero, .zero, .zero]) bv bv bv inst
+  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) bv bv bv inst
 
 /-- The identity / neutral element of given operation -/
 def neutralElement : Op → Expr
@@ -115,9 +115,9 @@ where
 
 /-- Return the expression that is represented by a specific variable index. -/
 def VarStateM.varToExpr (idx : VarIndex) : VarStateM Expr := do
-  let { varToExpr, .. } ← get
+  let varToExpr := (← get).varToExpr
   if h : idx < varToExpr.size then
-    pure varToExpr[idx]
+    return varToExpr[idx]
   else
     throwError "internal error (this is a bug!): index {idx} out of range, \
       the current state only has {varToExpr.size} variables:\n\n{varToExpr}"
