@@ -25,6 +25,10 @@ def mkInstHMul (w : Expr) : Expr :=
 
 end BitVec
 
+/-- Construct a literal of type `BitVec w`, with value `n` -/
+def mkBitVecLit (w : Expr) (n : Nat) : Expr :=
+  mkApp2 (mkConst ``BitVec.ofNat []) w (mkNatLit n)
+
 end Expr
 
 /-! ### Types -/
@@ -60,14 +64,14 @@ def ofApp2? : Expr → Option Op
   | _ => none
 
 def toExpr : Op → Expr
-| .mul w =>
-  let bv := BitVec.mkType w
-  let inst := BitVec.mkInstHMul w
-  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) bv bv bv inst
+  | .mul w =>
+    let bv := BitVec.mkType w
+    let inst := BitVec.mkInstHMul w
+    mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) bv bv bv inst
 
 /-- The identity / neutral element of given operation -/
 def neutralElement : Op → Expr
-| .mul w .. => mkApp2 (mkConst ``BitVec.ofNat []) w (mkNatLit 1)
+  | .mul w => mkBitVecLit w 1
 
 instance : ToMessageData Op where
   toMessageData op := m!"{toExpr op}"
