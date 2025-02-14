@@ -213,7 +213,7 @@ open VarStateM Lean.Meta Lean.Elab Term
 Given two expressions `x, y` which are equal up to associativity and commutativity,
 construct and return a proof of `x = y`.
 
-Uses `ac_nf` internally to contruct said proof. -/
+Uses `ac_rfl` internally to contruct said proof. -/
 def proveEqualityByAC (x y : Expr) : MetaM Expr := do
   let expectedType ← mkEq x y
   let proof ← mkFreshExprMVar expectedType
@@ -260,15 +260,9 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
 
   VarStateM.run' (s:= { op }) <| do
     let lCoeff ← computeCoefficients op lhs
-    trace[Meta.AC] "LCoeff: {lCoeff.toArray.qsort fun a b => a.fst < b.fst}"
     let rCoeff ← computeCoefficients op rhs
-    trace[Meta.AC] "RCoeff: {lCoeff.toArray.qsort fun a b => a.fst < b.fst}"
 
     let ⟨commonCoeff, lCoeff, rCoeff⟩ ← SharedCoefficients.compute lCoeff rCoeff
-
-    trace[Meta.AC] "common: {commonCoeff.toArray.qsort fun a b => a.fst < b.fst}"
-    trace[Meta.AC] "lnew: {lCoeff.toArray.qsort fun a b => a.fst < b.fst}"
-    trace[Meta.AC] "rnew: {lCoeff.toArray.qsort fun a b => a.fst < b.fst}"
     let commonExpr? : Option Expr ← commonCoeff.toExpr op
     let lNew? : Option Expr ← lCoeff.toExpr op
     let rNew? : Option Expr ← rCoeff.toExpr op
