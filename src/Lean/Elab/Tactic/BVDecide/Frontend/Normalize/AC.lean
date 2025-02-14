@@ -6,7 +6,6 @@ Authors: Alex Keizer, Siddharth Bhat
 prelude
 import Lean.Meta.Tactic.AC.Main
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-import Init.Grind.Lemmas
 
 namespace Lean.Elab.Tactic.BVDecide
 namespace Frontend.Normalize
