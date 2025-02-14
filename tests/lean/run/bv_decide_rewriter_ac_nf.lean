@@ -26,6 +26,8 @@ theorem mul_mul_eq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) (h₁ : x₁ = x�
   guard_target =ₛ z * (x₁ * y₁) = z * (x₂ * y₂)
   sorry
 
+/-- warning: declaration uses 'sorry' -/
+#guard_msgs in
 theorem ex_1 (x y z k₁ k₂ l₁ l₂ m₁ m₂ v : BitVec w)
     (h₁ : k₁ = k₂) (h₂ : l₁ = l₂) (h₃ : m₁ = m₂) :
     m₁ * x * (y * l₁ * k₁) * z = v * (k₂ * l₂ * x * y) * z * m₂ := by
@@ -33,6 +35,8 @@ theorem ex_1 (x y z k₁ k₂ l₁ l₂ m₁ m₂ v : BitVec w)
   guard_target =ₛ x * y * z * (m₁ * l₁ * k₁) = x * y * z * (v * k₂ * l₂ * m₂)
   sorry
 
+/-- warning: declaration uses 'sorry' -/
+#guard_msgs in
 theorem ex_2 (x y : BitVec w) (h₁ : y = x) :
     x * x * x * x = y * x * x * y := by
   bv_ac_nf
@@ -96,3 +100,34 @@ example (x y : BitVec 64) :
   bv_ac_nf; rfl
 
 end Unit
+
+/-! Now, we test the pass as part of the full `bv_normalize` procedure -/
+namespace Normalize
+
+/-- Locally override `bv_normalize` with a config that enables the acNf pass -/
+local macro "bv_normalize" : tactic =>
+  `(tactic| bv_normalize (config := {acNf := true}))
+
+/-- warning: declaration uses 'sorry' -/
+#guard_msgs in
+theorem mul_mul_eq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) (h₁ : x₁ = x₂) (h₂ : y₁ = y₂) :
+    x₁ * (y₁ * z) = x₂ * (y₂ * z) := by
+  bv_normalize
+  rename_i tgt
+  guard_hyp tgt :ₛ (!z * (x₁ * y₁) == z * (x₂ * y₂)) = true
+  sorry
+
+/-- warning: declaration uses 'sorry' -/
+#guard_msgs in
+theorem mul_eq_mul_eq_right (x y z : BitVec 64) (h : x = y) :
+    x * z = y * z := by
+  bv_normalize
+  rename_i tgt
+  guard_hyp tgt :ₛ (!z * x == z * y) = true
+  sorry
+
+theorem add_mul_mixed (x y z : BitVec 64) :
+    z * (y + x) = (y + x) * z := by
+  bv_normalize
+
+end Normalize
