@@ -6,6 +6,15 @@ This file tests the `bv_ac_nf` normalization pass of `bv_decide`
 
 open Lean
 
+/-! First, test the normalization up-to associativity and commutativity in isolation -/
+namespace Unit
+
+open Lean Elab.Tactic in
+/-- A tactic version of the `bv_ac_nf` normalization pass for `bv_decide`,
+for testing purposes -/
+elab "bv_ac_nf" : tactic =>
+  withMainContext BVDecide.Frontend.Normalize.bvAcNfTargetTactic
+
 /- NOTE: the expression in this test is used as an example in the `bv_ac_nf` tactic
 documentation. Any changes to the behaviour of this test should be reflected in
 that docstring also. -/
@@ -90,3 +99,5 @@ set_option debug.skipKernelTC true in
 example (x y : BitVec 64) :
     (repeat_mul 100 with x * y) = (repeat_mul 100 with x) * (repeat_mul 100 with y) := by
   bv_ac_nf; rfl
+
+end Unit

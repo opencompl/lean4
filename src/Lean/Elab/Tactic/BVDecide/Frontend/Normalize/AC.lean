@@ -324,11 +324,33 @@ def bvAcNfHypMeta (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := d
     let (res, _) ← Simp.main tgt simpCtx (methods := { post := post' })
     return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)
 
-/-- Implementation of the `bv_ac_nf` tactic when operating on the main goal. -/
+/--
+Normalize the tactic target up to associativity and commutativity of bitvector
+multiplication, in a way that exposes common terms among both sides of an equality.
+
+This is similar to the `ac_nf` tactic, except that it is specialized to bitvector
+multiplication, and it differs in how the canonical form of the left-hand-side of
+an equality can depend on the right-hand-side, in particular, to expose shared terms.
+
+For example, `x₁ * (y₁ * z) = x₂ * (y₂ * z)` is normalized to
+`z * (x₁ * y₁) = z * (x₂ * y₂)`, pulling the shared variable `z` to the front on
+both sides.
+-/
 def bvAcNfTargetTactic : TacticM Unit := do
   liftMetaTactic1 fun goal => rewriteUnnormalizedWithSharing goal
 
-/-- Implementation of the `bv_ac_nf` tactic when operating on a hypothesis. -/
+/--
+Normalize an hypothesis up to associativity and commutativity of bitvector
+multiplication, in a way that exposes common terms among both sides of an equality.
+
+This is similar to the `ac_nf` tactic, except that it is specialized to bitvector
+multiplication, and it differs in how the canonical form of the left-hand-side of
+an equality can depend on the right-hand-side, in particular, to expose shared terms.
+
+For example, `x₁ * (y₁ * z) = x₂ * (y₂ * z)` is normalized to
+`z * (x₁ * y₁) = z * (x₂ * y₂)`, pulling the shared variable `z` to the front on
+both sides.
+-/
 def bvAcNfHypTactic (fvarId : FVarId) : TacticM Unit :=
   liftMetaTactic1 fun goal => bvAcNfHypMeta goal fvarId
 
@@ -340,36 +362,3 @@ def bvAcNormalizePass : Pass where
       if let .some nextGoal ← bvAcNfHypMeta newGoal hyp then
         newGoal := nextGoal
     return newGoal
-
-open Lean.Parser.Tactic (location) in
-/--
-`bv_ac_nf` normalizes bitvector expressions up to associativity and commutativity
-of multiplication, in in a way that exposes common terms among both sides of an
-equality.
-- `bv_ac_nf` normalizes all hypotheses and the goal target of the goal.
-- `bv_ac_nf at l` normalizes at location(s) `l`, where `l` is either `*` or a
-  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
-  can also be used, to signify the target of the goal.
-
-`bv_ac_nf` is similar to `ac_nf`, except that it is specialized to bitvector
-multiplication, and it differs in how the canonical form of the left-hand-side of
-an equality can depend on the right-hand-side, in particular, to expose shared terms.
-
-For example, `x₁ * (y₁ * z) = x₂ * (y₂ * z)` is normalized to
-`z * (x₁ * y₁) = z * (x₂ * y₂)`, pulling the shared variable `z` to the front on
-both sides.
-
--/
-elab "bv_ac_nf" loc?:(location)? : tactic => do
-  let loc := match loc? with
-  | some loc => expandLocation loc
-  | none => Location.targets #[] true
-  withMainContext do
-    match loc with
-    | Location.targets hyps target =>
-      if target then do
-        bvAcNfTargetTactic
-      (← getFVarIds hyps).forM bvAcNfHypTactic
-    | Location.wildcard =>
-      bvAcNfTargetTactic
-      (← (← getMainGoal).getNondepPropHyps).forM bvAcNfHypTactic
