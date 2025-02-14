@@ -299,13 +299,7 @@ def simpConst (e : Expr) : SimpM Result :=
 def simpLambda (e : Expr) : SimpM Result :=
   withParent e <| lambdaTelescopeDSimp e fun xs e => withNewLemmas xs do
     let r ← simp e
-    let eNew ← mkLambdaFVars xs r.expr
-    match r.proof? with
-    | none   => return { expr := eNew }
-    | some h =>
-      let p ← xs.foldrM (init := h) fun x h => do
-        mkFunExt (← mkLambdaFVars #[x] h)
-      return { expr := eNew, proof? := p }
+    r.addLambdas xs
 
 def simpArrow (e : Expr) : SimpM Result := do
   trace[Debug.Meta.Tactic.simp] "arrow {e}"
@@ -465,7 +459,7 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit
   let post := m.dpost >> dsimpReduce
   withInDSimp do
-  transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
+  transform (usedLetOnly := cfg.zeta || cfg.zetaUnused) e (pre := pre) (post := post)
 
 def visitFn (e : Expr) : SimpM Result := do
   let f := e.getAppFn
@@ -623,6 +617,7 @@ It attempts to minimize the quadratic overhead imposed by
 the locally nameless discipline.
 -/
 partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
+  let cfg ← getConfig
   let rec go (xs : Array Expr) (e : Expr) : SimpM SimpLetFunResult := do
     /-
     Helper function applied when `e` is not a `let_fun` or
@@ -648,9 +643,9 @@ partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
     -/
     if alpha.hasLooseBVars || !betaFun.isLambda || !body.isLambda || betaFun.bindingBody!.hasLooseBVars then
       stop
-    else if !body.bindingBody!.hasLooseBVar 0 then
+    else if (cfg.zeta || cfg.zetaUnused) && !body.bindingBody!.hasLooseBVar 0 then
       /-
-      Redundant `let_fun`. The simplifier will remove it.
+      Redundant `let_fun`. The simplifier will remove it when `zetaUnused := true`.
       Remark: the `hasLooseBVar` check here may introduce a quadratic overhead in the worst case.
       If observe that in practice, we may use a separate step for removing unused variables.
 

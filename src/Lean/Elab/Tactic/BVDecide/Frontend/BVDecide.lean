@@ -148,15 +148,26 @@ Diagnose spurious counter examples, currently this checks:
 -/
 def diagnose : DiagnosisM Unit := do
   for (expr, _) in ← equations do
-    match_expr expr with
-    | BitVec.ofBool x =>
-      match x with
-      | .fvar fvarId => checkRelevantHypsUsed fvarId
-      | _ => addUninterpretedSymbol expr
-    | _ =>
-      match expr with
-      | .fvar fvarId => checkRelevantHypsUsed fvarId
-      | _ => addUninterpretedSymbol expr
+    match findRelevantFVar expr with
+    | some fvarId => checkRelevantHypsUsed fvarId
+    | none => addUninterpretedSymbol expr
+where
+  findRelevantFVar (expr : Expr) : Option FVarId :=
+    match fvarId? expr with
+    | some fvarId => some fvarId
+    | none =>
+      match_expr expr with
+      | BitVec.ofBool x => fvarId? x
+      | UInt8.toBitVec x => fvarId? x
+      | UInt16.toBitVec x => fvarId? x
+      | UInt32.toBitVec x => fvarId? x
+      | UInt64.toBitVec x => fvarId? x
+      | _ => none
+  fvarId? (expr : Expr) : Option FVarId :=
+    match expr with
+    | .fvar fvarId => some fvarId
+    | _ => none
+
 
 end DiagnosisM
 
@@ -191,7 +202,7 @@ def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : Ref
     MetaM (Except CounterExample UnsatProver.Result) := do
   let bvExpr := reflectionResult.bvExpr
   let entry ←
-    withTraceNode `bv (fun _ => return "Bitblasting BVLogicalExpr to AIG") do
+    withTraceNode `Meta.Tactic.bv (fun _ => return "Bitblasting BVLogicalExpr to AIG") do
       -- lazyPure to prevent compiler lifting
       IO.lazyPure (fun _ => bvExpr.bitblast)
   let aigSize := entry.aig.decls.size
@@ -201,7 +212,7 @@ def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : Ref
     IO.FS.writeFile ("." / "aig.gv") <| AIG.toGraphviz entry
 
   let (cnf, map) ←
-    withTraceNode `sat (fun _ => return "Converting AIG to CNF") do
+    withTraceNode `Meta.Tactic.sat (fun _ => return "Converting AIG to CNF") do
       -- lazyPure to prevent compiler lifting
       IO.lazyPure (fun _ =>
         let (entry, map) := entry.relabelNat'
@@ -210,7 +221,7 @@ def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : Ref
       )
 
   let res ←
-    withTraceNode `sat (fun _ => return "Obtaining external proof certificate") do
+    withTraceNode `Meta.Tactic.sat (fun _ => return "Obtaining external proof certificate") do
       runExternal cnf ctx.solver ctx.lratPath ctx.config.trimProofs ctx.config.timeout ctx.config.binaryProofs
 
   match res with
@@ -253,7 +264,7 @@ def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver) :
     MetaM (Except CounterExample LratCert) := M.run do
   g.withContext do
     let reflectionResult ←
-      withTraceNode `bv (fun _ => return "Reflecting goal into BVLogicalExpr") do
+      withTraceNode `Meta.Tactic.bv (fun _ => return "Reflecting goal into BVLogicalExpr") do
         reflectBV g
     trace[Meta.Tactic.bv] "Reflected bv logical expression: {reflectionResult.bvExpr}"
 
@@ -269,7 +280,7 @@ def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver) :
 
 def bvUnsat (g : MVarId) (ctx : TacticContext) : MetaM (Except CounterExample LratCert) := M.run do
   let unsatProver : UnsatProver := fun g reflectionResult atomsAssignment => do
-    withTraceNode `bv (fun _ => return "Preparing LRAT reflection term") do
+    withTraceNode `Meta.Tactic.bv (fun _ => return "Preparing LRAT reflection term") do
       lratBitblaster g ctx reflectionResult atomsAssignment
   closeWithBVReflection g unsatProver
 
@@ -308,7 +319,7 @@ def bvDecide (g : MVarId) (ctx : TacticContext) : MetaM Result := do
       throwError (← addMessageContextFull errorMessage)
 
 @[builtin_tactic Lean.Parser.Tactic.bvDecide]
-def evalBvTrace : Tactic := fun
+def evalBvDecide : Tactic := fun
   | `(tactic| bv_decide $cfg:optConfig) => do
     let cfg ← elabBVDecideConfig cfg
     IO.FS.withTempFile fun _ lratFile => do
@@ -319,4 +330,3 @@ def evalBvTrace : Tactic := fun
 
 end Frontend
 end Lean.Elab.Tactic.BVDecide
-
