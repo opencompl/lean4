@@ -98,8 +98,7 @@ def VarStateM.run' (x : VarStateM α) (s : VarState) : MetaM α :=
 /-- Return the unique variable index for an expression, or `none` if the expression
 is a neutral element (see `isNeutral`).
 
-Modifies the monadic state to add a new mapping and increment the index,
-if needed. -/
+Modifies the monadic state to add a new mapping, if needed. -/
 def VarStateM.exprToVar (e : Expr) : VarStateM VarIndex := do
   let { exprToVarIndex, .. } ← get
   match exprToVarIndex[e]? with
@@ -188,7 +187,7 @@ def SharedCoefficients.compute (x y : CoefficientsMap) : VarStateM SharedCoeffic
     y.modify idx (fun cnt => cnt - commonCnt)
 
   let (x, y) := if swappedXy then (y, x) else (x, y)
-  return { x := x, y := y, common := common}
+  return { x, y, common }
 
 /-- Compute the canonical expression for a given set of coefficients.
 Returns `none` if all coefficients are zero.
