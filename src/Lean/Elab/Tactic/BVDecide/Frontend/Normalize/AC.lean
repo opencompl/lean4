@@ -172,7 +172,8 @@ where
           let coeff ← go coeff y
           return coeff
         else
-          trace[Meta.AC] "Found binary operation '{op'} {x} {y}', expected '{op}'. Treating as atom."
+          trace[Meta.AC] "Found binary operation '{op'} {x} {y}', expected '{op}'.\
+            Treating as atom."
           incrVar coeff e
     | e => incrVar coeff e
 
