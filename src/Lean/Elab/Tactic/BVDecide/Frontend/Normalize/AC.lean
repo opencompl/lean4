@@ -32,10 +32,9 @@ Return `none` if the expression is not a recognized operation. -/
 def ofExpr? (e : Expr) : Option Op :=
   match_expr e with
   | HMul.hMul bv _bv _bv inst =>
-    match bv with
-    | mkBitVec w => some (.mul w inst)
-    | _ => .none
-  | _ => .none
+    let_expr BitVec w := bv | none
+    some (.mul w inst)
+  | _ => none
 
 /-- Given an *application* of a recognized binary operation (to two arguments),
 return the decoded `Op`.
