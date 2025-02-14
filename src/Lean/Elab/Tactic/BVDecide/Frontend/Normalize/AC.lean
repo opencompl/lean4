@@ -354,13 +354,10 @@ equality.
 `bv_ac_nf` is similar to `ac_nf`, except that it is specialized to bitvector
 multiplication, and it differs in how the canonical form of the left-hand-side of
 an equality can depend on the right-hand-side, in particular, to expose shared terms.
-Furthermore, `bv_ac_nf` will also promote sharing within a sequence of
-multiplications, to reduce the number of expressions that need to be bitblasted.
 
-For example, `x₁ * y * y * z * z = x₂ * z * z * y * y` is normalized to
-`((y * z) * (y * z)) * x₁ = ((y * z) * (y * z)) * x₂`,
-pulling the shared variables to the front on both sides, and minimizing the
-number of distinct expressions to be bitblasted by coupling `y * z`.
+For example, `x₁ * (y₁ * z) = x₂ * (y₂ * z)` is normalized to
+`z * (x₁ * y₁) = z * (x₂ * y₂)`, pulling the shared variable `z` to the front on
+both sides.
 -/
 elab "bv_ac_nf" loc?:(location)? : tactic => do
   let loc := match loc? with
@@ -375,4 +372,3 @@ elab "bv_ac_nf" loc?:(location)? : tactic => do
     | Location.wildcard =>
       bvAcNfTargetTactic
       (← (← getMainGoal).getNondepPropHyps).forM bvAcNfHypTactic
-

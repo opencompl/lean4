@@ -5,13 +5,9 @@ import Lean
 
 open Lean
 
-/-- warning: declaration uses 'sorry' -/
-theorem bv_ac_nf_docstring (x₁ x₂ y z : BitVec 4) :
-    x₁ * y * y * z * z = x₂ * z * z * y * y := by
-  bv_ac_nf
-  guard_target =ₛ (y * y * z * z * x₁ = y * y * z * z * x₂)
-  sorry
-
+/- NOTE: the expression in this test is used as an example in the `bv_ac_nf` tactic
+documentation. Any changes to the behaviour of this test should be reflected in
+that docstring also. -/
 /-- warning: declaration uses 'sorry' -/
 #guard_msgs in
 theorem mul_mul_eq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) (h₁ : x₁ = x₂) (h₂ : y₁ = y₂) :
