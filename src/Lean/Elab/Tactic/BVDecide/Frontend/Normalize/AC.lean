@@ -254,20 +254,26 @@ def proveEqualityByAC (x y : Expr) : MetaM Expr := do
 
 /--
 Given an expression `P lhs rhs`, where `lhs, rhs : ty` and `P : $ty → $ty → _`,
-canonicalize top-level applications of some associative and commutative operation
-on both the `lhs` and the `rhs` such that the final expression is:
+canonicalize top-level applications of a recognized associative and commutative
+operation on both the `lhs` and the `rhs` such that the final expression is:
   `P ($common ⊕ $lhs') ($common ⊕ $rhs')`
 That is, in a way that exposes terms that are shared between the lhs and rhs.
+
+For example, `x₁ * (y₁ * z) == x₂ * (y₂ * z)` is normalized to
+`z * (x₁ * y₁) == z * (x₂ * y₂)`, pulling the shared variable `z` to the front on
+both sides.
 
 Note that if both lhs and rhs are applications of a *different* operation, we
 canonicalize according to the *left* operation, meaning we treat the entire rhs
 as an atom. This is still useful, as it will pull out an occurence of the rhs
 in the lhs (if present) to the front (such an occurence would be the common
 expression). For example `x + y + ((x * y) + x) = x * y` will be canonicalized
-to `(x * y) + ... = x * y`
+to `(x * y) + ... = x * y`.
+
+See `Op.fromExpr?` to see which operations are recognized.
+Other operations are ignored, even if they are associative and commutative.
 -/
 def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
-  -- withTraceNode (collapsed := true) `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
   withTraceNode (collapsed := false) `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
   trace[Meta.AC] "Canonicalizing: {indentExpr <| mkApp2 P lhs rhs}"
 
