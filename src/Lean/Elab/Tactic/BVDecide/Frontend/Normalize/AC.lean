@@ -43,7 +43,7 @@ return the decoded `Op`.
 
 Return `none` if the expression is not an application of a recognized operation.
 -/
-def ofApp? : Expr → Option Op
+def ofApp2? : Expr → Option Op
   | mkApp2 op _x _y => ofExpr? op
   | _ => none
 
@@ -238,10 +238,10 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
   withTraceNode (collapsed := false) `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
   trace[Meta.AC] "Canonicalizing: {indentExpr <| mkApp2 P lhs rhs}"
 
-  let some op := Op.ofApp? lhs |
+  let some op := Op.ofApp2? lhs |
     trace[Meta.AC] "Failed to recognize operation: {indentExpr lhs}"
     return .continue
-  let some op' := Op.ofApp? rhs |
+  let some op' := Op.ofApp2? rhs |
     trace[Meta.AC] "Failed to recognize operation: {indentExpr rhs}"
     return .continue
 
@@ -358,6 +358,7 @@ an equality can depend on the right-hand-side, in particular, to expose shared t
 For example, `x₁ * (y₁ * z) = x₂ * (y₂ * z)` is normalized to
 `z * (x₁ * y₁) = z * (x₂ * y₂)`, pulling the shared variable `z` to the front on
 both sides.
+
 -/
 elab "bv_ac_nf" loc?:(location)? : tactic => do
   let loc := match loc? with
