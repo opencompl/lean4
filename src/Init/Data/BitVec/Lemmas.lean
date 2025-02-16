@@ -1925,7 +1925,7 @@ theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
     simp [BitVec.eq_nil x]
   · simp only [sshiftRight, toInt_ofInt]
     have h1 : -↑((2 ^ w) : Nat) ≤ x.toInt >>> n * 2 := by
-      rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.mul_two]
+      rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.mul_two]
       push_cast
       rw [←Int.neg_mul]
       by_cases hh : x.toInt ≤ 0
@@ -1939,7 +1939,7 @@ theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
         norm_cast
         omega
     have h2 : x.toInt >>> n * 2 < ↑((2 ^ w) : Nat) := by
-      rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.mul_two]
+      rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.mul_two]
       push_cast
       by_cases hh : x.toInt ≤ 0
       · have : x.toInt >>> n ≤ 0  := shiftRight_le_of_nonpos x.toInt n (by omega)
