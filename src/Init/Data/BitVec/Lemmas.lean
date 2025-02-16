@@ -1918,43 +1918,35 @@ theorem shiftRight_le_of_nonpos (n : Int) (s : Nat) (h : n ≤ 0) : (n >>> s) �
     have rt := rl h
     norm_cast at *
 
+theorem toInt_shiftRight_lt {x : BitVec w} {n : Nat} :
+    x.toInt >>> n < 2 ^ (w - 1) := by
+  have := shiftRight_le_of_nonneg x.toInt n
+  have := @BitVec.toInt_lt' w x
+  have := shiftRight_le_of_nonpos x.toInt n
+  have := @Nat.one_le_two_pow (w-1)
+  norm_cast at *
+  omega
+
+theorem lt_toInt_shiftRight {x : BitVec w} {n : Nat} :
+    -(2 ^ (w - 1)) ≤ x.toInt >>> n := by
+  have := le_shiftRight_of_nonpos x.toInt n
+  have := le_shiftRight_of_nonneg x.toInt n
+  have := @Nat.one_le_two_pow (w-1)
+  have := @BitVec.le_toInt' w x
+  norm_cast at *
+  omega
+
+@[simp]
 theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
     (x.sshiftRight n).toInt = x.toInt >>> n := by
   by_cases h : w = 0
   · subst h
     simp [BitVec.eq_nil x]
-  · simp only [sshiftRight, toInt_ofInt]
-    have h1 : -↑((2 ^ w) : Nat) ≤ x.toInt >>> n * 2 := by
-      rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.mul_two]
-      push_cast
-      rw [←Int.neg_mul]
-      by_cases hh : x.toInt ≤ 0
-      · have aa : -2 ^ (w - 1) ≤ x.toInt >>> n := by
-          have := @BitVec.le_toInt' w x
-          have := Int.le_shiftRight_of_le x.toInt n
-          omega
-        exact Int.mul_le_mul_of_nonneg_right aa (by decide)
-      · have : 0 ≤ x.toInt >>> n := le_shiftRight_of_nonneg x.toInt n (by omega)
-        simp
-        norm_cast
-        omega
-    have h2 : x.toInt >>> n * 2 < ↑((2 ^ w) : Nat) := by
-      rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.mul_two]
-      push_cast
-      by_cases hh : x.toInt ≤ 0
-      · have : x.toInt >>> n ≤ 0  := shiftRight_le_of_nonpos x.toInt n (by omega)
-        have : 2 ^ (w - 1) * 2 > 0 := by
-          have := @Nat.one_le_two_pow (w - 1)
-          omega
-        simp
-        norm_cast
-        omega
-      · have aa : x.toInt >>> n < 2 ^ (w - 1) := by
-          have := @BitVec.toInt_lt' w x
-          have := shiftRight_le_of_nonneg x.toInt n
-          omega
-        exact Int.mul_lt_mul_of_pos_right aa (by decide)
-    exact Int.bmod_eq_of_le_of_lt h1 h2
+  · rw [sshiftRight, toInt_ofInt, ←Nat.two_pow_pred_add_two_pow_pred (by omega)]
+    have := @toInt_shiftRight_lt w x n
+    have := @lt_toInt_shiftRight w x n
+    norm_cast at *
+    exact Int.bmod_eq_of_le_of_lt (by omega) (by omega)
 
 /-! ### sshiftRight reductions from BitVec to Nat -/
 
