@@ -38,4 +38,32 @@ theorem zero_shiftRight (n : Nat) : (0 : Int) >>> n = 0 := by
 theorem shiftRight_zero (n : Int) : n >>> 0 = n := by
   simp [Int.shiftRight_eq_div_pow]
 
+theorem le_shiftRight_of_le (n : Int) (s : Nat) (h : n ≤ 0) : n ≤ n >>> s := by
+  simp only [Int.shiftRight_eq, Int.shiftRight, Int.ofNat_eq_coe]
+  split
+  case _ _ _ m =>
+    simp
+    simp [Int.ofNat_eq_coe] at h
+    by_cases hm : m = 0
+    · simp [hm]
+    · omega
+  case _ _ _ m =>
+    by_cases hm : m = 0
+    · simp [hm]
+    · have := Nat.shiftRight_le m s
+      omega
+
+theorem shiftRight_le_of_le (n : Int) (s : Nat) (h : 0 ≤ n) : n >>> s ≤ n := by
+  simp only [Int.shiftRight_eq, Int.shiftRight, Int.ofNat_eq_coe]
+  split
+  case _ _ _ m =>
+    simp only [Int.ofNat_eq_coe] at h
+    by_cases hm : m = 0
+    · simp [hm]
+    · have := Nat.shiftRight_le m s
+      simp
+      omega
+  case _ _ _ m =>
+    omega
+
 end Int
