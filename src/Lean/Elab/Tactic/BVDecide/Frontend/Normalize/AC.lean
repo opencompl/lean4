@@ -20,8 +20,9 @@ namespace BitVec
 def mkType (w : Expr) : Expr := mkApp (.const ``BitVec []) w
 
 def mkInstMul (w : Expr) : Expr := mkApp (.const ``BitVec.instMul []) w
+
 def mkInstHMul (w : Expr) : Expr :=
-  mkApp2 (mkConst ``instHMul [levelZero]) Nat.mkType (mkInstMul w)
+  mkApp2 (mkConst ``instHMul [levelZero]) (BitVec.mkType w) (mkInstMul w)
 
 end BitVec
 
@@ -293,16 +294,18 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
         {indentExpr rhs}"
     return .continue
 
-  trace[Meta.AC] "Canonicalizing with respect to operation: '{op}'"
+  trace[Meta.AC] "Canonicalizing with respect to operation: '{op}' K"
 
-  VarStateM.run' (s:= { op }) <| do
+  VarStateM.run' (s:= { op }) do
     let lCoeff ← computeCoefficients op lhs
     let rCoeff ← computeCoefficients op rhs
+    trace[Meta.AC] "X"
 
     let ⟨commonCoeff, lCoeff, rCoeff⟩ ← SharedCoefficients.compute lCoeff rCoeff
     let commonExpr? : Option Expr ← commonCoeff.toExpr op
     let lNew? : Option Expr ← lCoeff.toExpr op
     let rNew? : Option Expr ← rCoeff.toExpr op
+    trace[Meta.AC] "X"
 
     -- Since `lCoeff_{old} = commonCoeff + lCoeff_{new}`, and all coefficients
     -- of `lCoeff_{old}` are zero iff `lExpr` contains only neutral elements,
@@ -310,13 +313,20 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
     -- `commonExpr?` and `lNew?` are `none`.
     let lNew := Option.merge (mkApp2 op.toExpr) commonExpr? lNew? |>.getD op.neutralElement
     let rNew := Option.merge (mkApp2 op.toExpr) commonExpr? rNew? |>.getD op.neutralElement
+    trace[Meta.AC] "X"
 
     let oldExpr := mkApp2 P lhs rhs
     let expr := mkApp2 P lNew rNew
+    check oldExpr
+    check expr
+    trace[Meta.AC] "X"
 
+    trace[Meta.AC] "Rewote! '{oldExpr}' → '{expr}'"
+    trace[Meta.AC] "Justifying rewrite by AC..."
     let proof ← proveEqualityByAC oldExpr expr
 
-    trace[Meta.AC] "rewrote to:\n\t{expr}"
+    trace[Meta.AC] "rewrote to:\n\t{expr} (proof '{proof})"
+    trace[Meta.AC] "X"
     return Simp.Step.continue <| some {
       expr := expr
       proof? := some proof
@@ -325,14 +335,19 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
 def bvAcNfpost : Simp.Simproc := fun e => do
   match_expr e with
   | BEq.beq ty inst lhs rhs =>
+      trace[Meta.AC] "bv_ac_nf {checkEmoji} found `BEq.beq`."
       let uLvl ← getDecLevel ty
       let P := mkApp2 (.const ``BEq.beq [uLvl]) ty inst
-      canonicalizeWithSharing P lhs rhs
-  | _ => return .continue
-  -- match e with
-  -- | mkApp2 P@(mkApp2 (.const ``BEq.beq _) _ty _inst) lhs rhs =>
-  --     canonicalizeWithSharing P lhs rhs
-  -- | _ => return .continue
+      let out ← canonicalizeWithSharing P lhs rhs
+      return out
+  | Eq ty lhs rhs =>
+      trace[Meta.AC] "bv_ac_nf {checkEmoji} found `Eq`."
+      let uLvl ← getLevel ty
+      let P := mkApp (.const ``Eq [uLvl]) ty
+      let out ← canonicalizeWithSharing P lhs rhs
+      return out
+  | _ =>
+    return .continue
 
 def rewriteUnnormalizedWithSharing (mvarId : MVarId) : MetaM MVarId := do
   let simpCtx ← Simp.mkContext

@@ -15,15 +15,17 @@ for testing purposes -/
 elab "bv_ac_nf" : tactic =>
   withMainContext BVDecide.Frontend.Normalize.bvAcNfTargetTactic
 
+
 /- NOTE: the expression in this test is used as an example in the `bv_ac_nf` tactic
 documentation. Any changes to the behaviour of this test should be reflected in
 that docstring also. -/
 /-- warning: declaration uses 'sorry' -/
 #guard_msgs in
 theorem mul_mul_beq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) (h₁ : x₁ = x₂) (h₂ : y₁ = y₂) :
-    x₁ * (y₁ * z) == x₂ * (y₂ * z) := by
+    (x₁ * (y₁ * z)) == (x₂ * (y₂ * z)) := by
   bv_ac_nf
   guard_target =ₛ (z * (x₁ * y₁) == z * (x₂ * y₂)) = true
+  rw [h₁, h₂]
   sorry
 
 /-- warning: declaration uses 'sorry' -/
@@ -65,14 +67,13 @@ theorem mul_beq_mul_eq_left (x y z : BitVec 64) (h : x = y) :
 theorem short_circuit_triple_mul (x x_1 x_2 : BitVec 32) (h : ¬x_2 &&& 4096#32 == 0#32) :
     (x_1 ||| 4096#32) * x * (x_1 ||| 4096#32) = (x_1 ||| x_2 &&& 4096#32) * x * (x_1 ||| 4096#32) := by
   bv_ac_nf
-  guard_target =ₛ
-    ((x_1 ||| 4096#32) * x) * (x_1 ||| 4096#32)
-    = ((x_1 ||| 4096#32) * x) * (x_1 ||| x_2 &&& 4096#32)
+  guard_target =ₛ (x_1 ||| 4096#32) * x * (x_1 ||| 4096#32) = (x_1 ||| 4096#32) * x * (x_1 ||| x_2 &&& 4096#32)
   sorry
 
 theorem add_mul_mixed (x y z : BitVec 64) :
     z * (y + x) = (y + x) * z := by
-  bv_ac_nf; rfl
+  bv_ac_nf
+  rfl
 
 /-! ### Scaling Test -/
 
