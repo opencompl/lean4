@@ -1892,30 +1892,23 @@ theorem shiftRight_le_of_nonneg (n : Int) (s : Nat) (h : 0 ≤ n) : n >>> s ≤ 
   case _ _ _ m =>
     omega
 
+theorem ediv_neg_of_neg_of_pos (n s : Int) (h : n ≤ 0) (h2 : 0 < s) : n / s ≤ 0 :=
+  Int.ediv_le_of_le_mul (by omega) (by omega)
+
 theorem le_shiftRight_of_nonneg (n : Int) (s : Nat) (h : 0 ≤ n) : 0 ≤ (n >>> s) := by
   rw [Int.shiftRight_eq_div_pow]
   by_cases h' : s = 0
   · simp [h', h]
-  · have rl :=  @Int.le_ediv_of_mul_le 0 n (2^s) (by
-      have := @Nat.one_lt_two_pow s (by omega)
-      norm_cast at *
-      omega
-    )
-    simp at rl
-    have rt := rl h
+  · have := @Nat.pow_pos 2 s (by omega)
+    have := @Int.ediv_nonneg n (2^s) h (by norm_cast at *; omega)
     norm_cast at *
 
 theorem shiftRight_le_of_nonpos (n : Int) (s : Nat) (h : n ≤ 0) : (n >>> s) ≤ 0 := by
   rw [Int.shiftRight_eq_div_pow]
   by_cases h' : s = 0
   · simp [h', h]
-  · have rl := @Int.ediv_le_of_le_mul n 0 (2^s) (by
-      have := @Nat.one_lt_two_pow s (by omega)
-      norm_cast at *
-      omega
-    )
-    simp at rl
-    have rt := rl h
+  · have : 1 < 2 ^ s := Nat.one_lt_two_pow (by omega)
+    have rl : n / 2 ^ s ≤ 0 := ediv_neg_of_neg_of_pos n (2^s) (by omega) (by norm_cast at *; omega)
     norm_cast at *
 
 theorem toInt_shiftRight_lt {x : BitVec w} {n : Nat} :
