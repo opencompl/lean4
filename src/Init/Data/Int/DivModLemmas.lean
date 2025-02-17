@@ -287,10 +287,20 @@ theorem fmod_eq_tmod {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fmod a b = tmod
 
 /-! ### `/` ediv -/
 
+#check Int.ediv
+
 @[simp] protected theorem ediv_neg : ∀ a b : Int, a / (-b) = -(a / b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
-  | ofNat _, -[_+1] => (Int.neg_neg _).symm
-  | ofNat _, succ _ | -[_+1], 0 | -[_+1], succ _ | -[_+1], -[_+1] => rfl
+  | ofNat _, -[_+1] => show ofNat _ / - -[_+1] = -(ofNat _ / -[_+1]) by
+    rename_i a b
+    have ar : ofNat a / - -[b+1] = -(ofNat a / -[b+1]) := by
+      have as := @Int.neg_neg
+      exact (as _).symm
+    exact ar
+  | ofNat _, succ _ => rfl
+  | -[_+1], 0 => rfl
+  | -[_+1], succ _ => rfl
+  | -[_+1], -[_+1] => rfl
 
 theorem ediv_neg' {a b : Int} (Ha : a < 0) (Hb : 0 < b) : a / b < 0 :=
   match a, b, eq_negSucc_of_lt_zero Ha, eq_succ_of_zero_lt Hb with
@@ -762,6 +772,9 @@ theorem le_of_mul_le_mul_right {a b c : Int} (w : b * a ≤ c * a) (h : 0 < a) :
 
 protected theorem ediv_le_of_le_mul {a b c : Int} (H : 0 < c) (H' : a ≤ b * c) : a / c ≤ b :=
   le_of_mul_le_mul_right (Int.le_trans (Int.ediv_mul_le _ (Int.ne_of_gt H)) H') H
+
+protected theorem ediv_neg_of_neg_of_pos {n s : Int} (h : n ≤ 0) (h2 : 0 < s) : n / s ≤ 0 :=
+  Int.ediv_le_of_le_mul h2 (by simp [h])
 
 protected theorem mul_lt_of_lt_ediv {a b c : Int} (H : 0 < c) (H3 : a < b / c) : a * c < b :=
   Int.lt_of_not_ge <| mt (Int.ediv_le_of_le_mul H) (Int.not_le_of_gt H3)
