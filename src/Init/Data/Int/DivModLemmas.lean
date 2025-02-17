@@ -289,16 +289,8 @@ theorem fmod_eq_tmod {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fmod a b = tmod
 
 @[simp] protected theorem ediv_neg : ∀ a b : Int, a / (-b) = -(a / b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
-  | ofNat _, -[_+1] => show ofNat _ / - -[_+1] = -(ofNat _ / -[_+1]) by
-    rename_i a b
-    have ar : ofNat a / - -[b+1] = -(ofNat a / -[b+1]) := by
-      have as := @Int.neg_neg
-      exact (as _).symm
-    exact ar
-  | ofNat _, succ _ => rfl
-  | -[_+1], 0 => rfl
-  | -[_+1], succ _ => rfl
-  | -[_+1], -[_+1] => rfl
+  | ofNat _, -[_+1] => (Int.neg_neg _).symm
+  | ofNat _, succ _ | -[_+1], 0 | -[_+1], succ _ | -[_+1], -[_+1] => rfl
 
 theorem ediv_neg' {a b : Int} (Ha : a < 0) (Hb : 0 < b) : a / b < 0 :=
   match a, b, eq_negSucc_of_lt_zero Ha, eq_succ_of_zero_lt Hb with
