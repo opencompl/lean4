@@ -388,7 +388,6 @@ protected theorem mul_right_comm (a b c : Int) : a * b * c = a * c * b := by
 
 @[simp] protected theorem zero_mul (a : Int) : 0 * a = 0 := Int.mul_comm .. ▸ a.mul_zero
 
-
 theorem negOfNat_eq_subNatNat_zero (n) : negOfNat n = subNatNat 0 n := by cases n <;> rfl
 
 theorem ofNat_mul_subNatNat (m n k : Nat) :
