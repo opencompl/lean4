@@ -287,8 +287,6 @@ theorem fmod_eq_tmod {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fmod a b = tmod
 
 /-! ### `/` ediv -/
 
-#check Int.ediv
-
 @[simp] protected theorem ediv_neg : ∀ a b : Int, a / (-b) = -(a / b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
   | ofNat _, -[_+1] => show ofNat _ / - -[_+1] = -(ofNat _ / -[_+1]) by
