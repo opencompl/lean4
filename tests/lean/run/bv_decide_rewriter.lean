@@ -282,17 +282,21 @@ example (a : BitVec 16) : a * 8#16 = a <<< 3 := by
 example (a : BitVec 16) : a + a = a <<< 1 := by
   bv_normalize
 
-section
+namespace NormalizeMul
+/- Test examples of the multiplication normalizer -/
 
 example (x y : BitVec 256) : x * y = y * x := by
   bv_decide (config := { acNf := true })
 
-example {x y z : BitVec 64} : ~~~(x &&& (y * z)) = (~~~x ||| ~~~(z * y)) := by
+example (x y : BitVec 256) : x * y * z = z * y * x := by
   bv_decide (config := { acNf := true })
 
-example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.uaddOverflow x x) := by bv_decide
+example (x y : BitVec 256) : x * y * z = z * y * x := by
+  bv_decide (config := { acNf := true })
 
-end
+end NormalizeMul
+
+example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.uaddOverflow x x) := by bv_decide
 
 def foo (x : Bool) : Prop := x = true
 
