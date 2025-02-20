@@ -2704,6 +2704,83 @@ theorem toInt_udiv_of_msb {x : BitVec w} (h : x.msb = false) (y : BitVec w) :
     (x / y).toInt = x.toNat / y.toNat := by
   simp [toInt_eq_msb_cond, msb_udiv_eq_false_of h]
 
+/-! ### srem -/
+
+theorem getElem_srem {x y : BitVec w} (hi : i < w) :
+    (BitVec.srem x y)[i]
+      = (match x.msb, y.msb with
+      | false, false => BitVec.umod x y
+      | false, true  => BitVec.umod x (.neg y)
+      | true,  false => .neg (umod (.neg x) y)
+      | true,  true  => .neg (umod (.neg x) (.neg y)))[i] := by
+  rfl
+
+theorem getLsbD_srem {x y : BitVec w} :
+    (BitVec.srem x y).getLsbD i
+      = (match x.msb, y.msb with
+      | false, false => BitVec.umod x y
+      | false, true  => BitVec.umod x (.neg y)
+      | true,  false => .neg (umod (.neg x) y)
+      | true,  true  => .neg (umod (.neg x) (.neg y))).getLsbD i := by
+  rfl
+
+theorem getMsbD_srem {x y : BitVec w} :
+    (BitVec.srem x y).getMsbD i
+      = (match x.msb, y.msb with
+      | false, false => BitVec.umod x y
+      | false, true  => BitVec.umod x (.neg y)
+      | true,  false => .neg (umod (.neg x) y)
+      | true,  true  => .neg (umod (.neg x) (.neg y))).getMsbD i := by
+  rfl
+
+theorem msb_srem {x y : BitVec w} :
+    (BitVec.srem x y).msb
+      = (match x.msb, y.msb with
+      | false, false => BitVec.umod x y
+      | false, true  => BitVec.umod x (.neg y)
+      | true,  false => .neg (umod (.neg x) y)
+      | true,  true  => .neg (umod (.neg x) (.neg y))).msb := by
+  rfl
+
+/-! ### sdiv -/
+
+theorem getElem_sdiv {x y : BitVec w} (hi : i < w) :
+    (BitVec.sdiv x y)[i]
+      = (match x.msb, y.msb with
+    | false, false => udiv x y
+    | false, true  => .neg (udiv x (.neg y))
+    | true,  false => .neg (udiv (.neg x) y)
+    | true,  true  => udiv (.neg x) (.neg y))[i] := by
+  rfl
+
+theorem getLsbD_sdiv {x y : BitVec w} :
+    (BitVec.sdiv x y).getLsbD i
+      = (match x.msb, y.msb with
+    | false, false => udiv x y
+    | false, true  => .neg (udiv x (.neg y))
+    | true,  false => .neg (udiv (.neg x) y)
+    | true,  true  => udiv (.neg x) (.neg y)).getLsbD i := by
+  rfl
+
+theorem getMsbD_sdiv {x y : BitVec w} :
+    (BitVec.sdiv x y).getMsbD i
+      = (match x.msb, y.msb with
+    | false, false => udiv x y
+    | false, true  => .neg (udiv x (.neg y))
+    | true,  false => .neg (udiv (.neg x) y)
+    | true,  true  => udiv (.neg x) (.neg y)).getMsbD i := by
+  rfl
+
+theorem msb_sdiv {x y : BitVec w} :
+    (BitVec.sdiv x y).msb
+      = (match x.msb, y.msb with
+    | false, false => udiv x y
+    | false, true  => .neg (udiv x (.neg y))
+    | true,  false => .neg (udiv (.neg x) y)
+    | true,  true  => udiv (.neg x) (.neg y)).msb := by
+  rfl
+
+
 /-! ### umod -/
 
 theorem umod_def {x y : BitVec n} :
