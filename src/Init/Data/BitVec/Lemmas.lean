@@ -1795,6 +1795,47 @@ theorem toInt_signExtend (x : BitVec w) :
   · simp only [Nat.not_le] at hv
     rw [toInt_signExtend_of_lt hv, Nat.min_eq_right (by omega), toInt_eq_toNat_bmod]
 
+theorem toFin_signExtend_of_lt {x : BitVec w} (hv : w < v):
+    (x.signExtend v).toFin = x.toFin.castLE (m := 2^ v) (by apply Nat.pow_le_pow_of_le <;> omega) := by
+  have : (x.signExtend v).msb = x.msb := by
+    rw [msb_eq_getLsbD_last, getLsbD_eq_getElem (Nat.sub_one_lt_of_lt hv)]
+    simp [getElem_signExtend, Nat.le_sub_one_of_lt hv]
+  by_cases hx : x.msb
+  · simp only [signExtend_eq_not_setWidth_not_of_msb_true hx]
+
+    -- toFin_not, toFin_setWidth, toNat_not]
+
+    sorry
+  · simp at hx
+    simp [signExtend_eq_setWidth_of_msb_false hx]
+    simp_all
+    sorry
+
+  -- simp only [toInt_eq_msb_cond, toNat_signExtend]
+  -- have : (x.signExtend v).msb = x.msb := by
+  --   rw [msb_eq_getLsbD_last, getLsbD_eq_getElem (Nat.sub_one_lt_of_lt hv)]
+  --   simp [getElem_signExtend, Nat.le_sub_one_of_lt hv]
+  -- have H : 2^w ≤ 2^v := Nat.pow_le_pow_of_le_right (by omega) (by omega)
+  -- simp only [this, toNat_setWidth, Int.natCast_add, Int.ofNat_emod, Int.natCast_mul]
+  -- by_cases h : x.msb
+  -- <;> norm_cast
+  -- <;> simp [h, Nat.mod_eq_of_lt (Nat.lt_of_lt_of_le x.isLt H)]
+  -- omega
+
+
+theorem toFin_signExtend (x : BitVec w) :
+    (x.signExtend v).toFin = Fin.ofNat' (2 ^ v) x.toNat := by
+  by_cases hv : v ≤ w
+  · simp [signExtend_eq_setWidth_of_lt _ hv]
+  · simp only [Nat.not_le] at hv
+    by_cases hx : x.msb
+    · rw [signExtend_eq_not_setWidth_not_of_msb_true hx]
+      simp only [toFin_not, toFin_setWidth]
+      simp only [toNat_not]
+      sorry
+    · simp at hx
+      rw [signExtend_eq_setWidth_of_msb_false hx, toFin_setWidth]
+
 /-! ### append -/
 
 theorem append_def (x : BitVec v) (y : BitVec w) :
