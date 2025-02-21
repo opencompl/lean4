@@ -1805,13 +1805,17 @@ theorem toInt_signExtend (x : BitVec w) :
   · simp only [Nat.not_le] at hv
     rw [toInt_signExtend_of_lt hv, Nat.min_eq_right (by omega), toInt_eq_toNat_bmod]
 
+theorem toFin_signExtend_of_le {x : BitVec w} (hv : v ≤ w):
+    (x.signExtend v).toFin = Fin.ofNat' (2 ^ v) x.toNat := by
+  simp [signExtend_eq_setWidth_of_lt _ hv]
+
 theorem toFin_signExtend (x : BitVec w) :
     (x.signExtend v).toFin = Fin.ofNat' (2 ^ v) (x.toNat + if x.msb = true then 2 ^ v - 2 ^ w else 0):= by
   by_cases hv : v ≤ w
   · have h : 2 ^ v - 2 ^ w = 0 := by
       rw [Nat.sub_eq_zero_of_le]
       apply Nat.pow_le_pow_of_le (by omega) hv
-    simp [h, hv, signExtend_eq_setWidth_of_lt _ hv]
+    simp [h, toFin_signExtend_of_le hv]
   · simp only [Nat.not_le] at hv
     apply Fin.eq_of_val_eq
     simp only [val_toFin, Fin.val_ofNat']
