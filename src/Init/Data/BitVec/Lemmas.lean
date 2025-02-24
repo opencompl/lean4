@@ -3459,6 +3459,30 @@ theorem replicate_succ' {x : BitVec w} :
     (replicate n x ++ x).cast (by rw [Nat.mul_succ]) := by
   simp [replicate_append_self]
 
+/--
+
+x.toNat + x.toNat << w + x.toNat << (2w) + ... x.toNat << (nw)
+= x.toNat + x.toNat * 2^w + x.toNat * 2^(2w) + ... x.toNat * 2^(nw)
+= x.toNat * (1 + 2^w + 2^(2w) + 2^(3w) + ... + 2^(nw))
+= recall that:
+   1 + r + .. + r^(n-1) = (r^n - 1)/(r - 1) with r = 2^w
+= x.toNat * (2^nw - 1) / (2^w - 1)
+-/
+theorem toNat_replicate {x : BitVec w} {n : Nat} :
+    (x.replicate n).toNat = x.toNat * ((2 ^ (n * w) - 1) / 2 ^ w - 1) := by
+  induction n
+  case zero =>simp
+  case succ n ih =>
+    simp [ih]
+    rw [Nat.shiftLeft_eq]
+    rw [Nat.add_mul]
+    rw [Nat.one_mul]
+    rw [Nat.pow_add]
+    have := @Nat.mul_div_assoc (m := 2 ^ w) (n := 2 ^ (n * w)) (k := 2 ^ w - 1)
+
+
+    sorry
+
 /-! ### intMin -/
 
 /-- The bitvector of width `w` that has the smallest value when interpreted as an integer. -/
