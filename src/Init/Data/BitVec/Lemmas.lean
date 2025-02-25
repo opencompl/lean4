@@ -3714,14 +3714,13 @@ theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
     rw [Nat.mod_eq_of_lt h1, Nat.shiftLeft_eq, Nat.one_mul]
 
 theorem toInt_twoPow {w i : Nat} :
-    (BitVec.twoPow w i).toInt = (if w ≤ i then 0 else if i + 1 = w then -1 <<< i else 1 <<< i : Int) := by
-  simp only [BitVec.twoPow, BitVec.toInt]
+    (twoPow w i).toInt = (if w ≤ i then 0 else if i + 1 = w then -1 <<< i else 1 <<< i : Int) := by
+  simp only [twoPow, BitVec.toInt]
   rcases w with _|w
   · simp
   · by_cases h : w + 1 ≤ i
     · simp only [h, shiftLeft_eq_zero, toNat_ofNat, Nat.zero_mod, Nat.mul_zero,
-      Int.Nat.cast_ofNat_Int, Int.zero_sub, ↓reduceIte, ite_eq_left_iff, Nat.not_lt, Nat.le_zero_eq,
-      Int.neg_eq_zero]; norm_cast; omega
+      Int.Nat.cast_ofNat_Int, ↓reduceIte, ite_eq_left_iff, Nat.not_lt, Nat.le_zero_eq]; norm_cast; omega
     · simp only [toNat_shiftLeft, toNat_ofNat, Nat.zero_lt_succ, Nat.one_mod_two_pow, h]
       have hy : (2 ^ i % 2 ^  (w + 1)) = 2 ^ i := by rw [Nat.mod_eq_of_lt (by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega)]
       have hj : 2 * 2 ^ i = 2 ^ (i + 1) := by rw [Nat.pow_add, Nat.mul_comm]
@@ -3733,10 +3732,10 @@ theorem toInt_twoPow {w i : Nat} :
         omega
 
 theorem toFin_twoPow {w i : Nat} :
-    (BitVec.twoPow w i).toFin = Fin.ofNat' (2 ^ w) (2 ^ i) := by
+    (twoPow w i).toFin = Fin.ofNat' (2 ^ w) (2 ^ i) := by
   rcases w with rfl | w
-  · simp [BitVec.twoPow, BitVec.toFin, toFin_shiftLeft, Fin.fin_one_eq_zero]
-  · simp [BitVec.twoPow, BitVec.toFin, toFin_shiftLeft, Nat.shiftLeft_eq]
+  · simp [twoPow, toFin, toFin_shiftLeft, Fin.fin_one_eq_zero]
+  · simp [twoPow, toFin, toFin_shiftLeft, Nat.shiftLeft_eq]
 
 @[simp]
 theorem getLsbD_twoPow (i j : Nat) : (twoPow w i).getLsbD j = ((i < w) && (i = j)) := by
