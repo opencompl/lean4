@@ -785,7 +785,7 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
     (extractLsb' s m x).toFin = Fin.ofNat' (2 ^ m) (x.toNat >>> s) := by
   simp [extractLsb', toInt_ofNat]
 
-@[simp] theorem extractLsb_toFin {hi lo : Nat} {x : BitVec n} :
+@[simp] theorem toFin_extractLsb {hi lo : Nat} {x : BitVec n} :
   (extractLsb hi lo x).toFin = Fin.ofNat' (2 ^ (hi - lo + 1)) (x.toNat >>> lo) := by
   simp [extractLsb, toInt_ofNat]
 
