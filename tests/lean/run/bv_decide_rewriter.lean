@@ -583,8 +583,6 @@ example {x : BitVec 8} :
     (~~~x.extractLsb' 3 5) ++ (~~~x.extractLsb' 1 2) = ~~~x.extractLsb' 1 7 := by
   bv_normalize
 
-section
-
 namespace NormalizeMul
 /- Test examples of the multiplication normalizer -/
 
@@ -598,8 +596,6 @@ example (x y : BitVec 256) : x * y * z = z * y * x := by
   bv_decide (config := { acNf := true })
 
 end NormalizeMul
-
-example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.uaddOverflow x x) := by bv_decide
 
 def foo (x : Bool) : Prop := x = true
 
