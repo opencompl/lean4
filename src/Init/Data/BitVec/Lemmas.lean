@@ -3554,6 +3554,16 @@ theorem toNat_rotateLeft {x : BitVec w} {r : Nat} :
     (x.rotateLeft r).toNat = (x.toNat <<< (r % w)) % (2^w) ||| x.toNat >>> (w - r % w) := by
   simp only [rotateLeft_def, toNat_shiftLeft, toNat_ushiftRight, toNat_or]
 
+theorem toInt_rotateLeft {x : BitVec w} {r : Nat} :
+  (x.rotateLeft r).toInt =
+    ((x <<< (r % w)).toNat ||| (x >>> (w - r % w)).toNat : Int).bmod (2 ^ w) := by
+  simp only [rotateLeft_def, toInt_shiftLeft, toInt_ushiftRight, toInt_or]
+
+theorem toFin_rotateLeft {x : BitVec w} {r : Nat} :
+  (x.rotateLeft r).toFin =
+    Fin.ofNat' (2 ^ w) (x.toNat <<< (r % w)) ||| x.toFin / Fin.ofNat' (2 ^ w) (2 ^ (w - r % w)) := by
+  simp only [rotateLeft_def, toFin_shiftLeft, toFin_uShiftRight, toFin_or]
+
 /-! ## Rotate Right -/
 
 /-- `rotateRight` is defined in terms of left and right shifts. -/
@@ -3699,6 +3709,14 @@ theorem msb_rotateRight {r w : Nat} {x : BitVec w} :
 theorem toNat_rotateRight {x : BitVec w} {r : Nat} :
     (x.rotateRight r).toNat = (x.toNat >>> (r % w)) ||| x.toNat <<< (w - r % w) % (2^w) := by
   simp only [rotateRight_def, toNat_shiftLeft, toNat_ushiftRight, toNat_or]
+
+theorem toInt_rotateRight {x : BitVec w} {r : Nat} :
+    (x.rotateRight r).toInt = ((x >>> (r % w)).toNat ||| (x <<< (w - r % w)).toNat : Int).bmod (2 ^ w) := by
+  simp only [rotateRight_def, toInt_shiftLeft, toInt_ushiftRight, toInt_or]
+
+theorem toFin_rotateRight {x : BitVec w} {r : Nat} :
+    (x.rotateRight r).toFin = x.toFin / Fin.ofNat' (2 ^ w) (2 ^ (r % w)) ||| Fin.ofNat' (2 ^ w) (x.toNat <<< (w - r % w)) := by
+  simp only [rotateRight_def, toFin_shiftLeft, toFin_uShiftRight, toFin_or]
 
 /- ## twoPow -/
 
