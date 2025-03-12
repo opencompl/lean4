@@ -696,6 +696,14 @@ treating `x` and `y` as 2's complement signed bitvectors.
 def saddOverflow {w : Nat} (x y : BitVec w) : Bool :=
   (x.toInt + y.toInt ≥ 2 ^ (w - 1)) || (x.toInt + y.toInt < - 2 ^ (w - 1))
 
+
+/-- `sdivOverflow x y` returns `true` if dividing `x` by `y` results in *signed* overflow,
+treating `x` and `y` as 2's complement signed bitvectors.
+
+  SMT-Lib name: `bvsdivo`.
+-/
+def sdivOverflow {w : Nat} (x y : BitVec w) : Bool :=
+  (x.toInt / y.toInt ≥ 2 ^ (w - 1)) || (x.toInt / y.toInt < - 2 ^ (w - 1))
 /- ### reverse -/
 
 /-- Reverse the bits in a bitvector. -/

@@ -15,6 +15,8 @@ import Init.Data.Nat.Div.Lemmas
 import Init.Data.Int.Bitwise.Lemmas
 import Init.Data.Int.LemmasAux
 import Init.Data.Int.Pow
+import Init.Data.Int.Lemmas
+import Init.Data.Int.DivMod.Lemmas
 import Init.Data.Int.LemmasAux
 
 set_option linter.missingDocs true
@@ -3585,6 +3587,52 @@ theorem sdiv_self {x : BitVec w} :
     · subst h
       rcases x.msb with msb | msb <;> simp
     · rcases x.msb with msb | msb <;> simp [h]
+
+theorem _root_.Int.mul_le_mul_left (x y : Int)
+    (hx : 0 ≤ x) (hy : 0 < y) : x ≤ x * y := by
+  conv =>
+    lhs
+    rw [show x = x * 1 by simp]
+  apply Int.mul_le_mul_of_nonneg_left hy hx
+
+theorem sdiv_denom_nonneg {x y : Int}
+    (hxLt : x < 2^(w - 1)) (hyLt : 0 ≤ y) : x / y < 2^(w - 1) := by
+  have : y = 0 ∨ 0 < y := by omega
+  rcases this with hy | hy
+  · subst hy
+    simp
+    norm_cast
+    apply Nat.pow_pos (by decide)
+  · norm_cast
+    apply Int.ediv_lt_of_lt_mul hy
+    have : 0 < ((2 ^ (w - 1) : Nat) : Int) := by 
+      norm_cast
+      apply Nat.pow_pos (by decide)
+    apply Int.lt_of_lt_of_le hxLt
+    norm_cast
+    apply Int.mul_le_mul_left <;> omega
+
+-- (x/y).natAbs <= x.natAbs
+
+-- (x/y).natAbs = x.natAbs =>  y = 1 ∨ y = -1
+-- overflow <-> (x.y).natAbs >= 2^(w-1)
+
+#check Int.natAbs_div_le_natAbs
+#check Int.ediv_le_self
+-- #check Nat.div_eq_self -- Mathlib
+
+theorem sdiv_denom_neg {x y : Int}
+    (hxLt : x < 2^(w - 1)) (hxLe : - 2^(w - 1) ≤ x)
+    (hyLt : y < 2^(w - 1)) (hyLe : - 2^(w - 1) ≤ y) :
+    -- we DO overflow if...
+    (2^(w - 1) ≤ x / y) ↔
+    -- x is INT_MIN and y is -1
+    (x = - 2 ^(w - 1) ∧ y = -1):= by
+  constructor
+  · intros h
+    have : x / y < 2^(w - 1) := sdiv_denom_nonneg hxLt (Int.neg_nonneg_of_nonpos hyLe)
+  · simp_all
+
 
 /-! ### smtSDiv -/
 
