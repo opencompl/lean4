@@ -2556,6 +2556,41 @@ theorem not_extractLsb'_append_not_extractLsb'_eq_not_extractLsb' {x : BitVec w}
     congr 1
     omega
 
+/--
+
+TODO: getElem_extractLsb' has a poor statement that makes it hard to use.
+
+[<v----xhi-----] [w<----xlo------]
+    len<-------|------|
+    |          |     start
+    (len-w)    start-w
+-/
+theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start len : Nat} :
+    extractLsb' start len (xhi ++ xlo) =
+    if start + len < w
+    then extractLsb' start len xlo
+    else if w ≤ start  then
+
+
+
+
+--     ((extractLsb' (start - w) (len - w) xhi) ++
+--      (extractLsb' start (min len w) xlo)).cast (by omega) := by
+--   apply eq_of_getLsbD_eq
+--   intros i hi
+--   simp [hi, getLsbD_append, getElem_append]
+--   by_cases hiw : start + i < w
+--   · simp [hiw]
+--     simp [show i < min len w by omega]
+--   · simp [hiw]
+--     by_cases h₂ : i < min len w
+--     · simp [h₂]
+--       omega
+--     · simp [h₂]
+--       congr 1
+--       omega
+
+
 /-! ### rev -/
 
 theorem getLsbD_rev (x : BitVec w) (i : Fin w) :
