@@ -1362,7 +1362,8 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
           have := Int.natAbs_ediv_le_natAbs (a := - 2 ^ w) (b := y.toInt)
           simp [Int.lt_ediv_of_nonpos_of_nonpos (x := 2 ^ w) (y := y.toInt) (by omega) (by omega) (by omega)]
         · rw [← Int.div_def]
-          sorry
+          have := Int.ediv_pos_of_neg_of_neg (a := -2 ^ w) (b := y.toInt) (by omega) (by omega)
+          omega
       · simp [hy']
         rw [← Int.div_def, Int.ediv_zero]
         norm_cast
@@ -1392,13 +1393,29 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
       · rw [Int.pow_succ, Int.mul_comm] at xlt xle
         by_cases hx' : 0 < x.toInt
         · omega
-        · sorry
+        · have : - 2 ^ w ≤ x.toInt := by omega
+          simp [← beq_eq_decide_eq] at hx
+          rw [← toInt_inj] at hx
+          simp [toInt_intMin] at hx
+          norm_cast at hx
+          rw [Nat.mod_eq_of_lt (by omega)] at hx
+          push_cast at hx
+          omega
       · omega
     · simp [← beq_eq_false_iff_ne] at hx hy
       simp [hx, hy]
+      simp [← beq_eq_decide_eq] at hx hy
+      rw [← toInt_inj] at hx hy
+      simp [toInt_intMin] at hx
+      simp [toInt_allOnes] at hy
+      norm_cast at hx
+      rw [Nat.mod_eq_of_lt (by omega)] at hx
+      push_cast at hx
       and_intros
-      · sorry
-      · sorry
+      ·
+        sorry
+      ·
+        sorry
 
 /- ### umod -/
 
