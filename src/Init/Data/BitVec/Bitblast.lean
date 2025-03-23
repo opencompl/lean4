@@ -1308,6 +1308,98 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
     simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
     rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
 
+theorem Int.le_of_nonpos_of_pos {x : Int} (hx : x ≤ 0) {y : Int} (hy : 0 < y) : x * y ≤ x := by
+  conv => rhs; rw [← Int.mul_one x] -- this is crazy lazy, find the theorem...
+  apply Int.mul_le_mul_of_nonpos_left <;> omega
+
+theorem Int.lt_ediv_of_nonpos_of_nonpos {x y: Int} (hx : 0 < x) (hy : y < - 1) (hy' : - x ≤ y) :
+    (- x) / y < x := by
+  rw [Int.div_def]
+  unfold Int.ediv
+  obtain ⟨xn, hx⟩ := Int.eq_negSucc_of_lt_zero (a := -x) (by omega)
+  obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
+  subst hy
+  rw [hx]
+  simp
+  have : x = 1 + xn := by omega
+  subst this
+  simp [Int.add_comm (a := 1)]
+  apply Nat.div_lt_self
+  omega
+  omega
+
+theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
+    (sdivOverflow x y) = (decide (0 < w) && (x == intMin w) && (y == allOnes w)) := by
+  simp only [sdivOverflow]
+  rcases w with _|w
+  · simp [of_length_zero]
+  · simp
+    have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
+    have yle := le_two_mul_toInt (x := y); have ylt := two_mul_toInt_lt (x := y)
+    have := Nat.two_pow_pos (w := w)
+    by_cases hx : x = intMin (w + 1) <;> by_cases hy : y = allOnes (w + 1)
+    · simp [hx, hy, toInt_intMin]
+      rw_mod_cast [mod_eq_of_lt (by omega)]
+      omega
+    · simp [← beq_eq_false_iff_ne] at hy
+      simp [hx, hy, toInt_intMin]
+      rw_mod_cast [mod_eq_of_lt (by omega)]
+      push_cast
+      rw [Int.div_def]
+      have hy' : y.toInt < 0 ∨ y.toInt = 0 ∨ 0 < y.toInt := by omega
+      rcases hy' with hy'|hy'|hy'
+      · have := Int.neg_neg_of_pos (a := 2 ^ w) (by norm_cast)
+        and_intros
+        have : - 2 ^ w ≤ y.toInt ∧ y.toInt < 2 ^ w := by
+          and_intros
+          · norm_cast; omega
+          · rw_mod_cast [Nat.pow_succ, Nat.mul_comm] at ylt
+            omega
+        · have := Int.ediv_pos_of_neg_of_neg (a := -2 ^ w) (b := y.toInt) (by omega) (by omega)
+          rw [← Int.div_def]
+          have : y.toInt < - 1 := by simp at hy; rw [← toInt_inj] at hy; simp [toInt_allOnes] at hy; omega
+          have : - 2 ^ w ≤ y.toInt := by omega
+          have := Int.natAbs_ediv_le_natAbs (a := - 2 ^ w) (b := y.toInt)
+          simp [Int.lt_ediv_of_nonpos_of_nonpos (x := 2 ^ w) (y := y.toInt) (by omega) (by omega) (by omega)]
+        · rw [← Int.div_def]
+          sorry
+      · simp [hy']
+        rw [← Int.div_def, Int.ediv_zero]
+        norm_cast
+        omega
+      · have := Int.neg_neg_of_pos (a := 2 ^ w) (by norm_cast)
+        have := Int.ediv_neg_of_neg_of_pos (a := - 2 ^ w) (b := y.toInt)
+          (by omega) (by omega)
+        rw [← Int.div_def]
+        and_intros
+        · apply Int.lt_trans
+          · exact this
+          · norm_cast
+        · have : - 2 ^ w ≤ y.toInt ∧ y.toInt < 2 ^ w := by
+            and_intros
+            · omega
+            · rw_mod_cast [Nat.pow_succ, Nat.mul_comm] at ylt
+              omega
+          have := Int.ediv_le_self (a := 2 ^ w) (b := y.toInt) (by omega)
+          simp [Int.ediv_le_of_le_mul (a := - 2 ^ w) (b := y.toInt)]
+          have := Int.le_ediv_iff_mul_le (c := y.toInt) (a := - 2 ^ w) (b := - 2 ^ w) (by omega)
+          simp [this]
+          apply Int.le_of_nonpos_of_pos (by omega) (by omega)
+    · simp [← beq_eq_false_iff_ne] at hx
+      have hy' := toInt_allOnes (w := w + 1)
+      simp [hx, hy, hy']
+      and_intros
+      · rw [Int.pow_succ, Int.mul_comm] at xlt xle
+        by_cases hx' : 0 < x.toInt
+        · omega
+        · sorry
+      · omega
+    · simp [← beq_eq_false_iff_ne] at hx hy
+      simp [hx, hy]
+      and_intros
+      · sorry
+      · sorry
+
 /- ### umod -/
 
 theorem getElem_umod {n d : BitVec w} (hi : i < w) :
@@ -1379,7 +1471,7 @@ theorem not_sub_eq_not_add {x y : BitVec w} : ~~~ (x - y) = ~~~ x + y := by
 /-- The value of `(carry i x y false)` can be computed by truncating `x` and `y`
 to `len` bits where `len ≥ i`. -/
 theorem carry_extractLsb'_eq_carry {w i len : Nat} (hi : i < len)
-    {x y : BitVec w} {b : Bool}: 
+    {x y : BitVec w} {b : Bool}:
     (carry i (extractLsb' 0 len x) (extractLsb' 0 len y) b)
     = (carry i x y b) := by
   simp only [carry, extractLsb'_toNat, shiftRight_zero, toNat_false, Nat.add_zero, ge_iff_le,
@@ -1393,7 +1485,7 @@ theorem carry_extractLsb'_eq_carry {w i len : Nat} (hi : i < len)
 The `[0..len)` low bits of `x + y` can be computed by truncating `x` and `y`
 to `len` bits and then adding.
 -/
-theorem extractLsb'_add {w len : Nat} {x y : BitVec w} (hlen : len ≤ w) : 
+theorem extractLsb'_add {w len : Nat} {x y : BitVec w} (hlen : len ≤ w) :
     (x + y).extractLsb' 0 len = x.extractLsb' 0 len + y.extractLsb' 0 len := by
   ext i hi
   rw [getElem_extractLsb', Nat.zero_add, getLsbD_add (by omega)]
