@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Harun Khan, Abdalrhman M Mohamed, Joe Hendrix, Siddharth Bhat, Luisa Cicolini
+Authors: Harun Khan, Abdalrhman M Mohamed, Joe Hendrix, Siddharth Bhat
 -/
 prelude
 import Init.Data.BitVec.Folds
@@ -1339,8 +1339,20 @@ theorem Int.negSucc_ediv_ofNat_eq_negSucc_div_of_ne_zero {n d : Nat} (hd : d ≠
   · contradiction
   · simp
     omega
-/-
--/
+
+theorem udivOverflow_eq {w : Nat} (x y : BitVec w) :
+    x.toNat / y.toNat < 2 ^ w := by
+  have hy : y.toNat = 0 ∨ y.toNat = 1 ∨ 1 < y.toNat := by omega
+  rcases hy with hy|hy|hy
+  · simp [hy]
+    omega
+  · simp [hy]
+    omega
+  · have := Nat.div_lt_iff_lt_mul (k := y.toNat) (x := x.toNat) (y := 2 ^ w) (by omega)
+    simp [this]
+    have :=  Nat.mul_lt_mul_of_le_of_lt (a := x.toNat) (b :=1) (c := 2 ^ w) (d := y.toNat) (by omega) (by omega) (by omega)
+    omega
+
 theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
     (sdivOverflow x y) = (decide (0 < w) && (x == intMin w) && (y == allOnes w)) := by
   simp only [sdivOverflow]
