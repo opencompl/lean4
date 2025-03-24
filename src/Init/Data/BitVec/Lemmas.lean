@@ -1761,11 +1761,7 @@ theorem toNat_signExtend (x : BitVec w) {v : Nat} :
 /-- Sign extending to a smaller bitwidth equals setting the width. -/
 theorem toNat_signExtend_of_lt {x : BitVec w} {v : Nat} (h : v < w) :
     (x.signExtend v).toNat = (x.setWidth v).toNat := by
-  rw [toNat_signExtend]
-  have : 2^v - 2^w = 0 := by
-    rw [@Nat.sub_eq_zero_iff_le]
-    apply Nat.pow_le_pow_of_le (by decide) (by omega)
-  rw [this]
+  rw [toNat_signExtend, show 2 ^ v - 2 ^ w = 0 by rw [@Nat.sub_eq_zero_iff_le]; apply Nat.pow_le_pow_of_le (by decide) (by omega)]
   rcases x.msb <;> simp
 
 /-
@@ -1820,7 +1816,7 @@ theorem toFin_signExtend (x : BitVec w) :
     apply Fin.eq_of_val_eq
     simp only [val_toFin, Fin.val_ofNat']
     rw [toNat_signExtend_of_le _ (by omega)]
-    have : 2^w < 2^v := by apply Nat.pow_lt_pow_of_lt <;> omega
+    have : 2 ^ w < 2 ^ v := by apply Nat.pow_lt_pow_of_lt <;> omega
     rw [Nat.mod_eq_of_lt]
     rcases x.msb <;> simp <;> omega
 
