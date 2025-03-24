@@ -1411,11 +1411,52 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
       norm_cast at hx
       rw [Nat.mod_eq_of_lt (by omega)] at hx
       push_cast at hx
-      and_intros
-      ·
-        sorry
-      ·
-        sorry
+      have : - 2 ^ w < x.toInt := by omega
+      have : - 2 ^ w ≤ y.toInt := by omega
+      have : x.toInt < 2 ^ w := by omega
+      have : y.toInt < 2 ^ w := by omega
+      have hy' : (- 2 ^ w ≤ y.toInt ∧ y.toInt < - 1) ∨ (y.toInt = 0) ∨ (0 < y.toInt ∧ y.toInt < 2 ^ w) := by omega
+      by_cases 0 ≤ x.toInt
+      · have := Int.ediv_le_self (a := x.toInt) (b := y.toInt) (by omega)
+        rcases hy' with hy'|hy'|hy'
+        · and_intros
+          · omega
+          · have := Int.ediv_le_self (a := x.toInt) (b := y.toInt) (by omega)
+            sorry
+        · and_intros
+          · omega
+          · simp [hy']
+            omega
+        · and_intros
+          · omega
+          · have := Int.ediv_le_self (a := x.toInt) (b := y.toInt) (by omega)
+            have := Int.ediv_le_of_le_mul (a := x.toInt) (c := y.toInt) (b := x.toInt) (by omega)
+            have : 1 ≤ y.toInt := by omega
+            have : x.toInt * 1 ≤ x.toInt * y.toInt := by
+              exact Int.mul_le_mul_of_nonneg_left this (by omega)
+            have := Int.le_ediv_iff_mul_le (c := y.toInt) (a := - 2 ^ w) (b := x.toInt) (by omega)
+            simp [this]
+            have := Int.mul_neg_of_neg_of_pos (a := - 2 ^ w) (b := y.toInt) (by omega) (by omega)
+            omega
+      · rcases hy' with hy'|hy'|hy'
+        · and_intros
+          · have := Int.mul_pos_of_neg_of_neg (a := - 2 ^ w) (b := y.toInt) (by omega) (by omega)
+            sorry
+          · have : y.toInt < 0 := by omega
+            have : x.toInt < 0 := by omega
+            have := Int.mul_pos_of_neg_of_neg (a := x.toInt) (b := y.toInt) (by omega) (by omega)
+            have : - 2 ^ w < 0:= by omega
+
+            sorry
+        · simp [hy']
+          omega
+        · have := Int.ediv_neg_of_neg_of_pos (a := x.toInt) (b := y.toInt) (by omega) (by omega)
+          and_intros
+          · omega
+          · have := Int.le_ediv_iff_mul_le (c := y.toInt) (a := - 2 ^ w) (b := x.toInt) (by omega)
+            simp [this]
+
+            sorry
 
 /- ### umod -/
 
