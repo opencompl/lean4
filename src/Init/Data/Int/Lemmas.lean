@@ -512,7 +512,6 @@ protected theorem sub_mul (a b c : Int) : (a - b) * c = a * c - b * c := by
   | ofNat n => show ofNat (1 * n) = ofNat n by rw [Nat.one_mul]
   | -[n+1]  => show -[1 * n +1] = -[n+1] by rw [Nat.one_mul]
 
-
 @[simp] protected theorem mul_one (a : Int) : a * 1 = a := by rw [Int.mul_comm, Int.one_mul]
 instance : Std.LawfulIdentity (α := Int) (· * ·) 1 where
   left_id := Int.one_mul
