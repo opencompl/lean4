@@ -1374,6 +1374,15 @@ theorem udivOverflow_eq {w : Nat} (x y : BitVec w) :
     have :=  Nat.mul_lt_mul_of_le_of_lt (a := x.toNat) (b :=1) (c := 2 ^ w) (d := y.toNat) (by omega) (by omega) (by omega)
     omega
 
+-- y.natAbs >= 2 => no overflow
+-- y = 1 => x.sdiv y = x
+-- y = 0 => x.sdiv y = 0
+-- y = -1 => x.sdiv y = neg x
+
+theorem sdivOverflow_false_of_natAbs_ge_two {w : Nat} {x y : BitVec w} (hy : 2 ≤ (y.toInt.natAbs)) :
+    (sdivOverflow x y) = false := by
+  sorry
+
 theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
     (sdivOverflow x y) = (decide (0 < w) && (x == intMin w) && (y == allOnes w)) := by
   simp only [sdivOverflow]
