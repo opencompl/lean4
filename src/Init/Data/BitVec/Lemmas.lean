@@ -4854,6 +4854,65 @@ instance instDecidableExistsBitVec :
   | 0, _, _ => inferInstance
   | _ + 1, _, _ => inferInstance
 
+-- filepath: /Users/bollu/25/michelmas/lean4/src/Init/Data/BitVec/Lemmas.lean
+
+theorem bvmul_1 {x : BitVec w} (i : Nat) :
+  x * (twoPow w i) = x <<< i := by sorry
+
+theorem bvmul_2 {x : BitVec w} (i : Nat) :
+  x * (-twoPow w i) = -x <<< i := by sorry
+
+theorem bvmul_3 {x : BitVec w} (ht : x * s = t) :
+  x * ((-s ||| s) &&& t) = t := by sorry
+
+theorem bvmul_4 {x : BitVec w} (hw : 0 < w) (ht : x * s = t) :
+  t[0] = x[0] && s[0] := by sorry
+
+theorem bvmul_5 {x : BitVec w} (hw : 0 < w) (ht : x * s = t) :
+  s ≠ ~~~ (t ||| (1#w &&& (x ||| s))) := by sorry
+
+theorem bvmul_6 {x : BitVec w} (hw : 0 < w) (ht : x * s = t) :
+ (x &&& t) ≠ (s ||| ~~~t) := by sorry
+
+theorem bvmul_7 {x : BitVec w} (hw : 0 < w) (ht : x * s = t) :
+  x * x ≠ ((x ||| (1#w)) <<< (x <<< x)) := by sorry
+
+theorem bvmul_8 {x : BitVec w} (ht : x * s = t) :
+  s = (s <<< (x &&& (1#w >>> t))) := by sorry
+
+theorem bvmul_9 {x : BitVec w} (hw : w ≠ 2) (ht : x * s = t) :
+  t ≥ (1#w &&& ((x &&& s) >>> 1)) := by sorry
+
+theorem bvmul_10 {x : BitVec w} (ht : x * s = t) :
+  x ≠ ((1#w) ^^^ (x <<< (s ^^^ t))) := by sorry
+
+theorem bvmul_11 {x : BitVec w} (ht : x * s = t) (hw : 1 < w) :
+  t ≠ ((1#w) ||| ~~~ (x ^^^ s)) := by sorry
+
+theorem bvmul_12 {x : BitVec w} (ht : x * s = t) (hw : 1 < w) :
+  t ≠ (~~~ (1#w) ||| (x ^^^ s)) := by sorry
+
+theorem bvmul_13 {x : BitVec w} {ht : x * s = t} :
+  x ≠ ((x <<< (s + t) - 1)) := by sorry
+
+theorem bvmul_14 {x : BitVec w} (ht : x * s = t) :
+  x ≠ (1 - (x <<< (s - t))) := by sorry
+
+theorem bvmul_15 {x : BitVec w} (ht : x * s = t) :
+  s ≠ (1 + (s <<< (t - x))) := by sorry
+
+theorem bvmul_16 {x : BitVec w} (ht : x * s = t) :
+  s ≠ (1 - (s <<< (t - x))) := by sorry
+
+theorem bvmul_17 {x : BitVec w} (ht : x * s = t) :
+  s ≠ (1 + (s <<< (x - t))) := by sorry
+
+theorem bvmul_18 {x : BitVec w} (ht : x * s = t) (hw : 1 < w):
+  t ≠ ((1#w) ||| (x + s)) := by sorry
+
+theorem bvmul_19 {x : BitVec w} (ht : x * s = t) (hw : 1 < w) :
+  x ≠ ~~~ (x <<< (s + t)) := by sorry
+
 /-! ### Deprecations -/
 
 set_option linter.missingDocs false
