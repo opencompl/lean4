@@ -5025,6 +5025,46 @@ theorem smtUDiv_35 {x : BitVec w} (ht : x.smtUDiv s = t) :
 theorem smtUDiv_36 {x : BitVec w} (ht : x.smtUDiv s = t) (hw : w ≠ 2):
  x ≠ (1 - (x <<< (x - t))) := sorry
 
+section Abstractions
+section smtURem
+variable {w : Nat} {x s t : BitVec w} (ht :  BitVec.umod x s = t)
+
+theorem smtURem_1 (hs : s = twoPow w i) :
+  t = (x.extractLsb' 0 (i - 1)).zeroExtend _ := sorry -- t = 0_[k(x) -i] : x[i-1 : 0]
+
+theorem smtURem_2 (hs : s ≠ 0) : t ≤ s := sorry
+
+theorem smtURem_3 (hx : x = 0) : t = 0 := sorry
+
+theorem smtURem_4 (hs : s = 0) : t = x := sorry
+
+theorem smtURem_5 (hs : s = x) : t = 0 := sorry
+
+theorem smtURem_6 (hx : x ≤ s) : t = x := sorry
+
+theorem smtURem_7 : t ≤ (~~~ (- s)) := sorry
+
+theorem smtURem_8 : x = x &&& (s ||| (t ||| -s )) := sorry
+
+theorem smtURem_9 : (t ||| (x &&& s)) ≤ x := sorry
+
+theorem smtURem_10 : 1#w ≠ (t &&& ~~~(x ||| s)) := sorry
+
+theorem smtURem_11 : t ≠ (~~~x ||| -s) := sorry
+
+theorem smtURem_12 : (t &&& 1#w) ≤ (t &&& (x ||| s)) := sorry
+
+theorem smtURem_13 (hw : 2 < w) :
+  x ≠ (-x ||| - ~~~ t) := sorry
+
+theorem smtURem_14 :
+  t ≤ x + - s  := sorry
+
+theorem smtURem_15 :
+  (-s ^^^ (x ||| s)) ≥ t := sorry
+
+end smtURem
+end Abstractions
 /-! ### Deprecations -/
 
 set_option linter.missingDocs false
