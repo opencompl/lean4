@@ -1378,87 +1378,6 @@ theorem sdivOverflow_allOnes_eq_negOverflow {w : Nat} (x y : BitVec w) (hy : y =
     · simp [hx]
     · simp [show ¬x.toInt == -2 ^ w by simp only [beq_iff_eq, hx, not_false_eq_true]]; omega
 
-theorem Int.sdiv_pos_ge_two_lt (x y : Int) (hy' : 2 ≤ y) (hx' : 0 < x):
-    x / y < x := by
-  rw [Int.div_def]
-  unfold Int.ediv
-  obtain ⟨xn, hx⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
-  obtain ⟨yn, hy⟩ := Int.eq_ofNat_of_zero_le (a := y) (by omega)
-  simp only [hx, hy, Int.ofNat_eq_coe, Int.ofNat_lt]
-  apply Nat.div_lt_self (by omega) (by omega)
-
-theorem Int.sdiv_pos_ge_zero (x y : Int) (hy' : 2 ≤ y) (hx' : 0 < x):
-    0 ≤  x / y := by
-  rw [Int.div_def]
-  unfold Int.ediv
-  obtain ⟨xn, hx⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
-  obtain ⟨yn, hy⟩ := Int.eq_ofNat_of_zero_le (a := y) (by omega)
-  simp only [hx, hy, Int.ofNat_eq_coe, Int.ofNat_lt]
-  exact Int.ofNat_zero_le (xn / yn)
-
-theorem Int.sdiv_neg_le_neg_two_lt (x y : Int) (hy' : y ≤ -2) (hx' : x < -1) :
-    x / y < x.natAbs := by
-  rw [Int.div_def]
-  unfold Int.ediv
-  obtain ⟨xn, hx⟩ := Int.eq_negSucc_of_lt_zero (a := x) (by omega)
-  obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
-  simp only [hx, hy, succ_eq_add_one, Int.ofNat_eq_coe, Int.natCast_add, Int.cast_ofNat_Int]
-  norm_cast
-  simp
-  have : 0 < xn := by omega
-  have := Nat.div_lt_iff_lt_mul (x := xn) (k := yn + 1) (y := xn) (by omega)
-  rw [this]
-  have := Nat.mul_lt_mul_left (a := xn) (b := 1) (c := yn + 1) (by omega)
-  rw [Nat.mul_one] at this
-  omega
-
-theorem Int.sdiv_neg_le_neg_two_ge (x y : Int) (hy' : y ≤ -2) (hx' : x < 0) :
-    0 ≤ x / y := by
-  rw [Int.div_def]
-  unfold Int.ediv
-  obtain ⟨xn, hx⟩ := Int.eq_negSucc_of_lt_zero (a := x) (by omega)
-  obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
-  simp only [hx, hy, succ_eq_add_one, Int.ofNat_eq_coe, Int.natCast_add, Int.cast_ofNat_Int]
-  norm_cast
-  simp
-
-theorem Int.sdiv_neg_ge_two_le (x y : Int) (hy' : 2 ≤ y) (hx' : x < 0) :
-    x / y ≥ x := by
-  simp [Int.le_ediv_iff_mul_le (c := y) (a := x) (b := x) (by omega), show( x * y ≤ x) = (x * y ≤ x * 1) by rw [Int.mul_one]]
-  apply Int.mul_le_mul_of_nonpos_left (a := x) (b := y) (c  := (1 : Int)) (by omega) (by omega)
-
-theorem Int.sdiv_neg_ge_two_lt_zero (x y : Int) (hy' : 2 ≤ y) (hx' : x < 0) :
-    x / y < 0 := by
-  refine Int.ediv_neg_of_neg_of_pos hx' ?_
-  omega
-
-theorem Int.sdiv_pos_le_neg_two_ge (x y : Int) (hy' : y ≤ -2) (hx' : 0 < x) :
-    x / y ≥ -x := by
-  obtain ⟨xn, hx⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
-  obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
-  rw [Int.div_def]
-  unfold Int.ediv
-  simp only [hx, hy, succ_eq_add_one, Int.ofNat_eq_coe, ge_iff_le, Int.neg_le_neg_iff, Int.ofNat_le]
-  apply Nat.le_trans (m := xn) (by exact div_le_self xn (yn + 1)) (by omega)
-
-theorem Int.sdiv_pos_neg_lt_zero (x y : Int) (hy' : y ≤ -2) (hx' : 0 < x) :
-    x / y ≤ 0  := by
-  obtain ⟨xn, hx⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
-  obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
-  rw [Int.div_def]
-  unfold Int.ediv
-  simp [hx, hy, succ_eq_add_one, Int.ofNat_eq_coe, ge_iff_le, Int.neg_le_neg_iff, Int.ofNat_le]
-
-theorem BitVec.intMin_eq_toInt {w : Nat} (x : BitVec w) :
-    x.toInt == - 2 ^ (w - 1) ↔ (x = intMin (w) ∧ 0 < w) := by
-  rcases w with _|w
-  · simp [of_length_zero]
-  · refine Eq.to_iff ?_
-    simp only [Nat.add_one_sub_one, beq_iff_eq, ← toInt_inj, toInt_intMin, Int.ofNat_emod,
-      zero_lt_succ, _root_.and_true, _root_.eq_iff_iff]
-    norm_cast
-    rw [Nat.mod_eq_of_lt (by apply Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + 1) (by omega) (by omega))]
-
 theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
     (sdivOverflow x y) = (decide (0 < w) && (x = intMin w) && (y = allOnes w)) := by
   rcases w with _|w
@@ -1494,21 +1413,21 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
           · by_cases hx : 0 < x.toInt
             · -- numerator and denumerator are positive
               have := Int.sdiv_pos_ge_two_lt (x := x.toInt) (y := y.toInt) (by omega) (by omega)
-              have := Int.sdiv_pos_ge_zero (x := x.toInt) (y := y.toInt) (by omega) (by omega)
+              have := Int.sdiv_pos_ge_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
               omega
             · -- numerator is negative, denumerator is positive
               by_cases hxZero : x.toInt = 0
               · simp [hxZero]; omega
               · have : x.toInt < 0 := by omega
-                have := Int.sdiv_neg_ge_two_le (x := x.toInt) (y := y.toInt) (by omega) (by omega)
-                have := Int.sdiv_neg_ge_two_lt_zero (x := x.toInt) (y := y.toInt) (by omega) (by omega)
+                have := Int.sdiv_neg_ge_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
+                have := Int.sdiv_neg_ge_two_lt (x := x.toInt) (y := y.toInt) (by omega) (by omega)
                 omega
           · rw [← toInt_inj, toInt_allOnes] at hy
             simp only [show 0 < w + 1 by omega, ↓reduceIte, Int.reduceNeg] at hy
             by_cases hx : 0 < x.toInt
             · -- numerator is positive, denumerator is negative
               have := Int.sdiv_pos_le_neg_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
-              have := Int.sdiv_pos_neg_lt_zero (x := x.toInt) (y := y.toInt) (by omega) (by omega)
+              have := Int.sdiv_pos_le_neg_two_le (x := x.toInt) (y := y.toInt) (by omega) (by omega)
               omega
             · -- numerator and denumerator are negative
               by_cases hxZero : x.toInt = 0
@@ -1519,7 +1438,7 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
                     omega
                   simp [hxNegOne, Int.neg_one_ediv]
                   omega
-                · have := Int.sdiv_neg_le_neg_two_lt (x := x.toInt) (y := y.toInt) (by omega) (by omega)
+                · have := Int.sdiv_lt_neg_one_le_neg_two_lt (x := x.toInt) (y := y.toInt) (by omega) (by omega)
                   have := Int.sdiv_neg_le_neg_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
                   omega
 
