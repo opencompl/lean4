@@ -713,7 +713,7 @@ def negOverflow {w : Nat} (x : BitVec w) : Bool :=
   x.toInt == - 2 ^ (w - 1)
 
 /--
-negOverflow x` returns `true` if the divisioin of `x` by `y` results in overflow.
+negOverflow x` returns `true` if the divisoin of `x` by `y` results in overflow.
 For BitVecs `x` and `y` with width `0 < w`, this only happens if `x = intMin` and `y = allOnes w`.
 
   SMT-LIB name: `bvsdivo`.
