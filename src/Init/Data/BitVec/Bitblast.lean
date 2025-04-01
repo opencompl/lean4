@@ -1329,7 +1329,7 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
     simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
     rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
 
-theorem udivOverflow_eq {w : Nat} (x y : BitVec w) :
+theorem not_udivOverflow {w : Nat} (x y : BitVec w) :
     x.toNat / y.toNat < 2 ^ w := by
   have hy : y.toNat = 0 ∨ y.toNat = 1 ∨ 1 < y.toNat := by omega
   rcases hy with hy|hy|hy
