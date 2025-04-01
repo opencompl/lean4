@@ -2330,9 +2330,9 @@ theorem bmod_neg_bmod : bmod (-(bmod x n)) n = bmod (-x) n := by
   apply (bmod_add_cancel_right x).mp
   rw [Int.add_left_neg, ← add_bmod_bmod, Int.add_left_neg]
 
-/- ### sdiv -/
+/- ### sdiv, ediv -/
 
-theorem Int.sdiv_pos_ge_two_lt (x y : Int) (hy' : 2 ≤ y) (hx' : 0 < x):
+theorem sdiv_pos_ge_two_lt (x y : Int) (hy' : 2 ≤ y) (hx' : 0 < x):
     x / y < x := by
   rw [Int.div_def]
   unfold Int.ediv
@@ -2341,7 +2341,7 @@ theorem Int.sdiv_pos_ge_two_lt (x y : Int) (hy' : 2 ≤ y) (hx' : 0 < x):
   simp only [hx, hy, Int.ofNat_eq_coe, Int.ofNat_lt]
   apply Nat.div_lt_self (by omega) (by omega)
 
-theorem Int.sdiv_pos_ge_two_ge (x y : Int) (hy' : 2 ≤ y) (hx' : 0 < x):
+theorem sdiv_pos_ge_two_ge (x y : Int) (hy' : 2 ≤ y) (hx' : 0 < x):
     0 ≤ x / y := by
   rw [Int.div_def]
   unfold Int.ediv
@@ -2350,7 +2350,7 @@ theorem Int.sdiv_pos_ge_two_ge (x y : Int) (hy' : 2 ≤ y) (hx' : 0 < x):
   simp only [hx, hy, Int.ofNat_eq_coe, Int.ofNat_lt]
   exact Int.ofNat_zero_le (xn / yn)
 
-theorem Int.sdiv_lt_neg_one_le_neg_two_lt (x y : Int) (hy' : y ≤ -2) (hx' : x < -1) :
+theorem sdiv_lt_neg_one_le_neg_two_lt (x y : Int) (hy' : y ≤ -2) (hx' : x < -1) :
     x / y < x.natAbs := by
   rw [Int.div_def]
   unfold Int.ediv
@@ -2366,7 +2366,7 @@ theorem Int.sdiv_lt_neg_one_le_neg_two_lt (x y : Int) (hy' : y ≤ -2) (hx' : x 
   rw [Nat.one_mul, Nat.mul_comm] at this
   omega
 
-theorem Int.sdiv_neg_le_neg_two_ge (x y : Int) (hy' : y ≤ -2) (hx' : x < 0) :
+theorem sdiv_neg_le_neg_two_ge (x y : Int) (hy' : y ≤ -2) (hx' : x < 0) :
     0 ≤ x / y := by
   rw [Int.div_def]
   unfold Int.ediv
@@ -2376,17 +2376,17 @@ theorem Int.sdiv_neg_le_neg_two_ge (x y : Int) (hy' : y ≤ -2) (hx' : x < 0) :
   norm_cast
   simp
 
-theorem Int.sdiv_neg_ge_two_ge (x y : Int) (hy' : 2 ≤ y) (hx' : x < 0) :
+theorem sdiv_neg_ge_two_ge (x y : Int) (hy' : 2 ≤ y) (hx' : x < 0) :
     x / y ≥ x := by
   simp [Int.le_ediv_iff_mul_le (c := y) (a := x) (b := x) (by omega), show( x * y ≤ x) = (x * y ≤ x * 1) by rw [Int.mul_one]]
   apply Int.mul_le_mul_of_nonpos_left (a := x) (b := y) (c  := (1 : Int)) (by omega) (by omega)
 
-theorem Int.sdiv_neg_ge_two_lt (x y : Int) (hy' : 2 ≤ y) (hx' : x < 0) :
+theorem sdiv_neg_ge_two_lt (x y : Int) (hy' : 2 ≤ y) (hx' : x < 0) :
     x / y < 0 := by
   refine Int.ediv_neg_of_neg_of_pos hx' ?_
   omega
 
-theorem Int.sdiv_pos_le_neg_two_ge (x y : Int) (hy' : y ≤ -2) (hx' : 0 < x) :
+theorem sdiv_pos_le_neg_two_ge (x y : Int) (hy' : y ≤ -2) (hx' : 0 < x) :
     x / y ≥ -x := by
   obtain ⟨xn, hx⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
   obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
@@ -2395,7 +2395,7 @@ theorem Int.sdiv_pos_le_neg_two_ge (x y : Int) (hy' : y ≤ -2) (hx' : 0 < x) :
   simp only [hx, hy, Nat.succ_eq_add_one, Int.ofNat_eq_coe, ge_iff_le, Int.neg_le_neg_iff, Int.ofNat_le]
   apply Nat.le_trans (m := xn) (by exact Nat.div_le_self xn (yn + 1)) (by omega)
 
-theorem Int.sdiv_pos_le_neg_two_le (x y : Int) (hy' : y ≤ -2) (hx' : 0 < x) :
+theorem sdiv_pos_le_neg_two_le (x y : Int) (hy' : y ≤ -2) (hx' : 0 < x) :
     x / y ≤ 0  := by
   obtain ⟨xn, hx⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
   obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)

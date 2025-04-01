@@ -1349,13 +1349,6 @@ theorem Int.lt_ediv_of_nonpos_of_nonpos {x y: Int} (hx : 0 < x) (hy : y < - 1) (
   omega
   omega
 
-theorem Int.negSucc_ediv_ofNat_eq_negSucc_div_of_ne_zero {n d : Nat} (hd : d ≠ 0) : (Int.negSucc n).ediv ( d) =  - ((1 + (n / d)) : Nat) := by
-  unfold Int.ediv
-  rcases d with rfl | d
-  · contradiction
-  · simp
-    omega
-
 theorem udivOverflow_eq {w : Nat} (x y : BitVec w) :
     x.toNat / y.toNat < 2 ^ w := by
   have hy : y.toNat = 0 ∨ y.toNat = 1 ∨ 1 < y.toNat := by omega
