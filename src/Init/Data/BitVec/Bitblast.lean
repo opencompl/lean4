@@ -1329,26 +1329,6 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
     simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
     rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
 
-theorem Int.le_of_nonpos_of_pos {x : Int} (hx : x ≤ 0) {y : Int} (hy : 0 < y) : x * y ≤ x := by
-  conv => rhs; rw [← Int.mul_one x] -- this is crazy lazy, find the theorem...
-  apply Int.mul_le_mul_of_nonpos_left <;> omega
-
-theorem Int.lt_ediv_of_nonpos_of_nonpos {x y: Int} (hx : 0 < x) (hy : y < - 1) (hy' : - x ≤ y) :
-    (- x) / y < x := by
-  rw [Int.div_def]
-  unfold Int.ediv
-  obtain ⟨xn, hx⟩ := Int.eq_negSucc_of_lt_zero (a := -x) (by omega)
-  obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
-  subst hy
-  rw [hx]
-  simp
-  have : x = 1 + xn := by omega
-  subst this
-  simp [Int.add_comm (a := 1)]
-  apply Nat.div_lt_self
-  omega
-  omega
-
 theorem udivOverflow_eq {w : Nat} (x y : BitVec w) :
     x.toNat / y.toNat < 2 ^ w := by
   have hy : y.toNat = 0 ∨ y.toNat = 1 ∨ 1 < y.toNat := by omega
