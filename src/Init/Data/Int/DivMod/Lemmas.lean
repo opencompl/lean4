@@ -2358,13 +2358,10 @@ theorem sdiv_lt_neg_one_le_neg_two_lt (x y : Int) (hy' : y ≤ -2) (hx' : x < -1
   obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
   simp only [hx, hy, Nat.succ_eq_add_one, Int.ofNat_eq_coe, Int.natCast_add, Int.cast_ofNat_Int]
   norm_cast
-  simp
-  have : 0 < xn := by omega
-  have := Nat.div_lt_iff_lt_mul (x := xn) (k := yn + 1) (y := xn) (by omega)
-  rw [this]
-  have := Nat.mul_lt_mul_of_lt_of_le (a := 1) (b := xn) (c := yn + 1) (d := xn) (by omega) (by omega) (by omega)
-  rw [Nat.one_mul, Nat.mul_comm] at this
-  omega
+  rw [natAbs_negSucc, Nat.succ_eq_add_one, Nat.add_lt_add_iff_right,
+    Nat.div_lt_iff_lt_mul (x := xn) (k := yn + 1) (y := xn) (by omega),
+    show (xn < xn * (yn + 1)) = (1 * xn < (yn + 1) * xn) by rw [Nat.one_mul, Nat.mul_comm]]
+  apply Nat.mul_lt_mul_of_lt_of_le (a := 1) (b := xn) (c := yn + 1) (d := xn) (by omega) (by omega) (by omega)
 
 theorem sdiv_neg_le_neg_two_ge (x y : Int) (hy' : y ≤ -2) (hx' : x < 0) :
     0 ≤ x / y := by
@@ -2372,13 +2369,14 @@ theorem sdiv_neg_le_neg_two_ge (x y : Int) (hy' : y ≤ -2) (hx' : x < 0) :
   unfold Int.ediv
   obtain ⟨xn, hx⟩ := Int.eq_negSucc_of_lt_zero (a := x) (by omega)
   obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
-  simp only [hx, hy, Nat.succ_eq_add_one, Int.ofNat_eq_coe, Int.natCast_add, Int.cast_ofNat_Int]
+  simp only [hx, hy, Nat.succ_eq_add_one, ofNat_eq_coe, Int.natCast_add, cast_ofNat_Int]
   norm_cast
   simp
 
 theorem sdiv_neg_ge_two_ge (x y : Int) (hy' : 2 ≤ y) (hx' : x < 0) :
     x / y ≥ x := by
-  simp [Int.le_ediv_iff_mul_le (c := y) (a := x) (b := x) (by omega), show( x * y ≤ x) = (x * y ≤ x * 1) by rw [Int.mul_one]]
+  simp only [ge_iff_le, Int.le_ediv_iff_mul_le (c := y) (a := x) (b := x) (by omega),
+    show (x * y ≤ x) = (x * y ≤ x * 1) by rw [Int.mul_one], Int.mul_one]
   apply Int.mul_le_mul_of_nonpos_left (a := x) (b := y) (c  := (1 : Int)) (by omega) (by omega)
 
 theorem sdiv_neg_ge_two_lt (x y : Int) (hy' : 2 ≤ y) (hx' : x < 0) :
@@ -2402,7 +2400,6 @@ theorem sdiv_pos_le_neg_two_le (x y : Int) (hy' : y ≤ -2) (hx' : 0 < x) :
   rw [Int.div_def]
   unfold Int.ediv
   simp [hx, hy, Nat.succ_eq_add_one, Int.ofNat_eq_coe, ge_iff_le, Int.neg_le_neg_iff, Int.ofNat_le]
-
 
 /-! Helper theorems for `dvd` simproc -/
 
