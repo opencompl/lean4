@@ -2410,5 +2410,4 @@ protected theorem dvd_eq_false_of_mod_ne_zero {a b : Int} (h : b % a != 0) : (a 
   simp [eq_of_beq] at h
   simp [Int.dvd_iff_emod_eq_zero, h]
 
-
 end Int
