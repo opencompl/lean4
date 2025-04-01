@@ -1381,7 +1381,8 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
         · simp [sdivOverflow, hyOne, hy]
           omega
         · -- we can now reason about signs
-          simp [sdivOverflow, hy]
+          simp only [sdivOverflow, Nat.add_one_sub_one, ge_iff_le, hy, _root_.and_false,
+            decide_false, or_eq_false_iff, decide_eq_false_iff_not, Int.not_le, Int.not_lt]
           by_cases hy' : 0 < y.toInt
           · by_cases hx : 0 < x.toInt
             · -- numerator and denumerator are positive
