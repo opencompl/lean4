@@ -1358,7 +1358,6 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
   · simp only [Nat.add_one_sub_one, ge_iff_le, zero_lt_succ, decide_true, Bool.true_and]
     have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
     have yle := le_two_mul_toInt (x := y); have ylt := two_mul_toInt_lt (x := y)
-    have := Nat.two_pow_pos (w := w)
     simp only [bool_to_prop]
     by_cases hy : y = allOnes (w + 1)
     · -- if y = allOnes (w + 1) the division overflows iff x = intMin (w + 1), as for negation
@@ -1369,9 +1368,7 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
         zero_lt_succ, _root_.and_true, _root_.eq_iff_iff]
       norm_cast
       rw [Nat.mod_eq_of_lt (by apply Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + 1) (by omega) (by omega))]
-    · -- no overflow can happen otherwise
-      have : 0 < 2 ^ w := by omega
-      -- we exclude the case x.toInt / 0 = 0
+    · -- we exclude the case x.toInt / 0 = 0
       by_cases hyZero : y.toInt = 0
       · simp [sdivOverflow, hyZero, hy]
         omega
@@ -1392,12 +1389,10 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
             · -- numerator is negative, denumerator is positive
               by_cases hxZero : x.toInt = 0
               · simp [hxZero]; omega
-              · have : x.toInt < 0 := by omega
-                have := Int.sdiv_neg_ge_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
+              · have := Int.sdiv_neg_ge_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
                 have := Int.sdiv_neg_ge_two_lt (x := x.toInt) (y := y.toInt) (by omega) (by omega)
                 omega
-          · rw [← toInt_inj, toInt_allOnes] at hy
-            simp only [show 0 < w + 1 by omega, ↓reduceIte, Int.reduceNeg] at hy
+          · simp only [← toInt_inj, toInt_allOnes, show 0 < w + 1 by omega, ↓reduceIte, Int.reduceNeg] at hy
             by_cases hx : 0 < x.toInt
             · -- numerator is positive, denumerator is negative
               have := Int.sdiv_pos_le_neg_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
@@ -1407,10 +1402,7 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
               by_cases hxZero : x.toInt = 0
               · simp [hxZero]; omega
               · by_cases hxNegOne : x.toInt = - 1
-                · have : y.toInt.sign = -1 := by
-                    simp [hy, hy', hyOne, hyZero]
-                    omega
-                  simp [hxNegOne, Int.neg_one_ediv]
+                · simp [hxNegOne, Int.neg_one_ediv, show y.toInt.sign = -1 by simp; omega]
                   omega
                 · have := Int.sdiv_lt_neg_one_le_neg_two_lt (x := x.toInt) (y := y.toInt) (by omega) (by omega)
                   have := Int.sdiv_neg_le_neg_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
