@@ -439,7 +439,17 @@ may throw an exception of type `IO.Error`, the result of the task is an `Except 
     (prio := Task.Priority.default) (sync := false) : BaseIO (Task (Except IO.Error β)) :=
   EIO.bindTask t f prio sync
 
-/-- `IO` specialization of `EIO.chainTask`. -/
+/--
+Creates a new task that waits for `t` to complete and then runs the `IO` action `f` on its result.
+This new task has priority `prio`.
+
+This is a version of `IO.mapTask` that ignores the result value.
+
+Running the resulting `IO` action causes the task to be started eagerly. Unlike pure tasks created
+by `Task.spawn`, tasks created by this function will run even if the last reference to the task is
+dropped. The act should explicitly check for cancellation via `IO.checkCanceled` if it should be
+terminated or otherwise react to the last reference being dropped.
+-/
 def chainTask (t : Task α) (f : α → IO Unit) (prio := Task.Priority.default)
     (sync := false) : IO Unit :=
   EIO.chainTask t f prio sync
@@ -1357,8 +1367,7 @@ A child process that was spawned with configuration `cfg`.
 The configuration determines whether the child process's standard input, standard output, and
 standard error are `IO.FS.Handle`s or `Unit`.
 -/
--- TODO(Sebastian): constructor must be private
-structure Child (cfg : StdioConfig) where
+structure Child (cfg : StdioConfig) where private mk ::
   /--
   The child process's standard input handle, if it was configured as `IO.Process.Stdio.piped`, or
   `()` otherwise.
@@ -1418,6 +1427,9 @@ standard input is exhausted.
 @[extern "lean_io_process_child_take_stdin"] opaque Child.takeStdin {cfg : @& StdioConfig} : Child cfg →
     IO (cfg.stdin.toHandleType × Child { cfg with stdin := Stdio.null })
 
+/-- Returns the operating system process id of the child process. -/
+@[extern "lean_io_process_child_pid"] opaque Child.pid {cfg : @& StdioConfig} : Child cfg → UInt32
+
 /--
 The result of running a process to completion.
 -/
@@ -1472,8 +1484,11 @@ The `FileRight` structure describes these permissions for a file's owner, member
 group, and all others.
 -/
 structure AccessRight where
+  /-- The file can be read. -/
   read : Bool := false
+  /-- The file can be written to. -/
   write : Bool := false
+  /-- The file can be executed. -/
   execution : Bool := false
 
 /--
