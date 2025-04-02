@@ -1329,28 +1329,6 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
     simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
     rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
 
-theorem not_udivOverflow {w : Nat} (x y : BitVec w) :
-    x.toNat / y.toNat < 2 ^ w := by
-  have hy : y.toNat = 0 ∨ y.toNat = 1 ∨ 1 < y.toNat := by omega
-  rcases hy with hy|hy|hy
-  · simp [hy]; omega
-  · simp [hy]; omega
-  · rw [Nat.div_lt_iff_lt_mul (k := y.toNat) (x := x.toNat) (y := 2 ^ w) (by omega), show x.toNat = x.toNat * 1 by omega]
-    apply Nat.mul_lt_mul_of_le_of_lt (by omega) (by omega) (by omega)
-
-theorem sdivOverflow_allOnes_eq_negOverflow {w : Nat} (x y : BitVec w) (hy : y = allOnes w) :
-    sdivOverflow x y = negOverflow x := by
-  simp only [sdivOverflow, hy, toInt_allOnes, Int.reduceNeg, ge_iff_le, negOverflow]
-  rcases w with _|w
-  · simp [of_length_zero]
-  · simp only [Nat.add_one_sub_one, zero_lt_succ, ↓reduceIte, Int.reduceNeg, Int.ediv_neg,
-      Int.ediv_one, Int.neg_lt_neg_iff]
-    have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
-    simp only [bool_to_prop]
-    by_cases hx : x.toInt = - 2 ^ w
-    · simp [hx]
-    · simp [show ¬x.toInt == -2 ^ w by simp only [beq_iff_eq, hx, not_false_eq_true]]; omega
-
 theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
     (sdivOverflow x y) = (decide (0 < w) && (x = intMin w) && (y = allOnes w)) := by
   rcases w with _|w
@@ -1361,11 +1339,10 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
     simp only [bool_to_prop]
     by_cases hy : y = allOnes (w + 1)
     · -- if y = allOnes (w + 1) the division overflows iff x = intMin (w + 1), as for negation
-      rw [sdivOverflow_allOnes_eq_negOverflow (x := x) (y := y) hy, negOverflow]
-      simp only [Nat.add_one_sub_one, hy, _root_.and_true, beq_eq_decide_eq, decide_eq_decide]
-      refine Eq.to_iff ?_
-      simp only [Nat.add_one_sub_one, beq_iff_eq, ← toInt_inj, toInt_intMin, Int.ofNat_emod,
-        zero_lt_succ, _root_.and_true, _root_.eq_iff_iff]
+      rw [BitVec.sdivOverflow_eq_negOverflow_of_allOnes (x := x) (y := y) hy, negOverflow,
+        Nat.add_one_sub_one, decide_and]
+      simp only [beq_eq_decide_eq, ← toInt_inj, toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod,
+        hy, decide_true, Bool.and_true, decide_eq_decide]
       norm_cast
       rw [Nat.mod_eq_of_lt (by apply Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + 1) (by omega) (by omega))]
     · -- we exclude the case x.toInt / 0 = 0
@@ -1383,30 +1360,28 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
           by_cases hy' : 0 < y.toInt
           · by_cases hx : 0 < x.toInt
             · -- numerator and denumerator are positive
-              have := Int.sdiv_pos_ge_two_lt (x := x.toInt) (y := y.toInt) (by omega) (by omega)
-              have := Int.sdiv_pos_ge_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
-              omega
-            · -- numerator is negative, denumerator is positive
-              by_cases hxZero : x.toInt = 0
+              suffices x.toInt / y.toInt < 2 ^ w ∧ 0 ≤ x.toInt / y.toInt by omega
+              apply BitVec.toInt_sdiv_le_two_pow_zero_le_toInt_sdiv_of_two_le_zero_lt (x := x) (y := y) (by omega) (by omega)
+            · by_cases hxZero : x.toInt = 0
               · simp [hxZero]; omega
-              · have := Int.sdiv_neg_ge_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
-                have := Int.sdiv_neg_ge_two_lt (x := x.toInt) (y := y.toInt) (by omega) (by omega)
-                omega
+              · -- numerator is negative, denumerator is positive
+                suffices x.toInt / y.toInt < 0 ∧ - 2 ^ w ≤ x.toInt / y.toInt by omega
+                apply BitVec.toInt_sdiv_lt_zero_neg_two_pow_le_toInt_sdiv_of_two_le_lt_zero (x := x) (y := y) (by omega) (by omega) (by omega)
           · simp only [← toInt_inj, toInt_allOnes, show 0 < w + 1 by omega, ↓reduceIte, Int.reduceNeg] at hy
             by_cases hx : 0 < x.toInt
             · -- numerator is positive, denumerator is negative
-              have := Int.sdiv_pos_le_neg_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
-              have := Int.sdiv_pos_le_neg_two_le (x := x.toInt) (y := y.toInt) (by omega) (by omega)
-              omega
+              suffices x.toInt / y.toInt ≤  0 ∧ - 2 ^ w ≤ x.toInt / y.toInt by omega
+              apply BitVec.toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt (x := x) (y := y) (by omega) (by omega) (by omega)
             · -- numerator and denumerator are negative
               by_cases hxZero : x.toInt = 0
               · simp [hxZero]; omega
               · by_cases hxNegOne : x.toInt = - 1
                 · simp [hxNegOne, Int.neg_one_ediv, show y.toInt.sign = -1 by simp; omega]
                   omega
-                · have := Int.sdiv_lt_neg_one_le_neg_two_lt (x := x.toInt) (y := y.toInt) (by omega) (by omega)
-                  have := Int.sdiv_neg_le_neg_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
-                  omega
+                · sorry
+  --               · have := Int.sdiv_lt_neg_one_le_neg_two_lt (x := x.toInt) (y := y.toInt) (by omega) (by omega)
+  --                 have := Int.sdiv_neg_le_neg_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
+  --                 omega
 
 /- ### umod -/
 
