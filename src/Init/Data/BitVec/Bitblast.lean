@@ -1409,13 +1409,9 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
               · by_cases hxNegOne : x.toInt = - 1
                 · simp [hxNegOne, Int.neg_one_ediv, show y.toInt.sign = -1 by simp; omega]
                   omega
-                · suffices 0 ≤ x.toInt / y.toInt ∧ - 2 ^ w ≤ x.toInt / y.toInt by omega
+                · suffices 0 ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt < 2 ^ w by omega
                   have := BitVec.zero_le_toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt (x := x) (y := y) (by omega) (by omega)
-
-                  sorry
-  --               · have := Int.sdiv_lt_neg_one_le_neg_two_lt (x := x.toInt) (y := y.toInt) (by omega) (by omega)
-  --                 have := Int.sdiv_neg_le_neg_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
-  --                 omega
+                  simp at this; omega
 
 /- ### umod -/
 
