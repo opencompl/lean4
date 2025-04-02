@@ -1366,19 +1366,24 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
               · simp [hxZero]; omega
               · -- numerator is negative, denumerator is positive
                 suffices x.toInt / y.toInt < 0 ∧ - 2 ^ w ≤ x.toInt / y.toInt by omega
-                apply BitVec.toInt_sdiv_lt_zero_neg_two_pow_le_toInt_sdiv_of_two_le_lt_zero (x := x) (y := y) (by omega) (by omega) (by omega)
+                have :=  BitVec.toInt_sdiv_lt_zero_neg_two_pow_le_toInt_sdiv_of_two_le_lt_zero (x := x) (y := y) (by omega) (by omega) (by omega)
+                simp at this; omega
           · simp only [← toInt_inj, toInt_allOnes, show 0 < w + 1 by omega, ↓reduceIte, Int.reduceNeg] at hy
             by_cases hx : 0 < x.toInt
             · -- numerator is positive, denumerator is negative
               suffices x.toInt / y.toInt ≤  0 ∧ - 2 ^ w ≤ x.toInt / y.toInt by omega
-              apply BitVec.toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt (x := x) (y := y) (by omega) (by omega) (by omega)
+              have := BitVec.toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt (x := x) (y := y) (by omega) (by omega) (by omega)
+              simp at this; omega
             · -- numerator and denumerator are negative
               by_cases hxZero : x.toInt = 0
               · simp [hxZero]; omega
               · by_cases hxNegOne : x.toInt = - 1
                 · simp [hxNegOne, Int.neg_one_ediv, show y.toInt.sign = -1 by simp; omega]
                   omega
-                · sorry
+                · suffices 0 ≤ x.toInt / y.toInt ∧ - 2 ^ w ≤ x.toInt / y.toInt by omega
+                  have := BitVec.zero_le_toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt (x := x) (y := y) (by omega) (by omega)
+
+                  sorry
   --               · have := Int.sdiv_lt_neg_one_le_neg_two_lt (x := x.toInt) (y := y.toInt) (by omega) (by omega)
   --                 have := Int.sdiv_neg_le_neg_two_ge (x := x.toInt) (y := y.toInt) (by omega) (by omega)
   --                 omega

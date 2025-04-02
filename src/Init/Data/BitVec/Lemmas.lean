@@ -3911,14 +3911,6 @@ theorem zero_le_toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_
     have := Int.udiv_lt_natAbs_self_of_le_neg_two_lt_neg_one (x := x.toInt) (y := y.toInt) hy hx
     simp; omega
 
-theorem fragola {w : Nat} {x y : BitVec w} (hy : y.toInt ≤ -2) (hx : x.toInt < -1) :
-    0 ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt < 2 ^ (w - 1):= by
-  rcases w with _|w
-  · simp [of_length_zero]
-  · have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
-    have := Int.zero_le_udiv_of_le_neg_two_lt_zero (x := x.toInt) (y := y.toInt) hy (by omega)
-    have := Int.udiv_lt_natAbs_self_of_le_neg_two_lt_neg_one (x := x.toInt) (y := y.toInt) hy hx
-    simp; omega
 
 -- this would be useful but is a bit of a pain
 -- theorem sdiv_of_neg_one {w : Nat} {y : BitVec w} (hy : ¬ y = 0#w):
