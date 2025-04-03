@@ -4052,15 +4052,41 @@ theorem toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt {w : 
       have := Int.neg_self_le_udiv_of_le_neg_two_zero_lt (x := x.toInt) (y := y.toInt) hy hx
       simp; omega
 
+theorem toInt_sdiv_one {x y : BitVec 1} :
+    x.toInt / y.toInt = x &&& y := by
+  have hx := eq_zero_or_eq_one (a := x)
+  have hy := eq_zero_or_eq_one (a := y)
+  rcases hx with hx|hx <;> rcases hy with hy|hy
+  <;> (simp [hx, hy]; norm_cast)
+
+theorem sdiv_of_neg_one {w : Nat} {y : BitVec w} (hy : ¬ y.toInt = 0) (hw : 1 < w) :
+    (allOnes w).toInt / y.toInt = if 0 < y.toInt then (allOnes w).toInt else (1#w).toInt := by
+  rcases w with _|_|w
+  · simp [hw]
+  · simp [hw]; omega
+  · by_cases 0 < y.toInt
+    · simp [hy, Int.sign_eq_one_of_pos (a := y.toInt) (by omega), Int.neg_one_ediv]
+      omega
+    · simp [hy, Int.sign_eq_neg_one_of_neg (a := y.toInt) (by omega), Int.neg_one_ediv]
+      omega
+
 -- non-overflowing signed division bounds when numerator is negative, denumerator is negative
-theorem zero_le_toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt {w : Nat} {x y : BitVec w} (hy : y.toInt ≤ -2) (hx : x.toInt < -1) :
+theorem zero_le_toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt {w : Nat} {x y : BitVec w} (hy : y.toInt ≤ -2) (hx : x.toInt < 0) :
     0 ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt < 2 ^ (w - 1):= by
-  rcases w with _|w
+  rcases w with _|_|w
   · simp [of_length_zero]
+  · have hy := eq_zero_or_eq_one (a := y)
+    simp [← toInt_inj, toInt_zero, toInt_one] at hy
+    omega
   · have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
     have := Int.zero_le_udiv_of_le_neg_two_lt_zero (x := x.toInt) (y := y.toInt) hy (by omega)
-    have := Int.udiv_lt_natAbs_self_of_le_neg_two_lt_neg_one (x := x.toInt) (y := y.toInt) hy hx
-    simp; omega
+    by_cases hx' : x.toInt = - 1
+    · have := BitVec.sdiv_of_neg_one (y := y) (by omega) (by omega)
+      simp [toInt_allOnes] at this
+      simp [hx', this]
+      omega
+    · have := Int.udiv_lt_natAbs_self_of_le_neg_two_lt_neg_one (x := x.toInt) (y := y.toInt) hy (by omega)
+      simp; omega
 
 /-! ### smtSDiv -/
 
