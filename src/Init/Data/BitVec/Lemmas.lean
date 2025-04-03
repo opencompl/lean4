@@ -4062,21 +4062,6 @@ theorem zero_le_toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_
     have := Int.udiv_lt_natAbs_self_of_le_neg_two_lt_neg_one (x := x.toInt) (y := y.toInt) hy hx
     simp; omega
 
-
--- this would be useful but is a bit of a pain
--- theorem sdiv_of_neg_one {w : Nat} {y : BitVec w} (hy : ¬ y = 0#w):
---     (allOnes w).sdiv y = if 0#w < y then allOnes w else 1#w := by
---   rcases w with _|w
---   · simp [of_length_zero]
---   · by_cases hy' : y.msb
---     · have yle := le_two_mul_toInt (x := y); have ylt := two_mul_toInt_lt (x := y)
---       have : y.toNat < 2 ^ (w + 1) := by omega
---       have yToNat := toInt_eq_toNat_of_lt (x := y) (by sorry)
---       have : (allOnes (w + 1)).msb = true := by simp [BitVec.msb, getMsbD_allOnes]
---       simp [BitVec.sdiv_eq, hy, hy', this]
---       sorry
---       sorry
-
 /-! ### smtSDiv -/
 
 theorem smtSDiv_eq (x y : BitVec w) : smtSDiv x y =
