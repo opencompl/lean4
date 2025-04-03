@@ -1372,20 +1372,17 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
   · y.toInt = 0 → x.toInt / y.toInt = 0
   · y.toInt = 1 → x.toInt / y.toInt = x.toInt
   · x.toInt = 0 → x.toInt / y.toInt = 0
-  · x.toInt = -1 → x.toInt / y.toInt = - y.toInt.sign
+
   We can then reason about the signs of the operands. All these cases rely on respective
   theorems specifying the bounds of signed division once the special cases are excluded:
   · BitVec.toInt_sdiv_le_two_pow_zero_le_toInt_sdiv_of_two_le_zero_lt when 2 ≤ y.toInt and 0 < x.toInt
   · BitVec.toInt_sdiv_lt_zero_neg_two_pow_le_toInt_sdiv_of_two_le_lt_zero when 2 ≤ y.toInt and x.toInt < 0
   · BitVec.toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt when y.toInt ≤ -2 and 0 < x.toInt
   · BitVec.zero_le_toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt when y.toInt ≤ -2 and x.toInt < 0
-    Note within this last cases requires tackling the case where x.toInt = -1 separately, to show that
-    when x.toInt = -1 and y.toInt ≤ -2 we have x.toInt = 1 ∨ x.toInt = - 1,
 
-    since zero_le_toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt
-
+  These BitVec theorems themselves rely on numerous Int.udiv_* theorems, that carefully
+  set the bounds of signed division for integers.
 -/
-
 theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
     (sdivOverflow x y) = (decide (0 < w) && (x = intMin w) && (y = allOnes w)) := by
   rcases w with _|w
@@ -1419,18 +1416,17 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
           · by_cases hy' : 0 < y.toInt
             · by_cases hx : 0 < x.toInt
               · -- numerator and denumerator are positive
-                suffices x.toInt / y.toInt < 2 ^ w ∧ 0 ≤ x.toInt / y.toInt by omega
-                apply BitVec.toInt_sdiv_le_two_pow_zero_le_toInt_sdiv_of_two_le_zero_lt
+                have := BitVec.toInt_sdiv_le_two_pow_zero_le_toInt_sdiv_of_two_le_zero_lt
                       (x := x) (y := y) (by omega) (by omega)
+                simp at this; omega
               · -- numerator is negative, denumerator is positive
-                suffices x.toInt / y.toInt < 0 ∧ - 2 ^ w ≤ x.toInt / y.toInt by omega
                 have :=  BitVec.toInt_sdiv_lt_zero_neg_two_pow_le_toInt_sdiv_of_two_le_lt_zero
                       (x := x) (y := y) (by omega) (by omega) (by omega)
                 simp at this; omega
-            · simp only [← toInt_inj, toInt_allOnes, show 0 < w + 1 by omega, ↓reduceIte, Int.reduceNeg] at hy
+            · simp only [← toInt_inj, toInt_allOnes, show 0 < w + 1 by omega, ↓reduceIte,
+              Int.reduceNeg] at hy
               by_cases hx : 0 < x.toInt
               · -- numerator is positive, denumerator is negative
-                suffices x.toInt / y.toInt ≤  0 ∧ - 2 ^ w ≤ x.toInt / y.toInt by omega
                 have := BitVec.toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt
                       (x := x) (y := y) (by omega) (by omega) (by omega)
                 simp at this; omega
