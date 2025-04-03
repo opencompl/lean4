@@ -1376,10 +1376,10 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
 
   We can then reason about the signs of the operands. All these cases rely on respective
   theorems specifying the bounds of signed division once the special cases are excluded:
-  · BitVec.toInt_sdiv_le_two_pow_zero_le_toInt_sdiv_of_two_le_zero_lt when 2 ≤ y.toInt and 0 < x.toInt
-  · BitVec.toInt_sdiv_lt_zero_neg_two_pow_le_toInt_sdiv_of_two_le_lt_zero when 2 ≤ y.toInt and x.toInt < 0
-  · BitVec.toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt when y.toInt ≤ -2 and 0 < x.toInt
-  · BitVec.zero_le_toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt when y.toInt ≤ -2 and x.toInt < 0
+  · BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_two_le_of_pos when 2 ≤ y.toInt and 0 < x.toInt
+  · BitVec.neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_two_le_of_neg when 2 ≤ y.toInt and x.toInt < 0
+  · BitVec.neg_two_pow_le_sdiv_and_sdiv_le_zero_of_le_neg_two_of_pos when y.toInt ≤ -2 and 0 < x.toInt
+  · BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_le_neg_two_of_neg when y.toInt ≤ -2 and x.toInt < 0
 
   These BitVec theorems themselves rely on numerous Int.udiv_* theorems, that carefully
   set the bounds of signed division for integers.
@@ -1417,22 +1417,22 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
           · by_cases hy' : 0 < y.toInt
             · by_cases hx : 0 < x.toInt
               · -- numerator and denumerator are positive
-                have := BitVec.toInt_sdiv_le_two_pow_zero_le_toInt_sdiv_of_two_le_zero_lt
+                have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_two_le_of_pos
                       (x := x) (y := y) (by omega) (by omega)
                 simp at this; omega
               · -- numerator is negative, denumerator is positive
-                have :=  BitVec.toInt_sdiv_lt_zero_neg_two_pow_le_toInt_sdiv_of_two_le_lt_zero
+                have :=  BitVec.neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_two_le_of_neg
                       (x := x) (y := y) (by omega) (by omega) (by omega)
                 simp at this; omega
             · simp only [← toInt_inj, toInt_allOnes, show 0 < w + 1 by omega, ↓reduceIte,
               Int.reduceNeg] at hy
               by_cases hx : 0 < x.toInt
               · -- numerator is positive, denumerator is negative
-                have := BitVec.toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt
+                have := BitVec.neg_two_pow_le_sdiv_and_sdiv_le_zero_of_le_neg_two_of_pos
                       (x := x) (y := y) (by omega) (by omega) (by omega)
                 simp at this; omega
               · -- numerator and denumerator are negative
-                have := BitVec.zero_le_toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt
+                have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_le_neg_two_of_neg
                       (x := x) (y := y) (by omega) (by omega)
                 simp at this; omega
 

@@ -4037,8 +4037,8 @@ theorem toNat_udiv_lt {w : Nat} {x y : BitVec w} :
     apply Nat.mul_lt_mul_of_le_of_lt (by omega) (by omega) (by omega)
 
 -- non-overflowine signed division bounds when numerator is positive, denumerator is positive
-theorem toInt_sdiv_le_two_pow_zero_le_toInt_sdiv_of_two_le_zero_lt {w : Nat} {x y : BitVec w} (hy : 2 ≤ y.toInt) (hx : 0 < x.toInt) :
-    x.toInt / y.toInt < 2 ^ (w - 1) ∧ 0 ≤ x.toInt / y.toInt := by
+theorem zero_le_sdiv_and_sdiv_lt_two_pow_of_two_le_of_pos {w : Nat} {x y : BitVec w} (hy : 2 ≤ y.toInt) (hx : 0 < x.toInt) :
+    0 ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt < 2 ^ (w - 1) := by
   rcases w with _|w
   · simp [of_length_zero]
   · have := Int.udiv_lt_self_of_two_le_zero_lt (x := x.toInt) (y := y.toInt) hy hx
@@ -4047,7 +4047,7 @@ theorem toInt_sdiv_le_two_pow_zero_le_toInt_sdiv_of_two_le_zero_lt {w : Nat} {x 
     simp; omega
 
 -- non-overflowing signed division bounds when numerator is negative, denumerator is positive
-theorem toInt_sdiv_lt_zero_neg_two_pow_le_toInt_sdiv_of_two_le_lt_zero {w : Nat} {x y : BitVec w} (hy : 2 ≤ y.toInt) (hx : x.toInt < 0) (hw : 0 < w) :
+theorem neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_two_le_of_neg {w : Nat} {x y : BitVec w} (hy : 2 ≤ y.toInt) (hx : x.toInt < 0) (hw : 0 < w) :
     - 2 ^ (w - 1) ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt < 0 := by
   rcases w with _|w
   · simp [hw]; omega
@@ -4057,7 +4057,7 @@ theorem toInt_sdiv_lt_zero_neg_two_pow_le_toInt_sdiv_of_two_le_lt_zero {w : Nat}
     simp; omega
 
 -- non-overflowing signed division bounds when numerator is positive, denumerator is negative
-theorem toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt {w : Nat} {x y : BitVec w} (hy : y.toInt ≤ -2) (hx : 0 < x.toInt) (hw : 0 < w) :
+theorem neg_two_pow_le_sdiv_and_sdiv_le_zero_of_le_neg_two_of_pos {w : Nat} {x y : BitVec w} (hy : y.toInt ≤ -2) (hx : 0 < x.toInt) (hw : 0 < w) :
     - 2 ^ (w - 1) ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt ≤ 0 := by
   rcases w with _|w
   · simp [hw]; omega
@@ -4087,8 +4087,8 @@ theorem sdiv_eq_of_neg_one {w : Nat} {y : BitVec w} (hy : ¬ y.toInt = 0) (hw : 
       omega
 
 -- non-overflowing signed division bounds when numerator is negative, denumerator is negative
-theorem zero_le_toInt_sdiv_le_zero_neg_two_pow_le_toInt_sdiv_of_le_neg_two_zero_lt {w : Nat} {x y : BitVec w} (hy : y.toInt ≤ -2) (hx : x.toInt < 0) :
-    0 ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt < 2 ^ (w - 1):= by
+theorem zero_le_sdiv_and_sdiv_lt_two_pow_of_le_neg_two_of_neg {w : Nat} {x y : BitVec w} (hy : y.toInt ≤ -2) (hx : x.toInt < 0) :
+    0 ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt < 2 ^ (w - 1) := by
   rcases w with _|_|w
   · simp [of_length_zero]
   · have hy := eq_zero_or_eq_one (a := y)
