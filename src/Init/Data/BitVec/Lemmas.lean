@@ -4036,7 +4036,7 @@ theorem toNat_udiv_lt {w : Nat} {x y : BitVec w} :
   · rw [Nat.div_lt_iff_lt_mul (k := y.toNat) (x := x.toNat) (y := 2 ^ w) (by omega), show x.toNat = x.toNat * 1 by omega]
     apply Nat.mul_lt_mul_of_le_of_lt (by omega) (by omega) (by omega)
 
--- non-overflowine signed division bounds when numerator is positive, denumerator is positive
+-- non-overflowing signed division bounds when numerator is positive, denumerator is positive
 theorem zero_le_sdiv_and_sdiv_lt_two_pow_of_two_le_of_pos {w : Nat} {x y : BitVec w} (hy : 2 ≤ y.toInt) (hx : 0 < x.toInt) :
     0 ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt < 2 ^ (w - 1) := by
   rcases w with _|w
