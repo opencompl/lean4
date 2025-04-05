@@ -2356,7 +2356,7 @@ theorem bmod_neg_bmod : bmod (-(bmod x n)) n = bmod (-x) n := by
 
 /- ### udiv, ediv -/
 
-theorem udiv_lt_self_of_two_le_zero_lt (x y : Int) (hy' : 2 ≤ y) (hx' : 0 < x):
+theorem ediv_lt_self_of_two_le_of_zero_lt (x y : Int) (hy' : 2 ≤ y) (hx' : 0 < x):
     x / y < x := by
   rw [Int.div_def]
   unfold Int.ediv
