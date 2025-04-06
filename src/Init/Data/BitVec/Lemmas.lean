@@ -4068,16 +4068,18 @@ theorem neg_two_pow_le_sdiv_and_sdiv_le_zero_of_pos_of_le_neg_two_of_zero_lt {w 
       have := Int.neg_self_le_ediv_of_pos_of_neg (x := x.toInt) (y := y.toInt) hx (by omega)
       simp; omega
 
-theorem sdiv_eq_of_neg_one {w : Nat} {y : BitVec w} (hy : ¬ y.toInt = 0) (hw : 1 < w) :
-    (allOnes w).toInt / y.toInt = if 0 < y.toInt then (allOnes w).toInt else (1#w).toInt := by
+theorem toInt_allOnes_sdiv_toInt_of_ne_zero {w : Nat} {y : BitVec w} (hw : 1 < w) :
+    (allOnes w).toInt / y.toInt = if y.toInt = 0 then 0 else if 0 < y.toInt then -1 else 1 := by
   rcases w with _|_|w
-  · simp [hw]
+  · simp [hw]; omega
   · simp [hw]; omega
   · by_cases 0 < y.toInt
-    · simp [hy, Int.sign_eq_one_of_pos (a := y.toInt) (by omega), Int.neg_one_ediv]
+    · simp [Int.sign_eq_one_of_pos (a := y.toInt) (by omega), Int.neg_one_ediv]
       omega
-    · simp [hy, Int.sign_eq_neg_one_of_neg (a := y.toInt) (by omega), Int.neg_one_ediv]
-      omega
+    · by_cases hy : y.toInt = 0
+      · simp [hy]
+      · simp [Int.sign_eq_neg_one_of_neg (a := y.toInt) (by omega), Int.neg_one_ediv]
+        omega
 
 -- non-overflowing signed division bounds when numerator is negative, denumerator is negative
 theorem zero_le_sdiv_and_sdiv_lt_two_pow_of_neg_of_le_neg_two {w : Nat} {x y : BitVec w} (hx : x.toInt < 0) (hy : y.toInt ≤ -2)  :
@@ -4090,7 +4092,7 @@ theorem zero_le_sdiv_and_sdiv_lt_two_pow_of_neg_of_le_neg_two {w : Nat} {x y : B
   · have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
     have := Int.nonneg_ediv_of_neg_of_neg (x := x.toInt) (y := y.toInt) hx (by omega)
     by_cases hx' : x.toInt = - 1
-    · have := BitVec.sdiv_eq_of_neg_one (y := y) (by omega) (by omega)
+    · have := BitVec.toInt_allOnes_sdiv_toInt_of_ne_zero (y := y) (by omega)
       simp [toInt_allOnes] at this
       simp [hx', this]
       omega
