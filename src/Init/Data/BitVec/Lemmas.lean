@@ -4041,15 +4041,12 @@ theorem zero_le_sdiv_and_sdiv_lt_two_pow_of_pos_of_pos {w : Nat} {x y : BitVec w
     0 ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt < 2 ^ (w - 1) := by
   rcases w with _|w
   · simp [of_length_zero]
-  · by_cases hy' : y.toInt = 1
-    -- if y.toInt = 1 and 0 < x.toInt, then x.toInt / 1 = x.toInt < 2 ^ w
-    · have hpos := toInt_pos_iff (x := x)
-      simp only [hy', Int.ediv_one, Nat.add_one_sub_one, toInt_eq_toNat_cond]
-      rw_mod_cast [Nat.pow_add, Nat.pow_one, Nat.mul_comm, Nat.mul_lt_mul_right (by omega)] at hpos
-      omega
+  · -- if y.toInt = 1 and 0 < x.toInt, then x.toInt / 1 = x.toInt < 2 ^ w
+    have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
+    by_cases hy' : y.toInt = 1
+    · simp [hy', Int.ediv_one]; omega
     · have := Int.ediv_lt_self_of_pos_of_one_lt (x := x.toInt) (y := y.toInt) hx (by omega)
       have := Int.nonneg_ediv_of_pos_of_nonneg (x := x.toInt) (y := y.toInt) hx (by omega)
-      have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
       simp; omega
 
 -- non-overflowing signed division bounds when numerator is negative, denumerator is positive
