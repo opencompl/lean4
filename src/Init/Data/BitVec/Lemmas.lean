@@ -4041,7 +4041,7 @@ theorem zero_le_sdiv_and_sdiv_lt_two_pow_of_two_le_of_pos {w : Nat} {x y : BitVe
     0 ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt < 2 ^ (w - 1) := by
   rcases w with _|w
   · simp [of_length_zero]
-  · have := Int.udiv_lt_self_of_two_le_zero_lt (x := x.toInt) (y := y.toInt) hy hx
+  · have := Int.ediv_lt_self_of_two_le_of_zero_lt (x := x.toInt) (y := y.toInt) hy hx
     have := Int.zero_le_udiv_of_two_le_zero_lt (x := x.toInt) (y := y.toInt) hy hx
     have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
     simp; omega
