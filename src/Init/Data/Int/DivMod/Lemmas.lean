@@ -2356,7 +2356,7 @@ theorem bmod_neg_bmod : bmod (-(bmod x n)) n = bmod (-x) n := by
 
 /- ### ediv -/
 
-theorem ediv_lt_self_of_pos_of_two_le (x y : Int) (hx' : 0 < x) (hy' : 2 ≤ y) :
+theorem ediv_lt_self_of_pos_of_one_lt (x y : Int) (hx' : 0 < x) (hy' : 1 < y) :
     x / y < x := by
   rw [Int.div_def]
   unfold Int.ediv
@@ -2378,7 +2378,7 @@ theorem nonneg_ediv_of_pos_of_nonneg (x y : Int) (hx' : 0 < x) (hy' : 0 ≤ y) :
 /-!
   needs a stricter bound on x, in fact (-1)/(-2) = 1 and 1 < (-1).natAbs is not true
 -/
-theorem ediv_lt_natAbs_self_of_lt_neg_one_of_le_neg_two (x y : Int) (hx' : x < -1) (hy' : y ≤ -2) :
+theorem ediv_lt_natAbs_self_of_lt_neg_one_of_lt_neg_one (x y : Int) (hx' : x < -1) (hy' : y < -1) :
     x / y < x.natAbs := by
   rw [Int.div_def]
   unfold Int.ediv
