@@ -1387,25 +1387,24 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
     (sdivOverflow x y) = (decide (0 < w) && (x = intMin w) && (y = allOnes w)) := by
   rcases w with _|w
   · simp [sdivOverflow, of_length_zero]
-  · simp only [Nat.add_one_sub_one, ge_iff_le, zero_lt_succ, decide_true, Bool.true_and]
-    have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
-    have yle := le_two_mul_toInt (x := y); have ylt := two_mul_toInt_lt (x := y)
+  · have yle := le_two_mul_toInt (x := y); have ylt := two_mul_toInt_lt (x := y)
     simp only [bool_to_prop]
+    -- treat case x.toInt / - 1
+    -- if y = allOnes (w + 1), thus y.toInt = -1
+    -- the division overflows iff x = intMin (w + 1), as for negation
     by_cases hy : y = allOnes (w + 1)
-    · -- if y = allOnes (w + 1) the division overflows iff x = intMin (w + 1), as for negation
-      simp [sdivOverflow_eq_negOverflow_of_allOnes, negOverflow_eq, ← hy, beq_eq_decide_eq]
-    · -- we exclude the case x.toInt / 0 = 0
+    · simp [sdivOverflow_eq_negOverflow_of_allOnes, negOverflow_eq, ← hy, beq_eq_decide_eq]
+    · -- treat case x.toInt / 0 = 0
       by_cases hyZero : y.toInt = 0
       · simp [sdivOverflow, hyZero, hy]
         omega
-      · -- we exclude the case x.toInt / 1 = x.toInt
-        -- note that x.toInt < 0 → x.toInt / 1 < 0 : even if x.toInt = - 2 ^ w there is no overflow
-        -- we can now reason about signs
-        simp only [sdivOverflow, Nat.add_one_sub_one, ge_iff_le, hy, _root_.and_false,
+      · simp only [sdivOverflow, Nat.add_one_sub_one, ge_iff_le, hy, _root_.and_false,
           decide_false, or_eq_false_iff, decide_eq_false_iff_not, Int.not_le, Int.not_lt]
+        -- treat case 0 / x.toInt = 0
         by_cases hxZero : x.toInt = 0
         · simp [hxZero]; omega
-        · by_cases hy' : 0 < y.toInt
+        · -- reason about signs
+          by_cases hy' : 0 < y.toInt
           · by_cases hx : 0 < x.toInt
             · -- numerator and denumerator are positive
               have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_pos_of_pos
