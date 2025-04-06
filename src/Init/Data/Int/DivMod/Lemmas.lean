@@ -2354,9 +2354,9 @@ theorem bmod_neg_bmod : bmod (-(bmod x n)) n = bmod (-x) n := by
   apply (bmod_add_cancel_right x).mp
   rw [Int.add_left_neg, ← add_bmod_bmod, Int.add_left_neg]
 
-/- ### udiv, ediv -/
+/- ### ediv -/
 
-theorem ediv_lt_self_of_two_le_of_zero_lt (x y : Int) (hy' : 2 ≤ y) (hx' : 0 < x):
+theorem ediv_lt_self_of_pos_of_two_le (x y : Int) (hx' : 0 < x) (hy' : 2 ≤ y) :
     x / y < x := by
   rw [Int.div_def]
   unfold Int.ediv
@@ -2366,7 +2366,7 @@ theorem ediv_lt_self_of_two_le_of_zero_lt (x y : Int) (hy' : 2 ≤ y) (hx' : 0 <
   apply Nat.div_lt_self (by omega) (by omega)
 
 -- note that x < y → x / y = 0
-theorem zero_le_udiv_of_two_le_zero_lt (x y : Int) (hy' : 2 ≤ y) (hx' : 0 < x):
+theorem nonneg_ediv_of_pos_of_nonneg (x y : Int) (hx' : 0 < x) (hy' : 0 ≤ y) :
     0 ≤ x / y := by
   rw [Int.div_def]
   unfold Int.ediv
@@ -2376,9 +2376,9 @@ theorem zero_le_udiv_of_two_le_zero_lt (x y : Int) (hy' : 2 ≤ y) (hx' : 0 < x)
   exact Int.ofNat_zero_le (xn / yn)
 
 /-!
-  needs a stricter bound on x, in fact (-1)/(-2) = 1
+  needs a stricter bound on x, in fact (-1)/(-2) = 1 and 1 < (-1).natAbs is not true
 -/
-theorem udiv_lt_natAbs_self_of_le_neg_two_lt_neg_one (x y : Int) (hy' : y ≤ -2) (hx' : x < -1) :
+theorem ediv_lt_natAbs_self_of_lt_neg_one_of_le_neg_two (x y : Int) (hx' : x < -1) (hy' : y ≤ -2) :
     x / y < x.natAbs := by
   rw [Int.div_def]
   unfold Int.ediv
@@ -2391,7 +2391,7 @@ theorem udiv_lt_natAbs_self_of_le_neg_two_lt_neg_one (x y : Int) (hy' : y ≤ -2
     show (xn < xn * (yn + 1)) = (1 * xn < (yn + 1) * xn) by rw [Nat.one_mul, Nat.mul_comm]]
   apply Nat.mul_lt_mul_of_lt_of_le (a := 1) (b := xn) (c := yn + 1) (d := xn) (by omega) (by omega) (by omega)
 
-theorem zero_le_udiv_of_le_neg_two_lt_zero (x y : Int) (hy' : y ≤ -2) (hx' : x < 0) :
+theorem nonneg_ediv_of_neg_of_neg (x y : Int) (hx' : x < 0) (hy' : y < 0) :
     0 ≤ x / y := by
   rw [Int.div_def]
   unfold Int.ediv
@@ -2401,18 +2401,13 @@ theorem zero_le_udiv_of_le_neg_two_lt_zero (x y : Int) (hy' : y ≤ -2) (hx' : x
   norm_cast
   simp
 
-theorem self_le_udiv_of_two_le_lt_zero (x y : Int) (hy' : 2 ≤ y) (hx' : x < 0) :
+theorem self_le_ediv_of_neg_of_pos (x y : Int) (hx' : x < 0) (hy' : 0 < y) :
     x ≤ x / y := by
   simp only [ge_iff_le, Int.le_ediv_iff_mul_le (c := y) (a := x) (b := x) (by omega),
     show (x * y ≤ x) = (x * y ≤ x * 1) by rw [Int.mul_one], Int.mul_one]
   apply Int.mul_le_mul_of_nonpos_left (a := x) (b := y) (c  := (1 : Int)) (by omega) (by omega)
 
-theorem udiv_lt_of_two_le_lt_zero (x y : Int) (hy' : 2 ≤ y) (hx' : x < 0) :
-    x / y < 0 := by
-  refine Int.ediv_neg_of_neg_of_pos hx' ?_
-  omega
-
-theorem neg_self_le_udiv_of_le_neg_two_zero_lt (x y : Int) (hy' : y ≤ -2) (hx' : 0 < x) :
+theorem neg_self_le_ediv_of_pos_of_neg (x y : Int) (hx' : 0 < x) (hy' : y < 0) :
     - x ≤ x / y := by
   obtain ⟨xn, hx⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
   obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
@@ -2421,7 +2416,7 @@ theorem neg_self_le_udiv_of_le_neg_two_zero_lt (x y : Int) (hy' : y ≤ -2) (hx'
   simp only [hx, hy, Nat.succ_eq_add_one, Int.ofNat_eq_coe, ge_iff_le, Int.neg_le_neg_iff, Int.ofNat_le]
   apply Nat.le_trans (m := xn) (by exact Nat.div_le_self xn (yn + 1)) (by omega)
 
-theorem udiv_le_of_le_neg_two_lt_zero (x y : Int) (hy' : y ≤ -1) (hx' : 0 < x) :
+theorem nonpos_ediv_of_pos_of_neg (x y : Int) (hx' : 0 < x) (hy' : y < 0) :
     x / y ≤ 0  := by
   obtain ⟨xn, hx⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
   obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)

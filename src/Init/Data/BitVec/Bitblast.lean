@@ -1394,12 +1394,7 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
     simp only [bool_to_prop]
     by_cases hy : y = allOnes (w + 1)
     · -- if y = allOnes (w + 1) the division overflows iff x = intMin (w + 1), as for negation
-      rw [BitVec.sdivOverflow_eq_negOverflow_of_allOnes (x := x) (y := y) hy, negOverflow,
-        Nat.add_one_sub_one, decide_and]
-      simp only [beq_eq_decide_eq, ← toInt_inj, toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod,
-        hy, decide_true, Bool.and_true, decide_eq_decide]
-      norm_cast
-      rw [Nat.mod_eq_of_lt (by apply Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + 1) (by omega) (by omega))]
+      simp [sdivOverflow_eq_negOverflow_of_allOnes, negOverflow_eq, ← hy, beq_eq_decide_eq]
     · -- we exclude the case x.toInt / 0 = 0
       by_cases hyZero : y.toInt = 0
       · simp [sdivOverflow, hyZero, hy]
@@ -1417,22 +1412,22 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
           · by_cases hy' : 0 < y.toInt
             · by_cases hx : 0 < x.toInt
               · -- numerator and denumerator are positive
-                have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_two_le_of_pos
+                have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_pos_of_two_le
                       (x := x) (y := y) (by omega) (by omega)
                 simp at this; omega
               · -- numerator is negative, denumerator is positive
-                have :=  BitVec.neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_two_le_of_neg
+                have :=  BitVec.neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_neg_of_pos_of_zero_lt
                       (x := x) (y := y) (by omega) (by omega) (by omega)
                 simp at this; omega
             · simp only [← toInt_inj, toInt_allOnes, show 0 < w + 1 by omega, ↓reduceIte,
               Int.reduceNeg] at hy
               by_cases hx : 0 < x.toInt
               · -- numerator is positive, denumerator is negative
-                have := BitVec.neg_two_pow_le_sdiv_and_sdiv_le_zero_of_le_neg_two_of_pos
+                have := BitVec.neg_two_pow_le_sdiv_and_sdiv_le_zero_of_pos_of_le_neg_two_of_zero_lt
                       (x := x) (y := y) (by omega) (by omega) (by omega)
                 simp at this; omega
               · -- numerator and denumerator are negative
-                have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_le_neg_two_of_neg
+                have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_neg_of_le_neg_two
                       (x := x) (y := y) (by omega) (by omega)
                 simp at this; omega
 
