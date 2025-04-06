@@ -4057,7 +4057,7 @@ theorem neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_neg_of_pos_of_zero_lt {w : Nat} 
     simp; omega
 
 -- non-overflowing signed division bounds when numerator is positive, denumerator is negative
-theorem neg_two_pow_le_sdiv_and_sdiv_le_zero_of_pos_of_le_neg_two_of_zero_lt {w : Nat} {x y : BitVec w} (hx : 0 < x.toInt) (hy : y.toInt < 0) (hw : 0 < w) :
+theorem neg_two_pow_le_sdiv_and_sdiv_le_zero_of_pos_of_neg {w : Nat} {x y : BitVec w} (hx : 0 < x.toInt) (hy : y.toInt < 0) (hw : 0 < w) :
     - 2 ^ (w - 1) ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt ≤ 0 := by
   rcases w with _|w
   · simp [hw]; omega
