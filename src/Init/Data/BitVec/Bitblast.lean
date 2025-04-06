@@ -1376,10 +1376,10 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
 
   We can then reason about the signs of the operands. All these cases rely on respective
   theorems specifying the bounds of signed division once the special cases are excluded:
-  · BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_two_le_of_pos when 2 ≤ y.toInt and 0 < x.toInt
-  · BitVec.neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_two_le_of_neg when 2 ≤ y.toInt and x.toInt < 0
-  · BitVec.neg_two_pow_le_sdiv_and_sdiv_le_zero_of_le_neg_two_of_pos when y.toInt ≤ -2 and 0 < x.toInt
-  · BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_le_neg_two_of_neg when y.toInt ≤ -2 and x.toInt < 0
+  · BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_pos_of_one_lt when 1 < y.toInt and 0 < x.toInt
+  · BitVec.neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_neg_of_pos_of_zero_lt when 0 < y.toInt and x.toInt < 0
+  · BitVec.neg_two_pow_le_sdiv_and_sdiv_le_zero_of_pos_of_neg_of_zero_lt when y.toInt < 0 and 0 < x.toInt
+  · BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_neg_of_lt_neg_one when y.toInt < -1 and x.toInt < 0
 
   These BitVec theorems themselves rely on numerous Int.udiv_* theorems, that carefully
   set the bounds of signed division for integers.
