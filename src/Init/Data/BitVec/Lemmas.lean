@@ -4037,14 +4037,20 @@ theorem toNat_udiv_lt {w : Nat} {x y : BitVec w} :
     apply Nat.mul_lt_mul_of_le_of_lt (by omega) (by omega) (by omega)
 
 -- non-overflowing signed division bounds when numerator is positive, denumerator is positive
-theorem zero_le_sdiv_and_sdiv_lt_two_pow_of_pos_of_one_lt {w : Nat} {x y : BitVec w} (hx : 0 < x.toInt) (hy : 1 < y.toInt) :
+theorem zero_le_sdiv_and_sdiv_lt_two_pow_of_pos_of_pos {w : Nat} {x y : BitVec w} (hx : 0 < x.toInt) (hy : 0 < y.toInt) :
     0 ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt < 2 ^ (w - 1) := by
   rcases w with _|w
   · simp [of_length_zero]
-  · have := Int.ediv_lt_self_of_pos_of_one_lt (x := x.toInt) (y := y.toInt) hx hy
-    have := Int.nonneg_ediv_of_pos_of_nonneg (x := x.toInt) (y := y.toInt) hx (by omega)
-    have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
-    simp; omega
+  · by_cases hy' : y.toInt = 1
+    -- if y.toInt = 1 and 0 < x.toInt, then x.toInt / 1 = x.toInt < 2 ^ w
+    · have hpos := toInt_pos_iff (x := x)
+      simp only [hy', Int.ediv_one, Nat.add_one_sub_one, toInt_eq_toNat_cond]
+      rw_mod_cast [Nat.pow_add, Nat.pow_one, Nat.mul_comm, Nat.mul_lt_mul_right (by omega)] at hpos
+      omega
+    · have := Int.ediv_lt_self_of_pos_of_one_lt (x := x.toInt) (y := y.toInt) hx (by omega)
+      have := Int.nonneg_ediv_of_pos_of_nonneg (x := x.toInt) (y := y.toInt) hx (by omega)
+      have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
+      simp; omega
 
 -- non-overflowing signed division bounds when numerator is negative, denumerator is positive
 theorem neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_neg_of_pos_of_zero_lt {w : Nat} {x y : BitVec w} (hx : x.toInt < 0) (hy : 0 < y.toInt) (hw : 0 < w) :
@@ -4057,7 +4063,7 @@ theorem neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_neg_of_pos_of_zero_lt {w : Nat} 
     simp; omega
 
 -- non-overflowing signed division bounds when numerator is positive, denumerator is negative
-theorem neg_two_pow_le_sdiv_and_sdiv_le_zero_of_pos_of_neg {w : Nat} {x y : BitVec w} (hx : 0 < x.toInt) (hy : y.toInt < 0) (hw : 0 < w) :
+theorem neg_two_pow_le_sdiv_and_sdiv_le_zero_of_pos_of_neg_of_zero_lt {w : Nat} {x y : BitVec w} (hx : 0 < x.toInt) (hy : y.toInt < 0) (hw : 0 < w) :
     - 2 ^ (w - 1) ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt ≤ 0 := by
   rcases w with _|w
   · simp [hw]; omega

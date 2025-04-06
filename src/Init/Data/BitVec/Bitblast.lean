@@ -1371,12 +1371,11 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
   Then, we need to show that in all other cases (¬ y.toInt = -1) no overflow happens.
   To do so, we first exclude special cases:
   · y.toInt = 0 → x.toInt / y.toInt = 0
-  · y.toInt = 1 → x.toInt / y.toInt = x.toInt
   · x.toInt = 0 → x.toInt / y.toInt = 0
 
   We can then reason about the signs of the operands. All these cases rely on respective
   theorems specifying the bounds of signed division once the special cases are excluded:
-  · BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_pos_of_one_lt when 1 < y.toInt and 0 < x.toInt
+  · BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_pos_of_one_lt when 0 < y.toInt and 0 < x.toInt
   · BitVec.neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_neg_of_pos_of_zero_lt when 0 < y.toInt and x.toInt < 0
   · BitVec.neg_two_pow_le_sdiv_and_sdiv_le_zero_of_pos_of_neg_of_zero_lt when y.toInt < 0 and 0 < x.toInt
   · BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_neg_of_lt_neg_one when y.toInt < -1 and x.toInt < 0
@@ -1401,35 +1400,30 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
         omega
       · -- we exclude the case x.toInt / 1 = x.toInt
         -- note that x.toInt < 0 → x.toInt / 1 < 0 : even if x.toInt = - 2 ^ w there is no overflow
-        by_cases hyOne : y.toInt = 1
-        · simp [sdivOverflow, hyOne, hy]
-          omega
-        · -- we can now reason about signs
-          simp only [sdivOverflow, Nat.add_one_sub_one, ge_iff_le, hy, _root_.and_false,
-            decide_false, or_eq_false_iff, decide_eq_false_iff_not, Int.not_le, Int.not_lt]
-          by_cases hxZero : x.toInt = 0
-          · simp [hxZero]; omega
-          · by_cases hy' : 0 < y.toInt
-            · by_cases hx : 0 < x.toInt
-              · -- numerator and denumerator are positive
-                have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_pos_of_one_lt
-                      (x := x) (y := y) (by omega) (by omega)
-                simp at this; omega
-              · -- numerator is negative, denumerator is positive
-                have :=  BitVec.neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_neg_of_pos_of_zero_lt
-                      (x := x) (y := y) (by omega) (by omega) (by omega)
-                simp at this; omega
-            · simp only [← toInt_inj, toInt_allOnes, show 0 < w + 1 by omega, ↓reduceIte,
-              Int.reduceNeg] at hy
-              by_cases hx : 0 < x.toInt
-              · -- numerator is positive, denumerator is negative
-                have := BitVec.neg_two_pow_le_sdiv_and_sdiv_le_zero_of_pos_of_neg_of_zero_lt
-                      (x := x) (y := y) (by omega) (by omega) (by omega)
-                simp at this; omega
-              · -- numerator and denumerator are negative
-                have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_neg_of_lt_neg_one
-                      (x := x) (y := y) (by omega) (by omega)
-                simp at this; omega
+        -- we can now reason about signs
+        simp only [sdivOverflow, Nat.add_one_sub_one, ge_iff_le, hy, _root_.and_false,
+          decide_false, or_eq_false_iff, decide_eq_false_iff_not, Int.not_le, Int.not_lt]
+        by_cases hxZero : x.toInt = 0
+        · simp [hxZero]; omega
+        · by_cases hy' : 0 < y.toInt
+          · by_cases hx : 0 < x.toInt
+            · -- numerator and denumerator are positive
+              have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_pos_of_pos
+                    (x := x) (y := y) (by omega) (by omega)
+              simp at this; omega
+            · -- numerator is negative, denumerator is positive
+              have :=  BitVec.neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_neg_of_pos_of_zero_lt
+                    (x := x) (y := y) (by omega) (by omega) (by omega)
+              simp at this; omega
+          · by_cases hx : 0 < x.toInt
+            · -- numerator is positive, denumerator is negative
+              have := BitVec.neg_two_pow_le_sdiv_and_sdiv_le_zero_of_pos_of_neg_of_zero_lt
+                    (x := x) (y := y) (by omega) (by omega) (by omega)
+              simp at this; omega
+            · -- numerator and denumerator are negative
+              have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_neg_of_lt_neg_one
+                    (x := x) (y := y) (by omega) (by rw [← toInt_inj, toInt_allOnes] at hy; omega)
+              simp at this; omega
 
 theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
     umulOverflow x y =
