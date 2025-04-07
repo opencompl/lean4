@@ -1681,6 +1681,126 @@ theorem toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).
   · rw [← toInt_bmod_cancel]
     rw [BitVec.toInt_sdiv_of_ne_or_ne _ _ (by simpa only [Decidable.not_and_iff_not_or_not] using h)]
 
+/--
+Rewrite `(x.sdiv y).toInt` as an exceptional case of `intMin / -1`,
+and a uniform uniformly expression as `x.toInt.tdiv y.toInt` for all other cases.
+
+Recall that `x.tdiv 0 = 0`, so there is an implicit case analysis on `y`.
+-/
+theorem toInt_sdiv_eq_ite {x y : BitVec w} :
+    (x.sdiv y).toInt =
+    if x = intMin w ∧ y = -1#w then (intMin w).toInt
+    else x.toInt.tdiv y.toInt := by
+  by_cases hx : x = intMin w
+  · simp only [hx, _root_.true_and]
+    by_cases hy : y = -1#w
+    · simp [hy, intMin_sdiv_neg_one]
+    · simp only [hy, ↓reduceIte]
+      apply toInt_sdiv_of_ne_or_ne
+      simp [hy]
+  · simp only [hx, _root_.false_and, ↓reduceIte]
+    apply toInt_sdiv_of_ne_or_ne
+    simp [hx]
+
+#eval (0#0).msb
+
+/--
+The result of division is zero if the numerator is less than the denominator.
+This applies in more cases than `Nat.div_eq_zero_iff_lt` as the latter requires a nonzero denominator.
+Note that a nonzero denominator is implicitly required to prove `hab : a < b`.
+-/
+theorem Nat.div_eq_zero_of_lt {a b : Nat} (hab : a < b) : a / b = 0 := by
+  by_cases h : b = 0
+  · subst h
+    simp [Nat.div_eq_zero_iff_lt _ |>.mpr hab]
+  · apply Nat.div_eq_zero_iff_lt _ |>.mpr <;> omega
+
+/--
+`Int.tdiv` equals zero if the absolute value of the numerator is less than the denominator.
+Note that this is true for `tdiv` as it has round-to-zero semantics.
+-/
+theorem Int.tdiv_eq_zero_of_natAbs_lt {a : Int} {b : Nat}
+    (hab : a.natAbs < b) : a.tdiv b = 0 := by
+  by_cases h : a < 0
+  · obtain ⟨n, hn⟩  := Int.eq_negSucc_of_lt_zero h
+    subst hn
+    unfold Int.tdiv
+    simp
+    simp at hab
+    norm_cast
+    apply Nat.div_eq_zero_of_lt (by omega)
+  · simp only [Int.not_lt] at h;
+    obtain ⟨n, hn⟩  := Int.eq_ofNat_of_zero_le h
+    subst hn
+    unfold Int.tdiv
+    simp only [Int.ofNat_eq_coe]
+    simp only [Int.natAbs_ofNat] at hab
+    norm_cast
+    apply Nat.div_eq_zero_of_lt (by omega)
+
+  theorem not_zero_eq_one_iff_lt_zero (w : Nat) : (0 < w) ↔ ¬(0#w = 1#w) := by
+  constructor
+  · intros h
+    apply toNat_ne.mpr
+    have : 1 < 2^w := Nat.pow_lt_pow_of_lt (a := 2) (by decide) h
+    simp
+    omega
+  · intros h
+    apply Classical.byContradiction
+    intros hcontra
+    simp only [Nat.not_lt, le_zero_eq] at hcontra
+    subst hcontra
+    contradiction
+
+theorem not_zero_eq_minus_one_iff_lt_zero (w : Nat) : (0 < w) ↔ ¬(0#w = -1#w) := by
+  constructor
+  · intros h
+    apply toNat_ne.mpr
+    have : 1 < 2^w := Nat.pow_lt_pow_of_lt (a := 2) (by decide) h
+    simp
+    sorry
+  · intros h
+    apply Classical.byContradiction
+    intros hcontra
+    simp only [Nat.not_lt, le_zero_eq] at hcontra
+    subst hcontra
+    contradiction
+
+theorem slt_trichotomy (x y : BitVec w) : x.slt y ∨ x = y ∨ y.slt x := by
+  simp [slt_eq_decide]
+  have : (x = y) ↔ (x.toInt = y.toInt) := by
+    exact Iff.symm toInt_inj
+  rw [this]
+  omega
+
+
+
+
+
+/--
+The sign of a division is determined as follows:
+- if the denominator is zero, then the output is zero and the msb is false as it is non-negative.
+- If the deminator is positive, then the sign of the output is the same as the sign of the numerator.
+- If the denominator is negative, then the sign of the output is the opposite of the sign of the numerator,
+  except for the case where the numerator is `intMin`, in which case the result is `true`.
+-/
+theorem msb_sdiv_eq_decide {x y : BitVec w} :
+    (x.sdiv y).msb =
+      (decide (0 < w) &&
+        -- either we have x = intMin w and y = -1#w
+        ((decide (x = intMin w) && decide (y = -1#w)) ||
+        -- or we have `y = 0` and `x < 0`
+        (decide (y = 0#w) && decide (x.slt 0#w)) ||
+        -- or we have `y <> 0` and `|x| ≥ |y|` and at *exactly* one of them is negative
+        (decide (y.slt (0#w)) && decide (y.abs ≤ x.abs) && (x.msb ^^ y.msb))))
+     := by
+  by_cases hw : w = 0; subst hw; decide +revert
+  simp [show 0 < w by omega]
+  sorry
+
+
+
+
 theorem msb_umod_eq_false_of_left {x : BitVec w} (hx : x.msb = false) (y : BitVec w) : (x % y).msb = false := by
   rw [msb_eq_false_iff_two_mul_lt] at hx ⊢
   rw [toNat_umod]
