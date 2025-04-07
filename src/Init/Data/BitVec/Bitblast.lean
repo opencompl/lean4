@@ -1401,7 +1401,7 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
       by_cases hy' : 0 ≤ y.toInt
       · by_cases hx : 0 ≤ x.toInt
         · -- numerator and denumerator are positive
-          have := BitVec.sdiv_lt_two_pow_of_pos_of_pos
+          have := BitVec.sdiv_lt_of_nonneg_of_nonneg
                 (x := x) (y := y) (by omega) (by omega)
           simp only [Nat.add_one_sub_one] at this; simp; omega
         · -- numerator is negative, denumerator is positive
