@@ -4053,10 +4053,10 @@ theorem sdiv_lt_two_pow_of_pos_of_pos {w : Nat} {x y : BitVec w} (hx : 0 ≤ x.t
         simp; omega
 
 -- non-overflowing signed division bounds when numerator is negative, denumerator is positive
-theorem sdiv_le_zero_of_neg_of_pos_of_zero_lt {w : Nat} {x y : BitVec w} (hx : x.toInt ≤ 0) (hy : 0 ≤ y.toInt) (hw : 0 < w) :
+theorem sdiv_nonpos_of_nonpos_of_nonneg {w : Nat} {x y : BitVec w} (hx : x.toInt ≤ 0) (hy : 0 ≤ y.toInt) :
     x.toInt / y.toInt ≤ 0 := by
   rcases w with _|w
-  · omega
+  · simp [of_length_zero]
   · by_cases hx' : x.toInt = 0
     · simp [hx']
     · by_cases hy' : y.toInt = 0
@@ -4065,7 +4065,7 @@ theorem sdiv_le_zero_of_neg_of_pos_of_zero_lt {w : Nat} {x y : BitVec w} (hx : x
         simp; omega
 
 -- non-overflowing signed division bounds when numerator is positive, denumerator is negative
-theorem sdiv_le_zero_of_pos_of_neg_of_zero_lt {w : Nat} {x y : BitVec w} (hx : 0 ≤ x.toInt) (hy : y.toInt ≤ 0) (hw : 0 < w) :
+theorem sdiv_nonpos_of_pos_of_nonneg_of_nonpos {w : Nat} {x y : BitVec w} (hx : 0 ≤ x.toInt) (hy : y.toInt ≤ 0) (hw : 0 < w) :
    x.toInt / y.toInt ≤ 0 := by
   rcases w with _|w
   · omega
