@@ -1397,10 +1397,11 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
       simp only [sdivOverflow, Nat.add_one_sub_one, ge_iff_le, hy, _root_.and_false,
           decide_false, or_eq_false_iff, decide_eq_false_iff_not, Int.not_le, Int.not_lt]
       simp only [bool_to_prop]
+      have := BitVec.neg_two_pow_le_sdiv (x := x) (y := y); simp only [Nat.add_one_sub_one] at this
       by_cases hy' : 0 ≤ y.toInt
       · by_cases hx : 0 ≤ x.toInt
         · -- numerator and denumerator are positive
-          have := sdiv_lt_two_pow_of_pos_of_pos
+          have := BitVec.sdiv_lt_two_pow_of_pos_of_pos
                 (x := x) (y := y) (by omega) (by omega)
           simp only [Nat.add_one_sub_one] at this; simp; omega
         · -- numerator is negative, denumerator is positive
