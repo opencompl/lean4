@@ -1368,17 +1368,12 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
   in fact, x.toInt/(allOnes w).toInt = - x.toInt, i.e.,
   the overflow conditions are the same as negOverflow for x.
 
-  Then, we need to show that in all other cases (¬ y.toInt = -1) no overflow happens.
-  To do so, we first exclude special cases:
-  · y.toInt = 0 → x.toInt / y.toInt = 0
-  · x.toInt = 0 → x.toInt / y.toInt = 0
-
   We can then reason about the signs of the operands. All these cases rely on respective
   theorems specifying the bounds of signed division once the special cases are excluded:
-  · BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_pos_of_pos when 0 < y.toInt and 0 < x.toInt
-  · BitVec.neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_neg_of_pos_of_zero_lt when 0 < y.toInt and x.toInt < 0
-  · BitVec.neg_two_pow_le_sdiv_and_sdiv_le_zero_of_pos_of_neg_of_zero_lt when y.toInt < 0 and 0 < x.toInt
-  · BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_neg_of_lt_neg_one when y.toInt < -1 and x.toInt < 0
+  · BitVec.sdiv_lt_of_nonneg_of_nonneg when 0 < y.toInt and 0 < x.toInt
+  · BitVec.sdiv_nonpos_of_nonpos_of_nonneg when 0 < y.toInt and x.toInt < 0
+  · BitVec.sdiv_nonpos_of_nonneg_of_nonpos when y.toInt < 0 and 0 < x.toInt
+  · BitVec.sdiv_lt_of_ne_allOnes when y.toInt < -1 and x.toInt < 0
 
   These BitVec theorems themselves rely on numerous Int.udiv_* theorems, that carefully
   set the bounds of signed division for integers.
