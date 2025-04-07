@@ -4065,7 +4065,7 @@ theorem sdiv_nonpos_of_nonpos_of_nonneg {w : Nat} {x y : BitVec w} (hx : x.toInt
         simp; omega
 
 -- non-overflowing signed division bounds when numerator is positive, denumerator is negative
-theorem sdiv_nonpos_of_pos_of_nonneg_of_nonpos {w : Nat} {x y : BitVec w} (hx : 0 ≤ x.toInt) (hy : y.toInt ≤ 0) :
+theorem sdiv_nonpos_of_nonneg_of_nonpos {w : Nat} {x y : BitVec w} (hx : 0 ≤ x.toInt) (hy : y.toInt ≤ 0) :
    x.toInt / y.toInt ≤ 0 := by
   rcases w with _|w
   · simp [of_length_zero]
