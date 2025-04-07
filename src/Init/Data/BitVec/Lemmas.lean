@@ -4115,6 +4115,20 @@ theorem zero_le_sdiv_and_sdiv_lt_two_pow_of_neg_of_lt_neg_one {w : Nat} {x y : B
     · have := Int.ediv_lt_natAbs_self_of_lt_neg_one_of_lt_neg_one (x := x.toInt) (y := y.toInt) (by omega) hy
       simp; omega
 
+-- signed division of (x y : BitVec w) is always -2 ^ w ≤ x.toInt / y.toInt
+theorem neg_two_pow_le_sdiv { x y : BitVec w} :
+    - 2 ^ (w - 1) ≤ x.toInt / y.toInt := by
+  have xlt := @toInt_lt w x; have lex := @le_toInt w x
+  by_cases hx : 0 ≤ x.toInt <;> by_cases hy : 0 ≤ y.toInt
+  · have := Int.ediv_nonneg_of_pos_of_nonneg x.toInt y.toInt hx hy
+    omega
+  · have := Int.neg_self_le_ediv_of_pos_of_neg x.toInt y.toInt hx (by omega)
+    omega
+  · have := Int.self_le_ediv_of_neg_of_pos x.toInt y.toInt (by omega) hy
+    omega
+  · have := Int.ediv_nonneg_of_nonpos_of_nonpos x.toInt y.toInt (by omega) (by omega)
+    omega
+
 /-! ### smtSDiv -/
 
 theorem smtSDiv_eq (x y : BitVec w) : smtSDiv x y =
