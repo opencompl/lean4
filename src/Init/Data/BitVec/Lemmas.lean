@@ -5107,8 +5107,6 @@ theorem sdivOverflow_eq_negOverflow_of_allOnes {w : Nat} {x y : BitVec w} (hy : 
     · simp [hx]
     · simp [show ¬x.toInt == -2 ^ w by simp only [beq_iff_eq, hx, not_false_eq_true]]; omega
 
-
-
 theorem two_pow_le_toInt_mul_toInt_iff {x y : BitVec w} :
     2 ^ (w - 1) ≤ x.toInt * y.toInt ↔
       (signExtend (w * 2) (intMax w)).slt (signExtend (w * 2) x * signExtend (w * 2) y) := by
