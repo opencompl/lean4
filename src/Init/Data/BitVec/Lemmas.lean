@@ -5107,9 +5107,7 @@ theorem sdivOverflow_eq_negOverflow_of_allOnes {w : Nat} {x y : BitVec w} (hy : 
     · simp [hx]
     · simp [show ¬x.toInt == -2 ^ w by simp only [beq_iff_eq, hx, not_false_eq_true]]; omega
 
-theorem not_sdivOverflow_eq_sdiv_lt_two_pow_neg_two_pow_le_sdiv {w : Nat} {x y : BitVec w} :
-    ¬ sdivOverflow x y = (- 2 ^ (w - 1) ≤ x.toInt / y.toInt ∧ x.toInt / y.toInt < 2 ^ (w - 1)) := by
-  simp [sdivOverflow]; omega
+
 
 theorem two_pow_le_toInt_mul_toInt_iff {x y : BitVec w} :
     2 ^ (w - 1) ≤ x.toInt * y.toInt ↔
