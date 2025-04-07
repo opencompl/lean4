@@ -4045,8 +4045,8 @@ theorem zero_le_sdiv_and_sdiv_lt_two_pow_of_pos_of_pos {w : Nat} {x y : BitVec w
     have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
     by_cases hy' : y.toInt = 1
     · simp [hy', Int.ediv_one]; omega
-    · have := Int.ediv_lt_self_of_pos_of_one_lt (x := x.toInt) (y := y.toInt) hx (by omega)
-      have := Int.nonneg_ediv_of_pos_of_nonneg (x := x.toInt) (y := y.toInt) hx (by omega)
+    · have := Int.ediv_lt_self_of_pos_of_one_ne_one (x := x.toInt) (y := y.toInt) hx (by omega)
+      have := Int.ediv_nonneg_of_pos_of_nonneg (x := x.toInt) (y := y.toInt) (by omega) (by omega)
       simp; omega
 
 -- non-overflowing signed division bounds when numerator is negative, denumerator is positive
@@ -4055,7 +4055,7 @@ theorem neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_neg_of_pos_of_zero_lt {w : Nat} 
   rcases w with _|w
   · simp [hw]; omega
   · have := Int.ediv_neg_of_neg_of_pos (a := x.toInt) (b := y.toInt) hx (by omega)
-    have := Int.self_le_ediv_of_neg_of_pos (x := x.toInt) (y := y.toInt) hx hy
+    have := Int.self_le_ediv_of_neg_of_pos (x := x.toInt) (y := y.toInt) (by omega) (by omega)
     have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
     simp; omega
 
@@ -4067,8 +4067,8 @@ theorem neg_two_pow_le_sdiv_and_sdiv_le_zero_of_pos_of_neg_of_zero_lt {w : Nat} 
   · have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
     by_cases hy' : y.toInt = -1
     · simp [hy']; omega
-    · have := Int.nonpos_ediv_of_pos_of_neg (x := x.toInt) (y := y.toInt) hx (by omega)
-      have := Int.neg_self_le_ediv_of_pos_of_neg (x := x.toInt) (y := y.toInt) hx (by omega)
+    · have := Int.ediv_nonpos_of_nonneg_of_nonpos (a := x.toInt) (b := y.toInt) (by omega) (by omega)
+      have := Int.neg_self_le_ediv_of_pos_of_neg (x := x.toInt) (y := y.toInt) (by omega) (by omega)
       simp; omega
 
 theorem toInt_allOnes_sdiv_toInt_of_ne_zero {w : Nat} {y : BitVec w} (hw : 1 < w) :
@@ -4093,7 +4093,7 @@ theorem zero_le_sdiv_and_sdiv_lt_two_pow_of_neg_of_lt_neg_one {w : Nat} {x y : B
     simp [← toInt_inj, toInt_zero, toInt_one] at hy
     omega
   · have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
-    have := Int.nonneg_ediv_of_neg_of_neg (x := x.toInt) (y := y.toInt) hx (by omega)
+    have := Int.ediv_nonneg_of_nonpos_of_nonpos (a := x.toInt) (b := y.toInt) (by omega) (by omega)
     by_cases hx' : x.toInt = - 1
     · have := BitVec.toInt_allOnes_sdiv_toInt_of_ne_zero (y := y) (by omega)
       simp [toInt_allOnes] at this

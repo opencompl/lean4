@@ -2356,17 +2356,20 @@ theorem bmod_neg_bmod : bmod (-(bmod x n)) n = bmod (-x) n := by
 
 /- ### ediv -/
 
-theorem ediv_lt_self_of_pos_of_one_lt (x y : Int) (hx' : 0 < x) (hy' : 1 < y) :
+theorem ediv_lt_self_of_pos_of_one_ne_one (x y : Int) (hx' : 0 < x) (hy' : y ≠ 1) :
     x / y < x := by
-  rw [Int.div_def]
-  unfold Int.ediv
-  obtain ⟨xn, hx⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
-  obtain ⟨yn, hy⟩ := Int.eq_ofNat_of_zero_le (a := y) (by omega)
-  simp only [hx, hy, Int.ofNat_eq_coe, Int.ofNat_lt]
-  apply Nat.div_lt_self (by omega) (by omega)
+  by_cases hy' : 1 < y
+  · rw [Int.div_def]
+    unfold Int.ediv
+    obtain ⟨xn, hx⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
+    obtain ⟨yn, hy⟩ := Int.eq_ofNat_of_zero_le (a := y) (by omega)
+    simp only [hx, hy, Int.ofNat_eq_coe, Int.ofNat_lt]
+    apply Nat.div_lt_self (by omega) (by omega)
+  · have := @Int.ediv_nonpos_of_nonneg_of_nonpos x y (by omega) (by omega)
+    omega
 
--- note that x < y → x / y = 0
-theorem nonneg_ediv_of_pos_of_nonneg (x y : Int) (hx' : 0 < x) (hy' : 0 ≤ y) :
+-- note that x < y → 0 ≤ x → 0 ≤ y → x / y = 0
+theorem ediv_nonneg_of_pos_of_nonneg (x y : Int) (hx' : 0 ≤ x) (hy' : 0 ≤ y) :
     0 ≤ x / y := by
   rw [Int.div_def]
   unfold Int.ediv
@@ -2391,38 +2394,26 @@ theorem ediv_lt_natAbs_self_of_lt_neg_one_of_lt_neg_one (x y : Int) (hx' : x < -
     show (xn < xn * (yn + 1)) = (1 * xn < (yn + 1) * xn) by rw [Nat.one_mul, Nat.mul_comm]]
   apply Nat.mul_lt_mul_of_lt_of_le (a := 1) (b := xn) (c := yn + 1) (d := xn) (by omega) (by omega) (by omega)
 
-theorem nonneg_ediv_of_neg_of_neg (x y : Int) (hx' : x < 0) (hy' : y < 0) :
-    0 ≤ x / y := by
-  rw [Int.div_def]
-  unfold Int.ediv
-  obtain ⟨xn, hx⟩ := Int.eq_negSucc_of_lt_zero (a := x) (by omega)
-  obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
-  simp only [hx, hy, Nat.succ_eq_add_one, ofNat_eq_coe, Int.natCast_add, cast_ofNat_Int]
-  norm_cast
-  simp
-
-theorem self_le_ediv_of_neg_of_pos (x y : Int) (hx' : x < 0) (hy' : 0 < y) :
+theorem self_le_ediv_of_neg_of_pos (x y : Int) (hx' : x ≤ 0) (hy' : 0 ≤ y) :
     x ≤ x / y := by
-  simp only [ge_iff_le, Int.le_ediv_iff_mul_le (c := y) (a := x) (b := x) (by omega),
-    show (x * y ≤ x) = (x * y ≤ x * 1) by rw [Int.mul_one], Int.mul_one]
-  apply Int.mul_le_mul_of_nonpos_left (a := x) (b := y) (c  := (1 : Int)) (by omega) (by omega)
+  by_cases hx : x = 0
+  · simp [hx, zero_ediv]
+  · by_cases hy : y = 0
+    · simp [hy]; omega
+    · simp only [ge_iff_le, Int.le_ediv_iff_mul_le (c := y) (a := x) (b := x) (by omega),
+        show (x * y ≤ x) = (x * y ≤ x * 1) by rw [Int.mul_one], Int.mul_one]
+      apply Int.mul_le_mul_of_nonpos_left (a := x) (b := y) (c  := (1 : Int)) (by omega) (by omega)
 
-theorem neg_self_le_ediv_of_pos_of_neg (x y : Int) (hx' : 0 < x) (hy' : y < 0) :
+theorem neg_self_le_ediv_of_pos_of_neg (x y : Int) (hx' : 0 ≤ x) (hy' : y ≤ 0) :
     - x ≤ x / y := by
-  obtain ⟨xn, hx⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
-  obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
-  rw [Int.div_def]
-  unfold Int.ediv
-  simp only [hx, hy, Nat.succ_eq_add_one, Int.ofNat_eq_coe, ge_iff_le, Int.neg_le_neg_iff, Int.ofNat_le]
-  apply Nat.le_trans (m := xn) (by exact Nat.div_le_self xn (yn + 1)) (by omega)
-
-theorem nonpos_ediv_of_pos_of_neg (x y : Int) (hx' : 0 < x) (hy' : y < 0) :
-    x / y ≤ 0  := by
-  obtain ⟨xn, hx⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
-  obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
-  rw [Int.div_def]
-  unfold Int.ediv
-  simp [hx, hy, Nat.succ_eq_add_one, Int.ofNat_eq_coe, ge_iff_le, Int.neg_le_neg_iff, Int.ofNat_le]
+  by_cases hy : y = 0
+  · simp [hy]; omega
+  · obtain ⟨xn, hx⟩ := Int.eq_ofNat_of_zero_le (a := x) (by omega)
+    obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
+    rw [Int.div_def]
+    unfold Int.ediv
+    simp only [hx, hy, Nat.succ_eq_add_one, Int.ofNat_eq_coe, ge_iff_le, Int.neg_le_neg_iff, Int.ofNat_le]
+    apply Nat.le_trans (m := xn) (by exact Nat.div_le_self xn (yn + 1)) (by omega)
 
 /-! Helper theorems for `dvd` simproc -/
 
