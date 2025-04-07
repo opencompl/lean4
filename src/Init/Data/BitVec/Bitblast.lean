@@ -1681,6 +1681,81 @@ theorem toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).
   · rw [← toInt_bmod_cancel]
     rw [BitVec.toInt_sdiv_of_ne_or_ne _ _ (by simpa only [Decidable.not_and_iff_not_or_not] using h)]
 
+/--
+Rewrite `(x.sdiv y).toInt` as an exceptional case of `intMin / -1`,
+and a uniform uniformly expression as `x.toInt.tdiv y.toInt` for all other cases.
+
+Recall that `x.tdiv 0 = 0`, so there is an implicit case analysis on `y`.
+-/
+theorem toInt_sdiv_eq_ite {x y : BitVec w} :
+    (x.sdiv y).toInt =
+    if x = intMin w ∧ y = -1#w then (intMin w).toInt
+    else x.toInt.tdiv y.toInt := by
+  by_cases hx : x = intMin w
+  · simp only [hx, _root_.true_and]
+    by_cases hy : y = -1#w
+    · simp [hy, intMin_sdiv_neg_one]
+    · simp only [hy, ↓reduceIte]
+      apply toInt_sdiv_of_ne_or_ne
+      simp [hy]
+  · simp only [hx, _root_.false_and, ↓reduceIte]
+    apply toInt_sdiv_of_ne_or_ne
+    simp [hx]
+
+#eval (0#0).msb
+#check Int.tdiv_nonpos_of_nonneg_of_nonpos
+#check Int.tdiv_nonpos_of_nonneg_of_nonpos
+
+
+/--
+The sign of a division is determined as follows:
+- if the denominator is zero, then the output is zero and the msb is false as it is non-negative.
+- If the deminator is positive, then the sign of the output is the same as the sign of the numerator.
+- If the denominator is negative, then the sign of the output is the opposite of the sign of the numerator,
+  except for the case where the numerator is `intMin`, in which case the result is `true`.
+-/
+theorem msb_sdiv_eq_ite {x y : BitVec w} :
+    (x.sdiv y).msb = ((decide (0 < w)) &&
+      (!decide (y = 0#w) &&
+      (decide (x = intMin w) && decide (y = -1#w) || x.msb ^^ y.msb)))
+     := by
+  by_cases hw : w = 0; subst hw; decide +revert
+  simp [show 0 < w by omega]
+  by_cases hy : y = 0#w
+  · simp [hy]
+  · simp [hy]
+    by_cases h : x = intMin w ∧ y = -1#w
+    · simp [h, intMin_sdiv_neg_one, msb_intMin]; omega
+    · suffices (decide (x = intMin w) && decide (y = -1#w)) = false by
+        simp [this]
+        rw [msb_eq_toInt, toInt_sdiv_of_ne_or_ne]
+        · rw [msb_eq_toInt, msb_eq_toInt]
+          by_cases hx : 0 ≤ x.toInt
+          · by_cases hy : 0 ≤ y.toInt
+            · have := Int.tdiv_nonneg hx hy
+              simp [show ¬ (x.toInt < 0) by omega
+                , show ¬ (y.toInt < 0) by omega,
+                show ¬ (x.toInt.tdiv y.toInt < 0) by omega]
+            · simp [show ¬ x.toInt < 0 by omega]
+              simp [show y.toInt < 0 by omega]
+              have := Int.tdiv_neg
+              sorry
+          · by_cases hy :  0 ≤ y.toInt
+            · simp [show ¬ y.toInt < 0 by omega]
+              simp [show x.toInt < 0 by omega]
+              sorry
+            · simp [show x.toInt < 0 by omega]
+              simp [show y.toInt < 0 by omega]
+              rw [Int.tdiv_nonneg_of_nonpos_of_nonpos]
+             -- apply Int.tdiv_nonneg_of_nonpos_of_nonpos
+              -- · omega
+              -- · omega
+
+          -- simp only [bool_to_prop] -- TODO: teach bool_to_prop about xor.
+        · rw [Classical.not_and_iff_not_or_not] at h
+          rcases h with h | h <;> simp [h]
+      simpa using h
+
 theorem msb_umod_eq_false_of_left {x : BitVec w} (hx : x.msb = false) (y : BitVec w) : (x % y).msb = false := by
   rw [msb_eq_false_iff_two_mul_lt] at hx ⊢
   rw [toNat_umod]
