@@ -1402,20 +1402,20 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
         · -- numerator and denumerator are positive
           have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_pos_of_pos
                 (x := x) (y := y) (by omega) (by omega)
-          simp at this; simp; omega
+          simp only [Nat.add_one_sub_one] at this; simp; omega
         · -- numerator is negative, denumerator is positive
           have :=  BitVec.neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_neg_of_pos_of_zero_lt
                 (x := x) (y := y) (by omega) (by omega) (by omega)
-          simp at this; simp; omega
+          simp only [Nat.add_one_sub_one] at this; simp; omega
       · by_cases hx : 0 < x.toInt
         · -- numerator is positive, denumerator is negative
           have := BitVec.neg_two_pow_le_sdiv_and_sdiv_le_zero_of_pos_of_neg_of_zero_lt
                 (x := x) (y := y) (by omega) (by omega) (by omega)
-          simp at this; simp; omega
+          simp only [Nat.add_one_sub_one] at this; simp; omega
         · -- numerator and denumerator are negative
           have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_neg_of_lt_neg_one
                 (x := x) (y := y) (by omega) (by rw [← toInt_inj, toInt_allOnes] at hy; omega)
-          simp at this; simp; omega
+          simp only [Nat.add_one_sub_one] at this; simp; omega
 
 theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
     umulOverflow x y =
