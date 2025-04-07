@@ -4088,7 +4088,7 @@ theorem toInt_allOnes_sdiv_toInt_of_ne_zero {w : Nat} {y : BitVec w} (hw : 1 < w
         omega
 
 -- non-overflowing signed division bounds when numerator is non positive, denumerator is less than one
-theorem sdiv_lt_two_pow_of_neg_of_lt_neg_one {w : Nat} {x y : BitVec w} (hx : x.toInt ≤ 0) (hy : y.toInt < - 1)  :
+theorem sdiv_lt_of_ne_allOnes {w : Nat} {x y : BitVec w} (hx : x.toInt ≤ 0) (hy : y.toInt < - 1)  :
     x.toInt / y.toInt < 2 ^ (w - 1) := by
   rcases w with _|_|w
   · simp [of_length_zero]

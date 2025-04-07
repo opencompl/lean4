@@ -1414,7 +1414,7 @@ theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
                 (x := x) (y := y) (by omega) (by omega)
           simp only [Nat.add_one_sub_one] at this; simp; omega
         · -- numerator and denumerator are negative
-          have := BitVec.sdiv_lt_two_pow_of_neg_of_lt_neg_one
+          have := BitVec.sdiv_lt_of_ne_allOnes
                 (x := x) (y := y) (by omega) (by rw [← toInt_inj, toInt_allOnes] at hy; omega)
           simp only [Nat.add_one_sub_one] at this; simp; omega
 
