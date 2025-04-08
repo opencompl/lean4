@@ -20,14 +20,24 @@ open TSyntax.Compat
 /--
 If `cond` is true, wraps the syntax produced by `d` in a type ascription.
 -/
-def withTypeAscription (d : Delab) (cond : Bool := true) : DelabM Term := do
+def withTypeAscription (d : Delab) (cond : Bool := true) : Delab := do
   let stx ← d
   if cond then
-    let stx ← annotateCurPos stx
+    let stx ← annotateTermInfoUnlessAnnotated stx
     let typeStx ← withType delab
     `(($stx : $typeStx))
   else
     return stx
+
+/--
+If `pp.tagAppFns` is set, then `d` is evaluated with the delaborated head constant as the ref.
+-/
+def withFnRefWhenTagAppFns (d : Delab) : Delab := do
+  if (← getExpr).getAppFn.isConst && (← getPPOption getPPTagAppFns) then
+    let head ← withNaryFn delab
+    withRef head <| d
+  else
+    d
 
 /--
 Wraps the identifier (or identifier with explicit universe levels) with `@` if `pp.analysis.blockImplicit` is set to true.
@@ -637,7 +647,7 @@ def delabStructureInstance : Delab := do
         else
           return (i + 1, args))
     withTypeAscription (cond := (← withType <| getPPOption getPPStructureInstanceType)) do
-      `(⟨$[$args],*⟩)
+      withFnRefWhenTagAppFns `(⟨$[$args],*⟩)
   else
     /-
     Otherwise, we use structure instance notation.
@@ -650,7 +660,7 @@ def delabStructureInstance : Delab := do
     let (_, fields) ← collectStructFields s.induct levels params #[] {} s
     let tyStx? : Option Term ← withType do
       if ← getPPOption getPPStructureInstanceType then delab else pure none
-    `({ $fields,* $[: $tyStx?]? })
+    withFnRefWhenTagAppFns `({ $fields,* $[: $tyStx?]? })
 
 
 /-- State for `delabAppMatch` and helpers. -/
@@ -964,9 +974,15 @@ Similar to `delabBinders`, but tracking whether `forallE` is dependent or not.
 
 See issue #1571
 -/
-private partial def delabForallBinders (delabGroup : Array Syntax → Bool → Syntax → Delab) (curNames : Array Syntax := #[]) (curDep := false) : Delab := do
+private partial def delabForallBinders (prop : Bool) (delabGroup : Array Syntax → Bool → Syntax → Delab) (curNames : Array Syntax := #[]) (curDep := false) : Delab := do
   -- Logic note: wanting to print with binder names is equivalent to pretending the forall is dependent.
-  let dep := !(← getExpr).isArrow || (← getOptionsAtCurrPos).get ppPiBinderNames false
+  let mut dep := !(← getExpr).isArrow || (← getOptionsAtCurrPos).get ppPiBinderNames false
+  if !dep && prop && (← getExpr).binderInfo.isExplicit then
+    -- RFC #1834: If `∀` notation is enabled, avoid using `→` for propositions if the domain is not a proposition.
+    -- We can pretend the type is dependent in this case.
+    if (← getPPOption getPPForalls) then
+      let domProp ← try isProp (← getExpr).bindingDomain! catch _ => pure false
+      dep := !domProp
   if !curNames.isEmpty && dep != curDep then
     -- don't group
     delabGroup curNames curDep (← delab)
@@ -975,7 +991,7 @@ private partial def delabForallBinders (delabGroup : Array Syntax → Bool → S
     let curDep := dep
     if ← shouldGroupWithNext then
       -- group with nested binder => recurse immediately
-      withBindingBodyUnusedName (preserveName := preserve) fun stxN => delabForallBinders delabGroup (curNames.push stxN) curDep
+      withBindingBodyUnusedName (preserveName := preserve) fun stxN => delabForallBinders prop delabGroup (curNames.push stxN) curDep
     else
       -- don't group => delab body and prepend current binder group
       let (stx, stxN) ← withBindingBodyUnusedName (preserveName := preserve) fun stxN => return (← delab, stxN)
@@ -983,25 +999,30 @@ private partial def delabForallBinders (delabGroup : Array Syntax → Bool → S
 
 @[builtin_delab forallE]
 def delabForall : Delab := do
-  delabForallBinders fun curNames dependent stxBody => do
+  let prop ← try isProp (← getExpr) catch _ => pure false
+  delabForallBinders prop fun curNames dependent stxBody => do
     let e ← getExpr
-    let prop ← try isProp e catch _ => pure false
     let stxT ← withBindingDomain delab
     let group ← match e.binderInfo with
     | BinderInfo.implicit       => `(bracketedBinderF|{$curNames* : $stxT})
     | BinderInfo.strictImplicit => `(bracketedBinderF|⦃$curNames* : $stxT⦄)
-    -- here `curNames.size == 1`
-    | BinderInfo.instImplicit   => `(bracketedBinderF|[$curNames.back! : $stxT])
+    | BinderInfo.instImplicit   =>
+      -- here `curNames.size == 1`
+      if dependent || !e.bindingName!.hasMacroScopes then
+        `(bracketedBinderF|[$curNames.back! : $stxT])
+      else
+        -- omit the binder name if it's not used and not accessible
+        `(bracketedBinderF|[$stxT])
     | _                         =>
       -- NOTE: non-dependent arrows are available only for the default binder info
       if dependent then
-        if prop && !(← getPPOption getPPPiBinderTypes) then
+        if prop && !(← getPPOption getPPPiBinderTypes) && (← getPPOption getPPForalls) then
           return ← `(∀ $curNames:ident*, $stxBody)
         else
           `(bracketedBinderF|($curNames* : $stxT))
       else
         return ← curNames.foldrM (fun _ stxBody => `($stxT → $stxBody)) stxBody
-    if prop then
+    if prop && (← getPPOption getPPForalls) then
       match stxBody with
       | `(∀ $groups*, $stxBody) => `(∀ $group $groups*, $stxBody)
       | _                       => `(∀ $group, $stxBody)
@@ -1033,7 +1054,7 @@ def delabLit : Delab := do
   let Expr.lit l ← getExpr | unreachable!
   match l with
   | Literal.natVal n =>
-    if ← getPPOption getPPNatLit then
+    if (← getPPOption getPPNatLit) || (← getPPOption getPPExplicit) then
       `(nat_lit $(quote n))
     else
       return quote n
