@@ -4213,22 +4213,6 @@ theorem neg_two_pow_le_sdiv {x y : BitVec w} :
   · have := Int.ediv_nonneg_of_nonpos_of_nonpos (a := x.toInt) (b := y.toInt) (by omega) (by omega)
     omega
 
-theorem sdiv_le_zero_of_sign_ne {w : Nat} {x y : BitVec w} (hw : 0 < w):
-    (x.toInt / y.toInt ≤ 0) ↔ (x.toInt = 0 ∨ y.toInt = 0 ∨ (x.msb ≠ y.msb)) := by
-  constructor
-  · intro h
-    by_cases hz : x.toInt / y.toInt ≤ 0
-    · simp [hz]
-      by_cases hz' : x.toInt / y.toInt = 0
-      · sorry
-      · sorry
-    · sorry
-  · intro h
-    rcases h with h|h|h
-    · simp [h]
-    · simp [h]
-    · sorry
-
 /-! ### smtSDiv -/
 
 theorem smtSDiv_eq (x y : BitVec w) : smtSDiv x y =
