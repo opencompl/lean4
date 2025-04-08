@@ -4087,8 +4087,10 @@ theorem toInt_allOnes_sdiv_toInt_of_ne_zero {w : Nat} {y : BitVec w} (hw : 1 < w
       · simp [Int.sign_eq_neg_one_of_neg (a := y.toInt) (by omega), Int.neg_one_ediv]
         omega
 
+#eval (1#1).toInt/(1#1).toInt < 2 ^ 0
+
 -- non-overflowing signed division bounds when numerator is non positive, denumerator is less than one
-theorem sdiv_lt_of_ne_allOnes {w : Nat} {x y : BitVec w} (hx : x.toInt ≤ 0) (hy : y.toInt < - 1)  :
+theorem sdiv_lt_of_lt_allOnes {w : Nat} {x y : BitVec w} (hx : x.toInt ≤ 0) (hy : y.toInt < - 1)  :
     x.toInt / y.toInt < 2 ^ (w - 1) := by
   rcases w with _|_|w
   · simp [of_length_zero]
@@ -4120,6 +4122,22 @@ theorem neg_two_pow_le_sdiv {x y : BitVec w} :
     omega
   · have := Int.ediv_nonneg_of_nonpos_of_nonpos (a := x.toInt) (b := y.toInt) (by omega) (by omega)
     omega
+
+theorem sdiv_le_zero_of_sign_ne {w : Nat} {x y : BitVec w} (hw : 0 < w):
+    (x.toInt / y.toInt ≤ 0) ↔ (x.toInt = 0 ∨ y.toInt = 0 ∨ (x.msb ≠ y.msb)) := by
+  constructor
+  · intro h
+    by_cases hz : x.toInt / y.toInt ≤ 0
+    · simp [hz]
+      by_cases hz' : x.toInt / y.toInt = 0
+      · sorry
+      · sorry
+    · sorry
+  · intro h
+    rcases h with h|h|h
+    · simp [h]
+    · simp [h]
+    · sorry
 
 /-! ### smtSDiv -/
 
