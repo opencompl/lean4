@@ -5232,15 +5232,20 @@ theorem sub_le_sub_iff_le {x y z : BitVec w} (hxz : z ≤ x) (hyz : z ≤ y) :
     BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega)]
   omega
 
-theorem sdivOverflow_eq_negOverflow_of_allOnes {w : Nat} {x y : BitVec w} (hy : y = allOnes w) :
-    sdivOverflow x y = negOverflow x := by
-  simp only [sdivOverflow, hy, toInt_allOnes, Int.reduceNeg, ge_iff_le, negOverflow]
+theorem sdiv_allOnes {w : Nat} {x : BitVec w} :
+    x.toInt / (allOnes w).toInt = - x.toInt := by
   rcases w with _|w
   · simp [of_length_zero]
-  · simp only [Nat.add_one_sub_one, Nat.zero_lt_succ, ↓reduceIte, Int.reduceNeg, Int.ediv_neg,
-      Int.ediv_one, Int.neg_lt_neg_iff]
-    have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
-    simp only [bool_to_prop]
+  · simp [toInt_allOnes]
+
+theorem sdivOverflow_eq_negOverflow_of_allOnes {w : Nat} {x y : BitVec w} (hy : y = allOnes w) :
+    sdivOverflow x y = negOverflow x := by
+  rcases w with _|w
+  · simp [sdivOverflow, negOverflow, of_length_zero]
+  · have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
+    simp only [sdivOverflow, hy, toInt_allOnes, Nat.zero_lt_succ, ↓reduceIte, Int.reduceNeg,
+      Int.ediv_neg, Int.ediv_one, Nat.add_one_sub_one, ge_iff_le, Int.neg_lt_neg_iff,
+      show ¬2 ^ w < x.toInt by omega, decide_false, Bool.or_false, negOverflow]
     by_cases hx : x.toInt = - 2 ^ w
     · simp [hx]
     · simp [show ¬x.toInt == -2 ^ w by simp only [beq_iff_eq, hx, not_false_eq_true]]; omega
