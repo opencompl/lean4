@@ -15,7 +15,7 @@ inductive CaseSplitStatus where
   | resolved
   | notReady
   | ready (numCases : Nat) (isRec := false)
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 /-- Given `c`, the condition of an `if-then-else`, check whether we need to case-split on the `if-then-else` or not -/
 private def checkIteCondStatus (c : Expr) : GoalM CaseSplitStatus := do
@@ -76,11 +76,26 @@ private def checkIffStatus (e a b : Expr) : GoalM CaseSplitStatus := do
 
 /-- Returns `true` is `c` is congruent to a case-split that was already performed. -/
 private def isCongrToPrevSplit (c : Expr) : GoalM Bool := do
+  unless c.isApp do return false
   (← get).split.resolved.foldM (init := false) fun flag { expr := c' } => do
     if flag then
       return true
     else
-      return isCongruent (← get).enodes c c'
+      return c'.isApp && isCongruent (← get).enodes c c'
+
+private def checkForallStatus (e : Expr) : GoalM CaseSplitStatus := do
+  if (← isEqTrue e) then
+    let .forallE _ p q _ := e | return .resolved
+    if (← isEqTrue p <||> isEqFalse p) then
+      return .resolved
+    unless q.hasLooseBVars do
+      if (← isEqTrue q <||> isEqFalse q) then
+        return .resolved
+    return .ready 2
+  else if (← isEqFalse e) then
+    return .resolved
+  else
+    return .notReady
 
 private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
   match_expr e with
@@ -97,6 +112,10 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
     if (← isResolvedCaseSplit e) then
       trace_goal[grind.debug.split] "split resolved: {e}"
       return .resolved
+    if e.isForall then
+      let s ← checkForallStatus e
+      trace_goal[grind.debug.split] "{e}, status: {repr s}"
+      return s
     if (← isCongrToPrevSplit e) then
       return .resolved
     if let some info := isMatcherAppCore? (← getEnv) e then
@@ -137,11 +156,14 @@ where
         modify fun s => { s with split.num := numSplits, ematch.num := 0 }
       return c?
     | c::cs =>
+    trace_goal[grind.debug.split] "checking: {c}"
     match (← checkCaseSplitStatus c) with
     | .notReady => go cs c? (c::cs')
     | .resolved => go cs c? cs'
     | .ready numCases isRec =>
-    match c? with
+    if (← cheapCasesOnly) && numCases > 1 then
+      go cs c? (c::cs')
+    else match c? with
     | .none => go cs (.some c numCases isRec) cs'
     | .some c' numCases' _ =>
      let isBetter : GoalM Bool := do
@@ -174,7 +196,9 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
       -- model-based theory combination split
       return mkGrindEM c
   | _ =>
-    if (← isEqTrue c) then
+    if let .forallE _ p _ _ := c then
+      return mkGrindEM p
+    else if (← isEqTrue c) then
       return mkOfEqTrueCore c (← mkEqTrueProof c)
     else
       return c
