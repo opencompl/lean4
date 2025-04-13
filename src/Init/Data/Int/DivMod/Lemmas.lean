@@ -2429,7 +2429,7 @@ theorem ediv_lt_self_of_pos_of_one_ne_one (x y : Int) (hx' : 0 < x) (hy' : y ≠
   · have := @Int.ediv_nonpos_of_nonneg_of_nonpos x y (by omega) (by omega)
     omega
 
--- note that x < y → 0 ≤ x → 0 ≤ y → x / y = 0
+/-- Note that x < y → 0 ≤ x → 0 ≤ y → x / y = 0 -/
 theorem ediv_nonneg_of_pos_of_nonneg (x y : Int) (hx' : 0 ≤ x) (hy' : 0 ≤ y) :
     0 ≤ x / y := by
   rw [Int.div_def]
@@ -2439,9 +2439,7 @@ theorem ediv_nonneg_of_pos_of_nonneg (x y : Int) (hx' : 0 ≤ x) (hy' : 0 ≤ y)
   simp only [hx, hy, Int.ofNat_eq_coe, Int.ofNat_lt]
   exact Int.ofNat_zero_le (xn / yn)
 
-/-!
-  needs a stricter bound on x, in fact (-1)/(-2) = 1 and 1 < (-1).natAbs is not true
--/
+/-- Needs a stricter bound on x, in fact (-1)/(-2) = 1 and 1 < (-1).natAbs is not true. -/
 theorem ediv_lt_natAbs_self_of_lt_neg_one_of_lt_neg_one (x y : Int) (hx' : x < -1) (hy' : y < -1) :
     x / y < x.natAbs := by
   rw [Int.div_def]
