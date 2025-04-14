@@ -4187,6 +4187,14 @@ theorem sdiv_nonpos_of_nonneg_of_nonpos {w : Nat} {x y : BitVec w} (hx : 0 ≤ x
     · have := Int.ediv_nonpos_of_nonneg_of_nonpos (a := x.toInt) (b := y.toInt) (by omega) (by omega)
       simp; omega
 
+/-- Given the definition of ediv/emod for signed integer division (https://dl.acm.org/doi/pdf/10.1145/128861.128862)
+  we have that for two integers x and y: x/y = q ↔ x.ediv y = q ↔ r = x.emod y
+  and in particular: -1/y = q ↔ -1.ediv y = q ↔ r = -1.emod y.
+  from which it follows that:
+  (-1)/0 = 0
+  (-1)/y = -1 when 0 < y
+  (-1)/(-5) = 1 when y < 0
+-/
 theorem toInt_allOnes_sdiv_toInt_of_ne_zero {w : Nat} {y : BitVec w} (hw : 1 < w) :
     (allOnes w).toInt / y.toInt = if y.toInt = 0 then 0 else if 0 < y.toInt then -1 else 1 := by
   rcases w with _|_|w
