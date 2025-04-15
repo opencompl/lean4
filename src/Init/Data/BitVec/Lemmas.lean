@@ -4149,6 +4149,12 @@ theorem toNat_udiv_lt {w : Nat} {x y : BitVec w} :
   · rw [Nat.div_lt_iff_lt_mul (k := y.toNat) (x := x.toNat) (y := 2 ^ w) (by omega), show x.toNat = x.toNat * 1 by omega]
     apply Nat.mul_lt_mul_of_le_of_lt (by omega) (by omega) (by omega)
 
+theorem udiv_le {w : Nat} {x y : BitVec w} :
+    x / y ≤ allOnes w  := by
+  have := toNat_udiv_lt (x := x) (y := y)
+  refine le_def.mpr ?_
+  simp; omega
+
 /-- Non-overflowing signed division bounds when numerator is nonneg, denumerator is nonneg. -/
 theorem toInt_ediv_of_nonneg_of_nonneg {w : Nat} {x y : BitVec w} (hx : 0 ≤ x.toInt) (hy : 0 ≤ y.toInt) :
     x.toInt / y.toInt < 2 ^ (w - 1) := by

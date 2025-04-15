@@ -1778,6 +1778,48 @@ theorem toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt :=
         ((not_congr neg_eq_zero_iff).mpr hyz)]
       exact neg_le_intMin_of_msb_eq_true h'
 
+theorem sdiv_slt_of_nonneg_of_nonneg {w : Nat} {x y : BitVec w} (hx : (0#w).sle x) (hy : (0#w).sle y) (hw : 0 < w):
+    (x.sdiv y).sle ((twoPow w (w - 1)) - 1):= by
+  rcases w with _|w
+  · omega
+  · simp [sle_iff_toInt_le] at hx hy
+    simp
+    have h0 := BitVec.sle_iff_toInt_le (x := x.sdiv y) (y := (twoPow (w + 1) w) - 1)
+    rw [h0]
+    have h2 := toInt_sdiv (a := x) (b := y)
+    simp [Int.tdiv_eq_ediv] at h2
+    simp [hx, hy] at h2
+    rw [h2]
+    have : 0 ≤ x.toInt / y.toInt := by exact Int.ediv_nonneg hx hy
+    have h1 := BitVec.toInt_ediv_of_nonneg_of_nonneg (x := x) (y := y) hx hy; simp at h1
+    have h4 := Int.emod_eq_of_lt (a := x.toInt / y.toInt) (b := (2 ^ (w + 1): Int)) (by omega) (by omega)
+    have h3 := Int.bmod_eq_emod_of_lt (x := x.toInt / y.toInt) (m := 2 ^ (w + 1))
+      (by push_cast; omega)
+    simp [h3, h4]
+    push_cast
+    simp [h3, h4]
+    rw [toInt_twoPow]
+    simp [show ¬ w + 1 ≤ w by omega]
+
+
+
+
+
+
+    simp [h3] at h2
+    push_cast at h2
+    simp [h4] at h2
+    simp [h2]
+    have := toInt_ediv_of_nonneg_of_nonneg (x := x) (y := y) hx hy
+    simp at this
+    simp [toInt_twoPow, show ¬ w + 1 ≤ w by omega]
+
+
+
+
+    sorry
+
+
 /-! ### Lemmas that use bit blasting circuits -/
 
 theorem add_sub_comm {x y : BitVec w} : x + y - z = x - z + y := by
