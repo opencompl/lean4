@@ -886,6 +886,11 @@ theorem div_eq_self {m n : Nat} : m / n = m ↔ m = 0 ∨ n = 1 := by
     rw [← Nat.mul_right_inj hb, ← Nat.add_left_cancel_iff, mod_add_div]
     simp +contextual [mod_eq_of_lt]
 
+/-- The result of division is zero if the numerator is less than the denominator. -/
+theorem div_eq_zero_of_lt {a b : Nat} (hab : a < b) : a / b = 0 := by
+  apply Nat.div_eq_zero_iff.mpr
+  simp [hab]
+
 protected theorem div_ne_zero_iff : a / b ≠ 0 ↔ b ≠ 0 ∧ b ≤ a := by simp
 
 @[simp] protected theorem div_pos_iff : 0 < a / b ↔ 0 < b ∧ b ≤ a := by
