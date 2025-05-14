@@ -137,7 +137,7 @@ jobs:
             console.log(`level: ${level}`);
             // use large runners where available (original repo)
             let large = ${{ github.repository == 'leanprover/lean4' }};
-            const isPr = "${{ github.event_name }}" == "pull_request";
+            const isMerge = "${{ github.event_name }}" == "merge_group";
             let matrix = [
               /* TODO: to be updated to new LLVM
               {
@@ -229,8 +229,8 @@ jobs:
                 // 2. To skip it in merge queues as it takes longer than the Linux build and adds
                 //    little value in the merge queue
                 // 3. To run it in release (obviously)
-                "check-level": isPr ? 0 : 2,
-                "secondary": isPr,
+                "check-level": isMerge ? 0 : 2,
+                "secondary": isMerge,
               },
               {
                 "name": "Windows",
