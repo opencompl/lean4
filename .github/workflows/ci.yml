@@ -107,7 +107,8 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/') && github.repository != 'leanprover/lean4'
         id: set-release-custom
         run: |
-          echo "building a custom release"
+          TAG_NAME="${GITHUB_REF##*/}"
+          echo "RELEASE_TAG=$TAG_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Set check level
         id: set-level
@@ -117,7 +118,7 @@ jobs:
         run: |
           check_level=0
 
-          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outcome}}" != 'success']]; then
+          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.RELEASE_TAG}}"]]; then
             check_level=2
           elif [[ "${{ github.event_name }}" != "pull_request" ]]; then
             check_level=1
