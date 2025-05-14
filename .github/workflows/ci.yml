@@ -117,7 +117,7 @@ jobs:
         run: |
           check_level=0
 
-          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outcome}} != 'success']]; then
+          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outcome}}" != 'success']]; then
             check_level=2
           elif [[ "${{ github.event_name }}" != "pull_request" ]]; then
             check_level=1
