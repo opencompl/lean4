@@ -279,6 +279,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Term_elabNoMatch_
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_precheckMatch___spec__3(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabNoMatch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instMonad(lean_object*, lean_object*);
+uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Linter_getLinterValue___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_findCore___at_Lean_Meta_mkGeneralizationForbiddenSet_visit___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_maxRecDepth;
@@ -885,7 +886,6 @@ static lean_object* l_Lean_Elab_Term_ToDepElimPattern_normalize_addVar___closed_
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyMAux___at___private_Lean_Elab_Match_0__Lean_Elab_Term_withToClear___spec__6(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_mainModule(lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_PrettyPrinter_delabCore___spec__3(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchTypeAndDiscrs_elabDiscrsWithMatchType___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Match_0__Lean_Elab_Term_withToClear___spec__23(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at___private_Lean_Elab_Match_0__Lean_Elab_Term_withToClear___spec__10(lean_object*, lean_object*, lean_object*);
@@ -47188,7 +47188,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_15 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_getMatchGeneralizing_x3f___lambda__2___closed__1;
-x_16 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_PrettyPrinter_delabCore___spec__3(x_1, x_15);
+x_16 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Linter_getLinterValue___spec__2(x_1, x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; 
