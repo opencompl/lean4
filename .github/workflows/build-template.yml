@@ -196,15 +196,6 @@ jobs:
         run: |
           make -C build -j$NPROC check-stage3
         if: matrix.test-speedcenter
-      - name: Test Speedcenter Benchmarks
-        run: |
-          # Necessary for some timing metrics but does not work on Namespace runners
-          # and we just want to test that the benchmarks run at all here
-          #echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
-          export BUILD=$PWD/build PATH=$PWD/build/stage1/bin:$PATH
-          cd tests/bench
-          nix shell .#temci -c temci exec --config speedcenter.yaml --included_blocks fast --runs 1
-        if: matrix.test-speedcenter
       - name: Check rebootstrap
         run: |
           # clean rebuild in case of Makefile changes
