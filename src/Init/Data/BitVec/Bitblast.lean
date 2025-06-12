@@ -1966,8 +1966,6 @@ def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
   | n' + 1 => if x.getLsbD n then BitVec.ofNat w (w - 1 - n)
             else clzAuxRec x n'
 
--- link proving that the def above is correct: https://live.lean-lang.org/#codez=JYWwDg9gTgLgBAZRgEwHQBUCGBjGxuoBCAagCICm2wy5AULTQGZzYA2AXgIICuAHgEqU4AbwDucAFxwAcphgBfOAApekuIWAxiQ0QEplAOzWyY+qRq07JAXlpw4IOdgAWcI6M3O7cAD5wADHDWAHxwwMy8qADm5DAAMgDOAEakAXAwzuRGFtoEEIwmcOJK4gC0cACMut72tXDkrAnk6pq5qPmF4qLefgYA5HAA1JVBoeFwkTHxyalGGVktlnkFckXKZSPlBtV1u7UNTSwcPAJCqv30TEdcfCLiUiaKKmo5OvpKRg9yZjKrErb2RwwFxuIqeHppEJhCLRWKJFJpeZGQIHZoVCH9IYjEI1aETWHTBFzTLI3H2VEjYZsG6qc59egAelK5QAwhBuAZ4PM3NwQElyFA4Pk4KxyJhkMADFE4OwBRByAlUHBSgyGORmNS7sY5E9VOZWm8XgbsGt/njxNZESS0hTXstOspqScJutlZVdNVaPNoOQQHAwKLME0APqiaAAa2UesWuTgAA4fk7bqoAOxBa4nQQm1M2OBJACecG8CVAYDgAG1qQAaDN8GtJ07YAC63ig5AAbgL4LwANxF+w0Kg0bzMvPt4OD6h0ey0JnlSWMCBSPoBsUhsNQcMDGhgLLIBJCoyYXjACAgBJSctgKAQXe8GA1lmsIMl7CYVioFwQfDkGsARW4CAYFQBJ2QMZAm2VVUAGIom4TAoGQYNzyiA9JTgaDr0leBj1Pc9/UDdcIyAA
-
 theorem clzAuxRec_eq_iff (x : BitVec w) (n : Nat) :
     (x.clzAuxRec n).toNat = w ↔ ∀ i, i ≤ n → x.getLsbD i = false := by
   rcases w with _|w
