@@ -19,11 +19,13 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reve
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Clz
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.PopCount
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
+
 import Init.ByCases
 import Init.Data.Nat.Linear
 import Init.Omega
 
 @[expose] public section
+
 
 /-!
 This module contains the verification of the `BitVec` expressions (`BVExpr`) bitblaster from
