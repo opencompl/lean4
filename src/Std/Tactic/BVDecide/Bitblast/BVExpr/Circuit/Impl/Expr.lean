@@ -6,6 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
+<<<<<<< HEAD
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
@@ -21,6 +22,25 @@ import Init.Data.Nat.Linear
 import Init.Omega
 
 @[expose] public section
+=======
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Reverse
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.PopCount
+>>>>>>> 892a0f17a8 (chore: builds)
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec` expressions (`BVExpr`).
@@ -232,8 +252,8 @@ where
           apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastClz)
           omega
         ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastClz) ..)⟩
-      | .popCnt => sorry
-        -- let res := bitblast.blastPopCnt eaig evec
+      | .popCount => sorry
+        -- let res := bitblast.blastPopCount eaig evec
         -- have := by
         --   apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastClz)
         --   omega
