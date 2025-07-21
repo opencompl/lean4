@@ -872,18 +872,14 @@ def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
 /-- Count the number of trailing zeros. -/
 def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
 
-/-- Count the number of bits with value `1` downward from the `pos`-th bit to the
-  `0`-th bit of `x`, storing the result in `acc`. -/
-def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
-  match pos with
-  | 0 => acc
-  | n + 1 => x.cpopNatRec n (acc + (x.getLsbD n).toNat)
+/-- Tail-recursive definition of popcount.
+  The bitwidth of `x` explictly bounds the number of recursions, thus bounding the depth of the circuit as well -/
+def popCountAuxRec {w : Nat} (x : BitVec w) (n : BitVec w) (fuel : Nat) : BitVec w :=
+  match fuel with
+  | 0 => n
+  | fuel' + 1 => if x = 0#w then n else popCountAuxRec (x &&& (x - 1)) (n + 1) fuel'
 
-/-- Population count operation, to count the number of bits with value `1` in `x`.
-  Also known as `popcount`, `popcnt`.
--/
-@[suggest_for BitVec.popcount BitVec.popcnt]
-def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
-
+/-- Count the number of bits with value one in a bitvec -/
+def popCount{w : Nat} (x : BitVec w) : BitVec w := popCountAuxRec x 0 w
 
 end BitVec

@@ -5908,7 +5908,7 @@ theorem reverse_reverse_eq {x : BitVec w} :
   ext k hk
   rw [getElem_reverse, getMsbD_reverse, getLsbD_eq_getElem]
 
-@[simp]
+
 theorem concat_reverse_setWidth_msb_eq_reverse {x : BitVec (w + 1)} :
     concat ((x.setWidth w).reverse) x.msb = x.reverse := by
   ext i hi
@@ -5917,6 +5917,23 @@ theorem concat_reverse_setWidth_msb_eq_reverse {x : BitVec (w + 1)} :
   by_cases hzero : i = 0
   · simp [hzero]
   · simp [hzero, show i - 1 + (w + 1) - w = i by omega]
+
+/-! ### PopCount -/
+
+theorem popCountAuxRec_zero {x n : BitVec w} :
+  x.popCountAuxRec n 0 = n := by rfl
+
+theorem popCountAuxRec_succ {x n : BitVec w} :
+  x.popCountAuxRec n (fuel + 1) = if x = 0#w then n else (x &&& (x - 1)).popCountAuxRec (n + 1) fuel := by rfl
+
+theorem popCountAuxRec_eq {x n : BitVec w} :
+  x.popCountAuxRec n fuel =
+    if fuel = 0 then n else
+      if x = 0#w then n else (x &&& (x - 1)).popCountAuxRec (n + 1) (fuel - 1) := by
+  conv =>
+    lhs
+    unfold BitVec.popCountAuxRec
+  rcases fuel with _|fuel <;> simp
 
 /-! ### Inequalities (le / lt) -/
 
