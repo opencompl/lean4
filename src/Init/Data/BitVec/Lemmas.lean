@@ -5920,24 +5920,24 @@ theorem concat_reverse_setWidth_msb_eq_reverse {x : BitVec (w + 1)} :
 
 /-! ### PopCount -/
 
-@[simp]
-theorem popCountAuxRec_zero {x : BitVec w} :
-    x.popCountAuxRec 0 = BitVec.ofNat w w := by rfl
+-- @[simp]
+-- theorem popCountAuxRec_zero {x : BitVec w} :
+--     x.popCountAuxRec 0 = BitVec.ofNat w w := by rfl
 
-@[simp]
-theorem popCountAuxRec_succ {x : BitVec w} :
-    x.popCountAuxRec (n + 1) = if x = 0#w then BitVec.ofNat w (w - (n + 1)) else (x &&& (x - 1)).popCountAuxRec n := by rfl
+-- @[simp]
+-- theorem popCountAuxRec_succ {x : BitVec w} :
+--     x.popCountAuxRec (n + 1) = if x = 0#w then BitVec.ofNat w (w - (n + 1)) else (x &&& (x - 1)).popCountAuxRec n := by rfl
 
-@[simp]
-theorem popCountAuxAnd_zero {x : BitVec w} :
-    x.popCountAuxAnd 0 = x := by rfl
+-- @[simp]
+-- theorem popCountAuxAnd_zero {x : BitVec w} :
+--     x.popCountAuxAnd 0 = x := by rfl
 
-@[simp]
-theorem popCountAuxAnd_succ {x : BitVec w} :
-    x.popCountAuxAnd (n + 1) = (x &&& (x - 1)).popCountAuxAnd n := by rfl
+-- @[simp]
+-- theorem popCountAuxAnd_succ {x : BitVec w} :
+--     x.popCountAuxAnd (n + 1) = (x &&& (x - 1)).popCountAuxAnd n := by rfl
 
-theorem popCountAuxRec_succ_eq_popCountAuxAnd {w n : Nat} {x : BitVec w} :
-    x.popCountAuxRec (n + 1) = if x = 0#w then BitVec.ofNat w (w - (n + 1)) else (x.popCountAuxAnd 1).popCountAuxRec n := by simp
+-- theorem popCountAuxRec_succ_eq_popCountAuxAnd {w n : Nat} {x : BitVec w} :
+--     x.popCountAuxRec (n + 1) = if x = 0#w then BitVec.ofNat w (w - (n + 1)) else (x.popCountAuxAnd 1).popCountAuxRec n := by simp
 
 /-! ### Inequalities (le / lt) -/
 
