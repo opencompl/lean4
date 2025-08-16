@@ -5835,6 +5835,217 @@ theorem sle_eq_ule {x y : BitVec w} : x.sle y = (x.msb != y.msb ^^ x.ule y) := b
 theorem sle_eq_ule_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) : x.sle y = x.ule y := by
   simp [BitVec.sle_eq_ule, h]
 
+
+-- bvmul
+
+theorem bvmul_1 {x : BitVec w} (i : Nat) :
+  x * (twoPow w i) = x <<< i := by sorry
+
+theorem bvmul_2 {x : BitVec w} (i : Nat) :
+  x * (-twoPow w i) = -x <<< i := by sorry
+
+theorem bvmul_3 {x : BitVec w} (ht : x * s = t) :
+  x * ((-s ||| s) &&& t) = t := by sorry
+
+theorem bvmul_4 {x : BitVec w} (hw : 0 < w) (ht : x * s = t) :
+  t[0] = x[0] && s[0] := by sorry
+
+theorem bvmul_5 {x : BitVec w} (hw : 0 < w) (ht : x * s = t) :
+  s ≠ ~~~ (t ||| (1#w &&& (x ||| s))) := by sorry
+
+theorem bvmul_6 {x : BitVec w} (hw : 0 < w) (ht : x * s = t) :
+ (x &&& t) ≠ (s ||| ~~~t) := by sorry
+
+theorem bvmul_7 {x : BitVec w} (hw : 0 < w) (ht : x * s = t) :
+  x * x ≠ ((x ||| (1#w)) <<< (x <<< x)) := by sorry
+
+theorem bvmul_8 {x : BitVec w} (ht : x * s = t) :
+  s = (s <<< (x &&& (1#w >>> t))) := by sorry
+
+theorem bvmul_9 {x : BitVec w} (hw : w ≠ 2) (ht : x * s = t) :
+  t ≥ (1#w &&& ((x &&& s) >>> 1)) := by sorry
+
+theorem bvmul_10 {x : BitVec w} (ht : x * s = t) :
+  x ≠ ((1#w) ^^^ (x <<< (s ^^^ t))) := by sorry
+
+theorem bvmul_11 {x : BitVec w} (ht : x * s = t) (hw : 1 < w) :
+  t ≠ ((1#w) ||| ~~~ (x ^^^ s)) := by sorry
+
+theorem bvmul_12 {x : BitVec w} (ht : x * s = t) (hw : 1 < w) :
+  t ≠ (~~~ (1#w) ||| (x ^^^ s)) := by sorry
+
+theorem bvmul_13 {x : BitVec w} {ht : x * s = t} :
+  x ≠ ((x <<< (s + t) - 1)) := by sorry
+
+theorem bvmul_14 {x : BitVec w} (ht : x * s = t) :
+  x ≠ (1 - (x <<< (s - t))) := by sorry
+
+theorem bvmul_15 {x : BitVec w} (ht : x * s = t) :
+  s ≠ (1 + (s <<< (t - x))) := by sorry
+
+theorem bvmul_16 {x : BitVec w} (ht : x * s = t) :
+  s ≠ (1 - (s <<< (t - x))) := by sorry
+
+theorem bvmul_17 {x : BitVec w} (ht : x * s = t) :
+  s ≠ (1 + (s <<< (x - t))) := by sorry
+
+theorem bvmul_18 {x : BitVec w} (ht : x * s = t) (hw : 1 < w):
+  t ≠ ((1#w) ||| (x + s)) := by sorry
+
+theorem bvmul_19 {x : BitVec w} (ht : x * s = t) (hw : 1 < w) :
+  x ≠ ~~~ (x <<< (s + t)) := by sorry
+
+-- bvudiv
+
+theorem smtUDiv_1 {x : BitVec w} {i : Nat} (ht : x.smtUDiv s = t)
+  (hs : s = twoPow w i) : t = x >>> i := by sorry
+
+theorem smtUDiv_2 {x : BitVec w} {i : Nat} (ht : x.smtUDiv s = t)
+  (hs : s = x ∧ x ≠ 0) : t = 1 := by sorry
+
+-- | TODO: this is only true for smtudiv
+theorem smtUDiv_3 {x : BitVec w} {i : Nat} (ht : x.smtUDiv s = t)
+  (hs : s = 0) : t = ~~~ 0#w := by sorry
+
+theorem smtUDiv_4 {x : BitVec w} {i : Nat} (hs : s = 0 ∧ s ≠ 0) :
+  t = 0 := by sorry
+
+theorem smtUDiv_5 {x : BitVec w} (hs : s ≠ 0) (ht : x.smtUDiv s = t ) :
+    t ≤ x := by sorry
+
+theorem smtUDiv_6 {x : BitVec w} (ht : x.smtUDiv s = t)
+    (hs : s ≠ ~~~0 ∧ x ≠ ~~~0) : t = 0 := by sorry
+
+theorem smtUDiv_7 {x : BitVec w} (ht : x.smtUDiv s = t) :
+    x ≥ - (- s &&& -t)  := by sorry
+
+theorem smtUDiv_8 {x : BitVec w} (ht : x.smtUDiv s = t) :
+    - (s ||| 1#w) ≥ t := by sorry
+
+theorem smtUDiv_9 {x : BitVec w} (ht : x.smtUDiv s = t) :
+    t ≠ - (s &&& ~~~ x) := by sorry
+
+theorem smtUDiv_10 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  (s ||| t) ≠ (x &&& ~~~ 1#w) := by sorry
+
+theorem smtUDiv_11 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  (s &&& ~~~ 1#w) ≠ (x ||| ~~~ t) := by sorry
+
+theorem smtUDiv_12 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  (x &&& - t) ≥ (s &&& t) := by sorry
+
+theorem smtUDiv_13 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  s ≥ (x >>> t) := by sorry
+
+theorem smtUDiv_14 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  x ≥ ((s >>> (s <<< t)) <<< 1) := sorry
+
+theorem smtUDiv_15 {x : BitVec w} (ht : x.smtUDiv s = t) :
+    x ≥ ((t <<< 1) >>> (t <<< s)) := sorry
+
+theorem smtUDiv_16 {x : BitVec w} (ht : x.smtUDiv s = t) :
+    t ≥ ((x >>> s) <<< 1) := sorry
+
+theorem smtUDiv_17 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  x ≥ ((x ||| t) &&& (s <<< 1)) := sorry
+
+theorem smtUDiv_18 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  x ≥ ((x ||| s) &&& (t <<< 1)) := sorry
+
+theorem smtUDiv_19 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  (x >>> t) ≠ (s ||| t) := sorry
+
+theorem smtUDiv_20 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  s ≠ ~~~ (s >>> (t >>> 1)) := sorry
+
+theorem smtUDiv_21 {x : BitVec w} (ht : x.smtUDiv s = t) (hw : 1 < w):
+  x ≠ ~~~ (x &&& (t <<< 1)) := sorry
+
+theorem smtUDiv_22 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  t ≥ ((x <<< 1) >>> s) := sorry
+
+theorem smtUDiv_23 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  x ≥ (s <<< ~~~ (x ||| t)) := sorry
+
+theorem smtUDiv_24 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  x ≥ (t <<< ~~~ (x ||| s)) := sorry
+
+theorem smtUDiv_25 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  x ≥ (t ^^^ ((t >>> s) >>> 1#w)) := sorry
+
+theorem smtUDiv_26 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  x ≥ (s ^^^ ((s >>> t) >>> 1#w)) := sorry
+
+theorem smtUDiv_27 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  x ≥ (s <<< ~~~ (x ^^^ t)) := sorry
+
+theorem smtUDiv_28 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  x ≥ (t <<< ~~~ (x ^^^ s)) := sorry
+
+theorem smtUDiv_29 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  x ≠ (t + (s ||| (x + s))) := sorry
+
+theorem smtUDiv_30 {x : BitVec w} (ht : x.smtUDiv s = t) (hw : 2 < w) :
+  x ≠ (t + (1#w + (1#w <<< x))) := sorry
+
+theorem smtUDiv_31 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  s ≥ ((x + t) >>> t) := sorry
+
+theorem smtUDiv_32 {x : BitVec w} (ht : x.smtUDiv s = t) (hw : 1 < w) :
+  x ≠ (t + (t + (x ||| s))) := sorry
+
+theorem smtUDiv_33 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  (s ^^^ (x ||| t)) ≥ (t ^^^ 1#w) := sorry
+
+theorem smtUDiv_34 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  t ≥ (x >>> (s - 1)) := sorry
+
+theorem smtUDiv_35 {x : BitVec w} (ht : x.smtUDiv s = t) :
+  (s - 1) ≥ x >>> t := sorry
+
+theorem smtUDiv_36 {x : BitVec w} (ht : x.smtUDiv s = t) (hw : w ≠ 2):
+ x ≠ (1 - (x <<< (x - t))) := sorry
+
+section Abstractions
+section smtURem
+variable {w : Nat} {x s t : BitVec w} (ht :  BitVec.umod x s = t)
+
+theorem smtURem_1 (hs : s = twoPow w i) :
+  t = (x.extractLsb' 0 (i - 1)).zeroExtend _ := sorry -- t = 0_[k(x) -i] : x[i-1 : 0]
+
+theorem smtURem_2 (hs : s ≠ 0) : t ≤ s := sorry
+
+theorem smtURem_3 (hx : x = 0) : t = 0 := sorry
+
+theorem smtURem_4 (hs : s = 0) : t = x := sorry
+
+theorem smtURem_5 (hs : s = x) : t = 0 := sorry
+
+theorem smtURem_6 (hx : x ≤ s) : t = x := sorry
+
+theorem smtURem_7 : t ≤ (~~~ (- s)) := sorry
+
+theorem smtURem_8 : x = x &&& (s ||| (t ||| -s )) := sorry
+
+theorem smtURem_9 : (t ||| (x &&& s)) ≤ x := sorry
+
+theorem smtURem_10 : 1#w ≠ (t &&& ~~~(x ||| s)) := sorry
+
+theorem smtURem_11 : t ≠ (~~~x ||| -s) := sorry
+
+theorem smtURem_12 : (t &&& 1#w) ≤ (t &&& (x ||| s)) := sorry
+
+theorem smtURem_13 (hw : 2 < w) :
+  x ≠ (-x ||| - ~~~ t) := sorry
+
+theorem smtURem_14 :
+  t ≤ x + - s  := sorry
+
+theorem smtURem_15 :
+  (-s ^^^ (x ||| s)) ≥ t := sorry
+
+end smtURem
+end Abstractions
 /-! ### Deprecations -/
 
 set_option linter.missingDocs false
