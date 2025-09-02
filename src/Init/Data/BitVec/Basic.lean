@@ -928,7 +928,6 @@ def parPrefixSum
     hcast▸parSum
 
 
-
 /-- We express `popCount` as the result of parallel prefix sum. -/
 def popCountParSum {x : BitVec w} : BitVec w :=
   if hw : 1 < w then
@@ -950,8 +949,5 @@ termination_by (w - n)
 
 /-- Count the number of bits with value one in a bitvec -/
 def popCount {w : Nat} (x : BitVec w) : BitVec w := popCountAuxRec x 0 0
-
--- theorem correctness (x r n : BitVec w) :
---   x.popCount =
 
 end BitVec
