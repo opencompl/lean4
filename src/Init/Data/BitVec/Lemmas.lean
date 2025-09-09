@@ -5779,8 +5779,6 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
   simp only [BitVec.msb, getMsbD_replicate, Nat.zero_mod]
   cases n <;> cases w <;> simp
 
-/-! ### PopCount -/
-
 
 /-! ### Inequalities (le / lt) -/
 
