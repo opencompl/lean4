@@ -876,8 +876,8 @@ def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
 def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
 
 /-- Tail-recursive definition of popcount.
- The bitwidth of `x` explictly boundspop the number of recursions, thus bounding the depth of the circuit as well
- correctness of def -/
+ The bitwidth of `x` explictly boundspop the number of recursions,
+ thus bounding the depth of the circuit as well correctness of def -/
 def popCountAuxRec (x r : BitVec w) (n : Nat) :=
   match h : (w - n) with
   | 0 => r
