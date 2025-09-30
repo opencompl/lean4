@@ -3044,7 +3044,7 @@ def parPrefixSum
     let addRes := addVec validNodes parSum (by omega) (by omega)
     let ⟨outs, proof⟩ := parPrefixSum ((validNodes+1)/2) addRes hin (by omega) (by omega)
     ⟨outs, by
-      subst outs addRes; sorry ⟩
+      subst outs addRes; sorry⟩
       -- rw [sumPackedVecs_eq_addVec]⟩
   else
     have hcast : validNodes * w = w := by
@@ -3052,14 +3052,15 @@ def parPrefixSum
     ⟨BitVec.cast hcast parSum, sorry⟩
       -- by rw [sumPackedVec_eq_of_eq_one (hv := by omega)]⟩
 
--- def parPrefixSum
---       (validNodes : Nat) (w : Nat) (parSum : BitVec k) (hk : validNodes * w = k)
---       :
---       {
---       l : BitVec w // parSum.sumPackedVec = l
---       }
+/-
+def parPrefixSum'
+      (validNodes : Nat) (w : Nat) (parSum : BitVec k) (hk : validNodes * w = k)
+      :
+      {
+      l : BitVec w // parSum.sumPackedVec validNodes = l
+      } := sorry
 
-
+-/
 
 theorem parPrefixSum_eq
     (validNodes : Nat) (parSum : BitVec (validNodes * w))
