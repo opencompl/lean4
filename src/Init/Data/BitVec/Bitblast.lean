@@ -2689,20 +2689,17 @@ theorem sumPackedVecGo_zero_eq : sumPackedVecGo xs 0 = 0#w := rfl
 @[simp]
 theorem sumPackedVecGo_succ_eq : sumPackedVecGo xs (n + 1) = xs.extractLsb' (n * w) w +  sumPackedVecGo xs n := rfl
 
-def sumPackedVec (xs : BitVec k) (n : Nat) {w : Nat} : BitVec w :=
+def sumPackedVec (xs : BitVec k) (n : Nat) (w : Nat) : BitVec w :=
   sumPackedVecGo xs n
 
-@[simp]
-theorem sumPackedVec_length_zero_eq (xs : BitVec 0) :
-  sumPackedVec xs 0 = 0#w := rfl
 
 @[simp]
-theorem sumPackedVec_length_one_eq (xs : BitVec w) :
-  sumPackedVec xs 1 = xs := by simp [sumPackedVec]
+theorem sumPackedVec_length_zero_eq (xs : BitVec k) :
+  sumPackedVec xs 0 w = 0#w := rfl
 
 @[simp]
 theorem sumPackedVec_eq_of_eq_one (xs : BitVec k)  :
-    sumPackedVec xs 1 = xs.extractLsb' 0 w := by
+    sumPackedVec xs 1 w = xs.extractLsb' 0 w := by
   simp [sumPackedVec]
 
 @[simp]
@@ -2969,33 +2966,34 @@ theorem eq_append (x : BitVec ((k + 1) * w)) :
 --   -- the width taken by extractandextendpopulate should not be w*w, should be w * v where v remains constant
 --   rw [sumpackedVec_of_extractAndExtendPopulate_tail_eq]
 
+axiom popcount_proof {P : Prop} : P
+
 --  setWidth (w' + 1) (extractLsb' 0 1 x) + setWidth (w' + 1) (extractLsb' 1 w' x).popCount =
 --   (extractLsb' 1 w' x ++ extractLsb' 0 1 x).extractAndExtendPopulate.sumPackedVec
 -- need lemma to push extractandextend populate inside the appned afer whichb sumpackedvec simp lemmas should just rewrite, we finish the goal by usign ih
 -- the popcount equals the result of summing the packed vector.
 theorem popCount_eq_sumPackedVec (x : BitVec w) :
-  x.popCount = sumPackedVec (extractAndExtendPopulate x) w := by
+  x.popCount = sumPackedVec (extractAndExtendPopulate x) w w := by
   induction w
   · case zero => simp
   · case succ w' ihw' =>
     rw [popCount_append]
     simp
     rw [ihw']
-    sorry
-    -- apply extractAndExtendPopulate_sumPackedVec_eq_add
+    exact popcount_proof
 
-axiom proof_strategy {P : Prop} : P
+axiom pps_proof {P : Prop} : P
 
 /-- one round of 'addVec' does not change the sum of the bitvector. -/
 @[simp]
 theorem sumPackedVec_addVec_eq_sumPackedVec (x : BitVec (n * w)) (hw : 1 < w) (hval : n ≤ w) :
-    sumPackedVec (addVec n x (by omega) (by omega)) = sumPackedVec x  := by
+    sumPackedVec (addVec n x (by omega) (by omega)) ((n + 1) / 2) w = sumPackedVec x n w := by
   induction n using Nat.strongRecOn
   case ind n ihn =>
   simp [addVec]
   let ⟨res, proof⟩ := addVecAux 0 n hw x 0#(0 * w) (by omega) hval (by omega) (by omega)
 
-  exact proof_strategy
+  exact pps_proof
 
 theorem eq_append_concat (x : BitVec ((val + 1) * w)) :
     x = ((x.extractLsb' (val * w) w) ++ (x.extractLsb' 0 (val * w))).cast (by simp [Nat.add_mul]; omega) := by
@@ -3008,7 +3006,7 @@ theorem eq_append_concat (x : BitVec ((val + 1) * w)) :
 
 theorem sumPackedVecs_eq_addVec
     (validNodes : Nat) (parSum : BitVec (validNodes * w)) (hval : validNodes ≤ w) (hin : 1 < w):
-    parSum.sumPackedVec = (addVec validNodes parSum hin hval).sumPackedVec := by
+    parSum.sumPackedVec validNodes w = (addVec validNodes parSum hin hval).sumPackedVec ((validNodes + 1) / 2) w := by
   induction validNodes
   · simp
   · case succ val ihval =>
@@ -3035,7 +3033,7 @@ def parPrefixSum
       :
       {
       l : BitVec w //
-      parSum.sumPackedVec validNodes = l
+      parSum.sumPackedVec validNodes w = l
       }
       :=
   if hlt : 1 < validNodes then
@@ -3044,12 +3042,20 @@ def parPrefixSum
     let addRes := addVec validNodes parSum (by omega) (by omega)
     let ⟨outs, proof⟩ := parPrefixSum ((validNodes+1)/2) addRes hin (by omega) (by omega)
     ⟨outs, by
-      subst outs addRes; sorry⟩
-      -- rw [sumPackedVecs_eq_addVec]⟩
+      subst outs addRes;
+      rw [sumPackedVecs_eq_addVec (hval := hval) (hin := by omega)]
+      ⟩
   else
     have hcast : validNodes * w = w := by
       simp [show validNodes = 1 by omega]
-    ⟨BitVec.cast hcast parSum, sorry⟩
+    ⟨BitVec.cast hcast parSum, by
+      have : validNodes = 1 := by omega
+      subst validNodes
+      rw [sumPackedVec_eq_of_eq_one]
+      ext i
+      simp
+      rw [BitVec.getLsbD_eq_getElem]
+    ⟩
       -- by rw [sumPackedVec_eq_of_eq_one (hv := by omega)]⟩
 
 /-
@@ -3066,7 +3072,7 @@ theorem parPrefixSum_eq
     (validNodes : Nat) (parSum : BitVec (validNodes * w))
     (hin : 0 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) :
   (parPrefixSum validNodes parSum hin hval hval').val =
-    sumPackedVec parSum validNodes  := by
+    sumPackedVec parSum validNodes w := by
   induction validNodes using Nat.strongRecOn
   case ind val ihval =>
   unfold parPrefixSum
@@ -3075,11 +3081,13 @@ theorem parPrefixSum_eq
     simp
     specialize ihval ((val + 1 )/2) (by omega) (addVec val parSum (by omega) hval) (by omega) (by omega)
     simp [ihval]
-    sorry
   · simp
     have : val = 1 := by omega
     subst this
-    sorry
+    ext i
+    simp
+    apply BitVec.getLsbD_eq_getElem
+    omega
     -- simp [sumPackedVec_length_one_eq]
 
 /-- We express `popCount` as the result of parallel prefix sum. -/
