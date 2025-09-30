@@ -2727,6 +2727,13 @@ Sums a collection of packed bitvectors, resulting into a single bitvectors.
 def sumPackedVec (xs : BitVec (n * w)) : BitVec w :=
   sumVecs (scatter xs)
 
+def sumPackedVecAux' (xs : BitVec k) (n : Nat) (i : Nat) (w : Nat) : BitVec w := sorry
+
+
+def sumPackedVec' (xs : BitVec k) (n : Nat) (w : Nat) : BitVec w :=
+  sumPackedVecAux' xs n 0 w
+
+
 @[simp]
 theorem sumPackedVec_length_zero_eq (xs : BitVec (0 * w)) :
   sumPackedVec xs = 0#w := by
@@ -3132,6 +3139,19 @@ theorem sumPackedVecs_eq_addVec
     rw [eq_append_concat (x := parSum)]
     simp
 
+/-
+
+### AIG defs blob
+
+- parPrefixSum
+- addVecAux, addVec
+
+
+
+#### Logical level defs blob
+- sumPackedVec, scatter, gather <- too dependently typed.
+-/
+
 /-- Tail-recursive definition of parrallel sum prefix. At each iteration, we construct a new vector containing the results of summing each couple of elements in the initial vector. -/
 def parPrefixSum
       (validNodes : Nat) (parSum : BitVec (validNodes * w))
@@ -3155,6 +3175,15 @@ def parPrefixSum
       simp [show validNodes = 1 by omega]
     ⟨BitVec.cast hcast parSum, by rw
       [sumPackedVec_eq_of_eq_one (hv := by omega)]⟩
+
+-- def parPrefixSum
+--       (validNodes : Nat) (w : Nat) (parSum : BitVec k) (hk : validNodes * w = k)
+--       :
+--       {
+--       l : BitVec w // parSum.sumPackedVec = l
+--       }
+
+
 
 theorem parPrefixSum_eq
     (validNodes : Nat) (parSum : BitVec (validNodes * w))
