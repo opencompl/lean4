@@ -2982,19 +2982,6 @@ theorem popCount_eq_sumPackedVec (x : BitVec w) :
     rw [ihw']
     exact popcount_proof
 
-axiom pps_proof {P : Prop} : P
-
-/-- one round of 'addVec' does not change the sum of the bitvector. -/
-@[simp]
-theorem sumPackedVec_addVec_eq_sumPackedVec (x : BitVec (n * w)) (hw : 1 < w) (hval : n ≤ w) :
-    sumPackedVec (addVec n x (by omega) (by omega)) ((n + 1) / 2) w = sumPackedVec x n w := by
-  induction n using Nat.strongRecOn
-  case ind n ihn =>
-  simp [addVec]
-  let ⟨res, proof⟩ := addVecAux 0 n hw x 0#(0 * w) (by omega) hval (by omega) (by omega)
-
-  exact pps_proof
-
 theorem eq_append_concat (x : BitVec ((val + 1) * w)) :
     x = ((x.extractLsb' (val * w) w) ++ (x.extractLsb' 0 (val * w))).cast (by simp [Nat.add_mul]; omega) := by
   ext i hi
@@ -3003,6 +2990,60 @@ theorem eq_append_concat (x : BitVec ((val + 1) * w)) :
   · rw [getLsbD_eq_getElem]
   · simp [show val * w + (i - val * w) = i by omega]
     rw [getLsbD_eq_getElem]
+
+
+
+theorem sumPackedVec_eq_sumPackedVec (validNodes : Nat) (rhs : BitVec (validNodes * w)) (lhs : BitVec ((validNodes + 1) / 2 * w)) (hw : 1 < w)
+    (hval :(validNodes + 1) / 2 ≤ w)
+    (hiter : ∀ (i : Nat),
+      i < (validNodes + 1) / 2 →
+        extractLsb' (i * w) w lhs =
+          have rhs := if h : i * 2 + 1 < validNodes then extractLsb' ((i * 2 + 1) * w) w rhs else 0#w;
+          have lhs := extractLsb' (i * 2 * w) w rhs;
+          lhs + rhs)
+    :
+  lhs.sumPackedVec ((validNodes + 1) / 2) w = sumPackedVec rhs validNodes w := by
+  sorry
+
+
+/-- one round of 'addVec' does not change the sum of the bitvector. -/
+@[simp]
+theorem sumPackedVec_addVec_eq_sumPackedVec (x : BitVec (n * w)) (hw : 1 < w) (hval : n ≤ w) :
+    sumPackedVec (addVec n x (by omega) (by omega)) ((n + 1) / 2) w = sumPackedVec x n w := by
+  generalize hgen : addVec n x (by omega) (by omega) = gen
+  rw [sumPackedVec_eq_sumPackedVec (hw := hw) (lhs := gen) (rhs := x) (hval := by omega) (validNodes := n) (w := w)]
+  simp [addVec] at hgen
+  rw [← hgen ]
+  let ⟨res, proof⟩ := addVecAux 0 n hw x 0#(0 * w) (by omega) hval (by omega) (by omega)
+  intros k hk
+  rw [proof]
+
+
+  sorry
+
+
+  -- induction n using Nat.strongRecOn
+  -- case ind n ihn =>
+  -- simp [addVec]
+  -- let ⟨res, proof⟩ := addVecAux 0 n hw x 0#(0 * w) (by omega) hval (by omega) (by omega)
+  -- simp only
+  -- by_cases hn1 : 1 < n
+  -- · rw [← ihn]
+  --   · rw [addVec_sumPackedVec (iter := res) (initSum := x) (validNodes := n) (hw := by omega) (hval := by omega)]
+  --     exact proof
+  --   · omega
+  --   · omega
+  -- · have hn : n = 0 ∨ n = 1 := by omega
+  --   rcases hn with hn|hn
+  --   · subst hn
+  --     simp only [Nat.reduceAdd, Nat.reduceDiv, Nat.zero_add, sumPackedVec_length_zero_eq]
+  --   · subst hn
+  --     simp only [Nat.reduceAdd, Nat.reduceDiv, zero_lt_succ, Nat.div_self,
+  --       sumPackedVec_eq_of_eq_one]
+  --     specialize proof 0 (by omega)
+  --     simp at proof
+  --     exact proof
+
 
 theorem sumPackedVecs_eq_addVec
     (validNodes : Nat) (parSum : BitVec (validNodes * w)) (hval : validNodes ≤ w) (hin : 1 < w):
