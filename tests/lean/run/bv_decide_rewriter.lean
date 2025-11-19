@@ -754,72 +754,33 @@ theorem reverse_reverse (x : BitVec w) :
   simp [show w - 1 - i < w by omega]
   simp [show w - 1 - (w - 1 - i) = i by omega]
 
+theorem reverse_eq_msb_concat_reverse {x : BitVec (w + 1)}:
+    x.reverse = ((x.setWidth w).reverse).concat x.msb := by
+  ext i hi
+  simp [BitVec.getElem_reverse, BitVec.getElem_concat, BitVec.msb]
+  by_cases hi : i = 0
+  · simp [hi]
+  · simp [hi, show (i - 1 + (w + 1) - w) = i by omega]
+
+theorem testaa (x : BitVec (w' + 1)) :
+    ((BitVec.setWidth w' x).popCount' + if x.msb = true then 1 else 0) = x.popCount' := by
+  have rrt := @BitVec.cons_msb_setWidth w' x
+  conv =>
+    rhs
+    rw [← rrt]
+  rw [popCount'_cons]
+
 @[simp]
 theorem reverse_popcount {w : Nat} (x : BitVec w) :
     x.reverse.popCount' = x.popCount' := by
-  simp [BitVec.popCount']
   induction w
   case zero =>
-    simp [BitVec.popCountAuxRec']
-  case succ w ih =>
-    rw [BitVec.popCountAuxRec']
-    rewrite (occs := .pos [1]) [BitVec.popCountAuxRec']
-    split
-    · case _ htrue =>
-
-
-    rw [←ih]
-    rw [reverse_reverse (x := x)]
-    simp
-    rw [BitVec.reverse]
-    rewrite (occs := .pos [2]) [BitVec.popCountAuxRec']
-    simp
+    simp [BitVec.popCount', BitVec.popCountAuxRec']
+  case succ w' ih =>
+    rw [reverse_eq_msb_concat_reverse]
+    rw [← cons_popcount_eq_concat_popcount]
+    rw [popCount'_cons]
     rw [ih]
-    congr
-    cases x.msb
-    · simp
-    · simp
-
-
-  induction w
-  case zero =>
-    simp [BitVec.popCountAuxRec']
-  case succ w ih =>
-    simp [BitVec.popCountAuxRec']
-
-
-    simp [BitVec.reverse]
-    rw [BitVec.popCountAuxRec']
-    simp
-    rw [ih]
-    congr
-    cases x.msb
-    · simp
-    · simp
-
-
-
-
-      sorry
-
-    congr
-
-
-    have xa := @ih
-
-
-    rw [ih]
-
-    unfold BitVec.popCountAuxRec'
-
-
-
-
-
-
-
-    sorry
-  case succ w ih =>
-    simp [popCountAuxRec']
+    rw [testaa]
 
 end BitVec
