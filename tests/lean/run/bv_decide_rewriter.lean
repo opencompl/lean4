@@ -708,34 +708,19 @@ theorem lkt (x y z : Nat) (h : z < y) :
   rw [Nat.mul_add_mod_self_right, Nat.mod_eq_of_lt]
   exact h
 
-theorem ssr (x y : Nat) (h : z < y) :
-    (x * y + z) % y ^ (t + 1) = x % y ^ t * y + z := by
-  induction z
-  case zero =>
-    simp
-    rw [Nat.pow_add_one]
-    rw [Nat.mul_mod_mul_right]
-  case succ n ih =>
-    rw [Nat.pow_add_one]
-
-    rw [Nat.mul_mod_mul_right]
-
-
-
-  rw [Nat.pow_add_one]
-  rw [Nat.odd_mod]
-
-
-  sorry
-
 theorem extractLsb'_concat (x : BitVec (w+1)) (y : Bool):
     BitVec.extractLsb' 0 (t+1) (x.concat y) = (BitVec.extractLsb' 0 t x).concat y := by
-  simp [BitVec.toNat_eq]
-  rcases y
-  · simp
-    rw [mul_mod_pow_add_one]
-  · simp
-    rw [ssr]
+  ext i hi
+  simp
+  rw [← BitVec.getLsbD_eq_getElem]
+  rw [BitVec.getLsbD_concat]
+  rw [BitVec.getLsbD_concat, BitVec.getLsbD_extractLsb']
+  simp
+  split
+  case _ hzero =>
+    simp
+  case _ hsucc =>
+    simp [show i - 1 < t by omega]
 
 theorem concat_popcount (x : BitVec w) (y : Bool) :
     (x.concat y).popCount' = x.popCount' + if y then 1 else 0 := by
@@ -758,19 +743,16 @@ theorem cons_popcount_eq_concat_popcount {w : Nat} (x : BitVec w) :
 @[simp]
 theorem reverse_reverse (x : BitVec w) :
    x.reverse.reverse = x := by
-  induction w
-  case zero =>
-    simp [BitVec.reverse]
-  case succ w ih =>
-    simp [BitVec.reverse]
-    by_cases h : w = 0
-    ·
-      simp [h]
-  unfold BitVec.reverse
-  unfold BitVec.reverse
-
-
-  sorry
+  ext i hi
+  rw [← BitVec.getLsbD_eq_getElem]
+  rw [BitVec.getLsbD_reverse]
+  rw [BitVec.getMsbD_eq_getLsbD]
+  rw [BitVec.getLsbD_reverse]
+  rw [BitVec.getMsbD_eq_getLsbD]
+  simp [hi]
+  rw [← BitVec.getLsbD_eq_getElem]
+  simp [show w - 1 - i < w by omega]
+  simp [show w - 1 - (w - 1 - i) = i by omega]
 
 @[simp]
 theorem reverse_popcount {w : Nat} (x : BitVec w) :
@@ -782,6 +764,9 @@ theorem reverse_popcount {w : Nat} (x : BitVec w) :
   case succ w ih =>
     rw [BitVec.popCountAuxRec']
     rewrite (occs := .pos [1]) [BitVec.popCountAuxRec']
+    split
+    · case _ htrue =>
+
 
     rw [←ih]
     rw [reverse_reverse (x := x)]
