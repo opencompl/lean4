@@ -704,8 +704,8 @@ treating `x` and `y` as 2's complement signed bitvectors.
 def ssubOverflow {w : Nat} (x y : BitVec w) : Bool :=
   (x.toInt - y.toInt ≥ 2 ^ (w - 1)) || (x.toInt - y.toInt < - 2 ^ (w - 1))
 
-/-- `negOverflow x` returns `true` if the negation of `x` results in overflow. 
-For a BitVec `x` with width `0 < w`, this only happens if `x = intMin`. 
+/-- `negOverflow x` returns `true` if the negation of `x` results in overflow.
+For a BitVec `x` with width `0 < w`, this only happens if `x = intMin`.
 
   SMT-Lib name: `bvnego`.
 -/
@@ -718,5 +718,21 @@ def negOverflow {w : Nat} (x : BitVec w) : Bool :=
 def reverse : {w : Nat} → BitVec w → BitVec w
   | 0, x => x
   | w + 1, x => concat (reverse (x.truncate w)) (x.msb)
+
+
+--def popCountAuxRec (x : BitVec w) (acc : BitVec w) (pos : Nat) (h : pos ≤ w) : BitVec w :=
+--  match pos with
+--  | 0 => acc
+--  | n + 1 => x.popCountAuxRec (acc + if x[n] then 1 else 0) n (by omega)
+
+--/-- Count the number of bits with value `1` in a bitvec -/
+--def popCount {w : Nat} (x : BitVec w) : BitVec w := x.popCountAuxRec 0 w (by omega)
+
+def popCountAuxRec (x : BitVec w) (r : BitVec v) (n : Nat) (h : n ≤ w) :=
+  match n with
+  | 0 => r
+  | n' + 1 => x.popCountAuxRec (r + if x[n'] then 1 else 0) (n') (by omega)
+
+def popCount {w : Nat} (x : BitVec w) : BitVec w := BitVec.popCountAuxRec x 0#w w (by omega)
 
 end BitVec

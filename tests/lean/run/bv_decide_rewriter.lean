@@ -1,5 +1,11 @@
 import Std.Tactic.BVDecide
 
+import Init.Data.Nat.Lemmas
+
+#check Nat.two_pow_pred_mod_two_pow
+
+#check BitVec.add
+
 theorem x_eq_y (x y : Bool) (hx : x = True) (hy : y = True) : x = y := by
   bv_decide
 
@@ -661,3 +667,174 @@ example (x : Bool) (h1 h2 : x = true) : foo x := by
   bv_normalize
   have : x = true := by assumption
   sorry
+
+section BitVec
+
+def BitVec.popCountAuxRec'(x : BitVec w) : Nat :=
+  match w with
+  | 0 => 0
+  | n' + 1 => (if x.msb then 1 else 0) + (x.extractLsb' 0 n').popCountAuxRec'
+
+def BitVec.popCount' {w : Nat} (x : BitVec w) : Nat := BitVec.popCountAuxRec' x
+
+@[simp]
+theorem extractLsb'_cons (x : BitVec w) :
+    (x.cons y).extractLsb' 0 w = x := by
+  simp [BitVec.toNat_eq, Nat.or_mod_two_pow, Nat.shiftLeft_eq]
+
+@[simp]
+theorem popCount'_cons (x : BitVec w) :
+    (x.cons y).popCount' = x.popCount' + if y then 1 else 0 := by
+  simp [BitVec.popCount']
+  induction w
+  case zero =>
+    simp [BitVec.popCountAuxRec']
+  case succ w ih =>
+    cases y
+    <;> simp [BitVec.popCountAuxRec']
+    <;> omega
+
+@[simp]
+theorem msb_concat (x : BitVec (w + 1)):
+    (x.concat y).msb = x.msb := by
+  simp only [BitVec.msb_concat, Nat.zero_lt_succ, ↓reduceIte]
+
+theorem mul_mod_pow_add_one (x y t : Nat) :
+    x * y % y ^ (t + 1) = x % y ^ t * y := by
+  rw [Nat.pow_add_one, Nat.mul_mod_mul_right]
+
+theorem lkt (x y z : Nat) (h : z < y) :
+    (x * y + z) % y = z := by
+  rw [Nat.mul_add_mod_self_right, Nat.mod_eq_of_lt]
+  exact h
+
+theorem ssr (x y : Nat) (h : z < y) :
+    (x * y + z) % y ^ (t + 1) = x % y ^ t * y + z := by
+  induction z
+  case zero =>
+    simp
+    rw [Nat.pow_add_one]
+    rw [Nat.mul_mod_mul_right]
+  case succ n ih =>
+    rw [Nat.pow_add_one]
+
+    rw [Nat.mul_mod_mul_right]
+
+
+
+  rw [Nat.pow_add_one]
+  rw [Nat.odd_mod]
+
+
+  sorry
+
+theorem extractLsb'_concat (x : BitVec (w+1)) (y : Bool):
+    BitVec.extractLsb' 0 (t+1) (x.concat y) = (BitVec.extractLsb' 0 t x).concat y := by
+  simp [BitVec.toNat_eq]
+  rcases y
+  · simp
+    rw [mul_mod_pow_add_one]
+  · simp
+    rw [ssr]
+
+theorem concat_popcount (x : BitVec w) (y : Bool) :
+    (x.concat y).popCount' = x.popCount' + if y then 1 else 0 := by
+  simp [BitVec.popCount']
+  induction w
+  case zero =>
+    simp [BitVec.popCountAuxRec']
+  case succ w ih =>
+    rw [BitVec.popCountAuxRec']
+    rw [BitVec.msb_concat]
+    simp only [Nat.zero_lt_succ, ↓reduceIte]
+    rewrite (occs := .pos [2]) [BitVec.popCountAuxRec']
+    simp [Nat.add_assoc, ih, extractLsb'_concat]
+
+@[simp]
+theorem cons_popcount_eq_concat_popcount {w : Nat} (x : BitVec w) :
+    (x.cons y).popCount' = (x.concat y).popCount' := by
+  rw [popCount'_cons, concat_popcount]
+
+@[simp]
+theorem reverse_reverse (x : BitVec w) :
+   x.reverse.reverse = x := by
+  induction w
+  case zero =>
+    simp [BitVec.reverse]
+  case succ w ih =>
+    simp [BitVec.reverse]
+    by_cases h : w = 0
+    ·
+      simp [h]
+  unfold BitVec.reverse
+  unfold BitVec.reverse
+
+
+  sorry
+
+@[simp]
+theorem reverse_popcount {w : Nat} (x : BitVec w) :
+    x.reverse.popCount' = x.popCount' := by
+  simp [BitVec.popCount']
+  induction w
+  case zero =>
+    simp [BitVec.popCountAuxRec']
+  case succ w ih =>
+    rw [BitVec.popCountAuxRec']
+    rewrite (occs := .pos [1]) [BitVec.popCountAuxRec']
+
+    rw [←ih]
+    rw [reverse_reverse (x := x)]
+    simp
+    rw [BitVec.reverse]
+    rewrite (occs := .pos [2]) [BitVec.popCountAuxRec']
+    simp
+    rw [ih]
+    congr
+    cases x.msb
+    · simp
+    · simp
+
+
+  induction w
+  case zero =>
+    simp [BitVec.popCountAuxRec']
+  case succ w ih =>
+    simp [BitVec.popCountAuxRec']
+
+
+    simp [BitVec.reverse]
+    rw [BitVec.popCountAuxRec']
+    simp
+    rw [ih]
+    congr
+    cases x.msb
+    · simp
+    · simp
+
+
+
+
+      sorry
+
+    congr
+
+
+    have xa := @ih
+
+
+    rw [ih]
+
+    unfold BitVec.popCountAuxRec'
+
+
+
+
+
+
+
+    sorry
+  case succ w ih =>
+    simp [popCountAuxRec']
+
+end BitVec
