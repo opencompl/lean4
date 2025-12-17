@@ -2947,59 +2947,78 @@ theorem rec_add_eq_rec_add_iff
                     (by omega) (a := taila) (b := tailb)
       by_cases hlt: 0 < (b_length + 1) / 2 - 1
       · congr 1
-        · sorry
-        apply ihn
-        · intros i hi
-          simp only [taila]
-          have hlt : i < (b_length + 1) / 2 - 1 := by omega
-          have ha : extractLsb' (i * w) w (extractLsb' 0 (((b_length + 1) / 2 - 1) * w) a) =
-            extractLsb' (i * w) w a := by
+        · have : extractLsb' ((2 * ((b_length + 1) / 2 - 1) + 1) * w) w b = 0#w := by
             ext k hk
-            simp
-            intros htrue
-            have : i * w + k < (i + 1) * w := by simp [Nat.add_mul]; omega
-            have : (i + 1) * w ≤ ((b_length + 1) / 2 - 1) * w := by
-              apply Nat.mul_le_mul_right
+            have h1 : (2 * ((b_length + 1) / 2 - 1) + 1) * w + k <
+                      (2 * ((b_length + 1) / 2 - 1) + 1) * w + w := by omega
+            have h2 : (2 * ((b_length + 1) / 2 - 1) + 1) * w + w =
+                  (2 * ((b_length + 1) / 2 - 1) + 1 + 1) * w := by
+                    conv =>
+                      rhs
+                      rw [Nat.add_mul (m := 1)]
+                    omega
+            have h3 : b_length ≤ 2 * ((b_length + 1) / 2 - 1) + 1 + 1 := by omega
+            have : b_length * w ≤ (2 * ((b_length + 1) / 2 - 1) + 1) * w + k := by
+              rw [h2] at h1
+              refine le_add_right_of_le ?_
+              refine mul_le_mul_right w ?_
               omega
-            omega
-          rw [ha]
-          specialize hadd (i := i) (by omega)
-          rw [hadd]
-          simp [tailb]
-          have : extractLsb' (2 * i * w) w (extractLsb' 0 ((b_length - 1) * w) b) =
-              extractLsb' (2 * i * w) w b := by
+            simp [this]
+          simp [this]
+        · apply ihn
+          · intros i hi
+            simp only [taila]
+            have hlt : i < (b_length + 1) / 2 - 1 := by omega
+            have ha : extractLsb' (i * w) w (extractLsb' 0 (((b_length + 1) / 2 - 1) * w) a) =
+              extractLsb' (i * w) w a := by
               ext k hk
               simp
-              intros ht
-              have : (2 * i + 1) * w ≤ (b_length - 1) * w := by
-                apply Nat.mul_le_mul_right (k := w)
+              intros htrue
+              have : i * w + k < (i + 1) * w := by simp [Nat.add_mul]; omega
+              have : (i + 1) * w ≤ ((b_length + 1) / 2 - 1) * w := by
+                apply Nat.mul_le_mul_right
                 omega
-              have : 2 * i * w + w ≤ (b_length - 1) * w := by simp [Nat.add_mul] at this; omega
               omega
-          simp [this]
-          have h3 : (2 * i + 1) * w ≤ (b_length - 1) * w := by
-                apply Nat.mul_le_mul_right (k := w)
+            rw [ha]
+            specialize hadd (i := i) (by omega)
+            rw [hadd]
+            simp [tailb]
+            have : extractLsb' (2 * i * w) w (extractLsb' 0 ((b_length - 1) * w) b) =
+                extractLsb' (2 * i * w) w b := by
+                ext k hk
+                simp
+                intros ht
+                have : (2 * i + 1) * w ≤ (b_length - 1) * w := by
+                  apply Nat.mul_le_mul_right (k := w)
+                  omega
+                have : 2 * i * w + w ≤ (b_length - 1) * w := by simp [Nat.add_mul] at this; omega
                 omega
-          have h2 : 2 * i * w + w ≤ (b_length - 1) * w := by simp [Nat.add_mul] at h3; omega
-          have h1 : (2 * i + 1) * w + w = (2 * i + 1 + 1) * w := by
-            conv =>
-              rhs
-              rw [Nat.add_mul (m := 1)];
-            omega
-          have : (2 * i + 1 + 1) * w < b_length * w := by
-            refine Nat.mul_lt_mul_of_pos_right ?_ hw
-            omega
-          have : (2 * i + 1 + 1) * w ≤  (b_length - 1) * w := by
-            refine mul_le_mul_right w ?_
-            omega
-          have : extractLsb' ((2 * i + 1) * w) w (extractLsb' 0 ((b_length - 1) * w) b) =
-              extractLsb' ((2 * i + 1) * w) w b := by
-            ext k hk
-            simp
-            intros h
-            have : (2 * i + 1) * w + k < (2 * i + 1) * w + w := by omega
-            omega
-          rw [this]
+            simp [this]
+            have h3 : (2 * i + 1) * w ≤ (b_length - 1) * w := by
+                  apply Nat.mul_le_mul_right (k := w)
+                  omega
+            have h2 : 2 * i * w + w ≤ (b_length - 1) * w := by simp [Nat.add_mul] at h3; omega
+            have h1 : (2 * i + 1) * w + w = (2 * i + 1 + 1) * w := by
+              conv =>
+                rhs
+                rw [Nat.add_mul (m := 1)];
+              omega
+            have : (2 * i + 1 + 1) * w < b_length * w := by
+              refine Nat.mul_lt_mul_of_pos_right ?_ hw
+              omega
+            have : (2 * i + 1 + 1) * w ≤  (b_length - 1) * w := by
+              refine mul_le_mul_right w ?_
+              omega
+            have : extractLsb' ((2 * i + 1) * w) w (extractLsb' 0 ((b_length - 1) * w) b) =
+                extractLsb' ((2 * i + 1) * w) w b := by
+              ext k hk
+              simp
+              intros h
+              have : (2 * i + 1) * w + k < (2 * i + 1) * w + w := by omega
+              omega
+            rw [this]
+          · omega
+          · omega
       · have hzero : (b_length + 1) / 2 - 1 = 0 := by omega
         simp [hzero]
         have : b_length ≤ 1 := by
