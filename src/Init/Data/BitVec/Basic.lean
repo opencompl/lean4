@@ -771,6 +771,34 @@ def ofBoolListLE : (bs : List Bool) → BitVec bs.length
 | [] => 0#0
 | b :: bs => concat (ofBoolListLE bs) b
 
+/-- Converts a list of `BitVec`s into a single concatenated `BitVec`. -/
+def ofBitVecList {n : Nat} : (bvs : List (BitVec n)) → BitVec (n * bvs.length)
+| [] => 0#0
+| bv :: bvs => (bv ++ ofBitVecList bvs).cast (by simp; rw [Nat.mul_add]; omega)
+
+/-- Convert a `BitVec` into a list of `BitVec`. -/
+def toBitVecList {n : Nat} : (bv : BitVec (n * m)) → List (BitVec n) :=
+  let rec aux : (bv : BitVec (n * m)) → (acc : List (BitVec n)) → Nat → List (BitVec n)
+    | bv, acc, 0 => acc.reverse
+    | bv, acc, k + 1 =>
+      let part := bv.extractLsb' (k * n) n
+      aux bv (part :: acc) k
+  aux bv [] m
+
+/-- Converts an array of `BitVec`s into a single concatenated `BitVec`. -/
+def ofBitVecArray {n : Nat} : (bvs : Array (BitVec n)) → BitVec (n * bvs.size)
+| ⟨[]⟩ => 0#0
+| ⟨x :: xs⟩ => (x ++ ofBitVecArray ⟨xs⟩).cast (by simp; rw [Nat.mul_add]; omega)
+
+/-- Convert a `BitVec` into an array of `BitVec`. -/
+def toBitVecArray {n : Nat} : (bv : BitVec (n * m)) → Array (BitVec n) :=
+  let rec aux : (bv : BitVec (n * m)) → (acc : Array (BitVec n)) → Nat → Array (BitVec n)
+    | bv, acc, 0 => acc
+    | bv, acc, k + 1 =>
+      let part := bv.extractLsb' (k * n) n
+      aux bv (acc.push part) k
+  aux bv #[] m
+
 /-! ## Overflow -/
 
 /--
