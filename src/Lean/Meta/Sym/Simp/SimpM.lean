@@ -102,7 +102,11 @@ invalidating the cache and causing O(2^n) behavior on conditional trees.
 structure Config where
   /-- Maximum number of steps that can be performed by the simplifier. -/
   maxSteps : Nat := 1000
-  -- **TODO**: many are still missing
+  /--
+  Maximum depth of reentrant simplifier calls through dischargers.
+  Prevents infinite loops when conditional rewrite rules trigger recursive discharge attempts.
+  -/
+  maxDischargeDepth : Nat := 2
 
 /--
 The result of simplifying an expression `e`.
@@ -162,6 +166,7 @@ structure Context where
   /-- Size of the local context when simplification started.
   Used to determine which free variables were introduced during simplification. -/
   initialLCtxSize : Nat
+  dischargeDepth  : Nat := 0
 
 /-- Cache mapping expressions (by pointer equality) to their simplified results. -/
 abbrev Cache := PHashMap ExprPtr Result
@@ -192,14 +197,13 @@ abbrev Simproc := Expr → SimpM Result
 structure Methods where
   pre        : Simproc  := fun _ => return .rfl
   post       : Simproc  := fun _ => return .rfl
-  discharge? : Expr → SimpM (Option Expr) := fun _ => return none
   /--
-  `wellBehavedDischarge` must **not** be set to `true` IF `discharge?`
-  access local declarations with index >= `Context.lctxInitIndices` when
-  `contextual := false`.
+  `wellBehavedMethods` must **not** be set to `true` IF their behavior
+  depends on new hypotheses in the local context. For example, for applying
+  conditional rewrite rules.
   Reason: it would prevent us from aggressively caching `simp` results.
   -/
-  wellBehavedDischarge : Bool := true
+  wellBehavedMethods : Bool := true
   deriving Inhabited
 
 unsafe def Methods.toMethodsRefImpl (m : Methods) : MethodsRef :=
@@ -236,6 +240,13 @@ abbrev pre : Simproc := fun e => do
 
 abbrev post : Simproc := fun e => do
   (← getMethods).post e
+
+abbrev withoutModifyingCache (k : SimpM α) : SimpM α := do
+  let cache ← getCache
+  try k finally modify fun s => { s with cache }
+
+abbrev withoutModifyingCacheIfNotWellBehaved (k : SimpM α) : SimpM α := do
+  if (← getMethods).wellBehavedMethods then k else withoutModifyingCache k
 
 end Simp
 

@@ -3192,7 +3192,7 @@ Constructs a new empty array with initial capacity `0`.
 
 Use `Array.emptyWithCapacity` to create an array with a greater initial capacity.
 -/
-@[expose]
+@[expose, inline]
 def Array.empty {α : Type u} : Array α := emptyWithCapacity 0
 
 /--
@@ -3480,6 +3480,18 @@ structure String where ofByteArray ::
 
 attribute [extern "lean_string_to_utf8"] String.toByteArray
 attribute [extern "lean_string_from_utf8_unchecked"] String.ofByteArray
+
+/--
+Creates a string that contains the characters in a list, in order.
+
+Examples:
+ * `String.ofList ['L', '∃', '∀', 'N'] = "L∃∀N"`
+ * `String.ofList [] = ""`
+ * `String.ofList ['a', 'a', 'a'] = "aaa"`
+-/
+@[extern "lean_string_mk"]
+def String.ofList (data : List Char) : String :=
+  ⟨List.utf8Encode data, .intro data rfl⟩
 
 /--
 Decides whether two strings are equal. Normally used via the `DecidableEq String` instance and the
