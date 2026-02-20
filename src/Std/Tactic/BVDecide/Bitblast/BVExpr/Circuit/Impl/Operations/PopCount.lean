@@ -10,6 +10,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Sub
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
 public import Std.Sat.AIG.If
+import Init.Omega
 
 
 @[expose] public section
