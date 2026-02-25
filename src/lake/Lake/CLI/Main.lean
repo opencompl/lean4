@@ -311,6 +311,10 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--explain" => modifyThe LakeOptions ({· with shake.explain := true})
 | "--trace" => modifyThe LakeOptions ({· with shake.trace := true})
 | "--fix" => modifyThe LakeOptions ({· with shake.fix := true})
+| "--only" => do
+  let mod ← takeOptArg "--only" "minimize only this module"
+  modifyThe LakeOptions fun opts =>
+    {opts with shake.onlyMods := opts.shake.onlyMods.push mod.toName}
 | opt             =>  throw <| CliError.unknownLongOption opt
 
 def lakeOption :=
@@ -411,11 +415,16 @@ protected def get : CliM PUnit := do
         failure
     let some remoteScope := opts.scope?
       | error "to use `cache get` with a mappings file, `--scope` or `--repo` must be set"
-    let service : CacheService :=
-      if let some artifactEndpoint := ws.lakeEnv.cacheArtifactEndpoint? then
-        .downloadArtsService artifactEndpoint ws.lakeEnv.cacheService?
+    let service : CacheService ← id do
+      if let some service := opts.service? then
+        let some service := ws.findCacheService? service
+          | error (serviceNotFound service ws.lakeConfig.config.cache.services)
+        return service
+      else if let some artifactEndpoint := ws.lakeEnv.cacheArtifactEndpoint? then
+        logWarning endpointDeprecation
+        return .downloadArtsService artifactEndpoint ws.lakeEnv.cacheService?
       else
-        .reservoirService ws.lakeEnv.reservoirApiUrl
+        return ws.defaultCacheService
     let map ← CacheMap.load file
     service.downloadOutputArtifacts map cache ws.root.cacheScope remoteScope opts.forceDownload
   else

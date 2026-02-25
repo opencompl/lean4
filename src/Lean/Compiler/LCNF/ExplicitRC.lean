@@ -9,7 +9,6 @@ prelude
 public import Lean.Compiler.LCNF.CompilerM
 public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PhaseExt
-import Lean.Runtime
 import Lean.Compiler.LCNF.PrettyPrinter
 
 /-!
@@ -118,7 +117,7 @@ partial def collectCode (code : Code .impure) : M Unit := do
   | .cases cases => cases.alts.forM (·.forCodeM collectCode)
   | .sset (k := k) .. | .uset (k := k) .. => collectCode k
   | .return .. | .jmp .. | .unreach .. => return ()
-  | .inc .. | .dec .. => unreachable!
+  | .inc .. | .dec .. | .setTag .. | .oset .. | .del .. => unreachable!
 
 /--
 Collect the derived value tree as well as the set of parameters that take objects and are borrowed.
@@ -195,10 +194,6 @@ structure Context where
   `FVarId` based.
   -/
   idx : Nat := 0
-  /--
-  The SCC of declarations that are currently being processed.
-  -/
-  decls : Array (Decl .impure)
 
 structure State where
   /--
@@ -225,10 +220,6 @@ def isBorrowed (fvarId : FVarId) : RcM Bool := return (← get).liveVars.borrows
 def modifyLive (f : LiveVars → LiveVars) : RcM Unit :=
   modify fun s => { s with liveVars := f s.liveVars }
 
-def getDeclSig (declName : Name) : RcM (Option (Signature .impure)) := do
-  match (← read).decls.find? (·.name == declName) with
-  | some found => return some <| found.toSignature
-  | none => getImpureSignature? declName
 
 @[inline]
 def withParams (ps : Array (Param .impure)) (x : RcM α) : RcM α := do
@@ -248,27 +239,12 @@ def LetValue.isPersistent (val : LetValue .impure) : Bool :=
   | .fap _ xs => xs.isEmpty -- all global constants are persistent
   | _ => false
 
--- TODO: This heuristic should never be necessary
-def refineTypeForExpr (value : LetValue .impure) (origt : Expr) : Expr :=
-  if origt.isScalar then
-    origt
-  else
-    match value with
-    | .ctor c _ => c.type
-    | .lit (.nat n) =>
-      if n ≤ maxSmallNat then
-        tagged
-      else
-        origt
-    | _ => origt
-
 @[inline]
 def withLetDecl (decl : LetDecl .impure) (x : RcM α) : RcM α := do
   let update := fun ctx =>
-    let type := refineTypeForExpr decl.value decl.type
     let varInfo := {
-      isPossibleRef := type.isPossibleRef
-      isDefiniteRef := type.isDefiniteRef
+      isPossibleRef := decl.type.isPossibleRef
+      isDefiniteRef := decl.type.isDefiniteRef
       persistent := decl.value.isPersistent
       idx := ctx.idx
     }
@@ -358,6 +334,7 @@ def useLetValue (value : LetValue .impure) : RcM Unit := do
     useVar fvarId
     useArgs args
   | .lit .. | .erased => return ()
+  | .isShared .. => unreachable!
 
 @[inline]
 def bindVar (fvarId : FVarId) : RcM Unit :=
@@ -552,7 +529,7 @@ def LetDecl.explicitRc (code : Code .impure) (decl : LetDecl .impure) (k : Code 
       let k ← addDecIfNeeded fvarId k
       pure <| code.updateLet! decl k
     | .fap f args =>
-      let ps := (← getDeclSig f).get!.params
+      let ps := (← getImpureSignature? f).get!.params
       let k ← addDecAfterFullApp args ps k
       let value ←
         if f == ``Array.getInternal && (← isBorrowed decl.fvarId) then
@@ -571,6 +548,7 @@ def LetDecl.explicitRc (code : Code .impure) (decl : LetDecl .impure) (k : Code 
       addIncBeforeConsumeAll allArgs (code.updateLet! decl k)
     | .lit .. | .box .. | .reset .. | .erased .. =>
       pure <| code.updateLet! decl k
+    | .isShared .. => unreachable!
   useLetValue decl.value
   bindVar decl.fvarId
   return k
@@ -646,16 +624,15 @@ partial def Code.explicitRc (code : Code .impure) : RcM (Code .impure) := do
   | .unreach .. =>
     setRetLiveVars
     return code
-  | .inc .. | .dec .. => unreachable!
+  | .inc .. | .dec .. | .setTag .. | .del .. | .oset .. => unreachable!
 
-def Decl.explicitRc (decl : Decl .impure) (decls : Array (Decl .impure)) :
+def Decl.explicitRc (decl : Decl .impure) :
     CompilerM (Decl .impure) := do
   let value ← decl.value.mapCodeM fun code => do
     let ⟨derivedValMap, borrowedParams⟩ ← CollectDerivedValInfo.collect decl.params code
     go code |>.run {
       borrowedParams,
       derivedValMap,
-      decls,
     } |>.run' {}
   return { decl with value }
 where
@@ -665,13 +642,10 @@ where
       addDecForDeadParams decl.params code
 
 public def runExplicitRc (decls : Array (Decl .impure)) : CompilerM (Array (Decl .impure)) := do
-  decls.mapM (·.explicitRc decls)
+  decls.mapM (·.explicitRc)
 
-public def explicitRc : Pass where
-  phase := .impure
-  phaseOut := .impure
-  name := `explicitRc
-  run := runExplicitRc
+public def explicitRc : Pass :=
+  .mkPerDeclaration `explicitRc .impure Decl.explicitRc
 
 builtin_initialize
   registerTraceClass `Compiler.explicitRc (inherited := true)

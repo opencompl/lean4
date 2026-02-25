@@ -95,10 +95,6 @@ structure Ctx where
   The result type of the declaration we are currently operating on.
   -/
   currDeclResultType : Expr
-  /--
-  The SCC of declarations we are operating on.
-  -/
-  decls : Array (Decl .impure)
 
 structure State where
   /--
@@ -125,10 +121,6 @@ def getResultType : BoxM Expr := return (← read).currDeclResultType
 def typesEqvForBoxing (t₁ t₂ : Expr) : Bool :=
   (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
-def getDeclSig (declName : Name) : BoxM (Option (Signature .impure)) := do
-  match (← read).decls.find? (·.name == declName) with
-  | some found => return some <| found.toSignature
-  | none => getImpureSignature? declName
 
 /--
 If `x` declaration is of the form `x := .lit _` or `x := .fap c #[]`,
@@ -292,7 +284,7 @@ partial def Code.explicitBoxing (code : Code .impure) : BoxM (Code .impure) := d
     let some jpDecl ← findFunDecl? fvarId | unreachable!
     castArgsIfNeeded args jpDecl.params fun args => return code.updateJmp! fvarId args
   | .unreach .. => return code.updateUnreach! (← getResultType)
-  | .inc .. | .dec .. => unreachable!
+  | .inc .. | .dec .. | .oset .. | .setTag .. | .del .. => unreachable!
 where
   /--
   Up to this point the type system of IR is quite loose so we can for example encounter situations
@@ -306,14 +298,22 @@ where
   tryCorrectLetDeclType (currentType : Expr) (value : LetValue .impure) : BoxM Expr := do
     match value with
     | .fap f .. =>
-      let some sig ← getDeclSig f | unreachable!
+      let some sig ← getImpureSignature? f | unreachable!
       return sig.type
     | .pap .. => return object
     | .uproj .. => return usize
     | .erased => return tagged
-    | .fvar .. | .lit .. | .sproj .. | .oproj .. | .reset .. | .ctor .. | .reuse .. =>
+    | .lit (.nat n) =>
+      if n ≤ maxSmallNat then
+        return tagged
+      else
+        return currentType
+    | .lit (.str ..) =>
+      return object
+    | .ctor i _ => return i.type
+    | .fvar .. | .lit .. | .sproj .. | .oproj .. | .reset .. | .reuse .. =>
       return currentType
-    | .box .. | .unbox .. => unreachable!
+    | .box .. | .unbox .. | .isShared .. => unreachable!
 
   visitLet (code : Code .impure) (decl : LetDecl .impure) (k : Code .impure) : BoxM (Code .impure) := do
     let type ← tryCorrectLetDeclType decl.type decl.value
@@ -333,12 +333,12 @@ where
         let decl ← decl.updateValue (decl.value.updateArgs! args)
         return code.updateLet! decl k
     | .fap f args =>
-      let some sig ← getDeclSig f | unreachable!
+      let some sig ← getImpureSignature? f | unreachable!
       castArgsIfNeeded args sig.params fun args => do
         let decl ← decl.updateValue (decl.value.updateArgs! args)
         castResultIfNeeded code decl sig.type k
     | .pap f args =>
-      let some sig ← getDeclSig f | unreachable!
+      let some sig ← getImpureSignature? f | unreachable!
       let f := if ← requiresBoxedVersion sig then mkBoxedName f else f
       boxArgsIfNeeded args fun args => do
         let decl ← decl.updateValue (decl.value.updatePap! f args)
@@ -350,13 +350,13 @@ where
     | .erased | .reset .. | .sproj .. | .uproj .. | .oproj .. | .lit .. =>
       let decl ← decl.update type decl.value
       return code.updateLet! decl k
-    | .box .. | .unbox .. => unreachable!
+    | .box .. | .unbox .. | .isShared .. => unreachable!
 
 def run (decls : Array (Decl .impure)) : CompilerM (Array (Decl .impure)) := do
   let decls ← decls.foldlM (init := #[]) fun newDecls decl => do
     match decl.value with
     | .code code =>
-      let s := { currDecl := decl.name, currDeclResultType := decl.type, decls }
+      let s := { currDecl := decl.name, currDeclResultType := decl.type }
       let (code, s) ← code.explicitBoxing |>.run s |>.run {}
       let newDecls := newDecls ++ s.auxDecls
       let newDecl := { decl with value := .code code }
