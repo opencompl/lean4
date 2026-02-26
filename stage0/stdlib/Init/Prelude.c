@@ -13,6 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Eq_ndrec___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Eq_ndrec___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Eq_ndrec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Eq_ndrec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_is_scalar(lean_object*);
+LEAN_EXPORT lean_object* l_isScalarObj___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_id___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_id___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_id(lean_object*, lean_object*);
@@ -34,10 +40,6 @@ LEAN_EXPORT lean_object* l_inferInstanceAs___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_inferInstanceAs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_inferInstanceAs___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Unit_unit;
-LEAN_EXPORT lean_object* l_Eq_ndrec___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Eq_ndrec___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Eq_ndrec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Eq_ndrec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Eq_ndrec__symm___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Eq_ndrec__symm___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Eq_ndrec__symm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1309,6 +1311,49 @@ static const lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___clo
 static const lean_ctor_object l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*4 + 0, .m_other = 4, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__3_value),((lean_object*)&l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__4_value),((lean_object*)&l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__7_value),((lean_object*)&l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__1_value)}};
 static const lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__8 = (const lean_object*)&l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__8_value;
 LEAN_EXPORT const lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM = (const lean_object*)&l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__8_value;
+LEAN_EXPORT lean_object* l_Eq_ndrec___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Eq_ndrec___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Eq_ndrec___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Eq_ndrec(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_inc(x_4);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Eq_ndrec___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Eq_ndrec(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_2);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_isScalarObj___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_is_scalar(x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_id___redArg(lean_object* x_1) {
 _start:
 {
@@ -1478,40 +1523,6 @@ _start:
 lean_object* x_1; 
 x_1 = lean_box(0);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Eq_ndrec___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Eq_ndrec___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Eq_ndrec___redArg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Eq_ndrec(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_inc(x_4);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Eq_ndrec___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l_Eq_ndrec(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_2);
-return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Eq_ndrec__symm___redArg(lean_object* x_1) {
@@ -14811,11 +14822,11 @@ x_5 = lean_apply_2(x_2, x_3, x_4);
 return x_5;
 }
 }
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Prelude(uint8_t builtin) {
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Prelude(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
 l_Unit_unit = _init_l_Unit_unit();
 lean_mark_persistent(l_Unit_unit);
 l_instInhabitedSort = _init_l_instInhabitedSort();
@@ -14873,6 +14884,28 @@ l_Lean_firstFrontendMacroScope = _init_l_Lean_firstFrontendMacroScope();
 lean_mark_persistent(l_Lean_firstFrontendMacroScope);
 l_Lean_Macro_MethodsRefPointed = _init_l_Lean_Macro_MethodsRefPointed();
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Prelude(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Init_Prelude(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = runtime_initialize_Init_Prelude(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Prelude(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Prelude(builtin);
 }
 #ifdef __cplusplus
 }

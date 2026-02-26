@@ -1633,6 +1633,48 @@ x_2 = l___private_Lake_DSL_VerLit_0__Lake_DSL_elabVerLit___regBuiltin___private_
 return x_2;
 }
 }
+lean_object* runtime_initialize_Lean_ToExpr(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Util_Version(uint8_t builtin);
+lean_object* runtime_initialize_Lake_DSL_Syntax(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Eval(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_DSL_VerLit(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_ToExpr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Util_Version(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_DSL_Syntax(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Eval(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lake_DSL_instToExprSemVerCore = _init_l_Lake_DSL_instToExprSemVerCore();
+lean_mark_persistent(l_Lake_DSL_instToExprSemVerCore);
+l_Lake_DSL_instToExprStdVer = _init_l_Lake_DSL_instToExprStdVer();
+lean_mark_persistent(l_Lake_DSL_instToExprStdVer);
+res = l___private_Lake_DSL_VerLit_0__Lake_DSL_elabVerLit___regBuiltin___private_Lake_DSL_VerLit_0__Lake_DSL_elabVerLit__1()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_DSL_VerLit(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_ToExpr(uint8_t builtin);
 lean_object* initialize_Lake_Util_Version(uint8_t builtin);
 lean_object* initialize_Lake_DSL_Syntax(uint8_t builtin);
@@ -1642,26 +1684,31 @@ LEAN_EXPORT lean_object* initialize_Lake_DSL_VerLit(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_ToExpr(builtin);
+res = initialize_Lean_ToExpr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Version(builtin);
+res = initialize_Lake_Util_Version(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_DSL_Syntax(builtin);
+res = initialize_Lake_DSL_Syntax(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Eval(builtin);
+res = initialize_Lean_Meta_Eval(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_DSL_instToExprSemVerCore = _init_l_Lake_DSL_instToExprSemVerCore();
-lean_mark_persistent(l_Lake_DSL_instToExprSemVerCore);
-l_Lake_DSL_instToExprStdVer = _init_l_Lake_DSL_instToExprStdVer();
-lean_mark_persistent(l_Lake_DSL_instToExprStdVer);
-if (builtin) {res = l___private_Lake_DSL_VerLit_0__Lake_DSL_elabVerLit___regBuiltin___private_Lake_DSL_VerLit_0__Lake_DSL_elabVerLit__1();
+res = runtime_initialize_Lake_DSL_VerLit(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+res = meta_initialize_Lake_DSL_VerLit(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_DSL_VerLit(builtin);
 }
 #ifdef __cplusplus
 }

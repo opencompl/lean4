@@ -1349,23 +1349,52 @@ x_7 = l_Lean_logUnknownDecl___redArg(x_2, x_3, x_4, x_5, x_6);
 return x_7;
 }
 }
+lean_object* runtime_initialize_Lean_ErrorExplanation(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Log(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_ErrorExplanation(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_Log_3265821404____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_warningAsError = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_warningAsError);
+lean_dec_ref(res);
+l_Lean_errorDescriptionWidget = _init_l_Lean_errorDescriptionWidget();
+lean_mark_persistent(l_Lean_errorDescriptionWidget);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Log(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_ErrorExplanation(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Log(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_ErrorExplanation(builtin);
+res = initialize_Lean_ErrorExplanation(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_initFn_00___x40_Lean_Log_3265821404____hygCtx___hyg_4_();
+res = runtime_initialize_Lean_Log(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lean_warningAsError = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_warningAsError);
 lean_dec_ref(res);
-}l_Lean_errorDescriptionWidget = _init_l_Lean_errorDescriptionWidget();
-lean_mark_persistent(l_Lean_errorDescriptionWidget);
-return lean_io_result_mk_ok(lean_box(0));
+res = meta_initialize_Lean_Log(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Log(builtin);
 }
 #ifdef __cplusplus
 }

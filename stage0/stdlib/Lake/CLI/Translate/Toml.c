@@ -19321,6 +19321,50 @@ goto block_166;
 }
 }
 }
+lean_object* runtime_initialize_Lake_Toml_Encode(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Config_Package(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_CLI_Translate_Toml(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lake_Toml_Encode(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Config_Package(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* runtime_initialize_Lake_Config_LeanLibConfig(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Config_LeanExeConfig(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Config_InputFileConfig(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Config_PackageConfig(uint8_t builtin);
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_CLI_Translate_Toml(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+res = runtime_initialize_Lake_Config_LeanLibConfig(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Config_LeanExeConfig(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Config_InputFileConfig(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Config_PackageConfig(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lake_Toml_Encode(uint8_t builtin);
 lean_object* initialize_Lake_Config_Package(uint8_t builtin);
 lean_object* initialize_Lake_Config_LeanLibConfig(uint8_t builtin);
@@ -19332,25 +19376,39 @@ LEAN_EXPORT lean_object* initialize_Lake_CLI_Translate_Toml(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Toml_Encode(builtin);
+res = initialize_Lake_Toml_Encode(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_Package(builtin);
+res = initialize_Lake_Config_Package(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_LeanLibConfig(builtin);
+res = initialize_Lake_Config_LeanLibConfig(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_LeanExeConfig(builtin);
+res = initialize_Lake_Config_LeanExeConfig(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_InputFileConfig(builtin);
+res = initialize_Lake_Config_InputFileConfig(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_PackageConfig(builtin);
+res = initialize_Lake_Config_PackageConfig(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lake_CLI_Translate_Toml(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_CLI_Translate_Toml(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_CLI_Translate_Toml(builtin);
 }
 #ifdef __cplusplus
 }

@@ -4513,6 +4513,49 @@ x_6 = l_Lake_Reservoir_fetchPkgVersions(x_1, x_2, x_3, x_4);
 return x_6;
 }
 }
+lean_object* runtime_initialize_Lake_Util_JsonObject(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Util_Version(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Config_Env(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Util_Reservoir(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Util_Url(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Reservoir(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lake_Util_JsonObject(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Util_Version(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Config_Env(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Util_Reservoir(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Util_Url(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lake_instInhabitedRegistryPkg_default = _init_l_Lake_instInhabitedRegistryPkg_default();
+lean_mark_persistent(l_Lake_instInhabitedRegistryPkg_default);
+l_Lake_instInhabitedRegistryPkg = _init_l_Lake_instInhabitedRegistryPkg();
+lean_mark_persistent(l_Lake_instInhabitedRegistryPkg);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Reservoir(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lake_Util_JsonObject(uint8_t builtin);
 lean_object* initialize_Lake_Util_Version(uint8_t builtin);
 lean_object* initialize_Lake_Config_Env(uint8_t builtin);
@@ -4523,26 +4566,35 @@ LEAN_EXPORT lean_object* initialize_Lake_Reservoir(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Util_JsonObject(builtin);
+res = initialize_Lake_Util_JsonObject(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Version(builtin);
+res = initialize_Lake_Util_Version(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_Env(builtin);
+res = initialize_Lake_Config_Env(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Reservoir(builtin);
+res = initialize_Lake_Util_Reservoir(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Url(builtin);
+res = initialize_Lake_Util_Url(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_instInhabitedRegistryPkg_default = _init_l_Lake_instInhabitedRegistryPkg_default();
-lean_mark_persistent(l_Lake_instInhabitedRegistryPkg_default);
-l_Lake_instInhabitedRegistryPkg = _init_l_Lake_instInhabitedRegistryPkg();
-lean_mark_persistent(l_Lake_instInhabitedRegistryPkg);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lake_Reservoir(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_Reservoir(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Reservoir(builtin);
 }
 #ifdef __cplusplus
 }

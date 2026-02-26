@@ -5025,6 +5025,53 @@ x_2 = l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCo
 return x_2;
 }
 }
+lean_object* runtime_initialize_Std_Data_Iterators_Producers_Range(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_Iterators_Combinators_StepSize(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_BuiltinTerm(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_BuiltinNotation(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Server_CodeActions_Attr(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_CodeActions_Provider(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Data_Iterators_Producers_Range(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_Iterators_Combinators_StepSize(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_BuiltinTerm(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_BuiltinNotation(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Server_CodeActions_Attr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Server_CodeActions_Provider(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Std_Data_Iterators_Producers_Range(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators_Combinators_StepSize(uint8_t builtin);
 lean_object* initialize_Lean_Elab_BuiltinTerm(uint8_t builtin);
@@ -5035,28 +5082,35 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_CodeActions_Provider(uint8_t bui
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_Iterators_Producers_Range(builtin);
+res = initialize_Std_Data_Iterators_Producers_Range(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_Iterators_Combinators_StepSize(builtin);
+res = initialize_Std_Data_Iterators_Combinators_StepSize(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_BuiltinTerm(builtin);
+res = initialize_Lean_Elab_BuiltinTerm(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_BuiltinNotation(builtin);
+res = initialize_Lean_Elab_BuiltinNotation(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_CodeActions_Attr(builtin);
+res = initialize_Lean_Server_CodeActions_Attr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1();
+res = runtime_initialize_Lean_Server_CodeActions_Provider(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_CodeAction_cmdCodeActionProvider___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1();
+res = meta_initialize_Lean_Server_CodeActions_Provider(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lean_Server_CodeActions_Provider(builtin);
 }
 #ifdef __cplusplus
 }

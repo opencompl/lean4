@@ -18881,6 +18881,82 @@ x_2 = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00
 return x_2;
 }
 }
+lean_object* runtime_initialize_Lean_Server_Rpc_RequestHandling(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Server_FileWorker_RequestHandling(uint8_t builtin);
+lean_object* runtime_initialize_Lean_PrettyPrinter_Delaborator_Builtins(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_FileWorker_WidgetRequests(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Server_Rpc_RequestHandling(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Server_FileWorker_RequestHandling(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_PrettyPrinter_Delaborator_Builtins(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_Widget_instInhabitedMsgToInteractive_default = _init_l_Lean_Widget_instInhabitedMsgToInteractive_default();
+lean_mark_persistent(l_Lean_Widget_instInhabitedMsgToInteractive_default);
+l_Lean_Widget_instInhabitedMsgToInteractive = _init_l_Lean_Widget_instInhabitedMsgToInteractive();
+lean_mark_persistent(l_Lean_Widget_instInhabitedMsgToInteractive);
+res = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_1454953308____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_616148837____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_3220324137____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_Widget_instInhabitedGetInteractiveDiagnosticsParams_default = _init_l_Lean_Widget_instInhabitedGetInteractiveDiagnosticsParams_default();
+lean_mark_persistent(l_Lean_Widget_instInhabitedGetInteractiveDiagnosticsParams_default);
+l_Lean_Widget_instInhabitedGetInteractiveDiagnosticsParams = _init_l_Lean_Widget_instInhabitedGetInteractiveDiagnosticsParams();
+lean_mark_persistent(l_Lean_Widget_instInhabitedGetInteractiveDiagnosticsParams);
+l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn___lam__1___boxed__const__1_00___x40_Lean_Server_FileWorker_WidgetRequests_4152489880____hygCtx___hyg_2_ = _init_l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn___lam__1___boxed__const__1_00___x40_Lean_Server_FileWorker_WidgetRequests_4152489880____hygCtx___hyg_2_();
+lean_mark_persistent(l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn___lam__1___boxed__const__1_00___x40_Lean_Server_FileWorker_WidgetRequests_4152489880____hygCtx___hyg_2_);
+res = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_4152489880____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_2425369468____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_Widget_instInhabitedHighlightedMsgEmbed_default = _init_l_Lean_Widget_instInhabitedHighlightedMsgEmbed_default();
+lean_mark_persistent(l_Lean_Widget_instInhabitedHighlightedMsgEmbed_default);
+l_Lean_Widget_instInhabitedHighlightedMsgEmbed = _init_l_Lean_Widget_instInhabitedHighlightedMsgEmbed();
+lean_mark_persistent(l_Lean_Widget_instInhabitedHighlightedMsgEmbed);
+res = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_2782638367____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Server_FileWorker_WidgetRequests(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Server_Rpc_RequestHandling(uint8_t builtin);
 lean_object* initialize_Lean_Server_FileWorker_RequestHandling(uint8_t builtin);
 lean_object* initialize_Lean_PrettyPrinter_Delaborator_Builtins(uint8_t builtin);
@@ -18890,54 +18966,31 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_FileWorker_WidgetRequests(uint8_
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Server_Rpc_RequestHandling(builtin);
+res = initialize_Lean_Server_Rpc_RequestHandling(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_FileWorker_RequestHandling(builtin);
+res = initialize_Lean_Server_FileWorker_RequestHandling(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter_Delaborator_Builtins(builtin);
+res = initialize_Lean_PrettyPrinter_Delaborator_Builtins(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
+res = initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Widget_instInhabitedMsgToInteractive_default = _init_l_Lean_Widget_instInhabitedMsgToInteractive_default();
-lean_mark_persistent(l_Lean_Widget_instInhabitedMsgToInteractive_default);
-l_Lean_Widget_instInhabitedMsgToInteractive = _init_l_Lean_Widget_instInhabitedMsgToInteractive();
-lean_mark_persistent(l_Lean_Widget_instInhabitedMsgToInteractive);
-if (builtin) {res = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_1264552272____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_Server_FileWorker_WidgetRequests(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_1454953308____hygCtx___hyg_2_();
+res = meta_initialize_Lean_Server_FileWorker_WidgetRequests(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_616148837____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_3220324137____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}l_Lean_Widget_instInhabitedGetInteractiveDiagnosticsParams_default = _init_l_Lean_Widget_instInhabitedGetInteractiveDiagnosticsParams_default();
-lean_mark_persistent(l_Lean_Widget_instInhabitedGetInteractiveDiagnosticsParams_default);
-l_Lean_Widget_instInhabitedGetInteractiveDiagnosticsParams = _init_l_Lean_Widget_instInhabitedGetInteractiveDiagnosticsParams();
-lean_mark_persistent(l_Lean_Widget_instInhabitedGetInteractiveDiagnosticsParams);
-l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn___lam__1___boxed__const__1_00___x40_Lean_Server_FileWorker_WidgetRequests_4152489880____hygCtx___hyg_2_ = _init_l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn___lam__1___boxed__const__1_00___x40_Lean_Server_FileWorker_WidgetRequests_4152489880____hygCtx___hyg_2_();
-lean_mark_persistent(l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn___lam__1___boxed__const__1_00___x40_Lean_Server_FileWorker_WidgetRequests_4152489880____hygCtx___hyg_2_);
-if (builtin) {res = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_4152489880____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_2425369468____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}l_Lean_Widget_instInhabitedHighlightedMsgEmbed_default = _init_l_Lean_Widget_instInhabitedHighlightedMsgEmbed_default();
-lean_mark_persistent(l_Lean_Widget_instInhabitedHighlightedMsgEmbed_default);
-l_Lean_Widget_instInhabitedHighlightedMsgEmbed = _init_l_Lean_Widget_instInhabitedHighlightedMsgEmbed();
-lean_mark_persistent(l_Lean_Widget_instInhabitedHighlightedMsgEmbed);
-if (builtin) {res = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_initFn_00___x40_Lean_Server_FileWorker_WidgetRequests_2782638367____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lean_Server_FileWorker_WidgetRequests(builtin);
 }
 #ifdef __cplusplus
 }

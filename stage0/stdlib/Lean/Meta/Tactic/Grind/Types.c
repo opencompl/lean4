@@ -59867,75 +59867,84 @@ lean_dec_ref(x_2);
 return x_5;
 }
 }
-lean_object* initialize_Lean_Meta_Sym_SymM(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Attr(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_CheckResult(uint8_t builtin);
-lean_object* initialize_Init_Data_Queue(uint8_t builtin);
-lean_object* initialize_Lean_Meta_AbstractNestedProofs(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Match_MatchEqsExt(uint8_t builtin);
-lean_object* initialize_Init_Grind_Config(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
-lean_object* initialize_Init_Omega(uint8_t builtin);
-lean_object* initialize_Lean_Util_ShareCommon(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin) {
+lean_object* runtime_initialize_Lean_Meta_Sym_SymM(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Attr(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_CheckResult(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Queue(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_AbstractNestedProofs(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Match_MatchEqsExt(uint8_t builtin);
+lean_object* runtime_initialize_Init_Grind_Config(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Util_ShareCommon(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Lean_Meta_Sym_SymM(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Meta_Sym_SymM(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Attr(builtin);
+res = runtime_initialize_Lean_Meta_Tactic_Grind_Attr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_CheckResult(builtin);
+res = runtime_initialize_Lean_Meta_Tactic_Grind_CheckResult(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Queue(builtin);
+res = runtime_initialize_Init_Data_Queue(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_AbstractNestedProofs(builtin);
+res = runtime_initialize_Lean_Meta_AbstractNestedProofs(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Match_MatchEqsExt(builtin);
+res = runtime_initialize_Lean_Meta_Match_MatchEqsExt(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Config(builtin);
+res = runtime_initialize_Init_Grind_Config(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Linear(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin);
+res = runtime_initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Util_ShareCommon(builtin);
+res = runtime_initialize_Lean_Util_ShareCommon(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_congrPlaceholderProof = _init_l_Lean_Meta_Grind_congrPlaceholderProof();
 lean_mark_persistent(l_Lean_Meta_Grind_congrPlaceholderProof);
 l_Lean_Meta_Grind_eqCongrSymmPlaceholderProof = _init_l_Lean_Meta_Grind_eqCongrSymmPlaceholderProof();
 lean_mark_persistent(l_Lean_Meta_Grind_eqCongrSymmPlaceholderProof);
-if (builtin) {res = l_Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grind_Types_1294673021____hygCtx___hyg_4_();
+res = l_Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grind_Types_1294673021____hygCtx___hyg_4_()
+;
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_Grind_grind_debug = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_Grind_grind_debug);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grind_Types_669249035____hygCtx___hyg_4_();
+res = l_Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grind_Types_669249035____hygCtx___hyg_4_()
+;
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_Grind_grind_debug_proofs = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_Grind_grind_debug_proofs);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grind_Types_4176544910____hygCtx___hyg_4_();
+res = l_Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grind_Types_4176544910____hygCtx___hyg_4_()
+;
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_Grind_grind_warning = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_Grind_grind_warning);
 lean_dec_ref(res);
-}l_Lean_Meta_Grind_instInhabitedSolverExtensionState = _init_l_Lean_Meta_Grind_instInhabitedSolverExtensionState();
+l_Lean_Meta_Grind_instInhabitedSolverExtensionState = _init_l_Lean_Meta_Grind_instInhabitedSolverExtensionState();
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedSolverExtensionState);
 l_Lean_Meta_Grind_instInhabitedSplitSource_default = _init_l_Lean_Meta_Grind_instInhabitedSplitSource_default();
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedSplitSource_default);
@@ -60026,14 +60035,97 @@ l_Lean_Meta_Grind_instInhabitedMethods_default = _init_l_Lean_Meta_Grind_instInh
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedMethods_default);
 l_Lean_Meta_Grind_instInhabitedMethods = _init_l_Lean_Meta_Grind_instInhabitedMethods();
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedMethods);
-if (builtin) {res = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grind_Types_4050349543____hygCtx___hyg_2_();
+res = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grind_Types_4050349543____hygCtx___hyg_2_()
+;
 if (lean_io_result_is_error(res)) return res;
 l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_solverExtensionsRef = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_solverExtensionsRef);
 lean_dec_ref(res);
-}l_Lean_Meta_Grind_anchorPrefixToString___boxed__const__1 = _init_l_Lean_Meta_Grind_anchorPrefixToString___boxed__const__1();
+l_Lean_Meta_Grind_anchorPrefixToString___boxed__const__1 = _init_l_Lean_Meta_Grind_anchorPrefixToString___boxed__const__1();
 lean_mark_persistent(l_Lean_Meta_Grind_anchorPrefixToString___boxed__const__1);
 return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* runtime_initialize_Init_Data_String_Basic(uint8_t builtin);
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+res = runtime_initialize_Init_Data_String_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Lean_Meta_Sym_SymM(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Attr(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Grind_CheckResult(uint8_t builtin);
+lean_object* initialize_Init_Data_Queue(uint8_t builtin);
+lean_object* initialize_Lean_Meta_AbstractNestedProofs(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Match_MatchEqsExt(uint8_t builtin);
+lean_object* initialize_Init_Grind_Config(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Lean_Util_ShareCommon(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Lean_Meta_Sym_SymM(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_Attr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_CheckResult(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Queue(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_AbstractNestedProofs(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Match_MatchEqsExt(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Config(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Linear(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Util_ShareCommon(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Grind_Types(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Meta_Tactic_Grind_Types(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Meta_Tactic_Grind_Types(builtin);
 }
 #ifdef __cplusplus
 }

@@ -2118,47 +2118,63 @@ x_3 = l_Lean_Grind_Ring_toIntModule___redArg(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Grind_Module_Basic(uint8_t builtin);
-lean_object* initialize_Init_ByCases(uint8_t builtin);
-lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
-lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Div_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_Omega(uint8_t builtin);
-lean_object* initialize_Init_RCases(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin) {
+lean_object* runtime_initialize_Init_Grind_Module_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Pow(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Div_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+lean_object* runtime_initialize_Init_RCases(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Grind_Ring_Basic(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Init_Grind_Module_Basic(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Grind_Module_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_ByCases(builtin);
+res = runtime_initialize_Init_ByCases(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_DivMod_Lemmas(builtin);
+res = runtime_initialize_Init_Data_Int_DivMod_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_LemmasAux(builtin);
+res = runtime_initialize_Init_Data_Int_LemmasAux(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Pow(builtin);
+res = runtime_initialize_Init_Data_Int_Pow(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Div_Lemmas(builtin);
+res = runtime_initialize_Init_Data_Nat_Div_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Lemmas(builtin);
+res = runtime_initialize_Init_Data_Nat_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
+res = runtime_initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_RCases(builtin);
+res = runtime_initialize_Init_RCases(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Grind_Ring_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
 l_Lean_Grind_Semiring_ofNat__succ___autoParam = _init_l_Lean_Grind_Semiring_ofNat__succ___autoParam();
 lean_mark_persistent(l_Lean_Grind_Semiring_ofNat__succ___autoParam);
 l_Lean_Grind_Semiring_ofNat__eq__natCast___autoParam = _init_l_Lean_Grind_Semiring_ofNat__eq__natCast___autoParam();
@@ -2178,6 +2194,66 @@ lean_mark_persistent(l_Lean_Grind_CommSemiring_mul__zero___autoParam);
 l_Lean_Grind_CommSemiring_right__distrib___autoParam = _init_l_Lean_Grind_CommSemiring_right__distrib___autoParam();
 lean_mark_persistent(l_Lean_Grind_CommSemiring_right__distrib___autoParam);
 return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Init_Grind_Module_Basic(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Div_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_RCases(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Init_Grind_Module_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_DivMod_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_LemmasAux(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Pow(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Div_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_RCases(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Ring_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Grind_Ring_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Grind_Ring_Basic(builtin);
 }
 #ifdef __cplusplus
 }

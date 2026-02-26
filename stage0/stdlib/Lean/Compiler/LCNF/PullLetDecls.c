@@ -1128,7 +1128,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___lam__0___closed__2));
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(603u);
+x_3 = lean_unsigned_to_nat(635u);
 x_4 = ((lean_object*)(l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___lam__0___closed__1));
 x_5 = ((lean_object*)(l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___lam__0___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1281,8 +1281,8 @@ if (x_18 == 0)
 lean_object* x_19; lean_object* x_20; 
 lean_dec_ref(x_1);
 x_19 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_19, 0, x_15);
-lean_ctor_set(x_19, 1, x_16);
+lean_ctor_set(x_19, 0, x_16);
+lean_ctor_set(x_19, 1, x_15);
 x_20 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_20, 0, x_19);
 return x_20;
@@ -1304,8 +1304,8 @@ if (x_26 == 0)
 lean_object* x_27; lean_object* x_28; 
 lean_dec_ref(x_1);
 x_27 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_27, 0, x_23);
-lean_ctor_set(x_27, 1, x_24);
+lean_ctor_set(x_27, 0, x_24);
+lean_ctor_set(x_27, 1, x_23);
 x_28 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_28, 0, x_27);
 return x_28;
@@ -1358,8 +1358,8 @@ x_45 = lean_ptr_addr(x_41);
 x_46 = lean_usize_dec_eq(x_44, x_45);
 if (x_46 == 0)
 {
-x_15 = x_36;
-x_16 = x_41;
+x_15 = x_41;
+x_16 = x_36;
 x_17 = lean_box(0);
 x_18 = x_46;
 goto block_22;
@@ -1370,8 +1370,8 @@ size_t x_47; size_t x_48; uint8_t x_49;
 x_47 = lean_ptr_addr(x_42);
 x_48 = lean_ptr_addr(x_36);
 x_49 = lean_usize_dec_eq(x_47, x_48);
-x_15 = x_36;
-x_16 = x_41;
+x_15 = x_41;
+x_16 = x_36;
 x_17 = lean_box(0);
 x_18 = x_49;
 goto block_22;
@@ -1390,8 +1390,8 @@ x_54 = lean_ptr_addr(x_50);
 x_55 = lean_usize_dec_eq(x_53, x_54);
 if (x_55 == 0)
 {
-x_23 = x_36;
-x_24 = x_50;
+x_23 = x_50;
+x_24 = x_36;
 x_25 = lean_box(0);
 x_26 = x_55;
 goto block_30;
@@ -1402,8 +1402,8 @@ size_t x_56; size_t x_57; uint8_t x_58;
 x_56 = lean_ptr_addr(x_51);
 x_57 = lean_ptr_addr(x_36);
 x_58 = lean_usize_dec_eq(x_56, x_57);
-x_23 = x_36;
-x_24 = x_50;
+x_23 = x_50;
+x_24 = x_36;
 x_25 = lean_box(0);
 x_26 = x_58;
 goto block_30;
@@ -3313,6 +3313,36 @@ x_2 = l___private_Lean_Compiler_LCNF_PullLetDecls_0__Lean_Compiler_LCNF_initFn_0
 return x_2;
 }
 }
+lean_object* runtime_initialize_Lean_Compiler_LCNF_DependsOn(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Compiler_LCNF_PassManager(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_PullLetDecls(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Compiler_LCNF_DependsOn(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Compiler_LCNF_PassManager(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_Compiler_LCNF_pullInstances = _init_l_Lean_Compiler_LCNF_pullInstances();
+lean_mark_persistent(l_Lean_Compiler_LCNF_pullInstances);
+res = l___private_Lean_Compiler_LCNF_PullLetDecls_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_PullLetDecls_3825914912____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Compiler_LCNF_PullLetDecls(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Compiler_LCNF_DependsOn(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_PassManager(uint8_t builtin);
 static bool _G_initialized = false;
@@ -3320,18 +3350,23 @@ LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_PullLetDecls(uint8_t buil
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Compiler_LCNF_DependsOn(builtin);
+res = initialize_Lean_Compiler_LCNF_DependsOn(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_PassManager(builtin);
+res = initialize_Lean_Compiler_LCNF_PassManager(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_pullInstances = _init_l_Lean_Compiler_LCNF_pullInstances();
-lean_mark_persistent(l_Lean_Compiler_LCNF_pullInstances);
-if (builtin) {res = l___private_Lean_Compiler_LCNF_PullLetDecls_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_PullLetDecls_3825914912____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_Compiler_LCNF_PullLetDecls(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+res = meta_initialize_Lean_Compiler_LCNF_PullLetDecls(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Compiler_LCNF_PullLetDecls(builtin);
 }
 #ifdef __cplusplus
 }

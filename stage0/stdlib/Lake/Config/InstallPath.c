@@ -4253,33 +4253,39 @@ x_2 = l_Lake_findInstall_x3f();
 return x_2;
 }
 }
-lean_object* initialize_Lean_Compiler_FFI(uint8_t builtin);
-lean_object* initialize_Lake_Config_Dynlib(uint8_t builtin);
-lean_object* initialize_Lake_Config_Defaults(uint8_t builtin);
-lean_object* initialize_Lake_Util_NativeLib(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
-lean_object* initialize_Init_System_Platform(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Config_InstallPath(uint8_t builtin) {
+lean_object* runtime_initialize_Lean_Compiler_FFI(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Config_Dynlib(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Config_Defaults(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Util_NativeLib(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Modify(uint8_t builtin);
+lean_object* runtime_initialize_Init_System_Platform(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Config_InstallPath(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Lean_Compiler_FFI(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Compiler_FFI(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_Dynlib(builtin);
+res = runtime_initialize_Lake_Config_Dynlib(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_Defaults(builtin);
+res = runtime_initialize_Lake_Config_Defaults(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_NativeLib(builtin);
+res = runtime_initialize_Lake_Util_NativeLib(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Modify(builtin);
+res = runtime_initialize_Init_Data_String_Modify(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_System_Platform(builtin);
+res = runtime_initialize_Init_System_Platform(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instInhabitedElanInstall_default = _init_l_Lake_instInhabitedElanInstall_default();
@@ -4301,6 +4307,58 @@ lean_mark_persistent(l_Lake_instInhabitedLakeInstall_default);
 l_Lake_instInhabitedLakeInstall = _init_l_Lake_instInhabitedLakeInstall();
 lean_mark_persistent(l_Lake_instInhabitedLakeInstall);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Config_InstallPath(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Lean_Compiler_FFI(uint8_t builtin);
+lean_object* initialize_Lake_Config_Dynlib(uint8_t builtin);
+lean_object* initialize_Lake_Config_Defaults(uint8_t builtin);
+lean_object* initialize_Lake_Util_NativeLib(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
+lean_object* initialize_Init_System_Platform(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Lake_Config_InstallPath(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Lean_Compiler_FFI(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Config_Dynlib(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Config_Defaults(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Util_NativeLib(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Modify(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_System_Platform(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Config_InstallPath(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_Config_InstallPath(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Config_InstallPath(builtin);
 }
 #ifdef __cplusplus
 }

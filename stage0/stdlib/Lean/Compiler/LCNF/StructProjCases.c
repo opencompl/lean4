@@ -4802,7 +4802,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_WellFounded_opaqueFix_u2083___at___00Lean_Compiler_LCNF_StructProjCases_mkFieldParamsForCtorType_spec__1___redArg___closed__2));
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(603u);
+x_3 = lean_unsigned_to_nat(635u);
 x_4 = ((lean_object*)(l_Lean_Compiler_LCNF_StructProjCases_visitCode___closed__1));
 x_5 = ((lean_object*)(l_Lean_Compiler_LCNF_StructProjCases_visitCode___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -6641,16 +6641,16 @@ return x_385;
 else
 {
 lean_dec(x_374);
-lean_dec_ref(x_1);
 lean_dec_ref(x_70);
+lean_dec_ref(x_1);
 return x_375;
 }
 }
 else
 {
 uint8_t x_393; 
-lean_dec_ref(x_1);
 lean_dec_ref(x_70);
+lean_dec_ref(x_1);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -6676,8 +6676,8 @@ return x_395;
 else
 {
 uint8_t x_396; 
-lean_dec_ref(x_1);
 lean_dec_ref(x_70);
+lean_dec_ref(x_1);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -7609,7 +7609,7 @@ if (lean_is_scalar(x_432)) {
 lean_ctor_set(x_438, 0, x_428);
 lean_ctor_set(x_438, 1, x_429);
 lean_ctor_set(x_438, 2, x_434);
-lean_ctor_set(x_438, 3, x_436);
+lean_ctor_set(x_438, 3, x_437);
 x_439 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_439, 0, x_438);
 if (lean_is_scalar(x_435)) {
@@ -7626,8 +7626,8 @@ if (x_444 == 0)
 {
 lean_dec(x_430);
 lean_dec_ref(x_1);
-x_436 = x_442;
-x_437 = lean_box(0);
+x_436 = lean_box(0);
+x_437 = x_443;
 goto block_441;
 }
 else
@@ -7638,14 +7638,14 @@ lean_dec(x_430);
 if (x_445 == 0)
 {
 lean_dec_ref(x_1);
-x_436 = x_442;
-x_437 = lean_box(0);
+x_436 = lean_box(0);
+x_437 = x_443;
 goto block_441;
 }
 else
 {
 lean_object* x_446; 
-lean_dec_ref(x_442);
+lean_dec_ref(x_443);
 lean_dec(x_435);
 lean_dec(x_434);
 lean_dec(x_432);
@@ -7675,8 +7675,8 @@ x_457 = lean_ptr_addr(x_455);
 x_458 = lean_usize_dec_eq(x_456, x_457);
 if (x_458 == 0)
 {
-x_442 = x_455;
-x_443 = lean_box(0);
+x_442 = lean_box(0);
+x_443 = x_455;
 x_444 = x_458;
 goto block_447;
 }
@@ -7685,8 +7685,8 @@ else
 size_t x_459; uint8_t x_460; 
 x_459 = lean_ptr_addr(x_429);
 x_460 = lean_usize_dec_eq(x_459, x_459);
-x_442 = x_455;
-x_443 = lean_box(0);
+x_442 = lean_box(0);
+x_443 = x_455;
 x_444 = x_460;
 goto block_447;
 }
@@ -7896,8 +7896,8 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; 
 lean_dec_ref(x_1);
 x_12 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_12, 0, x_10);
-lean_ctor_set(x_12, 1, x_9);
+lean_ctor_set(x_12, 0, x_9);
+lean_ctor_set(x_12, 1, x_10);
 x_13 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
 return x_13;
@@ -7919,8 +7919,8 @@ if (x_19 == 0)
 lean_object* x_20; lean_object* x_21; 
 lean_dec_ref(x_1);
 x_20 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_20, 0, x_18);
-lean_ctor_set(x_20, 1, x_17);
+lean_ctor_set(x_20, 0, x_17);
+lean_ctor_set(x_20, 1, x_18);
 x_21 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
 return x_21;
@@ -7982,8 +7982,8 @@ x_46 = lean_usize_dec_eq(x_44, x_45);
 if (x_46 == 0)
 {
 x_8 = lean_box(0);
-x_9 = x_41;
-x_10 = x_39;
+x_9 = x_39;
+x_10 = x_41;
 x_11 = x_46;
 goto block_15;
 }
@@ -7994,8 +7994,8 @@ x_47 = lean_ptr_addr(x_42);
 x_48 = lean_ptr_addr(x_39);
 x_49 = lean_usize_dec_eq(x_47, x_48);
 x_8 = lean_box(0);
-x_9 = x_41;
-x_10 = x_39;
+x_9 = x_39;
+x_10 = x_41;
 x_11 = x_49;
 goto block_15;
 }
@@ -8014,8 +8014,8 @@ x_55 = lean_usize_dec_eq(x_53, x_54);
 if (x_55 == 0)
 {
 x_16 = lean_box(0);
-x_17 = x_50;
-x_18 = x_39;
+x_17 = x_39;
+x_18 = x_50;
 x_19 = x_55;
 goto block_23;
 }
@@ -8026,8 +8026,8 @@ x_56 = lean_ptr_addr(x_51);
 x_57 = lean_ptr_addr(x_39);
 x_58 = lean_usize_dec_eq(x_56, x_57);
 x_16 = lean_box(0);
-x_17 = x_50;
-x_18 = x_39;
+x_17 = x_39;
+x_18 = x_50;
 x_19 = x_58;
 goto block_23;
 }
@@ -8672,6 +8672,36 @@ x_2 = l___private_Lean_Compiler_LCNF_StructProjCases_0__Lean_Compiler_LCNF_initF
 return x_2;
 }
 }
+lean_object* runtime_initialize_Lean_Compiler_LCNF_PrettyPrinter(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Compiler_LCNF_MonoTypes(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_StructProjCases(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Compiler_LCNF_PrettyPrinter(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Compiler_LCNF_MonoTypes(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_Compiler_LCNF_structProjCases = _init_l_Lean_Compiler_LCNF_structProjCases();
+lean_mark_persistent(l_Lean_Compiler_LCNF_structProjCases);
+res = l___private_Lean_Compiler_LCNF_StructProjCases_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_StructProjCases_268537386____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Compiler_LCNF_StructProjCases(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Compiler_LCNF_PrettyPrinter(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_MonoTypes(uint8_t builtin);
 static bool _G_initialized = false;
@@ -8679,18 +8709,23 @@ LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_StructProjCases(uint8_t b
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Compiler_LCNF_PrettyPrinter(builtin);
+res = initialize_Lean_Compiler_LCNF_PrettyPrinter(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_MonoTypes(builtin);
+res = initialize_Lean_Compiler_LCNF_MonoTypes(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_structProjCases = _init_l_Lean_Compiler_LCNF_structProjCases();
-lean_mark_persistent(l_Lean_Compiler_LCNF_structProjCases);
-if (builtin) {res = l___private_Lean_Compiler_LCNF_StructProjCases_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_StructProjCases_268537386____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_Compiler_LCNF_StructProjCases(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+res = meta_initialize_Lean_Compiler_LCNF_StructProjCases(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Compiler_LCNF_StructProjCases(builtin);
 }
 #ifdef __cplusplus
 }

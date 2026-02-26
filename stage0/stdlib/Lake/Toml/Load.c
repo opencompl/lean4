@@ -1094,6 +1094,45 @@ x_3 = l_Lake_Toml_loadToml(x_1);
 return x_3;
 }
 }
+lean_object* runtime_initialize_Lean_Parser_Types(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Toml_Data_Value(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Toml_Elab(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Util_Message(uint8_t builtin);
+lean_object* runtime_initialize_Std_Do(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Toml_Load(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Parser_Types(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Toml_Data_Value(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Toml_Elab(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Util_Message(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Do(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Toml_Load(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Parser_Types(uint8_t builtin);
 lean_object* initialize_Lake_Toml_Data_Value(uint8_t builtin);
 lean_object* initialize_Lake_Toml_Elab(uint8_t builtin);
@@ -1104,22 +1143,35 @@ LEAN_EXPORT lean_object* initialize_Lake_Toml_Load(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Parser_Types(builtin);
+res = initialize_Lean_Parser_Types(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Toml_Data_Value(builtin);
+res = initialize_Lake_Toml_Data_Value(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Toml_Elab(builtin);
+res = initialize_Lake_Toml_Elab(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Message(builtin);
+res = initialize_Lake_Util_Message(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Do(builtin);
+res = initialize_Std_Do(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lake_Toml_Load(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_Toml_Load(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Toml_Load(builtin);
 }
 #ifdef __cplusplus
 }

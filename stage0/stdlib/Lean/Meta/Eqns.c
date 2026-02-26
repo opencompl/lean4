@@ -10491,6 +10491,89 @@ lean_dec_ref(x_5);
 return x_15;
 }
 }
+lean_object* runtime_initialize_Lean_Meta_Match_MatcherInfo(uint8_t builtin);
+lean_object* runtime_initialize_Lean_DefEqAttrib(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_RecExt(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_LetToHave(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_AppBuilder(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Eqns(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Meta_Match_MatcherInfo(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_DefEqAttrib(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_RecExt(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_LetToHave(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_AppBuilder(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Eqns_2238725263____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Meta_backward_eqns_nonrecursive = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Meta_backward_eqns_nonrecursive);
+lean_dec_ref(res);
+res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Eqns_2608443134____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Meta_backward_eqns_deepRecursiveSplit = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Meta_backward_eqns_deepRecursiveSplit);
+lean_dec_ref(res);
+l_Lean_Meta_eqnAffectingOptions = _init_l_Lean_Meta_eqnAffectingOptions();
+lean_mark_persistent(l_Lean_Meta_eqnAffectingOptions);
+res = l___private_Lean_Meta_Eqns_0__Lean_Meta_initFn_00___x40_Lean_Meta_Eqns_758090479____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Eqns_0__Lean_Meta_initFn_00___x40_Lean_Meta_Eqns_3508565914____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l___private_Lean_Meta_Eqns_0__Lean_Meta_getEqnsFnsRef = lean_io_result_get_value(res);
+lean_mark_persistent(l___private_Lean_Meta_Eqns_0__Lean_Meta_getEqnsFnsRef);
+lean_dec_ref(res);
+l_Lean_Meta_instInhabitedEqnsExtState_default = _init_l_Lean_Meta_instInhabitedEqnsExtState_default();
+lean_mark_persistent(l_Lean_Meta_instInhabitedEqnsExtState_default);
+l_Lean_Meta_instInhabitedEqnsExtState = _init_l_Lean_Meta_instInhabitedEqnsExtState();
+lean_mark_persistent(l_Lean_Meta_instInhabitedEqnsExtState);
+res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Eqns_3570318411____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Meta_eqnsExt = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Meta_eqnsExt);
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Eqns_0__Lean_Meta_initFn_00___x40_Lean_Meta_Eqns_408789758____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l___private_Lean_Meta_Eqns_0__Lean_Meta_getUnfoldEqnFnsRef = lean_io_result_get_value(res);
+lean_mark_persistent(l___private_Lean_Meta_Eqns_0__Lean_Meta_getUnfoldEqnFnsRef);
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Eqns_0__Lean_Meta_initFn_00___x40_Lean_Meta_Eqns_1721189386____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_Eqns(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Meta_Match_MatcherInfo(uint8_t builtin);
 lean_object* initialize_Lean_DefEqAttrib(uint8_t builtin);
 lean_object* initialize_Lean_Meta_RecExt(uint8_t builtin);
@@ -10501,59 +10584,35 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Eqns(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Match_MatcherInfo(builtin);
+res = initialize_Lean_Meta_Match_MatcherInfo(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_DefEqAttrib(builtin);
+res = initialize_Lean_DefEqAttrib(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_RecExt(builtin);
+res = initialize_Lean_Meta_RecExt(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_LetToHave(builtin);
+res = initialize_Lean_Meta_LetToHave(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_AppBuilder(builtin);
+res = initialize_Lean_Meta_AppBuilder(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Eqns_2238725263____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Meta_backward_eqns_nonrecursive = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Meta_backward_eqns_nonrecursive);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Eqns_2608443134____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Meta_backward_eqns_deepRecursiveSplit = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Meta_backward_eqns_deepRecursiveSplit);
-lean_dec_ref(res);
-}l_Lean_Meta_eqnAffectingOptions = _init_l_Lean_Meta_eqnAffectingOptions();
-lean_mark_persistent(l_Lean_Meta_eqnAffectingOptions);
-if (builtin) {res = l___private_Lean_Meta_Eqns_0__Lean_Meta_initFn_00___x40_Lean_Meta_Eqns_758090479____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_Meta_Eqns(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Eqns_0__Lean_Meta_initFn_00___x40_Lean_Meta_Eqns_3508565914____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l___private_Lean_Meta_Eqns_0__Lean_Meta_getEqnsFnsRef = lean_io_result_get_value(res);
-lean_mark_persistent(l___private_Lean_Meta_Eqns_0__Lean_Meta_getEqnsFnsRef);
-lean_dec_ref(res);
-}l_Lean_Meta_instInhabitedEqnsExtState_default = _init_l_Lean_Meta_instInhabitedEqnsExtState_default();
-lean_mark_persistent(l_Lean_Meta_instInhabitedEqnsExtState_default);
-l_Lean_Meta_instInhabitedEqnsExtState = _init_l_Lean_Meta_instInhabitedEqnsExtState();
-lean_mark_persistent(l_Lean_Meta_instInhabitedEqnsExtState);
-if (builtin) {res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Eqns_3570318411____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Meta_eqnsExt = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Meta_eqnsExt);
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Eqns_0__Lean_Meta_initFn_00___x40_Lean_Meta_Eqns_408789758____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l___private_Lean_Meta_Eqns_0__Lean_Meta_getUnfoldEqnFnsRef = lean_io_result_get_value(res);
-lean_mark_persistent(l___private_Lean_Meta_Eqns_0__Lean_Meta_getUnfoldEqnFnsRef);
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Eqns_0__Lean_Meta_initFn_00___x40_Lean_Meta_Eqns_1721189386____hygCtx___hyg_2_();
+res = meta_initialize_Lean_Meta_Eqns(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lean_Meta_Eqns(builtin);
 }
 #ifdef __cplusplus
 }

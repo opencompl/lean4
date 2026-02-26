@@ -1902,7 +1902,7 @@ return x_7;
 LEAN_EXPORT lean_object* l_Lean_Elab_Do_getExprPatternVarsEx___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_10; size_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_19; uint8_t x_20; 
+lean_object* x_3; lean_object* x_4; lean_object* x_10; lean_object* x_11; size_t x_12; lean_object* x_13; lean_object* x_19; uint8_t x_20; 
 x_19 = ((lean_object*)(l_Lean_Elab_Do_getExprPatternVarsEx___redArg___closed__1));
 lean_inc(x_1);
 x_20 = l_Lean_Syntax_isOfKind(x_1, x_19);
@@ -2046,8 +2046,8 @@ if (x_51 == 0)
 {
 lean_dec_ref(x_32);
 x_10 = lean_box(0);
-x_11 = x_47;
-x_12 = x_48;
+x_11 = x_48;
+x_12 = x_47;
 x_13 = x_50;
 goto block_18;
 }
@@ -2061,8 +2061,8 @@ if (x_51 == 0)
 {
 lean_dec_ref(x_32);
 x_10 = lean_box(0);
-x_11 = x_47;
-x_12 = x_48;
+x_11 = x_48;
+x_12 = x_47;
 x_13 = x_50;
 goto block_18;
 }
@@ -2073,8 +2073,8 @@ x_53 = lean_usize_of_nat(x_49);
 x_54 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Do_getExprPatternVarsEx_spec__1(x_32, x_47, x_53, x_50);
 lean_dec_ref(x_32);
 x_10 = lean_box(0);
-x_11 = x_47;
-x_12 = x_48;
+x_11 = x_48;
+x_12 = x_47;
 x_13 = x_54;
 goto block_18;
 }
@@ -2086,8 +2086,8 @@ x_55 = lean_usize_of_nat(x_49);
 x_56 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Do_getExprPatternVarsEx_spec__1(x_32, x_47, x_55, x_50);
 lean_dec_ref(x_32);
 x_10 = lean_box(0);
-x_11 = x_47;
-x_12 = x_48;
+x_11 = x_48;
+x_12 = x_47;
 x_13 = x_56;
 goto block_18;
 }
@@ -2109,10 +2109,10 @@ return x_8;
 block_18:
 {
 lean_object* x_14; size_t x_15; lean_object* x_16; lean_object* x_17; 
-x_14 = l_Array_append___redArg(x_12, x_13);
+x_14 = l_Array_append___redArg(x_11, x_13);
 lean_dec_ref(x_13);
 x_15 = lean_array_size(x_14);
-x_16 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Do_getExprPatternVarsEx_spec__0(x_15, x_11, x_14);
+x_16 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Do_getExprPatternVarsEx_spec__0(x_15, x_12, x_14);
 x_17 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
 return x_17;
@@ -2149,6 +2149,40 @@ lean_dec_ref(x_2);
 return x_9;
 }
 }
+lean_object* runtime_initialize_Lean_Elab_Term(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_PatternVar(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Quotation(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Do_PatternVar(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Elab_Term(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_PatternVar(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Quotation(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* runtime_initialize_Lean_Parser_Do(uint8_t builtin);
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Elab_Do_PatternVar(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+res = runtime_initialize_Lean_Parser_Do(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Elab_Term(uint8_t builtin);
 lean_object* initialize_Lean_Parser_Do(uint8_t builtin);
 lean_object* initialize_Lean_Elab_PatternVar(uint8_t builtin);
@@ -2158,19 +2192,31 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_Do_PatternVar(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Term(builtin);
+res = initialize_Lean_Elab_Term(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Do(builtin);
+res = initialize_Lean_Parser_Do(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PatternVar(builtin);
+res = initialize_Lean_Elab_PatternVar(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Quotation(builtin);
+res = initialize_Lean_Elab_Quotation(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Elab_Do_PatternVar(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Elab_Do_PatternVar(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Elab_Do_PatternVar(builtin);
 }
 #ifdef __cplusplus
 }

@@ -16636,12 +16636,12 @@ lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec_ref(x_7);
 x_24 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_24, 0, x_21);
+lean_ctor_set(x_24, 0, x_22);
 return x_24;
 }
 else
 {
-lean_dec_ref(x_21);
+lean_dec_ref(x_22);
 x_15 = x_7;
 x_16 = lean_box(0);
 goto block_20;
@@ -16658,7 +16658,7 @@ lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec_ref(x_7);
 x_25 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_25, 0, x_21);
+lean_ctor_set(x_25, 0, x_22);
 return x_25;
 }
 }
@@ -16671,15 +16671,15 @@ if (x_29 == 0)
 uint8_t x_30; 
 lean_inc_ref(x_27);
 x_30 = l_Lean_Exception_isRuntime(x_27);
-x_21 = x_27;
-x_22 = lean_box(0);
+x_21 = lean_box(0);
+x_22 = x_27;
 x_23 = x_30;
 goto block_26;
 }
 else
 {
-x_21 = x_27;
-x_22 = lean_box(0);
+x_21 = lean_box(0);
+x_22 = x_27;
 x_23 = x_29;
 goto block_26;
 }
@@ -18684,7 +18684,7 @@ lean_inc(x_39);
 lean_inc_ref(x_38);
 lean_inc(x_37);
 lean_inc_ref(x_36);
-x_43 = l_Lean_Elab_Tactic_elabGrindParams(x_33, x_2, x_3, x_32, x_31, x_36, x_37, x_38, x_39, x_40, x_41);
+x_43 = l_Lean_Elab_Tactic_elabGrindParams(x_33, x_2, x_3, x_31, x_32, x_36, x_37, x_38, x_39, x_40, x_41);
 if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_44; lean_object* x_45; uint8_t x_46; 
@@ -19797,8 +19797,8 @@ uint8_t x_275;
 x_275 = 1;
 if (x_3 == 0)
 {
-x_31 = x_275;
-x_32 = x_274;
+x_31 = x_274;
+x_32 = x_275;
 x_33 = x_1;
 x_34 = x_5;
 x_35 = x_6;
@@ -19827,8 +19827,8 @@ x_281 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_
 x_282 = lean_box(0);
 lean_ctor_set(x_1, 8, x_282);
 lean_ctor_set(x_1, 1, x_281);
-x_31 = x_275;
-x_32 = x_274;
+x_31 = x_274;
+x_32 = x_275;
 x_33 = x_1;
 x_34 = x_5;
 x_35 = x_6;
@@ -19875,8 +19875,8 @@ lean_ctor_set(x_295, 5, x_288);
 lean_ctor_set(x_295, 6, x_289);
 lean_ctor_set(x_295, 7, x_290);
 lean_ctor_set(x_295, 8, x_294);
-x_31 = x_275;
-x_32 = x_274;
+x_31 = x_274;
+x_32 = x_275;
 x_33 = x_295;
 x_34 = x_5;
 x_35 = x_6;
@@ -19921,6 +19921,40 @@ lean_dec_ref(x_3);
 return x_16;
 }
 }
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_ForallProp(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_Anchor(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_SyntheticMVars(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_Param(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Elab_Tactic_Grind_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Grind_ForallProp(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_Anchor(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_SyntheticMVars(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Elab_Tactic_Grind_Param(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Elab_Tactic_Grind_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_ForallProp(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind_Anchor(uint8_t builtin);
@@ -19930,19 +19964,31 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Grind_Param(uint8_t builtin
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Tactic_Grind_Basic(builtin);
+res = initialize_Lean_Elab_Tactic_Grind_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_ForallProp(builtin);
+res = initialize_Lean_Meta_Tactic_Grind_ForallProp(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Grind_Anchor(builtin);
+res = initialize_Lean_Elab_Tactic_Grind_Anchor(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_SyntheticMVars(builtin);
+res = initialize_Lean_Elab_SyntheticMVars(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Elab_Tactic_Grind_Param(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Elab_Tactic_Grind_Param(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Elab_Tactic_Grind_Param(builtin);
 }
 #ifdef __cplusplus
 }

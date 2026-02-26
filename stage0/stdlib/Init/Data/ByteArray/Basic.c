@@ -2290,6 +2290,66 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
+lean_object* runtime_initialize_Init_Data_UInt_BasicAux(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_DecidableEq(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Attach(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_ByteArray_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_UInt_BasicAux(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_DecidableEq(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Attach(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_Bootstrap(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_ByteArray_instInhabited = _init_l_ByteArray_instInhabited();
+lean_mark_persistent(l_ByteArray_instInhabited);
+l_ByteArray_instEmptyCollection = _init_l_ByteArray_instEmptyCollection();
+lean_mark_persistent(l_ByteArray_instEmptyCollection);
+l_ByteArray_instInhabitedIterator_default = _init_l_ByteArray_instInhabitedIterator_default();
+lean_mark_persistent(l_ByteArray_instInhabitedIterator_default);
+l_ByteArray_instInhabitedIterator = _init_l_ByteArray_instInhabitedIterator();
+lean_mark_persistent(l_ByteArray_instInhabitedIterator);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_ByteArray_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+l_ByteArray_uget___auto__1 = _init_l_ByteArray_uget___auto__1();
+lean_mark_persistent(l_ByteArray_uget___auto__1);
+l_ByteArray_get___auto__1 = _init_l_ByteArray_get___auto__1();
+lean_mark_persistent(l_ByteArray_get___auto__1);
+l_ByteArray_set___auto__1 = _init_l_ByteArray_set___auto__1();
+lean_mark_persistent(l_ByteArray_set___auto__1);
+l_ByteArray_uset___auto__1 = _init_l_ByteArray_uset___auto__1();
+lean_mark_persistent(l_ByteArray_uset___auto__1);
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_DecidableEq(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Attach(uint8_t builtin);
@@ -2301,41 +2361,39 @@ LEAN_EXPORT lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_UInt_BasicAux(builtin);
+res = initialize_Init_Data_UInt_BasicAux(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_DecidableEq(builtin);
+res = initialize_Init_Data_Array_DecidableEq(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Attach(builtin);
+res = initialize_Init_Data_List_Attach(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Bootstrap(builtin);
+res = initialize_Init_Data_Array_Bootstrap(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Lemmas(builtin);
+res = initialize_Init_Data_Array_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
+res = initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_ByteArray_instInhabited = _init_l_ByteArray_instInhabited();
-lean_mark_persistent(l_ByteArray_instInhabited);
-l_ByteArray_instEmptyCollection = _init_l_ByteArray_instEmptyCollection();
-lean_mark_persistent(l_ByteArray_instEmptyCollection);
-l_ByteArray_uget___auto__1 = _init_l_ByteArray_uget___auto__1();
-lean_mark_persistent(l_ByteArray_uget___auto__1);
-l_ByteArray_get___auto__1 = _init_l_ByteArray_get___auto__1();
-lean_mark_persistent(l_ByteArray_get___auto__1);
-l_ByteArray_set___auto__1 = _init_l_ByteArray_set___auto__1();
-lean_mark_persistent(l_ByteArray_set___auto__1);
-l_ByteArray_uset___auto__1 = _init_l_ByteArray_uset___auto__1();
-lean_mark_persistent(l_ByteArray_uset___auto__1);
-l_ByteArray_instInhabitedIterator_default = _init_l_ByteArray_instInhabitedIterator_default();
-lean_mark_persistent(l_ByteArray_instInhabitedIterator_default);
-l_ByteArray_instInhabitedIterator = _init_l_ByteArray_instInhabitedIterator();
-lean_mark_persistent(l_ByteArray_instInhabitedIterator);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Data_ByteArray_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_ByteArray_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_ByteArray_Basic(builtin);
 }
 #ifdef __cplusplus
 }

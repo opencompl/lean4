@@ -685,46 +685,80 @@ lean_dec(x_5);
 return x_8;
 }
 }
+lean_object* runtime_initialize_Lean_Exception(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Exception(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Exception(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_Elab_initFn_00___x40_Lean_Elab_Exception_3148402294____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Elab_postponeExceptionId = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Elab_postponeExceptionId);
+lean_dec_ref(res);
+res = l_Lean_Elab_initFn_00___x40_Lean_Elab_Exception_2911972506____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Elab_unsupportedSyntaxExceptionId = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Elab_unsupportedSyntaxExceptionId);
+lean_dec_ref(res);
+res = l_Lean_Elab_initFn_00___x40_Lean_Elab_Exception_3103249956____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Elab_abortCommandExceptionId = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Elab_abortCommandExceptionId);
+lean_dec_ref(res);
+res = l_Lean_Elab_initFn_00___x40_Lean_Elab_Exception_125629251____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Elab_abortTermExceptionId = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Elab_abortTermExceptionId);
+lean_dec_ref(res);
+res = l_Lean_Elab_initFn_00___x40_Lean_Elab_Exception_3863513224____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Elab_abortTacticExceptionId = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Elab_abortTacticExceptionId);
+lean_dec_ref(res);
+res = l_Lean_Elab_initFn_00___x40_Lean_Elab_Exception_3789179955____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Elab_autoBoundImplicitExceptionId = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Elab_autoBoundImplicitExceptionId);
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Elab_Exception(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Exception(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Exception(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Exception(builtin);
+res = initialize_Lean_Exception(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_Elab_initFn_00___x40_Lean_Elab_Exception_3148402294____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_Elab_Exception(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lean_Elab_postponeExceptionId = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Elab_postponeExceptionId);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Elab_initFn_00___x40_Lean_Elab_Exception_2911972506____hygCtx___hyg_2_();
+res = meta_initialize_Lean_Elab_Exception(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lean_Elab_unsupportedSyntaxExceptionId = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Elab_unsupportedSyntaxExceptionId);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Elab_initFn_00___x40_Lean_Elab_Exception_3103249956____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Elab_abortCommandExceptionId = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Elab_abortCommandExceptionId);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Elab_initFn_00___x40_Lean_Elab_Exception_125629251____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Elab_abortTermExceptionId = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Elab_abortTermExceptionId);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Elab_initFn_00___x40_Lean_Elab_Exception_3863513224____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Elab_abortTacticExceptionId = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Elab_abortTacticExceptionId);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Elab_initFn_00___x40_Lean_Elab_Exception_3789179955____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Elab_autoBoundImplicitExceptionId = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Elab_autoBoundImplicitExceptionId);
-lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lean_Elab_Exception(builtin);
 }
 #ifdef __cplusplus
 }

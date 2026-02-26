@@ -1526,101 +1526,146 @@ x_2 = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_1787873690____hygCtx___hyg_
 return x_2;
 }
 }
+lean_object* runtime_initialize_Lake_Util_OrderedTagAttribute(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_DSL_AttributesCore(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lake_Util_OrderedTagAttribute(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_3272526623____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_packageAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_packageAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_2767938986____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_packageDepAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_packageDepAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_1620868245____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_postUpdateAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_postUpdateAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_3623187058____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_scriptAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_scriptAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_2501670873____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_defaultScriptAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_defaultScriptAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_1207319905____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_leanLibAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_leanLibAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_3537518125____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_leanExeAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_leanExeAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_914944953____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_externLibAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_externLibAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_2342384104____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_inputFileAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_inputFileAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_2316908844____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_inputDirAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_inputDirAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_2750287618____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_targetAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_targetAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_736500823____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_defaultTargetAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_defaultTargetAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_3062214538____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_testDriverAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_testDriverAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_587736814____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_lintDriverAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_lintDriverAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_3793002438____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_moduleFacetAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_moduleFacetAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_1817870049____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_packageFacetAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_packageFacetAttr);
+lean_dec_ref(res);
+res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_1787873690____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lake_libraryFacetAttr = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lake_libraryFacetAttr);
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_DSL_AttributesCore(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lake_Util_OrderedTagAttribute(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_DSL_AttributesCore(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Util_OrderedTagAttribute(builtin);
+res = initialize_Lake_Util_OrderedTagAttribute(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_3272526623____hygCtx___hyg_2_();
+res = runtime_initialize_Lake_DSL_AttributesCore(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lake_packageAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_packageAttr);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_2767938986____hygCtx___hyg_2_();
+res = meta_initialize_Lake_DSL_AttributesCore(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lake_packageDepAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_packageDepAttr);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_1620868245____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_postUpdateAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_postUpdateAttr);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_3623187058____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_scriptAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_scriptAttr);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_2501670873____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_defaultScriptAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_defaultScriptAttr);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_1207319905____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_leanLibAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_leanLibAttr);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_3537518125____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_leanExeAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_leanExeAttr);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_914944953____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_externLibAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_externLibAttr);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_2342384104____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_inputFileAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_inputFileAttr);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_2316908844____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_inputDirAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_inputDirAttr);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_2750287618____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_targetAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_targetAttr);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_736500823____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_defaultTargetAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_defaultTargetAttr);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_3062214538____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_testDriverAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_testDriverAttr);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_587736814____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_lintDriverAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_lintDriverAttr);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_3793002438____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_moduleFacetAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_moduleFacetAttr);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_1817870049____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_packageFacetAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_packageFacetAttr);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_AttributesCore_1787873690____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lake_libraryFacetAttr = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lake_libraryFacetAttr);
-lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lake_DSL_AttributesCore(builtin);
 }
 #ifdef __cplusplus
 }

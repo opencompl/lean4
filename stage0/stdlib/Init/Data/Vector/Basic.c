@@ -7176,43 +7176,58 @@ x_8 = lean_box(x_7);
 return x_8;
 }
 }
-lean_object* initialize_Init_Data_Array_Nat(uint8_t builtin);
-lean_object* initialize_Init_Data_Array_DecidableEq(uint8_t builtin);
-lean_object* initialize_Init_Data_Range_Polymorphic_RangeIterator(uint8_t builtin);
-lean_object* initialize_Init_Data_Array_InsertIdx(uint8_t builtin);
-lean_object* initialize_Init_Data_Array_MapIdx(uint8_t builtin);
-lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
-lean_object* initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin);
-lean_object* initialize_Init_Omega(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin) {
+lean_object* runtime_initialize_Init_Data_Array_Nat(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_DecidableEq(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic_RangeIterator(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_InsertIdx(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_MapIdx(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Vector_Basic(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Init_Data_Array_Nat(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Array_Nat(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_DecidableEq(builtin);
+res = runtime_initialize_Init_Data_Array_DecidableEq(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_RangeIterator(builtin);
+res = runtime_initialize_Init_Data_Range_Polymorphic_RangeIterator(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_InsertIdx(builtin);
+res = runtime_initialize_Init_Data_Array_InsertIdx(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_MapIdx(builtin);
+res = runtime_initialize_Init_Data_Array_MapIdx(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
+res = runtime_initialize_Init_Data_Range_Polymorphic_Iterators(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Nat(builtin);
+res = runtime_initialize_Init_Data_Range_Polymorphic_Nat(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
+res = runtime_initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Vector_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
 l_Vector_set___auto__1 = _init_l_Vector_set___auto__1();
 lean_mark_persistent(l_Vector_set___auto__1);
 l_Vector_swap___auto__1 = _init_l_Vector_swap___auto__1();
@@ -7228,6 +7243,61 @@ lean_mark_persistent(l_Vector_insertIdx___auto__1);
 l_Vector_lex___auto__1 = _init_l_Vector_lex___auto__1();
 lean_mark_persistent(l_Vector_lex___auto__1);
 return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Init_Data_Array_Nat(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_DecidableEq(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_RangeIterator(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_InsertIdx(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_MapIdx(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Init_Data_Array_Nat(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_DecidableEq(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_RangeIterator(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_InsertIdx(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_MapIdx(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Nat(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Vector_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Vector_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Vector_Basic(builtin);
 }
 #ifdef __cplusplus
 }

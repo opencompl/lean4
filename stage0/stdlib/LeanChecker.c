@@ -3007,19 +3007,24 @@ LEAN_EXPORT lean_object* initialize_LeanChecker(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin);
+res = initialize_Init(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_CoreM(builtin);
+res = initialize_Lean_CoreM(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Replay(builtin);
+res = initialize_Lean_Replay(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_LeanChecker_Replay(builtin);
+res = initialize_LeanChecker_Replay(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Load_Manifest(builtin);
+res = initialize_Lake_Load_Manifest(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_main___boxed__const__1 = _init_l_main___boxed__const__1();

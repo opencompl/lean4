@@ -6354,6 +6354,58 @@ lean_dec(x_1);
 return x_6;
 }
 }
+lean_object* runtime_initialize_Lean_Elab_Command(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_Test_Cancel(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Elab_Command(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* runtime_initialize_Lean_Elab_Command(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Basic(uint8_t builtin);
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Server_Test_Cancel(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+res = runtime_initialize_Lean_Elab_Command(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_Server_Test_Cancel_initFn_00___x40_Lean_Server_Test_Cancel_3167384629____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Server_Test_Cancel_onceRef = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Server_Test_Cancel_onceRef);
+lean_dec_ref(res);
+res = l_Lean_Server_Test_Cancel_initFn_00___x40_Lean_Server_Test_Cancel_2473215001____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Server_Test_Cancel_unblockedCancelTk = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Server_Test_Cancel_unblockedCancelTk);
+lean_dec_ref(res);
+res = l_Lean_Server_Test_Cancel_initFn_00___x40_Lean_Server_Test_Cancel_4281145543____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Server_Test_Cancel_cmdOnceRef = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Server_Test_Cancel_cmdOnceRef);
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin);
@@ -6363,34 +6415,31 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_Test_Cancel(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Command(builtin);
+res = initialize_Lean_Elab_Command(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Basic(builtin);
+res = initialize_Lean_Elab_Tactic_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Command(builtin);
+res = initialize_Lean_Elab_Command(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Basic(builtin);
+res = initialize_Lean_Elab_Tactic_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l_Lean_Server_Test_Cancel_initFn_00___x40_Lean_Server_Test_Cancel_3167384629____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_Server_Test_Cancel(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lean_Server_Test_Cancel_onceRef = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Server_Test_Cancel_onceRef);
 lean_dec_ref(res);
-res = l_Lean_Server_Test_Cancel_initFn_00___x40_Lean_Server_Test_Cancel_2473215001____hygCtx___hyg_2_();
+res = meta_initialize_Lean_Server_Test_Cancel(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lean_Server_Test_Cancel_unblockedCancelTk = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Server_Test_Cancel_unblockedCancelTk);
 lean_dec_ref(res);
-res = l_Lean_Server_Test_Cancel_initFn_00___x40_Lean_Server_Test_Cancel_4281145543____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Server_Test_Cancel_cmdOnceRef = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Server_Test_Cancel_cmdOnceRef);
-lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lean_Server_Test_Cancel(builtin);
 }
 #ifdef __cplusplus
 }

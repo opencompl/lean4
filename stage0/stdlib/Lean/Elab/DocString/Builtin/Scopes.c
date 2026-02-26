@@ -82,6 +82,7 @@ lean_object* l_Lean_Parser_withCache(lean_object*, lean_object*);
 static lean_once_cell_t l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports___closed__24_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports___closed__24;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports;
+LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_importsM;
 LEAN_EXPORT lean_object* l_Lean_Doc_instFromDocArgDocScope___private__1___lam__0(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_andthenFn(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_instFromDocArgDocScope___private__1___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -382,6 +383,14 @@ _start:
 {
 lean_object* x_1; 
 x_1 = lean_obj_once(&l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports___closed__24, &l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports___closed__24_once, _init_l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports___closed__24);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_importsM(void) {
+_start:
+{
+lean_object* x_1; 
+x_1 = l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports;
 return x_1;
 }
 }
@@ -1146,23 +1155,23 @@ return x_128;
 block_35:
 {
 size_t x_27; size_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
-x_27 = lean_array_size(x_20);
+x_27 = lean_array_size(x_23);
 x_28 = 0;
-x_29 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Doc_parseQuotedStrLit___at___00Lean_Doc_instFromDocArgDocScope___private__1_spec__1_spec__2(x_10, x_14, x_21, x_27, x_28, x_20);
-lean_dec_ref(x_21);
+x_29 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Doc_parseQuotedStrLit___at___00Lean_Doc_instFromDocArgDocScope___private__1_spec__1_spec__2(x_10, x_19, x_22, x_27, x_28, x_23);
+lean_dec_ref(x_22);
 lean_dec_ref(x_10);
 x_30 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_30, 0, x_23);
-lean_ctor_set(x_30, 1, x_12);
-lean_ctor_set(x_30, 2, x_13);
-lean_ctor_set(x_30, 3, x_19);
+lean_ctor_set(x_30, 0, x_20);
+lean_ctor_set(x_30, 1, x_24);
+lean_ctor_set(x_30, 2, x_11);
+lean_ctor_set(x_30, 3, x_21);
 lean_ctor_set(x_30, 4, x_26);
 lean_ctor_set(x_30, 5, x_29);
-x_31 = l_Lean_Parser_ParserState_toErrorMsg(x_18, x_30);
+x_31 = l_Lean_Parser_ParserState_toErrorMsg(x_12, x_30);
 x_32 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_32, 0, x_31);
 x_33 = l_Lean_MessageData_ofFormat(x_32);
-x_34 = l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_Doc_instFromDocArgDocScope___private__1_spec__0_spec__0___redArg(x_33, x_11, x_17, x_24, x_22, x_25, x_15);
+x_34 = l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_Doc_instFromDocArgDocScope___private__1_spec__0_spec__0___redArg(x_33, x_13, x_14, x_15, x_17, x_25, x_18);
 lean_dec_ref(x_25);
 return x_34;
 }
@@ -1214,20 +1223,20 @@ lean_inc(x_38);
 x_66 = l___private_Lean_Elab_DocString_Builtin_Parsing_0__Lean_Doc_parseQuotedStrLit_reposition(x_10, x_38, x_48, x_62);
 if (lean_obj_tag(x_64) == 0)
 {
-x_11 = x_39;
-x_12 = x_61;
-x_13 = x_66;
-x_14 = x_38;
-x_15 = x_44;
+x_11 = x_66;
+x_12 = x_51;
+x_13 = x_39;
+x_14 = x_40;
+x_15 = x_41;
 x_16 = lean_box(0);
-x_17 = x_40;
-x_18 = x_51;
-x_19 = x_63;
-x_20 = x_65;
-x_21 = x_48;
-x_22 = x_42;
-x_23 = x_60;
-x_24 = x_41;
+x_17 = x_42;
+x_18 = x_44;
+x_19 = x_38;
+x_20 = x_60;
+x_21 = x_63;
+x_22 = x_48;
+x_23 = x_65;
+x_24 = x_61;
 x_25 = x_43;
 x_26 = x_64;
 goto block_35;
@@ -1248,20 +1257,20 @@ x_70 = lean_ctor_get(x_68, 0);
 lean_inc(x_38);
 x_71 = l___private_Lean_Elab_DocString_Builtin_Parsing_0__Lean_Doc_parseQuotedStrLit_repositionSyntax(x_10, x_38, x_48, x_70);
 lean_ctor_set(x_68, 0, x_71);
-x_11 = x_39;
-x_12 = x_61;
-x_13 = x_66;
-x_14 = x_38;
-x_15 = x_44;
+x_11 = x_66;
+x_12 = x_51;
+x_13 = x_39;
+x_14 = x_40;
+x_15 = x_41;
 x_16 = lean_box(0);
-x_17 = x_40;
-x_18 = x_51;
-x_19 = x_63;
-x_20 = x_65;
-x_21 = x_48;
-x_22 = x_42;
-x_23 = x_60;
-x_24 = x_41;
+x_17 = x_42;
+x_18 = x_44;
+x_19 = x_38;
+x_20 = x_60;
+x_21 = x_63;
+x_22 = x_48;
+x_23 = x_65;
+x_24 = x_61;
 x_25 = x_43;
 x_26 = x_64;
 goto block_35;
@@ -1283,20 +1292,20 @@ lean_ctor_set(x_76, 0, x_75);
 lean_ctor_set(x_76, 1, x_73);
 lean_ctor_set(x_76, 2, x_74);
 lean_ctor_set(x_64, 0, x_76);
-x_11 = x_39;
-x_12 = x_61;
-x_13 = x_66;
-x_14 = x_38;
-x_15 = x_44;
+x_11 = x_66;
+x_12 = x_51;
+x_13 = x_39;
+x_14 = x_40;
+x_15 = x_41;
 x_16 = lean_box(0);
-x_17 = x_40;
-x_18 = x_51;
-x_19 = x_63;
-x_20 = x_65;
-x_21 = x_48;
-x_22 = x_42;
-x_23 = x_60;
-x_24 = x_41;
+x_17 = x_42;
+x_18 = x_44;
+x_19 = x_38;
+x_20 = x_60;
+x_21 = x_63;
+x_22 = x_48;
+x_23 = x_65;
+x_24 = x_61;
 x_25 = x_43;
 x_26 = x_64;
 goto block_35;
@@ -1335,20 +1344,20 @@ lean_ctor_set(x_83, 1, x_79);
 lean_ctor_set(x_83, 2, x_80);
 x_84 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_84, 0, x_83);
-x_11 = x_39;
-x_12 = x_61;
-x_13 = x_66;
-x_14 = x_38;
-x_15 = x_44;
+x_11 = x_66;
+x_12 = x_51;
+x_13 = x_39;
+x_14 = x_40;
+x_15 = x_41;
 x_16 = lean_box(0);
-x_17 = x_40;
-x_18 = x_51;
-x_19 = x_63;
-x_20 = x_65;
-x_21 = x_48;
-x_22 = x_42;
-x_23 = x_60;
-x_24 = x_41;
+x_17 = x_42;
+x_18 = x_44;
+x_19 = x_38;
+x_20 = x_60;
+x_21 = x_63;
+x_22 = x_48;
+x_23 = x_65;
+x_24 = x_61;
 x_25 = x_43;
 x_26 = x_84;
 goto block_35;
@@ -2072,6 +2081,34 @@ lean_dec_ref(x_3);
 return x_10;
 }
 }
+lean_object* runtime_initialize_Lean_Elab_DocString(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_DocString_Builtin_Parsing(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_DocString_Builtin_Scopes(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Elab_DocString(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_DocString_Builtin_Parsing(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports = _init_l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports();
+lean_mark_persistent(l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Elab_DocString_Builtin_Scopes(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_importsM = _init_l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_importsM();
+lean_mark_persistent(l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_importsM);
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Elab_DocString(uint8_t builtin);
 lean_object* initialize_Lean_Elab_DocString_Builtin_Parsing(uint8_t builtin);
 static bool _G_initialized = false;
@@ -2079,15 +2116,23 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_DocString_Builtin_Scopes(uint8_t b
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_DocString(builtin);
+res = initialize_Lean_Elab_DocString(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_DocString_Builtin_Parsing(builtin);
+res = initialize_Lean_Elab_DocString_Builtin_Parsing(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports = _init_l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports();
-lean_mark_persistent(l___private_Lean_Elab_DocString_Builtin_Scopes_0__Lean_Doc_imports);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Elab_DocString_Builtin_Scopes(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Elab_DocString_Builtin_Scopes(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Elab_DocString_Builtin_Scopes(builtin);
 }
 #ifdef __cplusplus
 }

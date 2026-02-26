@@ -72765,49 +72765,58 @@ x_2 = l___private_Lean_Meta_Basic_0__Lean_initFn_00___x40_Lean_Meta_Basic_268233
 return x_2;
 }
 }
-lean_object* initialize_Lean_Data_LOption(uint8_t builtin);
-lean_object* initialize_Lean_Class(uint8_t builtin);
-lean_object* initialize_Lean_ReducibilityAttrs(uint8_t builtin);
-lean_object* initialize_Lean_Util_MonadBacktrack(uint8_t builtin);
-lean_object* initialize_Lean_Compiler_InlineAttrs(uint8_t builtin);
-lean_object* initialize_Lean_Meta_TransparencyMode(uint8_t builtin);
-lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
-lean_object* initialize_Init_While(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_Basic(uint8_t builtin) {
+lean_object* runtime_initialize_Lean_Data_LOption(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Class(uint8_t builtin);
+lean_object* runtime_initialize_Lean_ReducibilityAttrs(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Util_MonadBacktrack(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Compiler_InlineAttrs(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_TransparencyMode(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+lean_object* runtime_initialize_Init_While(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Basic(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Lean_Data_LOption(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Data_LOption(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Class(builtin);
+res = runtime_initialize_Lean_Class(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ReducibilityAttrs(builtin);
+res = runtime_initialize_Lean_ReducibilityAttrs(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_MonadBacktrack(builtin);
+res = runtime_initialize_Lean_Util_MonadBacktrack(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_InlineAttrs(builtin);
+res = runtime_initialize_Lean_Compiler_InlineAttrs(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_TransparencyMode(builtin);
+res = runtime_initialize_Lean_Meta_TransparencyMode(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
+res = runtime_initialize_Init_Data_Range_Polymorphic_Iterators(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_While(builtin);
+res = runtime_initialize_Init_While(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Basic_4017134330____hygCtx___hyg_2_();
+res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Basic_4017134330____hygCtx___hyg_2_()
+;
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_isDefEqStuckExceptionId = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_isDefEqStuckExceptionId);
 lean_dec_ref(res);
-}l_Lean_Meta_instInhabitedProjReductionKind_default = _init_l_Lean_Meta_instInhabitedProjReductionKind_default();
+l_Lean_Meta_instInhabitedProjReductionKind_default = _init_l_Lean_Meta_instInhabitedProjReductionKind_default();
 l_Lean_Meta_instInhabitedProjReductionKind = _init_l_Lean_Meta_instInhabitedProjReductionKind();
 l_Lean_Meta_instInhabitedConfigWithKey___private__1 = _init_l_Lean_Meta_instInhabitedConfigWithKey___private__1();
 lean_mark_persistent(l_Lean_Meta_instInhabitedConfigWithKey___private__1);
@@ -72845,12 +72854,13 @@ l_Lean_Meta_instInhabitedState_default = _init_l_Lean_Meta_instInhabitedState_de
 lean_mark_persistent(l_Lean_Meta_instInhabitedState_default);
 l_Lean_Meta_instInhabitedState = _init_l_Lean_Meta_instInhabitedState();
 lean_mark_persistent(l_Lean_Meta_instInhabitedState);
-if (builtin) {res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Basic_1288692271____hygCtx___hyg_4_();
+res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Basic_1288692271____hygCtx___hyg_4_()
+;
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_maxSynthPendingDepth = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_maxSynthPendingDepth);
 lean_dec_ref(res);
-}l_Lean_Meta_instInhabitedContext_default = _init_l_Lean_Meta_instInhabitedContext_default();
+l_Lean_Meta_instInhabitedContext_default = _init_l_Lean_Meta_instInhabitedContext_default();
 lean_mark_persistent(l_Lean_Meta_instInhabitedContext_default);
 l_Lean_Meta_instInhabitedContext = _init_l_Lean_Meta_instInhabitedContext();
 lean_mark_persistent(l_Lean_Meta_instInhabitedContext);
@@ -72860,19 +72870,83 @@ l_Lean_Meta_instAddMessageContextMetaM = _init_l_Lean_Meta_instAddMessageContext
 lean_mark_persistent(l_Lean_Meta_instAddMessageContextMetaM);
 l_Lean_Meta_instMonadBacktrackSavedStateMetaM = _init_l_Lean_Meta_instMonadBacktrackSavedStateMetaM();
 lean_mark_persistent(l_Lean_Meta_instMonadBacktrackSavedStateMetaM);
-if (builtin) {res = l___private_Lean_Meta_Basic_0__Lean_Meta_initFn_00___x40_Lean_Meta_Basic_4196696338____hygCtx___hyg_2_();
+res = l___private_Lean_Meta_Basic_0__Lean_Meta_initFn_00___x40_Lean_Meta_Basic_4196696338____hygCtx___hyg_2_()
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}l_Lean_Meta_instInhabitedExprParamInfo_default = _init_l_Lean_Meta_instInhabitedExprParamInfo_default();
+l_Lean_Meta_instInhabitedExprParamInfo_default = _init_l_Lean_Meta_instInhabitedExprParamInfo_default();
 lean_mark_persistent(l_Lean_Meta_instInhabitedExprParamInfo_default);
 l_Lean_Meta_instInhabitedExprParamInfo = _init_l_Lean_Meta_instInhabitedExprParamInfo();
 lean_mark_persistent(l_Lean_Meta_instInhabitedExprParamInfo);
 l_Lean_Meta_instAlternativeMetaM = _init_l_Lean_Meta_instAlternativeMetaM();
 lean_mark_persistent(l_Lean_Meta_instAlternativeMetaM);
-if (builtin) {res = l___private_Lean_Meta_Basic_0__Lean_initFn_00___x40_Lean_Meta_Basic_2682336532____hygCtx___hyg_2_();
+res = l___private_Lean_Meta_Basic_0__Lean_initFn_00___x40_Lean_Meta_Basic_2682336532____hygCtx___hyg_2_()
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Lean_Data_LOption(uint8_t builtin);
+lean_object* initialize_Lean_Class(uint8_t builtin);
+lean_object* initialize_Lean_ReducibilityAttrs(uint8_t builtin);
+lean_object* initialize_Lean_Util_MonadBacktrack(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_InlineAttrs(uint8_t builtin);
+lean_object* initialize_Lean_Meta_TransparencyMode(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+lean_object* initialize_Init_While(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Lean_Meta_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Lean_Data_LOption(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Class(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_ReducibilityAttrs(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Util_MonadBacktrack(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_InlineAttrs(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_TransparencyMode(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_While(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Meta_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Meta_Basic(builtin);
 }
 #ifdef __cplusplus
 }

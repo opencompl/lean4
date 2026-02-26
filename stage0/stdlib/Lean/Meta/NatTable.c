@@ -530,6 +530,39 @@ lean_dec_ref(x_3);
 return x_9;
 }
 }
+lean_object* runtime_initialize_Lean_Meta_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_InferType(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_NatTable(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Meta_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_InferType(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_NatTable(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+l___private_Lean_Meta_NatTable_0__mkNatLookupTable___auto__1 = _init_l___private_Lean_Meta_NatTable_0__mkNatLookupTable___auto__1();
+lean_mark_persistent(l___private_Lean_Meta_NatTable_0__mkNatLookupTable___auto__1);
+l___private_Lean_Meta_NatTable_0__mkNatLookupTable___auto__3 = _init_l___private_Lean_Meta_NatTable_0__mkNatLookupTable___auto__3();
+lean_mark_persistent(l___private_Lean_Meta_NatTable_0__mkNatLookupTable___auto__3);
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_InferType(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
@@ -538,20 +571,27 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_NatTable(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Basic(builtin);
+res = initialize_Lean_Meta_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_InferType(builtin);
+res = initialize_Lean_Meta_InferType(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
+res = initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Meta_NatTable_0__mkNatLookupTable___auto__1 = _init_l___private_Lean_Meta_NatTable_0__mkNatLookupTable___auto__1();
-lean_mark_persistent(l___private_Lean_Meta_NatTable_0__mkNatLookupTable___auto__1);
-l___private_Lean_Meta_NatTable_0__mkNatLookupTable___auto__3 = _init_l___private_Lean_Meta_NatTable_0__mkNatLookupTable___auto__3();
-lean_mark_persistent(l___private_Lean_Meta_NatTable_0__mkNatLookupTable___auto__3);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Meta_NatTable(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Meta_NatTable(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Meta_NatTable(builtin);
 }
 #ifdef __cplusplus
 }

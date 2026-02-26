@@ -2621,8 +2621,8 @@ block_34:
 lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; 
 x_20 = l_Lean_MVarId_assign___at___00Lean_MVarId_assert_spec__0___redArg(x_1, x_19, x_6);
 lean_dec_ref(x_20);
-x_21 = l_Lean_Expr_mvarId_x21(x_17);
-lean_dec_ref(x_17);
+x_21 = l_Lean_Expr_mvarId_x21(x_18);
+lean_dec_ref(x_18);
 x_22 = lean_box(0);
 x_23 = 1;
 lean_inc(x_6);
@@ -2686,8 +2686,8 @@ x_38 = lean_nat_dec_lt(x_16, x_15);
 if (x_38 == 0)
 {
 lean_inc(x_37);
-x_17 = x_37;
-x_18 = lean_box(0);
+x_17 = lean_box(0);
+x_18 = x_37;
 x_19 = x_37;
 goto block_34;
 }
@@ -2700,8 +2700,8 @@ if (x_39 == 0)
 if (x_38 == 0)
 {
 lean_inc(x_37);
-x_17 = x_37;
-x_18 = lean_box(0);
+x_17 = lean_box(0);
+x_18 = x_37;
 x_19 = x_37;
 goto block_34;
 }
@@ -2712,8 +2712,8 @@ x_40 = 0;
 x_41 = lean_usize_of_nat(x_15);
 lean_inc(x_37);
 x_42 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_MVarId_assertHypotheses_spec__2(x_3, x_40, x_41, x_37);
-x_17 = x_37;
-x_18 = lean_box(0);
+x_17 = lean_box(0);
+x_18 = x_37;
 x_19 = x_42;
 goto block_34;
 }
@@ -2725,8 +2725,8 @@ x_43 = 0;
 x_44 = lean_usize_of_nat(x_15);
 lean_inc(x_37);
 x_45 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_MVarId_assertHypotheses_spec__2(x_3, x_43, x_44, x_37);
-x_17 = x_37;
-x_18 = lean_box(0);
+x_17 = lean_box(0);
+x_18 = x_37;
 x_19 = x_45;
 goto block_34;
 }
@@ -4444,6 +4444,45 @@ x_10 = l_Lean_MVarId_replace(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
 }
+lean_object* runtime_initialize_Lean_Meta_Tactic_FVarSubst(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Intro(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Revert(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Util_ForEachExpr(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_AppBuilder(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Assert(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Meta_Tactic_FVarSubst(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Intro(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Revert(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Util_ForEachExpr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_AppBuilder(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_Tactic_Assert(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Meta_Tactic_FVarSubst(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Intro(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Revert(uint8_t builtin);
@@ -4454,22 +4493,35 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Assert(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Tactic_FVarSubst(builtin);
+res = initialize_Lean_Meta_Tactic_FVarSubst(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Intro(builtin);
+res = initialize_Lean_Meta_Tactic_Intro(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Revert(builtin);
+res = initialize_Lean_Meta_Tactic_Revert(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_ForEachExpr(builtin);
+res = initialize_Lean_Util_ForEachExpr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_AppBuilder(builtin);
+res = initialize_Lean_Meta_AppBuilder(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Meta_Tactic_Assert(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Meta_Tactic_Assert(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Meta_Tactic_Assert(builtin);
 }
 #ifdef __cplusplus
 }

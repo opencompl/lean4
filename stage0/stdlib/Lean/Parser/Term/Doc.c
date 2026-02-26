@@ -2052,26 +2052,56 @@ return x_21;
 }
 }
 }
+lean_object* runtime_initialize_Lean_Parser_Extension(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Parser_Term_Doc(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Parser_Extension(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_Parser_Term_Doc_initFn_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Parser_Term_Doc_recommendedSpellingByNameExt = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Parser_Term_Doc_recommendedSpellingByNameExt);
+lean_dec_ref(res);
+res = l_Lean_Parser_Term_Doc_initFn_00___x40_Lean_Parser_Term_Doc_205972326____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Parser_Term_Doc_recommendedSpellingExt = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Parser_Term_Doc_recommendedSpellingExt);
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Parser_Term_Doc(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Parser_Extension(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Parser_Term_Doc(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Parser_Extension(builtin);
+res = initialize_Lean_Parser_Extension(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_Parser_Term_Doc_initFn_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_Parser_Term_Doc(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lean_Parser_Term_Doc_recommendedSpellingByNameExt = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Parser_Term_Doc_recommendedSpellingByNameExt);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Parser_Term_Doc_initFn_00___x40_Lean_Parser_Term_Doc_205972326____hygCtx___hyg_2_();
+res = meta_initialize_Lean_Parser_Term_Doc(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lean_Parser_Term_Doc_recommendedSpellingExt = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Parser_Term_Doc_recommendedSpellingExt);
 lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lean_Parser_Term_Doc(builtin);
 }
 #ifdef __cplusplus
 }

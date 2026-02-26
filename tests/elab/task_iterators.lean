@@ -27,6 +27,7 @@ def mkCoreState (imports : Array Lean.Import) (loadExts : Bool := false) :
 
 /-- Run a TacticM test with a fresh True goal. -/
 def runTacticTest {α : Type} (test : Lean.Elab.Tactic.TacticM α) : IO α := do
+  unsafe Lean.enableInitializersExecution
   let (coreCtx, coreState) ← mkCoreState #[{module := `Init}] (loadExts := true)
   let (result, _) ← (do
     let goal ← Lean.Meta.mkFreshExprMVar (Lean.mkConst ``True)

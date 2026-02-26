@@ -20801,8 +20801,8 @@ goto block_9;
 }
 else
 {
-lean_dec_ref(x_12);
 lean_dec(x_13);
+lean_dec_ref(x_12);
 lean_dec_ref(x_11);
 lean_dec_ref(x_10);
 x_5 = x_3;
@@ -20812,8 +20812,8 @@ goto block_9;
 }
 else
 {
-lean_dec(x_12);
 lean_dec_ref(x_11);
+lean_dec(x_12);
 lean_dec_ref(x_10);
 x_5 = x_3;
 x_6 = lean_box(0);
@@ -30720,6 +30720,64 @@ x_6 = l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___00Lean_Persistent
 return x_6;
 }
 }
+lean_object* runtime_initialize_Lean_Server_FileWorker_ExampleHover(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Server_FileWorker_InlayHints(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Server_FileWorker_SemanticHighlighting(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Server_FileWorker_SignatureHelp(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Server_Completion(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Server_References(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Server_Completion_CompletionItemCompression(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Widget_Diff(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_FileWorker_RequestHandling(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Server_FileWorker_ExampleHover(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Server_FileWorker_InlayHints(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Server_FileWorker_SemanticHighlighting(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Server_FileWorker_SignatureHelp(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Server_Completion(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Server_References(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Server_Completion_CompletionItemCompression(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Widget_Diff(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_initFn_00___x40_Lean_Server_FileWorker_RequestHandling_1490364749____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Server_FileWorker_RequestHandling(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Server_FileWorker_ExampleHover(uint8_t builtin);
 lean_object* initialize_Lean_Server_FileWorker_InlayHints(uint8_t builtin);
 lean_object* initialize_Lean_Server_FileWorker_SemanticHighlighting(uint8_t builtin);
@@ -30733,34 +30791,47 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_FileWorker_RequestHandling(uint8
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Server_FileWorker_ExampleHover(builtin);
+res = initialize_Lean_Server_FileWorker_ExampleHover(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_FileWorker_InlayHints(builtin);
+res = initialize_Lean_Server_FileWorker_InlayHints(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_FileWorker_SemanticHighlighting(builtin);
+res = initialize_Lean_Server_FileWorker_SemanticHighlighting(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_FileWorker_SignatureHelp(builtin);
+res = initialize_Lean_Server_FileWorker_SignatureHelp(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_Completion(builtin);
+res = initialize_Lean_Server_Completion(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_References(builtin);
+res = initialize_Lean_Server_References(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_Completion_CompletionItemCompression(builtin);
+res = initialize_Lean_Server_Completion_CompletionItemCompression(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Widget_Diff(builtin);
+res = initialize_Lean_Widget_Diff(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_initFn_00___x40_Lean_Server_FileWorker_RequestHandling_1490364749____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_Server_FileWorker_RequestHandling(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+res = meta_initialize_Lean_Server_FileWorker_RequestHandling(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Server_FileWorker_RequestHandling(builtin);
 }
 #ifdef __cplusplus
 }

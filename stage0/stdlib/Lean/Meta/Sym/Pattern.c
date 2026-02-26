@@ -15717,8 +15717,8 @@ goto block_104;
 else
 {
 uint8_t x_126; 
-lean_dec_ref(x_1);
 lean_dec(x_12);
+lean_dec_ref(x_1);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
@@ -15828,8 +15828,8 @@ goto block_104;
 else
 {
 lean_object* x_143; lean_object* x_144; lean_object* x_145; 
-lean_dec_ref(x_1);
 lean_dec(x_12);
+lean_dec_ref(x_1);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
@@ -15983,8 +15983,8 @@ goto block_104;
 else
 {
 lean_object* x_167; lean_object* x_168; lean_object* x_169; 
-lean_dec_ref(x_1);
 lean_dec(x_12);
+lean_dec_ref(x_1);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
@@ -25945,6 +25945,99 @@ x_12 = l_Lean_Meta_Sym_Pattern_unify_x3f(x_1, x_2, x_11, x_4, x_5, x_6, x_7, x_8
 return x_12;
 }
 }
+lean_object* runtime_initialize_Lean_Meta_Sym_SymM(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_AssocList(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_SynthInstance(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_InstantiateS(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_AbstractS(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_InstantiateMVarsS(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_IsClass(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_MaxFVar(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_ProofInstInfo(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_AlphaShareBuilder(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_Offset(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_Eta(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_MapIdx(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Std_Do_Triple_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Sym_Pattern(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Meta_Sym_SymM(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_AssocList(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_SynthInstance(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym_InstantiateS(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym_AbstractS(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym_InstantiateMVarsS(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym_IsClass(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym_MaxFVar(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym_ProofInstInfo(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym_AlphaShareBuilder(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym_Offset(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym_Eta(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_MapIdx(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Linear(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Do_Triple_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_Meta_Sym_instInhabitedPattern_default = _init_l_Lean_Meta_Sym_instInhabitedPattern_default();
+lean_mark_persistent(l_Lean_Meta_Sym_instInhabitedPattern_default);
+l_Lean_Meta_Sym_instInhabitedPattern = _init_l_Lean_Meta_Sym_instInhabitedPattern();
+lean_mark_persistent(l_Lean_Meta_Sym_instInhabitedPattern);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_Sym_Pattern(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Meta_Sym_SymM(uint8_t builtin);
 lean_object* initialize_Lean_Data_AssocList(uint8_t builtin);
 lean_object* initialize_Lean_Meta_SynthInstance(uint8_t builtin);
@@ -25965,56 +26058,75 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Sym_Pattern(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Sym_SymM(builtin);
+res = initialize_Lean_Meta_Sym_SymM(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_AssocList(builtin);
+res = initialize_Lean_Data_AssocList(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_SynthInstance(builtin);
+res = initialize_Lean_Meta_SynthInstance(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_InstantiateS(builtin);
+res = initialize_Lean_Meta_Sym_InstantiateS(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_AbstractS(builtin);
+res = initialize_Lean_Meta_Sym_AbstractS(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_InstantiateMVarsS(builtin);
+res = initialize_Lean_Meta_Sym_InstantiateMVarsS(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_IsClass(builtin);
+res = initialize_Lean_Meta_Sym_IsClass(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_MaxFVar(builtin);
+res = initialize_Lean_Meta_Sym_MaxFVar(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_ProofInstInfo(builtin);
+res = initialize_Lean_Meta_Sym_ProofInstInfo(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_AlphaShareBuilder(builtin);
+res = initialize_Lean_Meta_Sym_AlphaShareBuilder(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Offset(builtin);
+res = initialize_Lean_Meta_Sym_Offset(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_Eta(builtin);
+res = initialize_Lean_Meta_Sym_Eta(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_MapIdx(builtin);
+res = initialize_Init_Data_List_MapIdx(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Linear(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Do_Triple_Basic(builtin);
+res = initialize_Std_Do_Triple_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_Sym_instInhabitedPattern_default = _init_l_Lean_Meta_Sym_instInhabitedPattern_default();
-lean_mark_persistent(l_Lean_Meta_Sym_instInhabitedPattern_default);
-l_Lean_Meta_Sym_instInhabitedPattern = _init_l_Lean_Meta_Sym_instInhabitedPattern();
-lean_mark_persistent(l_Lean_Meta_Sym_instInhabitedPattern);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Meta_Sym_Pattern(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Meta_Sym_Pattern(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Meta_Sym_Pattern(builtin);
 }
 #ifdef __cplusplus
 }

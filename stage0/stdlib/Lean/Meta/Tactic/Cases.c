@@ -5146,10 +5146,10 @@ x_138 = l_Lean_Expr_hasMVar(x_131);
 if (x_138 == 0)
 {
 lean_inc_ref(x_132);
-x_67 = x_117;
-x_68 = lean_box(0);
+x_67 = lean_box(0);
+x_68 = x_132;
 x_69 = x_120;
-x_70 = x_132;
+x_70 = x_117;
 x_71 = x_138;
 x_72 = x_136;
 goto block_77;
@@ -5162,10 +5162,10 @@ lean_inc_ref(x_117);
 lean_inc_ref(x_120);
 x_139 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_120, x_117, x_131, x_136);
 lean_inc_ref(x_132);
-x_78 = x_117;
+x_78 = x_132;
 x_79 = lean_box(0);
 x_80 = x_120;
-x_81 = x_132;
+x_81 = x_117;
 x_82 = x_139;
 goto block_86;
 }
@@ -5178,10 +5178,10 @@ lean_inc_ref(x_117);
 lean_inc_ref(x_120);
 x_140 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_120, x_117, x_131, x_136);
 lean_inc_ref(x_132);
-x_78 = x_117;
+x_78 = x_132;
 x_79 = lean_box(0);
 x_80 = x_120;
-x_81 = x_132;
+x_81 = x_117;
 x_82 = x_140;
 goto block_86;
 }
@@ -5438,16 +5438,16 @@ block_77:
 if (x_71 == 0)
 {
 uint8_t x_73; 
-x_73 = l_Lean_Expr_hasFVar(x_70);
+x_73 = l_Lean_Expr_hasFVar(x_68);
 if (x_73 == 0)
 {
 uint8_t x_74; 
-x_74 = l_Lean_Expr_hasMVar(x_70);
+x_74 = l_Lean_Expr_hasMVar(x_68);
 if (x_74 == 0)
 {
 lean_dec_ref(x_70);
 lean_dec_ref(x_69);
-lean_dec_ref(x_67);
+lean_dec_ref(x_68);
 x_46 = lean_box(0);
 x_47 = x_74;
 x_48 = x_72;
@@ -5456,7 +5456,7 @@ goto block_60;
 else
 {
 lean_object* x_75; 
-x_75 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_69, x_67, x_70, x_72);
+x_75 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_69, x_70, x_68, x_72);
 x_61 = lean_box(0);
 x_62 = x_75;
 goto block_66;
@@ -5465,7 +5465,7 @@ goto block_66;
 else
 {
 lean_object* x_76; 
-x_76 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_69, x_67, x_70, x_72);
+x_76 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_69, x_70, x_68, x_72);
 x_61 = lean_box(0);
 x_62 = x_76;
 goto block_66;
@@ -5475,7 +5475,7 @@ else
 {
 lean_dec_ref(x_70);
 lean_dec_ref(x_69);
-lean_dec_ref(x_67);
+lean_dec_ref(x_68);
 x_46 = lean_box(0);
 x_47 = x_71;
 x_48 = x_72;
@@ -5492,8 +5492,8 @@ lean_inc(x_84);
 lean_dec_ref(x_82);
 x_85 = lean_unbox(x_83);
 lean_dec(x_83);
-x_67 = x_78;
-x_68 = lean_box(0);
+x_67 = lean_box(0);
+x_68 = x_78;
 x_69 = x_80;
 x_70 = x_81;
 x_71 = x_85;
@@ -14227,6 +14227,54 @@ x_2 = l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_initFn_00___x40_Lean_Meta_
 return x_2;
 }
 }
+lean_object* runtime_initialize_Lean_Meta_Tactic_Induction(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Acyclic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_UnifyEq(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Constructions_SparseCasesOn(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Constructions_CtorIdx(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Cases(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Meta_Tactic_Induction(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Acyclic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_UnifyEq(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Constructions_SparseCasesOn(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Constructions_CtorIdx(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_initFn_00___x40_Lean_Meta_Tactic_Cases_4241171151____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_Tactic_Cases(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Meta_Tactic_Induction(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Acyclic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_UnifyEq(uint8_t builtin);
@@ -14238,28 +14286,39 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Cases(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Tactic_Induction(builtin);
+res = initialize_Lean_Meta_Tactic_Induction(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Acyclic(builtin);
+res = initialize_Lean_Meta_Tactic_Acyclic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_UnifyEq(builtin);
+res = initialize_Lean_Meta_Tactic_UnifyEq(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Constructions_SparseCasesOn(builtin);
+res = initialize_Lean_Meta_Constructions_SparseCasesOn(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Constructions_CtorIdx(builtin);
+res = initialize_Lean_Meta_Constructions_CtorIdx(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
+res = initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_initFn_00___x40_Lean_Meta_Tactic_Cases_4241171151____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_Meta_Tactic_Cases(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+res = meta_initialize_Lean_Meta_Tactic_Cases(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Meta_Tactic_Cases(builtin);
 }
 #ifdef __cplusplus
 }

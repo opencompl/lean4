@@ -3595,6 +3595,45 @@ x_6 = l_Lean_Compiler_LCNF_PassInstaller_runFromDecl(x_1, x_2, x_3, x_4);
 return x_6;
 }
 }
+lean_object* runtime_initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_PassManager(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Compiler_LCNF_CompilerM(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Fin_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_Compiler_LCNF_instLTPhase = _init_l_Lean_Compiler_LCNF_instLTPhase();
+lean_mark_persistent(l_Lean_Compiler_LCNF_instLTPhase);
+l_Lean_Compiler_LCNF_instLEPhase = _init_l_Lean_Compiler_LCNF_instLEPhase();
+lean_mark_persistent(l_Lean_Compiler_LCNF_instLEPhase);
+l_Lean_Compiler_LCNF_instInhabitedPassManager_default = _init_l_Lean_Compiler_LCNF_instInhabitedPassManager_default();
+lean_mark_persistent(l_Lean_Compiler_LCNF_instInhabitedPassManager_default);
+l_Lean_Compiler_LCNF_instInhabitedPassManager = _init_l_Lean_Compiler_LCNF_instInhabitedPassManager();
+lean_mark_persistent(l_Lean_Compiler_LCNF_instInhabitedPassManager);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Compiler_LCNF_PassManager(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+l_Lean_Compiler_LCNF_Pass_phaseInv___autoParam = _init_l_Lean_Compiler_LCNF_Pass_phaseInv___autoParam();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Pass_phaseInv___autoParam);
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin);
 lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
@@ -3603,26 +3642,27 @@ LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_PassManager(uint8_t built
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Compiler_LCNF_CompilerM(builtin);
+res = initialize_Lean_Compiler_LCNF_CompilerM(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Fin_Lemmas(builtin);
+res = initialize_Init_Data_Fin_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
+res = initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_instLTPhase = _init_l_Lean_Compiler_LCNF_instLTPhase();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instLTPhase);
-l_Lean_Compiler_LCNF_instLEPhase = _init_l_Lean_Compiler_LCNF_instLEPhase();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instLEPhase);
-l_Lean_Compiler_LCNF_Pass_phaseInv___autoParam = _init_l_Lean_Compiler_LCNF_Pass_phaseInv___autoParam();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Pass_phaseInv___autoParam);
-l_Lean_Compiler_LCNF_instInhabitedPassManager_default = _init_l_Lean_Compiler_LCNF_instInhabitedPassManager_default();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instInhabitedPassManager_default);
-l_Lean_Compiler_LCNF_instInhabitedPassManager = _init_l_Lean_Compiler_LCNF_instInhabitedPassManager();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instInhabitedPassManager);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Compiler_LCNF_PassManager(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Compiler_LCNF_PassManager(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Compiler_LCNF_PassManager(builtin);
 }
 #ifdef __cplusplus
 }

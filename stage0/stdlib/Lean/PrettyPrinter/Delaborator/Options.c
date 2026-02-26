@@ -5331,256 +5331,332 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
+lean_object* runtime_initialize_Lean_Data_Options(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_PrettyPrinter_Delaborator_Options(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Data_Options(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_maxSteps = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_maxSteps);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_all = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_all);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3540906103____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_notation = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_notation);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2924075583____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_parens = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_parens);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_41206397____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_unicode = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_unicode);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_238768327____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_unicode_fun = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_unicode_fun);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3406008996____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_match = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_match);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1900330263____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_sorrySource = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_sorrySource);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_141571828____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_coercions = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_coercions);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2458050899____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_coercions_types = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_coercions_types);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1378879936____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_universes = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_universes);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2604662143____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_fullNames = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_fullNames);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3140146471____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_privateNames = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_privateNames);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_697692632____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_funBinderTypes = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_funBinderTypes);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3322021038____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_piBinderTypes = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_piBinderTypes);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1652516111____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_piBinderNames = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_piBinderNames);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_218093965____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_piBinderNames_hygienic = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_piBinderNames_hygienic);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3638865395____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_foralls = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_foralls);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_565042913____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_letVarTypes = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_letVarTypes);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1352222462____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_natLit = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_natLit);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1240114214____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_numericTypes = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_numericTypes);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1325818894____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_mdata = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_mdata);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2248579234____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_instantiateMVars = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_instantiateMVars);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2409783491____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_mvars = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_mvars);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_406403817____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_mvars_levels = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_mvars_levels);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1488711282____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_mvars_anonymous = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_mvars_anonymous);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1250207126____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_mvars_withType = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_mvars_withType);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1210529748____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_mvars_delayed = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_mvars_delayed);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_547122284____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_beta = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_beta);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_343083742____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_structureInstances = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_structureInstances);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1368066901____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_structureInstances_flatten = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_structureInstances_flatten);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2070467515____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_structureInstances_defaults = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_structureInstances_defaults);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3525746343____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_fieldNotation = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_fieldNotation);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1807480764____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_fieldNotation_generalized = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_fieldNotation_generalized);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_74134663____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_explicit = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_explicit);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2610318467____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_structureInstanceTypes = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_structureInstanceTypes);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_714017495____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_safeShadowing = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_safeShadowing);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_4108030048____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_tagAppFns = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_tagAppFns);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_760538935____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_proofs = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_proofs);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2268496730____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_proofs_withType = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_proofs_withType);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1672848969____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_proofs_threshold = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_proofs_threshold);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3524043324____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_instances = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_instances);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2232209702____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_instanceTypes = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_instanceTypes);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_750911636____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_deepTerms = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_deepTerms);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1327993095____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_deepTerms_threshold = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_deepTerms_threshold);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3077001566____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_motives_pi = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_motives_pi);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3637927591____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_motives_nonConst = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_motives_nonConst);
+lean_dec_ref(res);
+res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1858164116____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_pp_motives_all = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_pp_motives_all);
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_PrettyPrinter_Delaborator_Options(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Data_Options(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_PrettyPrinter_Delaborator_Options(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_Options(builtin);
+res = initialize_Lean_Data_Options(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_4080382135____hygCtx___hyg_4_();
+res = runtime_initialize_Lean_PrettyPrinter_Delaborator_Options(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_maxSteps = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_maxSteps);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2147881510____hygCtx___hyg_4_();
+res = meta_initialize_Lean_PrettyPrinter_Delaborator_Options(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_all = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_all);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3540906103____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_notation = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_notation);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2924075583____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_parens = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_parens);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_41206397____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_unicode = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_unicode);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_238768327____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_unicode_fun = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_unicode_fun);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3406008996____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_match = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_match);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1900330263____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_sorrySource = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_sorrySource);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_141571828____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_coercions = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_coercions);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2458050899____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_coercions_types = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_coercions_types);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1378879936____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_universes = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_universes);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2604662143____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_fullNames = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_fullNames);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3140146471____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_privateNames = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_privateNames);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_697692632____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_funBinderTypes = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_funBinderTypes);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3322021038____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_piBinderTypes = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_piBinderTypes);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1652516111____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_piBinderNames = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_piBinderNames);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_218093965____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_piBinderNames_hygienic = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_piBinderNames_hygienic);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3638865395____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_foralls = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_foralls);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_565042913____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_letVarTypes = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_letVarTypes);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1352222462____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_natLit = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_natLit);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1240114214____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_numericTypes = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_numericTypes);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1325818894____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_mdata = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_mdata);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2248579234____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_instantiateMVars = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_instantiateMVars);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2409783491____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_mvars = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_mvars);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_406403817____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_mvars_levels = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_mvars_levels);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1488711282____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_mvars_anonymous = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_mvars_anonymous);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1250207126____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_mvars_withType = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_mvars_withType);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1210529748____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_mvars_delayed = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_mvars_delayed);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_547122284____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_beta = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_beta);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_343083742____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_structureInstances = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_structureInstances);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1368066901____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_structureInstances_flatten = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_structureInstances_flatten);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2070467515____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_structureInstances_defaults = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_structureInstances_defaults);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3525746343____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_fieldNotation = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_fieldNotation);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1807480764____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_fieldNotation_generalized = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_fieldNotation_generalized);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_74134663____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_explicit = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_explicit);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2610318467____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_structureInstanceTypes = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_structureInstanceTypes);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_714017495____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_safeShadowing = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_safeShadowing);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_4108030048____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_tagAppFns = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_tagAppFns);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_760538935____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_proofs = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_proofs);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2268496730____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_proofs_withType = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_proofs_withType);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1672848969____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_proofs_threshold = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_proofs_threshold);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3524043324____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_instances = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_instances);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_2232209702____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_instanceTypes = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_instanceTypes);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_750911636____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_deepTerms = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_deepTerms);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1327993095____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_deepTerms_threshold = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_deepTerms_threshold);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3077001566____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_motives_pi = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_motives_pi);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_3637927591____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_motives_nonConst = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_motives_nonConst);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Options_1858164116____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_pp_motives_all = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_pp_motives_all);
-lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lean_PrettyPrinter_Delaborator_Options(builtin);
 }
 #ifdef __cplusplus
 }

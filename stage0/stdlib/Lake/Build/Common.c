@@ -24170,6 +24170,51 @@ lean_dec_ref(x_2);
 return x_15;
 }
 }
+lean_object* runtime_initialize_Lake_Build_Job_Monad(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Config_Monad(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Util_JsonObject(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Util_IO(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Build_Actions(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Build_Common(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lake_Build_Job_Monad(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Config_Monad(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Util_JsonObject(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Util_IO(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Build_Actions(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lake_instMonadWorkspaceJobM = _init_l_Lake_instMonadWorkspaceJobM();
+lean_mark_persistent(l_Lake_instMonadWorkspaceJobM);
+l_Lake_platformTrace = _init_l_Lake_platformTrace();
+lean_mark_persistent(l_Lake_platformTrace);
+l_Lake_buildO___lam__2___boxed__const__1 = _init_l_Lake_buildO___lam__2___boxed__const__1();
+lean_mark_persistent(l_Lake_buildO___lam__2___boxed__const__1);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Build_Common(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lake_Build_Job_Monad(uint8_t builtin);
 lean_object* initialize_Lake_Config_Monad(uint8_t builtin);
 lean_object* initialize_Lake_Util_JsonObject(uint8_t builtin);
@@ -24180,28 +24225,35 @@ LEAN_EXPORT lean_object* initialize_Lake_Build_Common(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Build_Job_Monad(builtin);
+res = initialize_Lake_Build_Job_Monad(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Config_Monad(builtin);
+res = initialize_Lake_Config_Monad(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_JsonObject(builtin);
+res = initialize_Lake_Util_JsonObject(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_IO(builtin);
+res = initialize_Lake_Util_IO(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Actions(builtin);
+res = initialize_Lake_Build_Actions(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_instMonadWorkspaceJobM = _init_l_Lake_instMonadWorkspaceJobM();
-lean_mark_persistent(l_Lake_instMonadWorkspaceJobM);
-l_Lake_platformTrace = _init_l_Lake_platformTrace();
-lean_mark_persistent(l_Lake_platformTrace);
-l_Lake_buildO___lam__2___boxed__const__1 = _init_l_Lake_buildO___lam__2___boxed__const__1();
-lean_mark_persistent(l_Lake_buildO___lam__2___boxed__const__1);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lake_Build_Common(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_Build_Common(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Build_Common(builtin);
 }
 #ifdef __cplusplus
 }

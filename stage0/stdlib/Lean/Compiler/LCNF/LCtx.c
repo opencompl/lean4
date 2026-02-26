@@ -1751,14 +1751,14 @@ goto _start;
 case 8:
 {
 lean_object* x_23; 
-x_23 = lean_ctor_get(x_2, 5);
+x_23 = lean_ctor_get(x_2, 3);
 x_2 = x_23;
 goto _start;
 }
 case 9:
 {
 lean_object* x_25; 
-x_25 = lean_ctor_get(x_2, 2);
+x_25 = lean_ctor_get(x_2, 5);
 x_2 = x_25;
 goto _start;
 }
@@ -1767,6 +1767,27 @@ case 10:
 lean_object* x_27; 
 x_27 = lean_ctor_get(x_2, 2);
 x_2 = x_27;
+goto _start;
+}
+case 11:
+{
+lean_object* x_29; 
+x_29 = lean_ctor_get(x_2, 2);
+x_2 = x_29;
+goto _start;
+}
+case 12:
+{
+lean_object* x_31; 
+x_31 = lean_ctor_get(x_2, 2);
+x_2 = x_31;
+goto _start;
+}
+case 13:
+{
+lean_object* x_33; 
+x_33 = lean_ctor_get(x_2, 1);
+x_2 = x_33;
 goto _start;
 }
 default: 
@@ -2461,13 +2482,14 @@ lean_dec_ref(x_1);
 return x_4;
 }
 }
-lean_object* initialize_Lean_Compiler_LCNF_Basic(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_LCtx(uint8_t builtin) {
+lean_object* runtime_initialize_Lean_Compiler_LCNF_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_LCtx(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Lean_Compiler_LCNF_Basic(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Compiler_LCNF_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Compiler_LCNF_instInhabitedLCtx_default = _init_l_Lean_Compiler_LCNF_instInhabitedLCtx_default();
@@ -2475,6 +2497,33 @@ lean_mark_persistent(l_Lean_Compiler_LCNF_instInhabitedLCtx_default);
 l_Lean_Compiler_LCNF_instInhabitedLCtx = _init_l_Lean_Compiler_LCNF_instInhabitedLCtx();
 lean_mark_persistent(l_Lean_Compiler_LCNF_instInhabitedLCtx);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Compiler_LCNF_LCtx(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Lean_Compiler_LCNF_Basic(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_LCtx(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Lean_Compiler_LCNF_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Compiler_LCNF_LCtx(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Compiler_LCNF_LCtx(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Compiler_LCNF_LCtx(builtin);
 }
 #ifdef __cplusplus
 }

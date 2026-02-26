@@ -5364,8 +5364,8 @@ return x_12;
 block_19:
 {
 lean_object* x_18; 
-lean_dec(x_15);
-x_18 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Tactic_Grind_EMatchAction_0__Lean_Meta_Grind_Action_getAllTheorems_spec__3___redArg(x_14, x_16, x_17);
+lean_dec(x_14);
+x_18 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Tactic_Grind_EMatchAction_0__Lean_Meta_Grind_Action_getAllTheorems_spec__3___redArg(x_15, x_16, x_17);
 lean_dec(x_17);
 x_2 = x_18;
 goto block_13;
@@ -5408,17 +5408,17 @@ x_32 = lean_nat_dec_le(x_28, x_31);
 if (x_32 == 0)
 {
 lean_inc(x_31);
-x_20 = x_26;
+x_20 = x_27;
 x_21 = x_31;
-x_22 = x_27;
+x_22 = x_26;
 x_23 = x_31;
 goto block_25;
 }
 else
 {
-x_20 = x_26;
+x_20 = x_27;
 x_21 = x_31;
-x_22 = x_27;
+x_22 = x_26;
 x_23 = x_28;
 goto block_25;
 }
@@ -10421,6 +10421,50 @@ x_14 = l_Lean_Meta_Grind_Action_instantiate(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x
 return x_14;
 }
 }
+lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Intro(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Util_ParamMinimizer(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_EMatch(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_EMatchTheoremParam(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_EMatchTheoremPtr(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_MarkNestedSubsingletons(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_EMatchAction(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Meta_Tactic_Grind_Intro(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Util_ParamMinimizer(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Grind_EMatch(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Grind_EMatchTheoremParam(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Grind_EMatchTheoremPtr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Grind_MarkNestedSubsingletons(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_Tactic_Grind_EMatchAction(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Meta_Tactic_Grind_Intro(uint8_t builtin);
 lean_object* initialize_Lean_Util_ParamMinimizer(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_EMatch(uint8_t builtin);
@@ -10432,25 +10476,39 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_EMatchAction(uint8_t 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Tactic_Grind_Intro(builtin);
+res = initialize_Lean_Meta_Tactic_Grind_Intro(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_ParamMinimizer(builtin);
+res = initialize_Lean_Util_ParamMinimizer(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_EMatch(builtin);
+res = initialize_Lean_Meta_Tactic_Grind_EMatch(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_EMatchTheoremParam(builtin);
+res = initialize_Lean_Meta_Tactic_Grind_EMatchTheoremParam(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_EMatchTheoremPtr(builtin);
+res = initialize_Lean_Meta_Tactic_Grind_EMatchTheoremPtr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_MarkNestedSubsingletons(builtin);
+res = initialize_Lean_Meta_Tactic_Grind_MarkNestedSubsingletons(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Meta_Tactic_Grind_EMatchAction(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Meta_Tactic_Grind_EMatchAction(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Meta_Tactic_Grind_EMatchAction(builtin);
 }
 #ifdef __cplusplus
 }

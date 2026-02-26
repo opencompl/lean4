@@ -3554,6 +3554,66 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+lean_object* runtime_initialize_Init_Data_Int_Gcd(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_AC(uint8_t builtin);
+lean_object* runtime_initialize_Init_LawfulBEqTactics(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Gcd(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_RArray(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Cooper(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Int_Linear(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Int_Gcd(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_AC(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_LawfulBEqTactics(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Bool(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_Gcd(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_RArray(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_Cooper(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_LemmasAux(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Int_Linear_instInhabitedExpr_default = _init_l_Int_Linear_instInhabitedExpr_default();
+lean_mark_persistent(l_Int_Linear_instInhabitedExpr_default);
+l_Int_Linear_instInhabitedExpr = _init_l_Int_Linear_instInhabitedExpr();
+lean_mark_persistent(l_Int_Linear_instInhabitedExpr);
+l_Int_Linear_hugeFuel = _init_l_Int_Linear_hugeFuel();
+lean_mark_persistent(l_Int_Linear_hugeFuel);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Int_Linear(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_Int_Gcd(uint8_t builtin);
 lean_object* initialize_Init_Data_AC(uint8_t builtin);
 lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin);
@@ -3567,37 +3627,47 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Int_Linear(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Int_Gcd(builtin);
+res = initialize_Init_Data_Int_Gcd(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_AC(builtin);
+res = initialize_Init_Data_AC(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_LawfulBEqTactics(builtin);
+res = initialize_Init_LawfulBEqTactics(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Bool(builtin);
+res = initialize_Init_Data_Bool(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Gcd(builtin);
+res = initialize_Init_Data_Int_Gcd(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_RArray(builtin);
+res = initialize_Init_Data_RArray(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Cooper(builtin);
+res = initialize_Init_Data_Int_Cooper(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_LemmasAux(builtin);
+res = initialize_Init_Data_Int_LemmasAux(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Int_Linear_instInhabitedExpr_default = _init_l_Int_Linear_instInhabitedExpr_default();
-lean_mark_persistent(l_Int_Linear_instInhabitedExpr_default);
-l_Int_Linear_instInhabitedExpr = _init_l_Int_Linear_instInhabitedExpr();
-lean_mark_persistent(l_Int_Linear_instInhabitedExpr);
-l_Int_Linear_hugeFuel = _init_l_Int_Linear_hugeFuel();
-lean_mark_persistent(l_Int_Linear_hugeFuel);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Data_Int_Linear(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Int_Linear(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Int_Linear(builtin);
 }
 #ifdef __cplusplus
 }

@@ -7335,8 +7335,8 @@ x_67 = l_Lean_Meta_LazyDiscrTree_MatchClone_toNatLit_x3f(x_11);
 if (lean_obj_tag(x_67) == 1)
 {
 lean_object* x_68; 
-lean_dec(x_58);
 lean_dec_ref(x_18);
+lean_dec(x_58);
 lean_dec(x_11);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -7381,8 +7381,8 @@ goto block_66;
 else
 {
 lean_object* x_73; lean_object* x_74; 
-lean_dec(x_58);
 lean_dec_ref(x_18);
+lean_dec(x_58);
 lean_dec(x_11);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -7416,8 +7416,8 @@ goto block_66;
 else
 {
 lean_object* x_77; lean_object* x_78; lean_object* x_79; 
-lean_dec(x_58);
 lean_dec_ref(x_18);
+lean_dec(x_58);
 lean_dec(x_11);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -12105,7 +12105,7 @@ x_22 = lean_array_pop(x_1);
 x_23 = l_Array_isEmpty___redArg(x_12);
 if (x_23 == 0)
 {
-lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; uint8_t x_47; uint8_t x_57; 
+lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; uint8_t x_47; uint8_t x_57; 
 lean_dec(x_19);
 x_24 = lean_unsigned_to_nat(0u);
 x_57 = lean_nat_dec_eq(x_20, x_24);
@@ -12130,7 +12130,7 @@ lean_inc(x_7);
 lean_inc_ref(x_6);
 lean_inc(x_5);
 lean_inc_ref(x_4);
-x_30 = l_Lean_Meta_LazyDiscrTree_MatchClone_getKeyArgs(x_27, x_29, x_26, x_4, x_5, x_6, x_7);
+x_30 = l_Lean_Meta_LazyDiscrTree_MatchClone_getKeyArgs(x_26, x_29, x_27, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; 
@@ -12229,8 +12229,8 @@ lean_ctor_set(x_53, 1, x_13);
 lean_ctor_set(x_53, 2, x_20);
 x_54 = lean_array_push(x_22, x_53);
 x_25 = x_51;
-x_26 = x_47;
-x_27 = x_49;
+x_26 = x_49;
+x_27 = x_47;
 x_28 = x_54;
 goto block_46;
 }
@@ -12241,8 +12241,8 @@ lean_dec(x_20);
 lean_dec(x_15);
 lean_dec(x_13);
 x_25 = x_51;
-x_26 = x_47;
-x_27 = x_49;
+x_26 = x_49;
+x_27 = x_47;
 x_28 = x_22;
 goto block_46;
 }
@@ -21854,21 +21854,24 @@ lean_dec_ref(x_2);
 return x_13;
 }
 }
-lean_object* initialize_Lean_Meta_CompletionName(uint8_t builtin);
-lean_object* initialize_Lean_Meta_DiscrTree(uint8_t builtin);
-lean_object* initialize_Init_Omega(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_LazyDiscrTree(uint8_t builtin) {
+lean_object* runtime_initialize_Lean_Meta_CompletionName(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_DiscrTree(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_LazyDiscrTree(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Lean_Meta_CompletionName(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Meta_CompletionName(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_DiscrTree(builtin);
+res = runtime_initialize_Lean_Meta_DiscrTree(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
+res = runtime_initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_LazyDiscrTree_MatchClone_tmpStar = _init_l_Lean_Meta_LazyDiscrTree_MatchClone_tmpStar();
@@ -21880,6 +21883,43 @@ lean_mark_persistent(l_Lean_Meta_LazyDiscrTree_instInhabitedPartialMatch_default
 l_Lean_Meta_LazyDiscrTree_instInhabitedPartialMatch = _init_l_Lean_Meta_LazyDiscrTree_instInhabitedPartialMatch();
 lean_mark_persistent(l_Lean_Meta_LazyDiscrTree_instInhabitedPartialMatch);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_LazyDiscrTree(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Lean_Meta_CompletionName(uint8_t builtin);
+lean_object* initialize_Lean_Meta_DiscrTree(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Lean_Meta_LazyDiscrTree(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Lean_Meta_CompletionName(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_DiscrTree(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_LazyDiscrTree(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Meta_LazyDiscrTree(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Meta_LazyDiscrTree(builtin);
 }
 #ifdef __cplusplus
 }

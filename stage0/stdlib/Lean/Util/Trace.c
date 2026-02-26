@@ -7995,17 +7995,19 @@ x_2 = l___private_Lean_Util_Trace_0__Lean_initFn_00___x40_Lean_Util_Trace_282625
 return x_2;
 }
 }
-lean_object* initialize_Lean_Elab_Exception(uint8_t builtin);
-lean_object* initialize_Lean_Log(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Util_Trace(uint8_t builtin) {
+lean_object* runtime_initialize_Lean_Elab_Exception(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Log(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Util_Trace(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Lean_Elab_Exception(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Elab_Exception(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Log(builtin);
+res = runtime_initialize_Lean_Log(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedTraceElem_default = _init_l_Lean_instInhabitedTraceElem_default();
@@ -8016,44 +8018,83 @@ l_Lean_instInhabitedTraceState_default = _init_l_Lean_instInhabitedTraceState_de
 lean_mark_persistent(l_Lean_instInhabitedTraceState_default);
 l_Lean_instInhabitedTraceState = _init_l_Lean_instInhabitedTraceState();
 lean_mark_persistent(l_Lean_instInhabitedTraceState);
-if (builtin) {res = l_Lean_initFn_00___x40_Lean_Util_Trace_3842689300____hygCtx___hyg_2_();
+res = l_Lean_initFn_00___x40_Lean_Util_Trace_3842689300____hygCtx___hyg_2_()
+;
 if (lean_io_result_is_error(res)) return res;
 l_Lean_inheritedTraceOptions = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_inheritedTraceOptions);
 lean_dec_ref(res);
-}l_Lean_MonadTrace_getInheritedTraceOptions___autoParam = _init_l_Lean_MonadTrace_getInheritedTraceOptions___autoParam();
-lean_mark_persistent(l_Lean_MonadTrace_getInheritedTraceOptions___autoParam);
-if (builtin) {res = l_Lean_initFn_00___x40_Lean_Util_Trace_1728529786____hygCtx___hyg_4_();
+res = l_Lean_initFn_00___x40_Lean_Util_Trace_1728529786____hygCtx___hyg_4_()
+;
 if (lean_io_result_is_error(res)) return res;
 l_Lean_trace_profiler = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_trace_profiler);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_Util_Trace_2834694386____hygCtx___hyg_4_();
+res = l_Lean_initFn_00___x40_Lean_Util_Trace_2834694386____hygCtx___hyg_4_()
+;
 if (lean_io_result_is_error(res)) return res;
 l_Lean_trace_profiler_threshold = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_trace_profiler_threshold);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_Util_Trace_3737982518____hygCtx___hyg_4_();
+res = l_Lean_initFn_00___x40_Lean_Util_Trace_3737982518____hygCtx___hyg_4_()
+;
 if (lean_io_result_is_error(res)) return res;
 l_Lean_trace_profiler_useHeartbeats = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_trace_profiler_useHeartbeats);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_Util_Trace_545552135____hygCtx___hyg_4_();
+res = l_Lean_initFn_00___x40_Lean_Util_Trace_545552135____hygCtx___hyg_4_()
+;
 if (lean_io_result_is_error(res)) return res;
 l_Lean_trace_profiler_output = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_trace_profiler_output);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn_00___x40_Lean_Util_Trace_4169215340____hygCtx___hyg_4_();
+res = l_Lean_initFn_00___x40_Lean_Util_Trace_4169215340____hygCtx___hyg_4_()
+;
 if (lean_io_result_is_error(res)) return res;
 l_Lean_trace_profiler_output_pp = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_trace_profiler_output_pp);
 lean_dec_ref(res);
-}l_Lean_registerTraceClass___auto__1 = _init_l_Lean_registerTraceClass___auto__1();
-lean_mark_persistent(l_Lean_registerTraceClass___auto__1);
-if (builtin) {res = l___private_Lean_Util_Trace_0__Lean_initFn_00___x40_Lean_Util_Trace_2826257906____hygCtx___hyg_2_();
+res = l___private_Lean_Util_Trace_0__Lean_initFn_00___x40_Lean_Util_Trace_2826257906____hygCtx___hyg_2_()
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Util_Trace(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+l_Lean_MonadTrace_getInheritedTraceOptions___autoParam = _init_l_Lean_MonadTrace_getInheritedTraceOptions___autoParam();
+lean_mark_persistent(l_Lean_MonadTrace_getInheritedTraceOptions___autoParam);
+l_Lean_registerTraceClass___auto__1 = _init_l_Lean_registerTraceClass___auto__1();
+lean_mark_persistent(l_Lean_registerTraceClass___auto__1);
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Lean_Elab_Exception(uint8_t builtin);
+lean_object* initialize_Lean_Log(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Lean_Util_Trace(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Lean_Elab_Exception(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Log(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Util_Trace(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Util_Trace(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Util_Trace(builtin);
 }
 #ifdef __cplusplus
 }

@@ -9548,16 +9548,16 @@ block_53:
 lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 x_33 = l_Lake_Module_inputFacet;
 x_34 = lean_alloc_ctor(1, 4, 0);
-lean_ctor_set(x_34, 0, x_28);
-lean_ctor_set(x_34, 1, x_31);
+lean_ctor_set(x_34, 0, x_29);
+lean_ctor_set(x_34, 1, x_23);
 lean_ctor_set(x_34, 2, x_16);
 lean_ctor_set(x_34, 3, x_33);
-lean_inc_ref(x_26);
-lean_inc_ref(x_30);
-lean_inc(x_29);
-lean_inc(x_22);
+lean_inc_ref(x_22);
+lean_inc_ref(x_25);
+lean_inc(x_24);
+lean_inc(x_28);
 lean_inc(x_27);
-x_35 = lean_apply_7(x_26, x_34, x_27, x_22, x_29, x_30, x_24, lean_box(0));
+x_35 = lean_apply_7(x_22, x_34, x_27, x_28, x_24, x_25, x_31, lean_box(0));
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; 
@@ -9575,18 +9575,18 @@ lean_inc(x_39);
 x_40 = lean_ctor_get(x_38, 1);
 lean_inc(x_40);
 lean_dec_ref(x_38);
-x_41 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(x_23, x_32, x_2);
+x_41 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(x_30, x_32, x_2);
 x_42 = lean_unbox(x_17);
 lean_dec(x_17);
 x_43 = l___private_Lake_Build_Module_0__Lake_fetchTransImportArts_enqueue(x_1, x_42, x_39, x_21);
 lean_dec(x_39);
 x_2 = x_41;
 x_3 = x_43;
-x_4 = x_26;
+x_4 = x_22;
 x_5 = x_27;
-x_6 = x_22;
-x_7 = x_29;
-x_8 = x_30;
+x_6 = x_28;
+x_7 = x_24;
+x_8 = x_25;
 x_9 = x_40;
 goto _start;
 }
@@ -9594,12 +9594,12 @@ else
 {
 uint8_t x_45; 
 lean_dec_ref(x_32);
-lean_dec_ref(x_30);
-lean_dec(x_29);
+lean_dec(x_30);
+lean_dec(x_28);
 lean_dec(x_27);
-lean_dec_ref(x_26);
-lean_dec(x_23);
-lean_dec(x_22);
+lean_dec_ref(x_25);
+lean_dec(x_24);
+lean_dec_ref(x_22);
 lean_dec_ref(x_21);
 lean_dec(x_17);
 lean_dec(x_2);
@@ -9627,12 +9627,12 @@ else
 {
 uint8_t x_49; 
 lean_dec_ref(x_32);
-lean_dec_ref(x_30);
-lean_dec(x_29);
+lean_dec(x_30);
+lean_dec(x_28);
 lean_dec(x_27);
-lean_dec_ref(x_26);
-lean_dec(x_23);
-lean_dec(x_22);
+lean_dec_ref(x_25);
+lean_dec(x_24);
+lean_dec_ref(x_22);
 lean_dec_ref(x_21);
 lean_dec(x_17);
 lean_dec(x_2);
@@ -9711,16 +9711,16 @@ x_74 = lean_ctor_get(x_72, 1);
 lean_inc_ref(x_74);
 lean_dec(x_72);
 lean_inc(x_20);
-x_22 = x_56;
-x_23 = x_20;
-x_24 = x_73;
-x_25 = lean_box(0);
-x_26 = x_54;
+x_22 = x_54;
+x_23 = x_65;
+x_24 = x_57;
+x_25 = x_58;
+x_26 = lean_box(0);
 x_27 = x_55;
-x_28 = x_64;
-x_29 = x_57;
-x_30 = x_58;
-x_31 = x_65;
+x_28 = x_56;
+x_29 = x_64;
+x_30 = x_20;
+x_31 = x_73;
 x_32 = x_74;
 goto block_53;
 }
@@ -9736,16 +9736,16 @@ x_77 = lean_ctor_get(x_75, 4);
 lean_inc_ref(x_77);
 lean_dec(x_75);
 lean_inc(x_20);
-x_22 = x_56;
-x_23 = x_20;
-x_24 = x_76;
-x_25 = lean_box(0);
-x_26 = x_54;
+x_22 = x_54;
+x_23 = x_65;
+x_24 = x_57;
+x_25 = x_58;
+x_26 = lean_box(0);
 x_27 = x_55;
-x_28 = x_64;
-x_29 = x_57;
-x_30 = x_58;
-x_31 = x_65;
+x_28 = x_56;
+x_29 = x_64;
+x_30 = x_20;
+x_31 = x_76;
 x_32 = x_77;
 goto block_53;
 }
@@ -39904,45 +39904,54 @@ x_10 = l_Lake_prepareLeanCommand(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
 }
-lean_object* initialize_Lake_Config_FacetConfig(uint8_t builtin);
-lean_object* initialize_Lake_Build_Job_Monad(uint8_t builtin);
-lean_object* initialize_Lake_Build_Infos(uint8_t builtin);
-lean_object* initialize_Lean_Elab_ParseImportsFast(uint8_t builtin);
-lean_object* initialize_Lake_Util_Proc(uint8_t builtin);
-lean_object* initialize_Lake_Build_Job_Register(uint8_t builtin);
-lean_object* initialize_Lake_Build_Common(uint8_t builtin);
-lean_object* initialize_Lake_Build_Target(uint8_t builtin);
-lean_object* initialize_Init_Omega(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Build_Module(uint8_t builtin) {
+lean_object* runtime_initialize_Lake_Config_FacetConfig(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Build_Job_Monad(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Build_Infos(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_ParseImportsFast(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Util_Proc(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Build_Job_Register(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Build_Common(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Build_Target(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Build_Module(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Lake_Config_FacetConfig(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lake_Config_FacetConfig(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Job_Monad(builtin);
+res = runtime_initialize_Lake_Build_Job_Monad(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Infos(builtin);
+res = runtime_initialize_Lake_Build_Infos(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_ParseImportsFast(builtin);
+res = runtime_initialize_Lean_Elab_ParseImportsFast(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Proc(builtin);
+res = runtime_initialize_Lake_Util_Proc(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Job_Register(builtin);
+res = runtime_initialize_Lake_Build_Job_Register(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Common(builtin);
+res = runtime_initialize_Lake_Build_Common(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Target(builtin);
+res = runtime_initialize_Lake_Build_Target(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Omega(builtin);
+res = runtime_initialize_Init_Omega(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_Module_inputFacetConfig = _init_l_Lake_Module_inputFacetConfig();
@@ -40014,6 +40023,73 @@ lean_mark_persistent(l_Lake_initModuleFacetConfigs);
 l___private_Lake_Build_Module_0__Lake_setupEditedModule___boxed__const__1 = _init_l___private_Lake_Build_Module_0__Lake_setupEditedModule___boxed__const__1();
 lean_mark_persistent(l___private_Lake_Build_Module_0__Lake_setupEditedModule___boxed__const__1);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Build_Module(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Lake_Config_FacetConfig(uint8_t builtin);
+lean_object* initialize_Lake_Build_Job_Monad(uint8_t builtin);
+lean_object* initialize_Lake_Build_Infos(uint8_t builtin);
+lean_object* initialize_Lean_Elab_ParseImportsFast(uint8_t builtin);
+lean_object* initialize_Lake_Util_Proc(uint8_t builtin);
+lean_object* initialize_Lake_Build_Job_Register(uint8_t builtin);
+lean_object* initialize_Lake_Build_Common(uint8_t builtin);
+lean_object* initialize_Lake_Build_Target(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Lake_Build_Module(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Lake_Config_FacetConfig(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Build_Job_Monad(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Build_Infos(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_ParseImportsFast(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Util_Proc(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Build_Job_Register(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Build_Common(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Build_Target(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Build_Module(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_Build_Module(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Build_Module(builtin);
 }
 #ifdef __cplusplus
 }

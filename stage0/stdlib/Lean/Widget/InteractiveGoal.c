@@ -11993,17 +11993,19 @@ x_9 = l_Lean_Widget_withGoalCtx___at___00Lean_Widget_goalToInteractive_spec__4(x
 return x_9;
 }
 }
-lean_object* initialize_Lean_Widget_InteractiveCode(uint8_t builtin);
-lean_object* initialize_Lean_Data_Lsp_Extra(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Widget_InteractiveGoal(uint8_t builtin) {
+lean_object* runtime_initialize_Lean_Widget_InteractiveCode(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_Extra(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Widget_InteractiveGoal(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Lean_Widget_InteractiveCode(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Widget_InteractiveCode(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Extra(builtin);
+res = runtime_initialize_Lean_Data_Lsp_Extra(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Widget_instInhabitedInteractiveHypothesisBundle_default = _init_l_Lean_Widget_instInhabitedInteractiveHypothesisBundle_default();
@@ -12013,6 +12015,38 @@ lean_mark_persistent(l_Lean_Widget_instInhabitedInteractiveHypothesisBundle);
 l_Lean_Widget_instEmptyCollectionInteractiveGoals = _init_l_Lean_Widget_instEmptyCollectionInteractiveGoals();
 lean_mark_persistent(l_Lean_Widget_instEmptyCollectionInteractiveGoals);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Widget_InteractiveGoal(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Lean_Widget_InteractiveCode(uint8_t builtin);
+lean_object* initialize_Lean_Data_Lsp_Extra(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Lean_Widget_InteractiveGoal(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Lean_Widget_InteractiveCode(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Lsp_Extra(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Widget_InteractiveGoal(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Widget_InteractiveGoal(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Widget_InteractiveGoal(builtin);
 }
 #ifdef __cplusplus
 }

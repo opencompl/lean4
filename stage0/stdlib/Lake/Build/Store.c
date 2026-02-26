@@ -174,8 +174,8 @@ return x_19;
 default: 
 {
 lean_object* x_20; 
-lean_dec_ref(x_2);
 lean_dec_ref(x_5);
+lean_dec_ref(x_2);
 lean_dec_ref(x_3);
 x_20 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_20, 0, x_4);
@@ -333,8 +333,8 @@ return x_21;
 default: 
 {
 lean_object* x_22; 
-lean_dec_ref(x_5);
 lean_dec_ref(x_2);
+lean_dec_ref(x_5);
 lean_dec_ref(x_3);
 x_22 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_22, 0, x_4);
@@ -448,8 +448,8 @@ return x_14;
 else
 {
 lean_object* x_15; 
-lean_dec_ref(x_5);
 lean_dec_ref(x_2);
+lean_dec_ref(x_5);
 lean_dec_ref(x_3);
 x_15 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_15, 0, x_4);
@@ -597,6 +597,32 @@ x_4 = l_Lake_BuildStore_collectSharedExternLibs___redArg(x_2);
 return x_4;
 }
 }
+lean_object* runtime_initialize_Lake_Util_Store(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Build_Job_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Build_Store(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lake_Util_Store(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Build_Job_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lake_BuildStore_empty = _init_l_Lake_BuildStore_empty();
+lean_mark_persistent(l_Lake_BuildStore_empty);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Build_Store(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lake_Util_Store(uint8_t builtin);
 lean_object* initialize_Lake_Build_Job_Basic(uint8_t builtin);
 static bool _G_initialized = false;
@@ -604,15 +630,23 @@ LEAN_EXPORT lean_object* initialize_Lake_Build_Store(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Util_Store(builtin);
+res = initialize_Lake_Util_Store(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Job_Basic(builtin);
+res = initialize_Lake_Build_Job_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_BuildStore_empty = _init_l_Lake_BuildStore_empty();
-lean_mark_persistent(l_Lake_BuildStore_empty);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lake_Build_Store(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_Build_Store(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Build_Store(builtin);
 }
 #ifdef __cplusplus
 }

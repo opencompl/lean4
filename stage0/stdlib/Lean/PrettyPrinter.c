@@ -5017,6 +5017,68 @@ x_5 = l_Lean_MessageData_lazy(x_2, x_3, x_4);
 return x_5;
 }
 }
+lean_object* runtime_initialize_Lean_PrettyPrinter_Delaborator_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_PrettyPrinter_Delaborator(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Parser_Module(uint8_t builtin);
+lean_object* runtime_initialize_Lean_ParserCompiler(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Util_NumObjs(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Util_ShareCommon(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_PrettyPrinter(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_PrettyPrinter_Delaborator_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_PrettyPrinter_Delaborator(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Parser_Module(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_ParserCompiler(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Util_NumObjs(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Util_ShareCommon(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_1740541145____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_PrettyPrinter_pp_exprSizes = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_PrettyPrinter_pp_exprSizes);
+lean_dec_ref(res);
+res = l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_3041333433____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_675687902____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_PrettyPrinter_registerParserCompilers()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_PrettyPrinter(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_PrettyPrinter_Delaborator_Basic(uint8_t builtin);
 lean_object* initialize_Lean_PrettyPrinter_Delaborator(uint8_t builtin);
 lean_object* initialize_Lean_Parser_Module(uint8_t builtin);
@@ -5028,39 +5090,39 @@ LEAN_EXPORT lean_object* initialize_Lean_PrettyPrinter(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_PrettyPrinter_Delaborator_Basic(builtin);
+res = initialize_Lean_PrettyPrinter_Delaborator_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter_Delaborator(builtin);
+res = initialize_Lean_PrettyPrinter_Delaborator(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Module(builtin);
+res = initialize_Lean_Parser_Module(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ParserCompiler(builtin);
+res = initialize_Lean_ParserCompiler(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_NumObjs(builtin);
+res = initialize_Lean_Util_NumObjs(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_ShareCommon(builtin);
+res = initialize_Lean_Util_ShareCommon(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_1740541145____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_PrettyPrinter_pp_exprSizes = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_PrettyPrinter_pp_exprSizes);
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_3041333433____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_PrettyPrinter(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_675687902____hygCtx___hyg_2_();
+res = meta_initialize_Lean_PrettyPrinter(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_PrettyPrinter_registerParserCompilers();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lean_PrettyPrinter(builtin);
 }
 #ifdef __cplusplus
 }

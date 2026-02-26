@@ -16023,6 +16023,88 @@ x_5 = l_Lean_Meta_getDefaultInstances___redArg(x_2, x_3, x_4);
 return x_5;
 }
 }
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Stream(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_DiscrTree_Main(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_CollectMVars(uint8_t builtin);
+lean_object* runtime_initialize_Init_While(uint8_t builtin);
+lean_object* runtime_initialize_Lean_OriginalConstKind(uint8_t builtin);
+lean_object* runtime_initialize_Lean_ProjFns(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Instances(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Range_Polymorphic_Stream(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_DiscrTree_Main(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_CollectMVars(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_While(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_OriginalConstKind(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_ProjFns(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Instances_3022255136____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Meta_synthInstance_checkSynthOrder = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Meta_synthInstance_checkSynthOrder);
+lean_dec_ref(res);
+l_Lean_Meta_instInhabitedInstanceEntry_default = _init_l_Lean_Meta_instInhabitedInstanceEntry_default();
+lean_mark_persistent(l_Lean_Meta_instInhabitedInstanceEntry_default);
+l_Lean_Meta_instInhabitedInstanceEntry = _init_l_Lean_Meta_instInhabitedInstanceEntry();
+lean_mark_persistent(l_Lean_Meta_instInhabitedInstanceEntry);
+l_Lean_Meta_instInhabitedInstances_default = _init_l_Lean_Meta_instInhabitedInstances_default();
+lean_mark_persistent(l_Lean_Meta_instInhabitedInstances_default);
+l_Lean_Meta_instInhabitedInstances = _init_l_Lean_Meta_instInhabitedInstances();
+lean_mark_persistent(l_Lean_Meta_instInhabitedInstances);
+res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Instances_2480378690____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Meta_instanceExtension = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Meta_instanceExtension);
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Instances_0__Lean_Meta_initFn_00___x40_Lean_Meta_Instances_1841422150____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Instances_0__Lean_Meta_initFn___regBuiltin___private_Lean_Meta_Instances_0__Lean_Meta_initFn_docString__1_00___x40_Lean_Meta_Instances_1841422150____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Instances_1486461684____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Meta_defaultInstanceExtension = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Meta_defaultInstanceExtension);
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Instances_0__Lean_Meta_initFn_00___x40_Lean_Meta_Instances_397728026____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_Instances(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_Range_Polymorphic_Stream(uint8_t builtin);
 lean_object* initialize_Lean_Meta_DiscrTree_Main(uint8_t builtin);
 lean_object* initialize_Lean_Meta_CollectMVars(uint8_t builtin);
@@ -16034,57 +16116,39 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Instances(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Range_Polymorphic_Stream(builtin);
+res = initialize_Init_Data_Range_Polymorphic_Stream(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_DiscrTree_Main(builtin);
+res = initialize_Lean_Meta_DiscrTree_Main(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_CollectMVars(builtin);
+res = initialize_Lean_Meta_CollectMVars(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_While(builtin);
+res = initialize_Init_While(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_OriginalConstKind(builtin);
+res = initialize_Lean_OriginalConstKind(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ProjFns(builtin);
+res = initialize_Lean_ProjFns(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Instances_3022255136____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Meta_synthInstance_checkSynthOrder = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Meta_synthInstance_checkSynthOrder);
-lean_dec_ref(res);
-}l_Lean_Meta_instInhabitedInstanceEntry_default = _init_l_Lean_Meta_instInhabitedInstanceEntry_default();
-lean_mark_persistent(l_Lean_Meta_instInhabitedInstanceEntry_default);
-l_Lean_Meta_instInhabitedInstanceEntry = _init_l_Lean_Meta_instInhabitedInstanceEntry();
-lean_mark_persistent(l_Lean_Meta_instInhabitedInstanceEntry);
-l_Lean_Meta_instInhabitedInstances_default = _init_l_Lean_Meta_instInhabitedInstances_default();
-lean_mark_persistent(l_Lean_Meta_instInhabitedInstances_default);
-l_Lean_Meta_instInhabitedInstances = _init_l_Lean_Meta_instInhabitedInstances();
-lean_mark_persistent(l_Lean_Meta_instInhabitedInstances);
-if (builtin) {res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Instances_2480378690____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Meta_instanceExtension = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Meta_instanceExtension);
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Instances_0__Lean_Meta_initFn_00___x40_Lean_Meta_Instances_1841422150____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_Meta_Instances(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Instances_0__Lean_Meta_initFn___regBuiltin___private_Lean_Meta_Instances_0__Lean_Meta_initFn_docString__1_00___x40_Lean_Meta_Instances_1841422150____hygCtx___hyg_2_();
+res = meta_initialize_Lean_Meta_Instances(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Meta_initFn_00___x40_Lean_Meta_Instances_1486461684____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Meta_defaultInstanceExtension = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Meta_defaultInstanceExtension);
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Instances_0__Lean_Meta_initFn_00___x40_Lean_Meta_Instances_397728026____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lean_Meta_Instances(builtin);
 }
 #ifdef __cplusplus
 }

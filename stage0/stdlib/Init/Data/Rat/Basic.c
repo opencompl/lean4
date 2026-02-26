@@ -2366,6 +2366,92 @@ return x_1;
 }
 }
 }
+lean_object* runtime_initialize_Init_Data_Nat_Coprime(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_OfScientific(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Defs(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_ToString_Macro(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Hashable(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_DivMod_Bootstrap(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Order(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Pow(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Dvd(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Rat_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Nat_Coprime(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_OfScientific(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_DivMod_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Defs(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_ToString_Macro(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Hashable(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_DivMod_Bootstrap(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_DivMod_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_Order(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_Pow(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Dvd(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_instInhabitedRat = _init_l_instInhabitedRat();
+lean_mark_persistent(l_instInhabitedRat);
+l_Rat_instLT = _init_l_Rat_instLT();
+lean_mark_persistent(l_Rat_instLT);
+l_Rat_instLE = _init_l_Rat_instLE();
+lean_mark_persistent(l_Rat_instLE);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Rat_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+l_Rat_den__nz___autoParam = _init_l_Rat_den__nz___autoParam();
+lean_mark_persistent(l_Rat_den__nz___autoParam);
+l_Rat_reduced___autoParam = _init_l_Rat_reduced___autoParam();
+lean_mark_persistent(l_Rat_reduced___autoParam);
+l_Rat_normalize___auto__1 = _init_l_Rat_normalize___auto__1();
+lean_mark_persistent(l_Rat_normalize___auto__1);
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Data_Nat_Coprime(uint8_t builtin);
 lean_object* initialize_Init_Data_OfScientific(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin);
@@ -2383,55 +2469,63 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Rat_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Coprime(builtin);
+res = initialize_Init_Data_Nat_Coprime(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_OfScientific(builtin);
+res = initialize_Init_Data_OfScientific(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_DivMod_Basic(builtin);
+res = initialize_Init_Data_Int_DivMod_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Defs(builtin);
+res = initialize_Init_Data_String_Defs(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Macro(builtin);
+res = initialize_Init_Data_ToString_Macro(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Hashable(builtin);
+res = initialize_Init_Data_Hashable(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_DivMod_Bootstrap(builtin);
+res = initialize_Init_Data_Int_DivMod_Bootstrap(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_DivMod_Lemmas(builtin);
+res = initialize_Init_Data_Int_DivMod_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Lemmas(builtin);
+res = initialize_Init_Data_Int_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Order(builtin);
+res = initialize_Init_Data_Int_Order(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Pow(builtin);
+res = initialize_Init_Data_Int_Pow(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Dvd(builtin);
+res = initialize_Init_Data_Nat_Dvd(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Rat_den__nz___autoParam = _init_l_Rat_den__nz___autoParam();
-lean_mark_persistent(l_Rat_den__nz___autoParam);
-l_Rat_reduced___autoParam = _init_l_Rat_reduced___autoParam();
-lean_mark_persistent(l_Rat_reduced___autoParam);
-l_instInhabitedRat = _init_l_instInhabitedRat();
-lean_mark_persistent(l_instInhabitedRat);
-l_Rat_normalize___auto__1 = _init_l_Rat_normalize___auto__1();
-lean_mark_persistent(l_Rat_normalize___auto__1);
-l_Rat_instLT = _init_l_Rat_instLT();
-lean_mark_persistent(l_Rat_instLT);
-l_Rat_instLE = _init_l_Rat_instLE();
-lean_mark_persistent(l_Rat_instLE);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Data_Rat_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Rat_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Rat_Basic(builtin);
 }
 #ifdef __cplusplus
 }

@@ -687,10 +687,10 @@ block_66:
 {
 if (x_41 == 0)
 {
-lean_inc_ref(x_40);
 lean_inc_ref(x_39);
-x_26 = x_39;
-x_27 = x_40;
+lean_inc_ref(x_40);
+x_26 = x_40;
+x_27 = x_39;
 x_28 = x_42;
 x_29 = x_43;
 x_30 = x_44;
@@ -734,10 +734,10 @@ x_59 = l_Lean_throwError___at___00Lean_Meta_GeneralizeTelescope_generalizeTelesc
 if (lean_obj_tag(x_59) == 0)
 {
 lean_dec_ref(x_59);
-lean_inc_ref(x_40);
 lean_inc_ref(x_39);
-x_26 = x_39;
-x_27 = x_40;
+lean_inc_ref(x_40);
+x_26 = x_40;
+x_27 = x_39;
 x_28 = x_42;
 x_29 = x_43;
 x_30 = x_44;
@@ -775,10 +775,10 @@ return x_62;
 }
 else
 {
-lean_inc_ref(x_40);
 lean_inc_ref(x_39);
-x_26 = x_39;
-x_27 = x_40;
+lean_inc_ref(x_40);
+x_26 = x_40;
+x_27 = x_39;
 x_28 = x_42;
 x_29 = x_43;
 x_30 = x_44;
@@ -873,8 +873,8 @@ block_34:
 lean_object* x_33; 
 x_33 = ((lean_object*)(l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___closed__1));
 x_10 = x_33;
-x_11 = x_26;
-x_12 = x_27;
+x_11 = x_27;
+x_12 = x_26;
 x_13 = x_28;
 x_14 = x_29;
 x_15 = x_30;
@@ -1306,6 +1306,30 @@ x_9 = l_Lean_Meta_generalizeTelescope(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
 }
+lean_object* runtime_initialize_Lean_Meta_KAbstract(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Check(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_GeneralizeTelescope(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Meta_KAbstract(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Check(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_GeneralizeTelescope(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Meta_KAbstract(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Check(uint8_t builtin);
 static bool _G_initialized = false;
@@ -1313,13 +1337,23 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_GeneralizeTelescope(uint8_t builti
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_KAbstract(builtin);
+res = initialize_Lean_Meta_KAbstract(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Check(builtin);
+res = initialize_Lean_Meta_Check(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Meta_GeneralizeTelescope(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Meta_GeneralizeTelescope(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Meta_GeneralizeTelescope(builtin);
 }
 #ifdef __cplusplus
 }

@@ -11325,45 +11325,61 @@ lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Control_Do(uint8_t builtin);
-lean_object* initialize_Init_GetElem(uint8_t builtin);
-lean_object* initialize_Init_Data_List_ToArrayImpl(uint8_t builtin);
-lean_object* initialize_Init_Data_List_ToArrayImpl(uint8_t builtin);
-lean_object* initialize_Init_Data_Array_Set(uint8_t builtin);
-lean_object* initialize_Init_Data_Array_Set(uint8_t builtin);
-lean_object* initialize_Init_WF(uint8_t builtin);
-lean_object* initialize_Init_MetaTypes(uint8_t builtin);
-lean_object* initialize_Init_WFTactics(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin) {
+lean_object* runtime_initialize_Init_Control_Do(uint8_t builtin);
+lean_object* runtime_initialize_Init_GetElem(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_ToArrayImpl(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_ToArrayImpl(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Set(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Set(uint8_t builtin);
+lean_object* runtime_initialize_Init_WF(uint8_t builtin);
+lean_object* runtime_initialize_Init_WFTactics(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Array_Basic(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Init_Control_Do(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Control_Do(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GetElem(builtin);
+res = runtime_initialize_Init_GetElem(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_ToArrayImpl(builtin);
+res = runtime_initialize_Init_Data_List_ToArrayImpl(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_ToArrayImpl(builtin);
+res = runtime_initialize_Init_Data_List_ToArrayImpl(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Set(builtin);
+res = runtime_initialize_Init_Data_Array_Set(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Set(builtin);
+res = runtime_initialize_Init_Data_Array_Set(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_WF(builtin);
+res = runtime_initialize_Init_WF(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_MetaTypes(builtin);
+res = runtime_initialize_Init_WFTactics(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_WFTactics(builtin);
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* runtime_initialize_Init_MetaTypes(uint8_t builtin);
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Array_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+res = runtime_initialize_Init_MetaTypes(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Array_swap___auto__1 = _init_l_Array_swap___auto__1();
@@ -11379,6 +11395,66 @@ lean_mark_persistent(l_Array_eraseIdx___auto__1);
 l_Array_insertIdx___auto__1 = _init_l_Array_insertIdx___auto__1();
 lean_mark_persistent(l_Array_insertIdx___auto__1);
 return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Init_Control_Do(uint8_t builtin);
+lean_object* initialize_Init_GetElem(uint8_t builtin);
+lean_object* initialize_Init_Data_List_ToArrayImpl(uint8_t builtin);
+lean_object* initialize_Init_Data_List_ToArrayImpl(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Set(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Set(uint8_t builtin);
+lean_object* initialize_Init_WF(uint8_t builtin);
+lean_object* initialize_Init_MetaTypes(uint8_t builtin);
+lean_object* initialize_Init_WFTactics(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Init_Control_Do(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_GetElem(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_ToArrayImpl(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_ToArrayImpl(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Set(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Set(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_WF(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_MetaTypes(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_WFTactics(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Array_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Array_Basic(builtin);
 }
 #ifdef __cplusplus
 }

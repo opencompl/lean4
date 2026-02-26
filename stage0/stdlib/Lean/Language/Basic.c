@@ -4170,17 +4170,19 @@ x_4 = l_Lean_Language_mkIncrementalProcessor(x_1, x_2);
 return x_4;
 }
 }
-lean_object* initialize_Lean_Parser_Types(uint8_t builtin);
-lean_object* initialize_Lean_Util_Trace(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Language_Basic(uint8_t builtin) {
+lean_object* runtime_initialize_Lean_Parser_Types(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Util_Trace(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Language_Basic(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Lean_Parser_Types(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Parser_Types(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_Trace(builtin);
+res = runtime_initialize_Lean_Util_Trace(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Language_Snapshot_instInhabitedDiagnostics_default = _init_l_Lean_Language_Snapshot_instInhabitedDiagnostics_default();
@@ -4189,8 +4191,6 @@ l_Lean_Language_Snapshot_instInhabitedDiagnostics = _init_l_Lean_Language_Snapsh
 lean_mark_persistent(l_Lean_Language_Snapshot_instInhabitedDiagnostics);
 l_Lean_Language_Snapshot_Diagnostics_empty = _init_l_Lean_Language_Snapshot_Diagnostics_empty();
 lean_mark_persistent(l_Lean_Language_Snapshot_Diagnostics_empty);
-l_Lean_Language_Snapshot_desc___autoParam = _init_l_Lean_Language_Snapshot_desc___autoParam();
-lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam);
 l_Lean_Language_instInhabitedSnapshot_default = _init_l_Lean_Language_instInhabitedSnapshot_default();
 lean_mark_persistent(l_Lean_Language_instInhabitedSnapshot_default);
 l_Lean_Language_instInhabitedSnapshot = _init_l_Lean_Language_instInhabitedSnapshot();
@@ -4209,17 +4209,53 @@ l_Lean_Language_instInhabitedSnapshotLeaf = _init_l_Lean_Language_instInhabitedS
 lean_mark_persistent(l_Lean_Language_instInhabitedSnapshotLeaf);
 l_Lean_Language_instInhabitedDynamicSnapshot = _init_l_Lean_Language_instInhabitedDynamicSnapshot();
 lean_mark_persistent(l_Lean_Language_instInhabitedDynamicSnapshot);
-if (builtin) {res = l_Lean_Language_initFn_00___x40_Lean_Language_Basic_1801653074____hygCtx___hyg_4_();
+res = l_Lean_Language_initFn_00___x40_Lean_Language_Basic_1801653074____hygCtx___hyg_4_()
+;
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Language_printMessageEndPos = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Language_printMessageEndPos);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Language_initFn_00___x40_Lean_Language_Basic_709047587____hygCtx___hyg_4_();
+res = l_Lean_Language_initFn_00___x40_Lean_Language_Basic_709047587____hygCtx___hyg_4_()
+;
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Language_maxErrors = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Language_maxErrors);
 lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Language_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+l_Lean_Language_Snapshot_desc___autoParam = _init_l_Lean_Language_Snapshot_desc___autoParam();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam);
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Lean_Parser_Types(uint8_t builtin);
+lean_object* initialize_Lean_Util_Trace(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Lean_Language_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Lean_Parser_Types(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Util_Trace(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Language_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Language_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Language_Basic(builtin);
 }
 #ifdef __cplusplus
 }

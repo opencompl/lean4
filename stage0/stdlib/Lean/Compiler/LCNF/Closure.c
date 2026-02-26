@@ -1900,37 +1900,37 @@ return x_92;
 block_25:
 {
 lean_object* x_23; 
+lean_inc(x_19);
+lean_inc_ref(x_14);
 lean_inc(x_18);
+lean_inc_ref(x_15);
+lean_inc(x_13);
 lean_inc_ref(x_16);
-lean_inc(x_17);
-lean_inc_ref(x_19);
-lean_inc(x_15);
-lean_inc_ref(x_13);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
-x_23 = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___at___00Lean_ForEachExprWhere_visit___at___00Lean_Compiler_LCNF_Closure_collectType_spec__2_spec__4(x_1, x_2, x_3, x_20, x_22, x_13, x_15, x_19, x_17, x_16, x_18);
+x_23 = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___at___00Lean_ForEachExprWhere_visit___at___00Lean_Compiler_LCNF_Closure_collectType_spec__2_spec__4(x_1, x_2, x_3, x_20, x_22, x_16, x_13, x_15, x_18, x_14, x_19);
 if (lean_obj_tag(x_23) == 0)
 {
 lean_dec_ref(x_23);
 x_4 = x_21;
 x_5 = x_22;
-x_6 = x_13;
-x_7 = x_15;
-x_8 = x_19;
-x_9 = x_17;
-x_10 = x_16;
-x_11 = x_18;
+x_6 = x_16;
+x_7 = x_13;
+x_8 = x_15;
+x_9 = x_18;
+x_10 = x_14;
+x_11 = x_19;
 goto _start;
 }
 else
 {
 lean_dec_ref(x_21);
-lean_dec_ref(x_19);
+lean_dec(x_19);
 lean_dec(x_18);
-lean_dec(x_17);
 lean_dec_ref(x_16);
-lean_dec(x_15);
-lean_dec_ref(x_13);
+lean_dec_ref(x_15);
+lean_dec_ref(x_14);
+lean_dec(x_13);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_23;
@@ -1947,13 +1947,13 @@ lean_inc_ref(x_34);
 x_35 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_35);
 lean_dec_ref(x_4);
-x_13 = x_27;
-x_14 = lean_box(0);
-x_15 = x_28;
-x_16 = x_31;
-x_17 = x_30;
-x_18 = x_32;
-x_19 = x_29;
+x_13 = x_28;
+x_14 = x_31;
+x_15 = x_29;
+x_16 = x_27;
+x_17 = lean_box(0);
+x_18 = x_30;
+x_19 = x_32;
 x_20 = x_34;
 x_21 = x_35;
 x_22 = x_26;
@@ -1967,13 +1967,13 @@ lean_inc_ref(x_36);
 x_37 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_37);
 lean_dec_ref(x_4);
-x_13 = x_27;
-x_14 = lean_box(0);
-x_15 = x_28;
-x_16 = x_31;
-x_17 = x_30;
-x_18 = x_32;
-x_19 = x_29;
+x_13 = x_28;
+x_14 = x_31;
+x_15 = x_29;
+x_16 = x_27;
+x_17 = lean_box(0);
+x_18 = x_30;
+x_19 = x_32;
 x_20 = x_36;
 x_21 = x_37;
 x_22 = x_26;
@@ -6064,6 +6064,30 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
+lean_object* runtime_initialize_Lean_Util_ForEachExprWhere(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_Closure(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Util_ForEachExprWhere(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Compiler_LCNF_CompilerM(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Compiler_LCNF_Closure(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Util_ForEachExprWhere(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin);
 static bool _G_initialized = false;
@@ -6071,13 +6095,23 @@ LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_Closure(uint8_t builtin) 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Util_ForEachExprWhere(builtin);
+res = initialize_Lean_Util_ForEachExprWhere(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_CompilerM(builtin);
+res = initialize_Lean_Compiler_LCNF_CompilerM(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Compiler_LCNF_Closure(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Compiler_LCNF_Closure(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Compiler_LCNF_Closure(builtin);
 }
 #ifdef __cplusplus
 }

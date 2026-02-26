@@ -29503,6 +29503,97 @@ lean_dec_ref(x_4);
 return x_16;
 }
 }
+lean_object* runtime_initialize_Lean_Util_HasConstCache(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Match_MatcherApp_Transform(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Cleanup(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_TryThis(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_ArgsPacker(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_PreDefinition_Mutual(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_PreDefinition_Structural_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_PreDefinition_TerminationMeasure(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_PreDefinition_FixedParams(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_PreDefinition_WF_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Array(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Refl(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Prod(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_PreDefinition_WF_GuessLex(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Util_HasConstCache(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Match_MatcherApp_Transform(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Cleanup(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_TryThis(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_ArgsPacker(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_PreDefinition_Mutual(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_PreDefinition_Structural_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_PreDefinition_TerminationMeasure(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_PreDefinition_FixedParams(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_PreDefinition_WF_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Array(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Refl(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Prod(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_Elab_WF_GuessLex_initFn_00___x40_Lean_Elab_PreDefinition_WF_GuessLex_3783957888____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Elab_WF_GuessLex_showInferredTerminationBy = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Elab_WF_GuessLex_showInferredTerminationBy);
+lean_dec_ref(res);
+l_Lean_Elab_WF_GuessLex_instInhabitedBasicMeasure_default = _init_l_Lean_Elab_WF_GuessLex_instInhabitedBasicMeasure_default();
+lean_mark_persistent(l_Lean_Elab_WF_GuessLex_instInhabitedBasicMeasure_default);
+l_Lean_Elab_WF_GuessLex_instInhabitedBasicMeasure = _init_l_Lean_Elab_WF_GuessLex_instInhabitedBasicMeasure();
+lean_mark_persistent(l_Lean_Elab_WF_GuessLex_instInhabitedBasicMeasure);
+l_Array_mapFinIdxM_map___at___00Lean_Elab_WF_GuessLex_simpleMeasures_spec__1___redArg___lam__1___boxed__const__1 = _init_l_Array_mapFinIdxM_map___at___00Lean_Elab_WF_GuessLex_simpleMeasures_spec__1___redArg___lam__1___boxed__const__1();
+lean_mark_persistent(l_Array_mapFinIdxM_map___at___00Lean_Elab_WF_GuessLex_simpleMeasures_spec__1___redArg___lam__1___boxed__const__1);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Elab_PreDefinition_WF_GuessLex(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Util_HasConstCache(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Match_MatcherApp_Transform(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Cleanup(uint8_t builtin);
@@ -29521,57 +29612,67 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_WF_GuessLex(uint8_t 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Util_HasConstCache(builtin);
+res = initialize_Lean_Util_HasConstCache(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Match_MatcherApp_Transform(builtin);
+res = initialize_Lean_Meta_Match_MatcherApp_Transform(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Cleanup(builtin);
+res = initialize_Lean_Meta_Tactic_Cleanup(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_TryThis(builtin);
+res = initialize_Lean_Meta_Tactic_TryThis(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_ArgsPacker(builtin);
+res = initialize_Lean_Meta_ArgsPacker(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_Mutual(builtin);
+res = initialize_Lean_Elab_PreDefinition_Mutual(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_Structural_Basic(builtin);
+res = initialize_Lean_Elab_PreDefinition_Structural_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_TerminationMeasure(builtin);
+res = initialize_Lean_Elab_PreDefinition_TerminationMeasure(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_FixedParams(builtin);
+res = initialize_Lean_Elab_PreDefinition_FixedParams(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_WF_Basic(builtin);
+res = initialize_Lean_Elab_PreDefinition_WF_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Array(builtin);
+res = initialize_Lean_Data_Array(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Refl(builtin);
+res = initialize_Lean_Meta_Tactic_Refl(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Prod(builtin);
+res = initialize_Init_Data_Prod(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_Elab_WF_GuessLex_initFn_00___x40_Lean_Elab_PreDefinition_WF_GuessLex_3783957888____hygCtx___hyg_4_();
+res = runtime_initialize_Lean_Elab_PreDefinition_WF_GuessLex(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lean_Elab_WF_GuessLex_showInferredTerminationBy = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Elab_WF_GuessLex_showInferredTerminationBy);
 lean_dec_ref(res);
-}l_Lean_Elab_WF_GuessLex_instInhabitedBasicMeasure_default = _init_l_Lean_Elab_WF_GuessLex_instInhabitedBasicMeasure_default();
-lean_mark_persistent(l_Lean_Elab_WF_GuessLex_instInhabitedBasicMeasure_default);
-l_Lean_Elab_WF_GuessLex_instInhabitedBasicMeasure = _init_l_Lean_Elab_WF_GuessLex_instInhabitedBasicMeasure();
-lean_mark_persistent(l_Lean_Elab_WF_GuessLex_instInhabitedBasicMeasure);
-l_Array_mapFinIdxM_map___at___00Lean_Elab_WF_GuessLex_simpleMeasures_spec__1___redArg___lam__1___boxed__const__1 = _init_l_Array_mapFinIdxM_map___at___00Lean_Elab_WF_GuessLex_simpleMeasures_spec__1___redArg___lam__1___boxed__const__1();
-lean_mark_persistent(l_Array_mapFinIdxM_map___at___00Lean_Elab_WF_GuessLex_simpleMeasures_spec__1___redArg___lam__1___boxed__const__1);
-return lean_io_result_mk_ok(lean_box(0));
+res = meta_initialize_Lean_Elab_PreDefinition_WF_GuessLex(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Elab_PreDefinition_WF_GuessLex(builtin);
 }
 #ifdef __cplusplus
 }

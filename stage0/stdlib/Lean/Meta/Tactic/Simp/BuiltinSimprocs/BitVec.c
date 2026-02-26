@@ -53390,6 +53390,754 @@ x_2 = l_BitVec_reduceShiftRightShiftRight___regBuiltin_BitVec_reduceShiftRightSh
 return x_2;
 }
 }
+lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_BitVec_Lemmas(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_BitVec_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceNeg_declare__48_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3363777397____hygCtx___hyg_19_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceNeg___regBuiltin_BitVec_reduceNeg_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3363777397____hygCtx___hyg_21_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceNeg___regBuiltin_BitVec_reduceNeg_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3363777397____hygCtx___hyg_23_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceNot_declare__53_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_801351438____hygCtx___hyg_19_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceNot___regBuiltin_BitVec_reduceNot_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_801351438____hygCtx___hyg_21_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceNot___regBuiltin_BitVec_reduceNot_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_801351438____hygCtx___hyg_23_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceAbs_declare__58_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1689428948____hygCtx___hyg_13_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceAbs___regBuiltin_BitVec_reduceAbs_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1689428948____hygCtx___hyg_15_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceAbs___regBuiltin_BitVec_reduceAbs_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1689428948____hygCtx___hyg_17_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceAnd_declare__63_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1101098136____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceAnd___regBuiltin_BitVec_reduceAnd_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1101098136____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceAnd___regBuiltin_BitVec_reduceAnd_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1101098136____hygCtx___hyg_24_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceOr_declare__68_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1307421482____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceOr___regBuiltin_BitVec_reduceOr_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1307421482____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceOr___regBuiltin_BitVec_reduceOr_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1307421482____hygCtx___hyg_24_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceXOr_declare__73_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_370586403____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceXOr___regBuiltin_BitVec_reduceXOr_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_370586403____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceXOr___regBuiltin_BitVec_reduceXOr_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_370586403____hygCtx___hyg_24_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceAdd_declare__78_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_73578345____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceAdd___regBuiltin_BitVec_reduceAdd_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_73578345____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceAdd___regBuiltin_BitVec_reduceAdd_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_73578345____hygCtx___hyg_24_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceMul_declare__83_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_998258654____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceMul___regBuiltin_BitVec_reduceMul_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_998258654____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceMul___regBuiltin_BitVec_reduceMul_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_998258654____hygCtx___hyg_24_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSub_declare__88_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3577026531____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSub___regBuiltin_BitVec_reduceSub_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3577026531____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSub___regBuiltin_BitVec_reduceSub_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3577026531____hygCtx___hyg_24_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceDiv_declare__93_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_258729848____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceDiv___regBuiltin_BitVec_reduceDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_258729848____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceDiv___regBuiltin_BitVec_reduceDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_258729848____hygCtx___hyg_24_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceMod_declare__98_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_740068429____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceMod___regBuiltin_BitVec_reduceMod_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_740068429____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceMod___regBuiltin_BitVec_reduceMod_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_740068429____hygCtx___hyg_24_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceUMod_declare__103_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1461777902____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceUMod___regBuiltin_BitVec_reduceUMod_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1461777902____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceUMod___regBuiltin_BitVec_reduceUMod_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1461777902____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceUDiv_declare__108_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1588936991____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceUDiv___regBuiltin_BitVec_reduceUDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1588936991____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceUDiv___regBuiltin_BitVec_reduceUDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1588936991____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSMTUDiv_declare__113_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1684227602____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSMTUDiv___regBuiltin_BitVec_reduceSMTUDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1684227602____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSMTUDiv___regBuiltin_BitVec_reduceSMTUDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1684227602____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSMod_declare__118_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2532024774____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSMod___regBuiltin_BitVec_reduceSMod_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2532024774____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSMod___regBuiltin_BitVec_reduceSMod_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2532024774____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSRem_declare__123_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3580555747____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSRem___regBuiltin_BitVec_reduceSRem_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3580555747____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSRem___regBuiltin_BitVec_reduceSRem_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3580555747____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSDiv_declare__128_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3627617051____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSDiv___regBuiltin_BitVec_reduceSDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3627617051____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSDiv___regBuiltin_BitVec_reduceSDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3627617051____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSMTSDiv_declare__133_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_396261550____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSMTSDiv___regBuiltin_BitVec_reduceSMTSDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_396261550____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSMTSDiv___regBuiltin_BitVec_reduceSMTSDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_396261550____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceGetLsb_declare__138_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2304061715____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceGetLsb___regBuiltin_BitVec_reduceGetLsb_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2304061715____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceGetLsb___regBuiltin_BitVec_reduceGetLsb_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2304061715____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceGetMsb_declare__143_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4252493603____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceGetMsb___regBuiltin_BitVec_reduceGetMsb_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4252493603____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceGetMsb___regBuiltin_BitVec_reduceGetMsb_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4252493603____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceClz_declare__148_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2257329400____hygCtx___hyg_13_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceClz___regBuiltin_BitVec_reduceClz_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2257329400____hygCtx___hyg_15_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceClz___regBuiltin_BitVec_reduceClz_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2257329400____hygCtx___hyg_17_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceGetElem_declare__153_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3722409294____hygCtx___hyg_24_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceGetElem___regBuiltin_BitVec_reduceGetElem_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3722409294____hygCtx___hyg_26_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceGetElem___regBuiltin_BitVec_reduceGetElem_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3722409294____hygCtx___hyg_28_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceShiftLeft_declare__158_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1981601135____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceShiftLeft___regBuiltin_BitVec_reduceShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1981601135____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceShiftLeft___regBuiltin_BitVec_reduceShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1981601135____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceUShiftRight_declare__163_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4180082573____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceUShiftRight___regBuiltin_BitVec_reduceUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4180082573____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceUShiftRight___regBuiltin_BitVec_reduceUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4180082573____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSShiftRight_declare__168_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1805299867____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSShiftRight___regBuiltin_BitVec_reduceSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1805299867____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSShiftRight___regBuiltin_BitVec_reduceSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1805299867____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceHShiftLeft_declare__173_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1321491985____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceHShiftLeft___regBuiltin_BitVec_reduceHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1321491985____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceHShiftLeft___regBuiltin_BitVec_reduceHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1321491985____hygCtx___hyg_24_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceHShiftLeft_x27_declare__178_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4245661560____hygCtx___hyg_24_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceHShiftLeft_x27___regBuiltin_BitVec_reduceHShiftLeft_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4245661560____hygCtx___hyg_26_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceHShiftLeft_x27___regBuiltin_BitVec_reduceHShiftLeft_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4245661560____hygCtx___hyg_28_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceHShiftRight_declare__183_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4258033445____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceHShiftRight___regBuiltin_BitVec_reduceHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4258033445____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceHShiftRight___regBuiltin_BitVec_reduceHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4258033445____hygCtx___hyg_24_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceHShiftRight_x27_declare__188_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2544647842____hygCtx___hyg_24_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceHShiftRight_x27___regBuiltin_BitVec_reduceHShiftRight_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2544647842____hygCtx___hyg_26_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceHShiftRight_x27___regBuiltin_BitVec_reduceHShiftRight_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2544647842____hygCtx___hyg_28_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceRotateLeft_declare__193_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1986106746____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceRotateLeft___regBuiltin_BitVec_reduceRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1986106746____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceRotateLeft___regBuiltin_BitVec_reduceRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1986106746____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceRotateRight_declare__198_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3861451550____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceRotateRight___regBuiltin_BitVec_reduceRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3861451550____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceRotateRight___regBuiltin_BitVec_reduceRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3861451550____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceAppend_declare__203_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_279275497____hygCtx___hyg_20_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceAppend___regBuiltin_BitVec_reduceAppend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_279275497____hygCtx___hyg_22_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceAppend___regBuiltin_BitVec_reduceAppend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_279275497____hygCtx___hyg_24_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceCast_declare__208_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_75992307____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceCast___regBuiltin_BitVec_reduceCast_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_75992307____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceCast___regBuiltin_BitVec_reduceCast_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_75992307____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceToNat_declare__213_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_521297777____hygCtx___hyg_13_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceToNat___regBuiltin_BitVec_reduceToNat_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_521297777____hygCtx___hyg_15_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceToNat___regBuiltin_BitVec_reduceToNat_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_521297777____hygCtx___hyg_17_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceToInt_declare__218_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1937768240____hygCtx___hyg_13_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceToInt___regBuiltin_BitVec_reduceToInt_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1937768240____hygCtx___hyg_15_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceToInt___regBuiltin_BitVec_reduceToInt_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1937768240____hygCtx___hyg_17_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceOfInt_declare__223_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1112481862____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceOfInt___regBuiltin_BitVec_reduceOfInt_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1112481862____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceOfInt___regBuiltin_BitVec_reduceOfInt_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1112481862____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceOfNat_declare__228_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_586122684____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceOfNat___regBuiltin_BitVec_reduceOfNat_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_586122684____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceOfNat___regBuiltin_BitVec_reduceOfNat_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_586122684____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceEq_declare__233_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3744847092____hygCtx___hyg_21_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceEq___regBuiltin_BitVec_reduceEq_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3744847092____hygCtx___hyg_23_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceEq___regBuiltin_BitVec_reduceEq_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3744847092____hygCtx___hyg_25_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceNe_declare__238_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2237023881____hygCtx___hyg_21_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceNe___regBuiltin_BitVec_reduceNe_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2237023881____hygCtx___hyg_23_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceNe___regBuiltin_BitVec_reduceNe_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2237023881____hygCtx___hyg_25_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceBEq_declare__243_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_396183198____hygCtx___hyg_21_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceBEq___regBuiltin_BitVec_reduceBEq_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_396183198____hygCtx___hyg_23_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceBEq___regBuiltin_BitVec_reduceBEq_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_396183198____hygCtx___hyg_25_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceBNe_declare__248_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2783382448____hygCtx___hyg_21_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceBNe___regBuiltin_BitVec_reduceBNe_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2783382448____hygCtx___hyg_23_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceBNe___regBuiltin_BitVec_reduceBNe_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2783382448____hygCtx___hyg_25_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceLT_declare__253_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_402749205____hygCtx___hyg_21_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceLT___regBuiltin_BitVec_reduceLT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_402749205____hygCtx___hyg_23_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceLT___regBuiltin_BitVec_reduceLT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_402749205____hygCtx___hyg_25_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceLE_declare__258_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3280568033____hygCtx___hyg_21_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceLE___regBuiltin_BitVec_reduceLE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3280568033____hygCtx___hyg_23_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceLE___regBuiltin_BitVec_reduceLE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3280568033____hygCtx___hyg_25_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceGT_declare__263_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_58073159____hygCtx___hyg_21_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceGT___regBuiltin_BitVec_reduceGT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_58073159____hygCtx___hyg_23_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceGT___regBuiltin_BitVec_reduceGT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_58073159____hygCtx___hyg_25_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceGE_declare__268_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_776923109____hygCtx___hyg_21_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceGE___regBuiltin_BitVec_reduceGE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_776923109____hygCtx___hyg_23_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceGE___regBuiltin_BitVec_reduceGE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_776923109____hygCtx___hyg_25_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceULT_declare__273_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_544561141____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceULT___regBuiltin_BitVec_reduceULT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_544561141____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceULT___regBuiltin_BitVec_reduceULT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_544561141____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceULE_declare__278_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2455180700____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceULE___regBuiltin_BitVec_reduceULE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2455180700____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceULE___regBuiltin_BitVec_reduceULE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2455180700____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSLT_declare__283_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1265938610____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSLT___regBuiltin_BitVec_reduceSLT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1265938610____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSLT___regBuiltin_BitVec_reduceSLT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1265938610____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSLE_declare__288_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2045894262____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSLE___regBuiltin_BitVec_reduceSLE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2045894262____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSLE___regBuiltin_BitVec_reduceSLE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2045894262____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSetWidth_x27_declare__293_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1997871808____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSetWidth_x27___regBuiltin_BitVec_reduceSetWidth_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1997871808____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSetWidth_x27___regBuiltin_BitVec_reduceSetWidth_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1997871808____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceShiftLeftZeroExtend_declare__298_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1858783730____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceShiftLeftZeroExtend___regBuiltin_BitVec_reduceShiftLeftZeroExtend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1858783730____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceShiftLeftZeroExtend___regBuiltin_BitVec_reduceShiftLeftZeroExtend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1858783730____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceExtractLsb_x27_declare__303_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3865625001____hygCtx___hyg_15_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceExtractLsb_x27___regBuiltin_BitVec_reduceExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3865625001____hygCtx___hyg_17_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceExtractLsb_x27___regBuiltin_BitVec_reduceExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3865625001____hygCtx___hyg_19_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceReplicate_declare__308_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4032148324____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceReplicate___regBuiltin_BitVec_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4032148324____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceReplicate___regBuiltin_BitVec_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4032148324____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSetWidth_declare__313_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4241023990____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSetWidth___regBuiltin_BitVec_reduceSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4241023990____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSetWidth___regBuiltin_BitVec_reduceSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4241023990____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceZeroExtend_declare__318_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1728223393____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceZeroExtend___regBuiltin_BitVec_reduceZeroExtend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1728223393____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceZeroExtend___regBuiltin_BitVec_reduceZeroExtend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1728223393____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSignExtend_declare__323_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_489440779____hygCtx___hyg_14_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSignExtend___regBuiltin_BitVec_reduceSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_489440779____hygCtx___hyg_16_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceSignExtend___regBuiltin_BitVec_reduceSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_489440779____hygCtx___hyg_18_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceAllOnes_declare__328_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_214689512____hygCtx___hyg_13_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceAllOnes___regBuiltin_BitVec_reduceAllOnes_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_214689512____hygCtx___hyg_15_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceAllOnes___regBuiltin_BitVec_reduceAllOnes_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_214689512____hygCtx___hyg_17_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceBitVecOfFin_declare__333_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4171913895____hygCtx___hyg_13_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceBitVecOfFin___regBuiltin_BitVec_reduceBitVecOfFin_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4171913895____hygCtx___hyg_15_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceBitVecOfFin___regBuiltin_BitVec_reduceBitVecOfFin_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4171913895____hygCtx___hyg_17_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceBitVecToFin_declare__338_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1649344073____hygCtx___hyg_13_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceBitVecToFin___regBuiltin_BitVec_reduceBitVecToFin_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1649344073____hygCtx___hyg_15_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceBitVecToFin___regBuiltin_BitVec_reduceBitVecToFin_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1649344073____hygCtx___hyg_17_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceShiftLeftShiftLeft_declare__346_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3572836825____hygCtx___hyg_28_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceShiftLeftShiftLeft___regBuiltin_BitVec_reduceShiftLeftShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3572836825____hygCtx___hyg_30_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceShiftRightShiftRight_declare__351_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3009506562____hygCtx___hyg_28_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_BitVec_reduceShiftRightShiftRight___regBuiltin_BitVec_reduceShiftRightShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3009506562____hygCtx___hyg_30_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int(uint8_t builtin);
 lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
@@ -53397,556 +54145,23 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int(builtin);
+res = initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Lemmas(builtin);
+res = initialize_Init_Data_BitVec_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceNeg_declare__48_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3363777397____hygCtx___hyg_19_();
+res = runtime_initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceNeg___regBuiltin_BitVec_reduceNeg_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3363777397____hygCtx___hyg_21_();
+res = meta_initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceNeg___regBuiltin_BitVec_reduceNeg_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3363777397____hygCtx___hyg_23_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceNot_declare__53_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_801351438____hygCtx___hyg_19_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceNot___regBuiltin_BitVec_reduceNot_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_801351438____hygCtx___hyg_21_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceNot___regBuiltin_BitVec_reduceNot_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_801351438____hygCtx___hyg_23_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceAbs_declare__58_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1689428948____hygCtx___hyg_13_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceAbs___regBuiltin_BitVec_reduceAbs_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1689428948____hygCtx___hyg_15_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceAbs___regBuiltin_BitVec_reduceAbs_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1689428948____hygCtx___hyg_17_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceAnd_declare__63_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1101098136____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceAnd___regBuiltin_BitVec_reduceAnd_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1101098136____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceAnd___regBuiltin_BitVec_reduceAnd_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1101098136____hygCtx___hyg_24_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceOr_declare__68_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1307421482____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceOr___regBuiltin_BitVec_reduceOr_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1307421482____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceOr___regBuiltin_BitVec_reduceOr_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1307421482____hygCtx___hyg_24_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceXOr_declare__73_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_370586403____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceXOr___regBuiltin_BitVec_reduceXOr_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_370586403____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceXOr___regBuiltin_BitVec_reduceXOr_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_370586403____hygCtx___hyg_24_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceAdd_declare__78_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_73578345____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceAdd___regBuiltin_BitVec_reduceAdd_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_73578345____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceAdd___regBuiltin_BitVec_reduceAdd_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_73578345____hygCtx___hyg_24_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceMul_declare__83_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_998258654____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceMul___regBuiltin_BitVec_reduceMul_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_998258654____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceMul___regBuiltin_BitVec_reduceMul_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_998258654____hygCtx___hyg_24_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSub_declare__88_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3577026531____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSub___regBuiltin_BitVec_reduceSub_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3577026531____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSub___regBuiltin_BitVec_reduceSub_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3577026531____hygCtx___hyg_24_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceDiv_declare__93_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_258729848____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceDiv___regBuiltin_BitVec_reduceDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_258729848____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceDiv___regBuiltin_BitVec_reduceDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_258729848____hygCtx___hyg_24_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceMod_declare__98_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_740068429____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceMod___regBuiltin_BitVec_reduceMod_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_740068429____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceMod___regBuiltin_BitVec_reduceMod_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_740068429____hygCtx___hyg_24_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceUMod_declare__103_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1461777902____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceUMod___regBuiltin_BitVec_reduceUMod_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1461777902____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceUMod___regBuiltin_BitVec_reduceUMod_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1461777902____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceUDiv_declare__108_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1588936991____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceUDiv___regBuiltin_BitVec_reduceUDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1588936991____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceUDiv___regBuiltin_BitVec_reduceUDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1588936991____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSMTUDiv_declare__113_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1684227602____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSMTUDiv___regBuiltin_BitVec_reduceSMTUDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1684227602____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSMTUDiv___regBuiltin_BitVec_reduceSMTUDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1684227602____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSMod_declare__118_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2532024774____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSMod___regBuiltin_BitVec_reduceSMod_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2532024774____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSMod___regBuiltin_BitVec_reduceSMod_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2532024774____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSRem_declare__123_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3580555747____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSRem___regBuiltin_BitVec_reduceSRem_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3580555747____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSRem___regBuiltin_BitVec_reduceSRem_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3580555747____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSDiv_declare__128_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3627617051____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSDiv___regBuiltin_BitVec_reduceSDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3627617051____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSDiv___regBuiltin_BitVec_reduceSDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3627617051____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSMTSDiv_declare__133_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_396261550____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSMTSDiv___regBuiltin_BitVec_reduceSMTSDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_396261550____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSMTSDiv___regBuiltin_BitVec_reduceSMTSDiv_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_396261550____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceGetLsb_declare__138_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2304061715____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceGetLsb___regBuiltin_BitVec_reduceGetLsb_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2304061715____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceGetLsb___regBuiltin_BitVec_reduceGetLsb_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2304061715____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceGetMsb_declare__143_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4252493603____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceGetMsb___regBuiltin_BitVec_reduceGetMsb_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4252493603____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceGetMsb___regBuiltin_BitVec_reduceGetMsb_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4252493603____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceClz_declare__148_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2257329400____hygCtx___hyg_13_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceClz___regBuiltin_BitVec_reduceClz_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2257329400____hygCtx___hyg_15_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceClz___regBuiltin_BitVec_reduceClz_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2257329400____hygCtx___hyg_17_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceGetElem_declare__153_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3722409294____hygCtx___hyg_24_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceGetElem___regBuiltin_BitVec_reduceGetElem_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3722409294____hygCtx___hyg_26_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceGetElem___regBuiltin_BitVec_reduceGetElem_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3722409294____hygCtx___hyg_28_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceShiftLeft_declare__158_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1981601135____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceShiftLeft___regBuiltin_BitVec_reduceShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1981601135____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceShiftLeft___regBuiltin_BitVec_reduceShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1981601135____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceUShiftRight_declare__163_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4180082573____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceUShiftRight___regBuiltin_BitVec_reduceUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4180082573____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceUShiftRight___regBuiltin_BitVec_reduceUShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4180082573____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSShiftRight_declare__168_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1805299867____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSShiftRight___regBuiltin_BitVec_reduceSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1805299867____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSShiftRight___regBuiltin_BitVec_reduceSShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1805299867____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceHShiftLeft_declare__173_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1321491985____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceHShiftLeft___regBuiltin_BitVec_reduceHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1321491985____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceHShiftLeft___regBuiltin_BitVec_reduceHShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1321491985____hygCtx___hyg_24_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceHShiftLeft_x27_declare__178_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4245661560____hygCtx___hyg_24_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceHShiftLeft_x27___regBuiltin_BitVec_reduceHShiftLeft_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4245661560____hygCtx___hyg_26_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceHShiftLeft_x27___regBuiltin_BitVec_reduceHShiftLeft_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4245661560____hygCtx___hyg_28_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceHShiftRight_declare__183_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4258033445____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceHShiftRight___regBuiltin_BitVec_reduceHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4258033445____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceHShiftRight___regBuiltin_BitVec_reduceHShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4258033445____hygCtx___hyg_24_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceHShiftRight_x27_declare__188_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2544647842____hygCtx___hyg_24_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceHShiftRight_x27___regBuiltin_BitVec_reduceHShiftRight_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2544647842____hygCtx___hyg_26_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceHShiftRight_x27___regBuiltin_BitVec_reduceHShiftRight_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2544647842____hygCtx___hyg_28_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceRotateLeft_declare__193_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1986106746____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceRotateLeft___regBuiltin_BitVec_reduceRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1986106746____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceRotateLeft___regBuiltin_BitVec_reduceRotateLeft_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1986106746____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceRotateRight_declare__198_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3861451550____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceRotateRight___regBuiltin_BitVec_reduceRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3861451550____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceRotateRight___regBuiltin_BitVec_reduceRotateRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3861451550____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceAppend_declare__203_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_279275497____hygCtx___hyg_20_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceAppend___regBuiltin_BitVec_reduceAppend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_279275497____hygCtx___hyg_22_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceAppend___regBuiltin_BitVec_reduceAppend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_279275497____hygCtx___hyg_24_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceCast_declare__208_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_75992307____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceCast___regBuiltin_BitVec_reduceCast_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_75992307____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceCast___regBuiltin_BitVec_reduceCast_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_75992307____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceToNat_declare__213_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_521297777____hygCtx___hyg_13_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceToNat___regBuiltin_BitVec_reduceToNat_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_521297777____hygCtx___hyg_15_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceToNat___regBuiltin_BitVec_reduceToNat_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_521297777____hygCtx___hyg_17_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceToInt_declare__218_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1937768240____hygCtx___hyg_13_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceToInt___regBuiltin_BitVec_reduceToInt_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1937768240____hygCtx___hyg_15_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceToInt___regBuiltin_BitVec_reduceToInt_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1937768240____hygCtx___hyg_17_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceOfInt_declare__223_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1112481862____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceOfInt___regBuiltin_BitVec_reduceOfInt_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1112481862____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceOfInt___regBuiltin_BitVec_reduceOfInt_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1112481862____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceOfNat_declare__228_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_586122684____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceOfNat___regBuiltin_BitVec_reduceOfNat_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_586122684____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceOfNat___regBuiltin_BitVec_reduceOfNat_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_586122684____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceEq_declare__233_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3744847092____hygCtx___hyg_21_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceEq___regBuiltin_BitVec_reduceEq_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3744847092____hygCtx___hyg_23_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceEq___regBuiltin_BitVec_reduceEq_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3744847092____hygCtx___hyg_25_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceNe_declare__238_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2237023881____hygCtx___hyg_21_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceNe___regBuiltin_BitVec_reduceNe_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2237023881____hygCtx___hyg_23_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceNe___regBuiltin_BitVec_reduceNe_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2237023881____hygCtx___hyg_25_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceBEq_declare__243_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_396183198____hygCtx___hyg_21_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceBEq___regBuiltin_BitVec_reduceBEq_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_396183198____hygCtx___hyg_23_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceBEq___regBuiltin_BitVec_reduceBEq_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_396183198____hygCtx___hyg_25_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceBNe_declare__248_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2783382448____hygCtx___hyg_21_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceBNe___regBuiltin_BitVec_reduceBNe_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2783382448____hygCtx___hyg_23_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceBNe___regBuiltin_BitVec_reduceBNe_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2783382448____hygCtx___hyg_25_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceLT_declare__253_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_402749205____hygCtx___hyg_21_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceLT___regBuiltin_BitVec_reduceLT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_402749205____hygCtx___hyg_23_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceLT___regBuiltin_BitVec_reduceLT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_402749205____hygCtx___hyg_25_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceLE_declare__258_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3280568033____hygCtx___hyg_21_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceLE___regBuiltin_BitVec_reduceLE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3280568033____hygCtx___hyg_23_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceLE___regBuiltin_BitVec_reduceLE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3280568033____hygCtx___hyg_25_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceGT_declare__263_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_58073159____hygCtx___hyg_21_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceGT___regBuiltin_BitVec_reduceGT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_58073159____hygCtx___hyg_23_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceGT___regBuiltin_BitVec_reduceGT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_58073159____hygCtx___hyg_25_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceGE_declare__268_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_776923109____hygCtx___hyg_21_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceGE___regBuiltin_BitVec_reduceGE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_776923109____hygCtx___hyg_23_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceGE___regBuiltin_BitVec_reduceGE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_776923109____hygCtx___hyg_25_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceULT_declare__273_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_544561141____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceULT___regBuiltin_BitVec_reduceULT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_544561141____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceULT___regBuiltin_BitVec_reduceULT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_544561141____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceULE_declare__278_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2455180700____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceULE___regBuiltin_BitVec_reduceULE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2455180700____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceULE___regBuiltin_BitVec_reduceULE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2455180700____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSLT_declare__283_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1265938610____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSLT___regBuiltin_BitVec_reduceSLT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1265938610____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSLT___regBuiltin_BitVec_reduceSLT_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1265938610____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSLE_declare__288_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2045894262____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSLE___regBuiltin_BitVec_reduceSLE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2045894262____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSLE___regBuiltin_BitVec_reduceSLE_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_2045894262____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSetWidth_x27_declare__293_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1997871808____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSetWidth_x27___regBuiltin_BitVec_reduceSetWidth_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1997871808____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSetWidth_x27___regBuiltin_BitVec_reduceSetWidth_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1997871808____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceShiftLeftZeroExtend_declare__298_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1858783730____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceShiftLeftZeroExtend___regBuiltin_BitVec_reduceShiftLeftZeroExtend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1858783730____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceShiftLeftZeroExtend___regBuiltin_BitVec_reduceShiftLeftZeroExtend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1858783730____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceExtractLsb_x27_declare__303_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3865625001____hygCtx___hyg_15_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceExtractLsb_x27___regBuiltin_BitVec_reduceExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3865625001____hygCtx___hyg_17_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceExtractLsb_x27___regBuiltin_BitVec_reduceExtractLsb_x27_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3865625001____hygCtx___hyg_19_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceReplicate_declare__308_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4032148324____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceReplicate___regBuiltin_BitVec_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4032148324____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceReplicate___regBuiltin_BitVec_reduceReplicate_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4032148324____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSetWidth_declare__313_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4241023990____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSetWidth___regBuiltin_BitVec_reduceSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4241023990____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSetWidth___regBuiltin_BitVec_reduceSetWidth_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4241023990____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceZeroExtend_declare__318_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1728223393____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceZeroExtend___regBuiltin_BitVec_reduceZeroExtend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1728223393____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceZeroExtend___regBuiltin_BitVec_reduceZeroExtend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1728223393____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceSignExtend_declare__323_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_489440779____hygCtx___hyg_14_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSignExtend___regBuiltin_BitVec_reduceSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_489440779____hygCtx___hyg_16_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceSignExtend___regBuiltin_BitVec_reduceSignExtend_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_489440779____hygCtx___hyg_18_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceAllOnes_declare__328_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_214689512____hygCtx___hyg_13_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceAllOnes___regBuiltin_BitVec_reduceAllOnes_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_214689512____hygCtx___hyg_15_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceAllOnes___regBuiltin_BitVec_reduceAllOnes_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_214689512____hygCtx___hyg_17_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceBitVecOfFin_declare__333_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4171913895____hygCtx___hyg_13_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceBitVecOfFin___regBuiltin_BitVec_reduceBitVecOfFin_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4171913895____hygCtx___hyg_15_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceBitVecOfFin___regBuiltin_BitVec_reduceBitVecOfFin_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_4171913895____hygCtx___hyg_17_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceBitVecToFin_declare__338_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1649344073____hygCtx___hyg_13_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceBitVecToFin___regBuiltin_BitVec_reduceBitVecToFin_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1649344073____hygCtx___hyg_15_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceBitVecToFin___regBuiltin_BitVec_reduceBitVecToFin_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_1649344073____hygCtx___hyg_17_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceShiftLeftShiftLeft_declare__346_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3572836825____hygCtx___hyg_28_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceShiftLeftShiftLeft___regBuiltin_BitVec_reduceShiftLeftShiftLeft_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3572836825____hygCtx___hyg_30_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_0____regBuiltin_BitVec_reduceShiftRightShiftRight_declare__351_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3009506562____hygCtx___hyg_28_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_BitVec_reduceShiftRightShiftRight___regBuiltin_BitVec_reduceShiftRightShiftRight_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec_3009506562____hygCtx___hyg_30_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec(builtin);
 }
 #ifdef __cplusplus
 }

@@ -8015,25 +8015,29 @@ x_5 = l_Lean_getAllParentStructures___redArg(x_2, x_3, x_4);
 return x_5;
 }
 }
-lean_object* initialize_Lean_ProjFns(uint8_t builtin);
-lean_object* initialize_Lean_Exception(uint8_t builtin);
-lean_object* initialize_Init_While(uint8_t builtin);
-lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Structure(uint8_t builtin) {
+lean_object* runtime_initialize_Lean_ProjFns(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Exception(uint8_t builtin);
+lean_object* runtime_initialize_Init_While(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Structure(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Lean_ProjFns(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_ProjFns(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Exception(builtin);
+res = runtime_initialize_Lean_Exception(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_While(builtin);
+res = runtime_initialize_Init_While(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
+res = runtime_initialize_Init_Data_Range_Polymorphic_Iterators(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedStructureInfo_default = _init_l_Lean_instInhabitedStructureInfo_default();
@@ -8044,12 +8048,13 @@ l___private_Lean_Structure_0__Lean_instInhabitedStructureState_default = _init_l
 lean_mark_persistent(l___private_Lean_Structure_0__Lean_instInhabitedStructureState_default);
 l___private_Lean_Structure_0__Lean_instInhabitedStructureState = _init_l___private_Lean_Structure_0__Lean_instInhabitedStructureState();
 lean_mark_persistent(l___private_Lean_Structure_0__Lean_instInhabitedStructureState);
-if (builtin) {res = l___private_Lean_Structure_0__Lean_initFn_00___x40_Lean_Structure_2533181092____hygCtx___hyg_2_();
+res = l___private_Lean_Structure_0__Lean_initFn_00___x40_Lean_Structure_2533181092____hygCtx___hyg_2_()
+;
 if (lean_io_result_is_error(res)) return res;
 l___private_Lean_Structure_0__Lean_structureExt = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_Structure_0__Lean_structureExt);
 lean_dec_ref(res);
-}l_Lean_instInhabitedStructureDescr_default = _init_l_Lean_instInhabitedStructureDescr_default();
+l_Lean_instInhabitedStructureDescr_default = _init_l_Lean_instInhabitedStructureDescr_default();
 lean_mark_persistent(l_Lean_instInhabitedStructureDescr_default);
 l_Lean_instInhabitedStructureDescr = _init_l_Lean_instInhabitedStructureDescr();
 lean_mark_persistent(l_Lean_instInhabitedStructureDescr);
@@ -8057,12 +8062,13 @@ l_Lean_instInhabitedStructureResolutionState_default = _init_l_Lean_instInhabite
 lean_mark_persistent(l_Lean_instInhabitedStructureResolutionState_default);
 l_Lean_instInhabitedStructureResolutionState = _init_l_Lean_instInhabitedStructureResolutionState();
 lean_mark_persistent(l_Lean_instInhabitedStructureResolutionState);
-if (builtin) {res = l_Lean_initFn_00___x40_Lean_Structure_3808158513____hygCtx___hyg_2_();
+res = l_Lean_initFn_00___x40_Lean_Structure_3808158513____hygCtx___hyg_2_()
+;
 if (lean_io_result_is_error(res)) return res;
 l_Lean_structureResolutionExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_structureResolutionExt);
 lean_dec_ref(res);
-}l_Lean_instInhabitedStructureResolutionOrderConflict_default = _init_l_Lean_instInhabitedStructureResolutionOrderConflict_default();
+l_Lean_instInhabitedStructureResolutionOrderConflict_default = _init_l_Lean_instInhabitedStructureResolutionOrderConflict_default();
 lean_mark_persistent(l_Lean_instInhabitedStructureResolutionOrderConflict_default);
 l_Lean_instInhabitedStructureResolutionOrderConflict = _init_l_Lean_instInhabitedStructureResolutionOrderConflict();
 lean_mark_persistent(l_Lean_instInhabitedStructureResolutionOrderConflict);
@@ -8071,6 +8077,48 @@ lean_mark_persistent(l_Lean_instInhabitedStructureResolutionOrderResult_default)
 l_Lean_instInhabitedStructureResolutionOrderResult = _init_l_Lean_instInhabitedStructureResolutionOrderResult();
 lean_mark_persistent(l_Lean_instInhabitedStructureResolutionOrderResult);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Structure(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Lean_ProjFns(uint8_t builtin);
+lean_object* initialize_Lean_Exception(uint8_t builtin);
+lean_object* initialize_Init_While(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Lean_Structure(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Lean_ProjFns(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Exception(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_While(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Structure(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Structure(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Structure(builtin);
 }
 #ifdef __cplusplus
 }

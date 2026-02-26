@@ -1790,17 +1790,17 @@ x_23 = lean_nat_dec_le(x_17, x_22);
 if (x_23 == 0)
 {
 lean_inc(x_22);
-x_6 = x_20;
+x_6 = x_19;
 x_7 = x_22;
-x_8 = x_19;
+x_8 = x_20;
 x_9 = x_22;
 goto block_13;
 }
 else
 {
-x_6 = x_20;
+x_6 = x_19;
 x_7 = x_22;
-x_8 = x_19;
+x_8 = x_20;
 x_9 = x_17;
 goto block_13;
 }
@@ -2020,21 +2020,21 @@ return x_4;
 block_13:
 {
 uint8_t x_10; 
-lean_dec(x_6);
+lean_dec(x_8);
 x_10 = lean_nat_dec_le(x_9, x_7);
 if (x_10 == 0)
 {
 lean_object* x_11; 
 lean_dec(x_7);
 lean_inc(x_9);
-x_11 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_8, x_9, x_9);
+x_11 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_6, x_9, x_9);
 lean_dec(x_9);
 return x_11;
 }
 else
 {
 lean_object* x_12; 
-x_12 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_8, x_9, x_7);
+x_12 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00ImportCompletion_computePartialImportCompletions_spec__0___redArg(x_6, x_9, x_7);
 lean_dec(x_7);
 return x_12;
 }
@@ -3888,6 +3888,40 @@ lean_dec_ref(x_3);
 return x_6;
 }
 }
+lean_object* runtime_initialize_Lean_Util_LakePath(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Parser_Module(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_Completion_ImportCompletion(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Util_LakePath(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Parser_Module(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* runtime_initialize_Lean_Parser_Module(uint8_t builtin);
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Server_Completion_ImportCompletion(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+res = runtime_initialize_Lean_Parser_Module(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Util_LakePath(uint8_t builtin);
 lean_object* initialize_Lean_Data_Lsp(uint8_t builtin);
 lean_object* initialize_Lean_Parser_Module(uint8_t builtin);
@@ -3897,19 +3931,31 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_Completion_ImportCompletion(uint
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Util_LakePath(builtin);
+res = initialize_Lean_Util_LakePath(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp(builtin);
+res = initialize_Lean_Data_Lsp(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Module(builtin);
+res = initialize_Lean_Parser_Module(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Module(builtin);
+res = initialize_Lean_Parser_Module(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Server_Completion_ImportCompletion(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Server_Completion_ImportCompletion(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Server_Completion_ImportCompletion(builtin);
 }
 #ifdef __cplusplus
 }

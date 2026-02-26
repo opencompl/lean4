@@ -1327,6 +1327,38 @@ lean_dec(x_1);
 return x_4;
 }
 }
+lean_object* runtime_initialize_Init_System_IO(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_ByteArray_Extra(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Random(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_System_IO(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_ByteArray_Extra(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_instInhabitedStdGen = _init_l_instInhabitedStdGen();
+lean_mark_persistent(l_instInhabitedStdGen);
+res = l_initFn_00___x40_Init_Data_Random_2456098205____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_IO_stdGenRef = lean_io_result_get_value(res);
+lean_mark_persistent(l_IO_stdGenRef);
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Random(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_System_IO(uint8_t builtin);
 lean_object* initialize_Init_Data_ByteArray_Extra(uint8_t builtin);
 static bool _G_initialized = false;
@@ -1334,20 +1366,23 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Random(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(builtin);
+res = initialize_Init_System_IO(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray_Extra(builtin);
+res = initialize_Init_Data_ByteArray_Extra(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_instInhabitedStdGen = _init_l_instInhabitedStdGen();
-lean_mark_persistent(l_instInhabitedStdGen);
-res = l_initFn_00___x40_Init_Data_Random_2456098205____hygCtx___hyg_2_();
+res = runtime_initialize_Init_Data_Random(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_IO_stdGenRef = lean_io_result_get_value(res);
-lean_mark_persistent(l_IO_stdGenRef);
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = meta_initialize_Init_Data_Random(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Random(builtin);
 }
 #ifdef __cplusplus
 }

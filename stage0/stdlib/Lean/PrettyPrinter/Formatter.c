@@ -20952,6 +20952,96 @@ x_2 = l___private_Lean_PrettyPrinter_Formatter_0__Lean_PrettyPrinter_initFn_00__
 return x_2;
 }
 }
+lean_object* runtime_initialize_Lean_Parser_Extension(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Parser_StrInterpolation(uint8_t builtin);
+lean_object* runtime_initialize_Lean_ParserCompiler_Attribute(uint8_t builtin);
+lean_object* runtime_initialize_Lean_PrettyPrinter_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_PrettyPrinter_Delaborator_Options(uint8_t builtin);
+lean_object* runtime_initialize_Lean_ExtraModUses(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_PrettyPrinter_Formatter(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Parser_Extension(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Parser_StrInterpolation(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_ParserCompiler_Attribute(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_PrettyPrinter_Basic(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_PrettyPrinter_Delaborator_Options(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_ExtraModUses(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Formatter_2023902769____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_PrettyPrinter_formatterAttribute = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_PrettyPrinter_formatterAttribute);
+lean_dec_ref(res);
+res = l_Lean_PrettyPrinter_formatterAttribute___regBuiltin_Lean_PrettyPrinter_formatterAttribute_docString__1()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_PrettyPrinter_formatterAttribute___regBuiltin_Lean_PrettyPrinter_formatterAttribute_declRange__3()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Formatter_4150507199____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_PrettyPrinter_combinatorFormatterAttribute = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_PrettyPrinter_combinatorFormatterAttribute);
+lean_dec_ref(res);
+res = l_Lean_PrettyPrinter_combinatorFormatterAttribute___regBuiltin_Lean_PrettyPrinter_combinatorFormatterAttribute_docString__1()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_PrettyPrinter_combinatorFormatterAttribute___regBuiltin_Lean_PrettyPrinter_combinatorFormatterAttribute_declRange__3()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_PrettyPrinter_Formatter_initFn_00___x40_Lean_PrettyPrinter_Formatter_4236035296____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_PrettyPrinter_Formatter_formatterAliasesRef = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_formatterAliasesRef);
+lean_dec_ref(res);
+res = l_Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Formatter_3543717407____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_PrettyPrinter_pp_oneline = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_PrettyPrinter_pp_oneline);
+lean_dec_ref(res);
+l_Lean_PrettyPrinter_OneLine_instMonadPrettyFormatM___lam__1___boxed__const__1 = _init_l_Lean_PrettyPrinter_OneLine_instMonadPrettyFormatM___lam__1___boxed__const__1();
+lean_mark_persistent(l_Lean_PrettyPrinter_OneLine_instMonadPrettyFormatM___lam__1___boxed__const__1);
+res = l___private_Lean_PrettyPrinter_Formatter_0__Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Formatter_1511140997____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_PrettyPrinter_Formatter(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Parser_Extension(uint8_t builtin);
 lean_object* initialize_Lean_Parser_StrInterpolation(uint8_t builtin);
 lean_object* initialize_Lean_ParserCompiler_Attribute(uint8_t builtin);
@@ -20963,62 +21053,39 @@ LEAN_EXPORT lean_object* initialize_Lean_PrettyPrinter_Formatter(uint8_t builtin
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Parser_Extension(builtin);
+res = initialize_Lean_Parser_Extension(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_StrInterpolation(builtin);
+res = initialize_Lean_Parser_StrInterpolation(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ParserCompiler_Attribute(builtin);
+res = initialize_Lean_ParserCompiler_Attribute(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter_Basic(builtin);
+res = initialize_Lean_PrettyPrinter_Basic(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter_Delaborator_Options(builtin);
+res = initialize_Lean_PrettyPrinter_Delaborator_Options(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ExtraModUses(builtin);
+res = initialize_Lean_ExtraModUses(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Formatter_2023902769____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_PrettyPrinter_formatterAttribute = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_PrettyPrinter_formatterAttribute);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_PrettyPrinter_formatterAttribute___regBuiltin_Lean_PrettyPrinter_formatterAttribute_docString__1();
+res = runtime_initialize_Lean_PrettyPrinter_Formatter(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_PrettyPrinter_formatterAttribute___regBuiltin_Lean_PrettyPrinter_formatterAttribute_declRange__3();
+res = meta_initialize_Lean_PrettyPrinter_Formatter(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Formatter_4150507199____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_PrettyPrinter_combinatorFormatterAttribute = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_PrettyPrinter_combinatorFormatterAttribute);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_PrettyPrinter_combinatorFormatterAttribute___regBuiltin_Lean_PrettyPrinter_combinatorFormatterAttribute_docString__1();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_PrettyPrinter_combinatorFormatterAttribute___regBuiltin_Lean_PrettyPrinter_combinatorFormatterAttribute_declRange__3();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_PrettyPrinter_Formatter_initFn_00___x40_Lean_PrettyPrinter_Formatter_4236035296____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_PrettyPrinter_Formatter_formatterAliasesRef = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_formatterAliasesRef);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Formatter_3543717407____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_PrettyPrinter_pp_oneline = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_PrettyPrinter_pp_oneline);
-lean_dec_ref(res);
-}l_Lean_PrettyPrinter_OneLine_instMonadPrettyFormatM___lam__1___boxed__const__1 = _init_l_Lean_PrettyPrinter_OneLine_instMonadPrettyFormatM___lam__1___boxed__const__1();
-lean_mark_persistent(l_Lean_PrettyPrinter_OneLine_instMonadPrettyFormatM___lam__1___boxed__const__1);
-if (builtin) {res = l___private_Lean_PrettyPrinter_Formatter_0__Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Formatter_1511140997____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lean_PrettyPrinter_Formatter(builtin);
 }
 #ifdef __cplusplus
 }

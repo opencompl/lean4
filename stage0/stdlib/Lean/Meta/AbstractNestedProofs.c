@@ -3290,10 +3290,10 @@ lean_inc_ref(x_33);
 lean_inc(x_40);
 x_41 = l_Lean_PersistentHashMap_insert___at___00Lean_Meta_AbstractNestedProofs_visit_spec__3___redArg(x_35, x_40, x_33);
 x_18 = x_33;
-x_19 = x_41;
-x_20 = lean_box(0);
-x_21 = x_36;
-x_22 = x_37;
+x_19 = x_36;
+x_20 = x_37;
+x_21 = x_41;
+x_22 = lean_box(0);
 x_23 = x_39;
 goto block_27;
 }
@@ -3313,12 +3313,12 @@ block_27:
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_24 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_24, 0, x_18);
-x_25 = l_Lean_PersistentArray_set___redArg(x_21, x_23, x_24);
+x_25 = l_Lean_PersistentArray_set___redArg(x_19, x_23, x_24);
 lean_dec(x_23);
 x_26 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_26, 0, x_19);
+lean_ctor_set(x_26, 0, x_21);
 lean_ctor_set(x_26, 1, x_25);
-lean_ctor_set(x_26, 2, x_22);
+lean_ctor_set(x_26, 2, x_20);
 x_12 = x_26;
 x_13 = lean_box(0);
 goto block_17;
@@ -4466,6 +4466,35 @@ x_9 = l_Lean_Meta_abstractNestedProofs(x_1, x_8, x_3, x_4, x_5, x_6);
 return x_9;
 }
 }
+lean_object* runtime_initialize_Init_Grind_Util(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Closure(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Transform(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_AbstractNestedProofs(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Grind_Util(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Closure(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Transform(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_AbstractNestedProofs(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Init_Grind_Util(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Closure(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Transform(uint8_t builtin);
@@ -4474,16 +4503,27 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_AbstractNestedProofs(uint8_t built
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Util(builtin);
+res = initialize_Init_Grind_Util(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Closure(builtin);
+res = initialize_Lean_Meta_Closure(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Transform(builtin);
+res = initialize_Lean_Meta_Transform(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Meta_AbstractNestedProofs(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Meta_AbstractNestedProofs(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Meta_AbstractNestedProofs(builtin);
 }
 #ifdef __cplusplus
 }

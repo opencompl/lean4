@@ -8941,6 +8941,42 @@ x_4 = l_List_mapTR_loop___at___00Lean_KeyedDeclsAttribute_getValues_spec__0___re
 return x_4;
 }
 }
+lean_object* runtime_initialize_Lean_ScopedEnvExtension(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Compiler_InitAttr(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin);
+lean_object* runtime_initialize_Lean_ExtraModUses(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_KeyedDeclsAttribute(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_ScopedEnvExtension(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Compiler_InitAttr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Compiler_IR_CompilerM(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_ExtraModUses(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_KeyedDeclsAttribute(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+l_Lean_KeyedDeclsAttribute_init___auto__1 = _init_l_Lean_KeyedDeclsAttribute_init___auto__1();
+lean_mark_persistent(l_Lean_KeyedDeclsAttribute_init___auto__1);
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_ScopedEnvExtension(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_InitAttr(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin);
@@ -8950,21 +8986,31 @@ LEAN_EXPORT lean_object* initialize_Lean_KeyedDeclsAttribute(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_ScopedEnvExtension(builtin);
+res = initialize_Lean_ScopedEnvExtension(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_InitAttr(builtin);
+res = initialize_Lean_Compiler_InitAttr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_CompilerM(builtin);
+res = initialize_Lean_Compiler_IR_CompilerM(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ExtraModUses(builtin);
+res = initialize_Lean_ExtraModUses(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_KeyedDeclsAttribute_init___auto__1 = _init_l_Lean_KeyedDeclsAttribute_init___auto__1();
-lean_mark_persistent(l_Lean_KeyedDeclsAttribute_init___auto__1);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_KeyedDeclsAttribute(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_KeyedDeclsAttribute(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_KeyedDeclsAttribute(builtin);
 }
 #ifdef __cplusplus
 }

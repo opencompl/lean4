@@ -11618,6 +11618,51 @@ x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn_00___x4
 return x_2;
 }
 }
+lean_object* runtime_initialize_Lean_Elab_PreDefinition_MkInhabitant(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_PreDefinition_Mutual(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_PreDefinition_PartialFixpoint_Eqns(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Monotonicity(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Order(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_PreDefinition_PartialFixpoint_Main(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Elab_PreDefinition_MkInhabitant(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_PreDefinition_Mutual(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_PreDefinition_PartialFixpoint_Eqns(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Monotonicity(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Order(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_Elab_partialFixpoint___boxed__const__1 = _init_l_Lean_Elab_partialFixpoint___boxed__const__1();
+lean_mark_persistent(l_Lean_Elab_partialFixpoint___boxed__const__1);
+res = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn_00___x40_Lean_Elab_PreDefinition_PartialFixpoint_Main_1869300320____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Elab_PreDefinition_PartialFixpoint_Main(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Elab_PreDefinition_MkInhabitant(uint8_t builtin);
 lean_object* initialize_Lean_Elab_PreDefinition_Mutual(uint8_t builtin);
 lean_object* initialize_Lean_Elab_PreDefinition_PartialFixpoint_Eqns(uint8_t builtin);
@@ -11628,27 +11673,35 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_PartialFixpoint_Main
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_PreDefinition_MkInhabitant(builtin);
+res = initialize_Lean_Elab_PreDefinition_MkInhabitant(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_Mutual(builtin);
+res = initialize_Lean_Elab_PreDefinition_Mutual(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_PartialFixpoint_Eqns(builtin);
+res = initialize_Lean_Elab_PreDefinition_PartialFixpoint_Eqns(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Monotonicity(builtin);
+res = initialize_Lean_Elab_Tactic_Monotonicity(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Order(builtin);
+res = initialize_Lean_Meta_Order(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_partialFixpoint___boxed__const__1 = _init_l_Lean_Elab_partialFixpoint___boxed__const__1();
-lean_mark_persistent(l_Lean_Elab_partialFixpoint___boxed__const__1);
-if (builtin) {res = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn_00___x40_Lean_Elab_PreDefinition_PartialFixpoint_Main_1869300320____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_Elab_PreDefinition_PartialFixpoint_Main(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+res = meta_initialize_Lean_Elab_PreDefinition_PartialFixpoint_Main(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Elab_PreDefinition_PartialFixpoint_Main(builtin);
 }
 #ifdef __cplusplus
 }

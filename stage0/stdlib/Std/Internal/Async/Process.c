@@ -1452,25 +1452,29 @@ x_2 = l_Std_Internal_IO_Process_availableMemory();
 return x_2;
 }
 }
-lean_object* initialize_Std_Time(uint8_t builtin);
-lean_object* initialize_Std_Internal_UV_System(uint8_t builtin);
-lean_object* initialize_Std_Data_HashMap(uint8_t builtin);
-lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Internal_Async_Process(uint8_t builtin) {
+lean_object* runtime_initialize_Std_Time(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_UV_System(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_HashMap(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Ord_UInt(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Async_Process(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Std_Time(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Time(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal_UV_System(builtin);
+res = runtime_initialize_Std_Internal_UV_System(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_HashMap(builtin);
+res = runtime_initialize_Std_Data_HashMap(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord_UInt(builtin);
+res = runtime_initialize_Init_Data_Ord_UInt(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Internal_IO_Process_instInhabitedResourceUsageStats_default = _init_l_Std_Internal_IO_Process_instInhabitedResourceUsageStats_default();
@@ -1480,6 +1484,48 @@ lean_mark_persistent(l_Std_Internal_IO_Process_instInhabitedResourceUsageStats);
 l_Std_Internal_IO_Process_instInhabitedPId_default = _init_l_Std_Internal_IO_Process_instInhabitedPId_default();
 l_Std_Internal_IO_Process_instInhabitedPId = _init_l_Std_Internal_IO_Process_instInhabitedPId();
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Internal_Async_Process(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Std_Time(uint8_t builtin);
+lean_object* initialize_Std_Internal_UV_System(uint8_t builtin);
+lean_object* initialize_Std_Data_HashMap(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Std_Internal_Async_Process(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Std_Time(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_UV_System(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_HashMap(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Ord_UInt(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_Async_Process(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Internal_Async_Process(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Internal_Async_Process(builtin);
 }
 #ifdef __cplusplus
 }

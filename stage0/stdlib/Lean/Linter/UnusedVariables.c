@@ -19986,6 +19986,114 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
+lean_object* runtime_initialize_Lean_Elab_Command(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Linter_Util(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Linter_UnusedVariables(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Elab_Command(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Linter_Util(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_745145867____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Linter_linter_unusedVariables = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Linter_linter_unusedVariables);
+lean_dec_ref(res);
+res = l_Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_477737835____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Linter_linter_unusedVariables_funArgs = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Linter_linter_unusedVariables_funArgs);
+lean_dec_ref(res);
+res = l_Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_452823168____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Linter_linter_unusedVariables_patternVars = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Linter_linter_unusedVariables_patternVars);
+lean_dec_ref(res);
+res = l_Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_1654543230____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Linter_linter_unusedVariables_analyzeTactics = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Linter_linter_unusedVariables_analyzeTactics);
+lean_dec_ref(res);
+res = l_Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_3334728626____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Linter_builtinUnusedVariablesIgnoreFnsRef = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Linter_builtinUnusedVariablesIgnoreFnsRef);
+lean_dec_ref(res);
+res = l_Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_217797861____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Linter_unusedVariablesIgnoreFnsExt = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Linter_unusedVariablesIgnoreFnsExt);
+lean_dec_ref(res);
+res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_1088826556____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_3567963054____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_1718240125____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_4137261419____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_1582690914____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_1110682914____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_2270162977____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_2349931167____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_3301546665____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_625197502____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_727354328____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_UnusedVariables_initFn_00___x40_Lean_Linter_UnusedVariables_1044370963____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Linter_UnusedVariables(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin);
 lean_object* initialize_Lean_Linter_Util(uint8_t builtin);
 static bool _G_initialized = false;
@@ -19993,79 +20101,23 @@ LEAN_EXPORT lean_object* initialize_Lean_Linter_UnusedVariables(uint8_t builtin)
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Command(builtin);
+res = initialize_Lean_Elab_Command(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Linter_Util(builtin);
+res = initialize_Lean_Linter_Util(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_745145867____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Linter_linter_unusedVariables = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Linter_linter_unusedVariables);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_477737835____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Linter_linter_unusedVariables_funArgs = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Linter_linter_unusedVariables_funArgs);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_452823168____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Linter_linter_unusedVariables_patternVars = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Linter_linter_unusedVariables_patternVars);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_1654543230____hygCtx___hyg_4_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Linter_linter_unusedVariables_analyzeTactics = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Linter_linter_unusedVariables_analyzeTactics);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_3334728626____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Linter_builtinUnusedVariablesIgnoreFnsRef = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Linter_builtinUnusedVariablesIgnoreFnsRef);
-lean_dec_ref(res);
-}if (builtin) {res = l_Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_217797861____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_Linter_unusedVariablesIgnoreFnsExt = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Linter_unusedVariablesIgnoreFnsExt);
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_1088826556____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_Linter_UnusedVariables(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_3567963054____hygCtx___hyg_2_();
+res = meta_initialize_Lean_Linter_UnusedVariables(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_1718240125____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_4137261419____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_1582690914____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_1110682914____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_2270162977____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_2349931167____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_3301546665____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_625197502____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_initFn_00___x40_Lean_Linter_UnusedVariables_727354328____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}if (builtin) {res = l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_UnusedVariables_initFn_00___x40_Lean_Linter_UnusedVariables_1044370963____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lean_Linter_UnusedVariables(builtin);
 }
 #ifdef __cplusplus
 }

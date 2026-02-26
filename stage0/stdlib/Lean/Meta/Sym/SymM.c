@@ -3387,6 +3387,40 @@ x_6 = l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___00Lean_Persistent
 return x_6;
 }
 }
+lean_object* runtime_initialize_Lean_Meta_Sym_AlphaShareCommon(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_CongrTheorems(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Sym_SymM(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Meta_Sym_AlphaShareCommon(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_CongrTheorems(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = l_Lean_Meta_Sym_initFn_00___x40_Lean_Meta_Sym_SymM_3481378630____hygCtx___hyg_4_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_Meta_Sym_sym_debug = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Meta_Sym_sym_debug);
+lean_dec_ref(res);
+l_Lean_Meta_Sym_instInhabitedProofInstInfo_default = _init_l_Lean_Meta_Sym_instInhabitedProofInstInfo_default();
+lean_mark_persistent(l_Lean_Meta_Sym_instInhabitedProofInstInfo_default);
+l_Lean_Meta_Sym_instInhabitedProofInstInfo = _init_l_Lean_Meta_Sym_instInhabitedProofInstInfo();
+lean_mark_persistent(l_Lean_Meta_Sym_instInhabitedProofInstInfo);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_Sym_SymM(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Meta_Sym_AlphaShareCommon(uint8_t builtin);
 lean_object* initialize_Lean_Meta_CongrTheorems(uint8_t builtin);
 static bool _G_initialized = false;
@@ -3394,22 +3428,23 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Sym_SymM(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Sym_AlphaShareCommon(builtin);
+res = initialize_Lean_Meta_Sym_AlphaShareCommon(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_CongrTheorems(builtin);
+res = initialize_Lean_Meta_CongrTheorems(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_Meta_Sym_initFn_00___x40_Lean_Meta_Sym_SymM_3481378630____hygCtx___hyg_4_();
+res = runtime_initialize_Lean_Meta_Sym_SymM(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lean_Meta_Sym_sym_debug = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Meta_Sym_sym_debug);
 lean_dec_ref(res);
-}l_Lean_Meta_Sym_instInhabitedProofInstInfo_default = _init_l_Lean_Meta_Sym_instInhabitedProofInstInfo_default();
-lean_mark_persistent(l_Lean_Meta_Sym_instInhabitedProofInstInfo_default);
-l_Lean_Meta_Sym_instInhabitedProofInstInfo = _init_l_Lean_Meta_Sym_instInhabitedProofInstInfo();
-lean_mark_persistent(l_Lean_Meta_Sym_instInhabitedProofInstInfo);
-return lean_io_result_mk_ok(lean_box(0));
+res = meta_initialize_Lean_Meta_Sym_SymM(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Meta_Sym_SymM(builtin);
 }
 #ifdef __cplusplus
 }

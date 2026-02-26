@@ -12177,6 +12177,66 @@ x_2 = lean_get_num_attributes();
 return x_2;
 }
 }
+lean_object* runtime_initialize_Lean_CoreM(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Compiler_MetaAttr(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Attributes(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_CoreM(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Compiler_MetaAttr(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_instInhabitedAttributeApplicationTime_default = _init_l_Lean_instInhabitedAttributeApplicationTime_default();
+l_Lean_instInhabitedAttributeApplicationTime = _init_l_Lean_instInhabitedAttributeApplicationTime();
+l_Lean_instInhabitedAttributeKind_default = _init_l_Lean_instInhabitedAttributeKind_default();
+l_Lean_instInhabitedAttributeKind = _init_l_Lean_instInhabitedAttributeKind();
+res = l_Lean_initFn_00___x40_Lean_Attributes_285812513____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_attributeMapRef = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_attributeMapRef);
+lean_dec_ref(res);
+l_Lean_instInhabitedTagAttribute_default = _init_l_Lean_instInhabitedTagAttribute_default();
+lean_mark_persistent(l_Lean_instInhabitedTagAttribute_default);
+l_Lean_instInhabitedTagAttribute = _init_l_Lean_instInhabitedTagAttribute();
+lean_mark_persistent(l_Lean_instInhabitedTagAttribute);
+res = l_Lean_initFn_00___x40_Lean_Attributes_2990505691____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_attributeImplBuilderTableRef = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_attributeImplBuilderTableRef);
+lean_dec_ref(res);
+l_Lean_instInhabitedAttributeExtensionState_default = _init_l_Lean_instInhabitedAttributeExtensionState_default();
+lean_mark_persistent(l_Lean_instInhabitedAttributeExtensionState_default);
+l_Lean_instInhabitedAttributeExtensionState = _init_l_Lean_instInhabitedAttributeExtensionState();
+lean_mark_persistent(l_Lean_instInhabitedAttributeExtensionState);
+res = l_Lean_initFn_00___x40_Lean_Attributes_3560353829____hygCtx___hyg_2_()
+;
+if (lean_io_result_is_error(res)) return res;
+l_Lean_attributeExtension = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_attributeExtension);
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Attributes(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+l_Lean_AttributeImplCore_ref___autoParam = _init_l_Lean_AttributeImplCore_ref___autoParam();
+lean_mark_persistent(l_Lean_AttributeImplCore_ref___autoParam);
+l_Lean_registerTagAttribute___auto__1 = _init_l_Lean_registerTagAttribute___auto__1();
+lean_mark_persistent(l_Lean_registerTagAttribute___auto__1);
+l_Lean_registerEnumAttributes___auto__1 = _init_l_Lean_registerEnumAttributes___auto__1();
+lean_mark_persistent(l_Lean_registerEnumAttributes___auto__1);
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_CoreM(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_MetaAttr(uint8_t builtin);
 static bool _G_initialized = false;
@@ -12184,46 +12244,23 @@ LEAN_EXPORT lean_object* initialize_Lean_Attributes(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_CoreM(builtin);
+res = initialize_Lean_CoreM(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_MetaAttr(builtin);
+res = initialize_Lean_Compiler_MetaAttr(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_instInhabitedAttributeApplicationTime_default = _init_l_Lean_instInhabitedAttributeApplicationTime_default();
-l_Lean_instInhabitedAttributeApplicationTime = _init_l_Lean_instInhabitedAttributeApplicationTime();
-l_Lean_AttributeImplCore_ref___autoParam = _init_l_Lean_AttributeImplCore_ref___autoParam();
-lean_mark_persistent(l_Lean_AttributeImplCore_ref___autoParam);
-l_Lean_instInhabitedAttributeKind_default = _init_l_Lean_instInhabitedAttributeKind_default();
-l_Lean_instInhabitedAttributeKind = _init_l_Lean_instInhabitedAttributeKind();
-if (builtin) {res = l_Lean_initFn_00___x40_Lean_Attributes_285812513____hygCtx___hyg_2_();
+res = runtime_initialize_Lean_Attributes(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lean_attributeMapRef = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_attributeMapRef);
 lean_dec_ref(res);
-}l_Lean_instInhabitedTagAttribute_default = _init_l_Lean_instInhabitedTagAttribute_default();
-lean_mark_persistent(l_Lean_instInhabitedTagAttribute_default);
-l_Lean_instInhabitedTagAttribute = _init_l_Lean_instInhabitedTagAttribute();
-lean_mark_persistent(l_Lean_instInhabitedTagAttribute);
-l_Lean_registerTagAttribute___auto__1 = _init_l_Lean_registerTagAttribute___auto__1();
-lean_mark_persistent(l_Lean_registerTagAttribute___auto__1);
-l_Lean_registerEnumAttributes___auto__1 = _init_l_Lean_registerEnumAttributes___auto__1();
-lean_mark_persistent(l_Lean_registerEnumAttributes___auto__1);
-if (builtin) {res = l_Lean_initFn_00___x40_Lean_Attributes_2990505691____hygCtx___hyg_2_();
+res = meta_initialize_Lean_Attributes(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
-l_Lean_attributeImplBuilderTableRef = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_attributeImplBuilderTableRef);
 lean_dec_ref(res);
-}l_Lean_instInhabitedAttributeExtensionState_default = _init_l_Lean_instInhabitedAttributeExtensionState_default();
-lean_mark_persistent(l_Lean_instInhabitedAttributeExtensionState_default);
-l_Lean_instInhabitedAttributeExtensionState = _init_l_Lean_instInhabitedAttributeExtensionState();
-lean_mark_persistent(l_Lean_instInhabitedAttributeExtensionState);
-if (builtin) {res = l_Lean_initFn_00___x40_Lean_Attributes_3560353829____hygCtx___hyg_2_();
-if (lean_io_result_is_error(res)) return res;
-l_Lean_attributeExtension = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_attributeExtension);
-lean_dec_ref(res);
-}return lean_io_result_mk_ok(lean_box(0));
+return initialize_Lean_Attributes(builtin);
 }
 #ifdef __cplusplus
 }

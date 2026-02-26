@@ -18784,31 +18784,43 @@ x_3 = l_Std_LinearOrderPackage_ofOrd___redArg(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_Order_LemmasExtra(uint8_t builtin);
-lean_object* initialize_Init_Data_Order_FactoriesExtra(uint8_t builtin);
-lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin);
-lean_object* initialize_Init_Data_Bool(uint8_t builtin);
-lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Order_PackageFactories(uint8_t builtin) {
+lean_object* runtime_initialize_Init_Data_Order_LemmasExtra(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Order_FactoriesExtra(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Order_Factories(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Order_Lemmas(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Order_PackageFactories(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Init_Data_Order_LemmasExtra(builtin);
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Order_LemmasExtra(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_FactoriesExtra(builtin);
+res = runtime_initialize_Init_Data_Order_FactoriesExtra(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_Factories(builtin);
+res = runtime_initialize_Init_Data_Order_Factories(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Bool(builtin);
+res = runtime_initialize_Init_Data_Bool(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_Lemmas(builtin);
+res = runtime_initialize_Init_Data_Order_Lemmas(builtin)
+;
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Order_PackageFactories(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
 l_Std_Packages_PreorderOfLEArgs_le___autoParam = _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam();
 lean_mark_persistent(l_Std_Packages_PreorderOfLEArgs_le___autoParam);
 l_Std_Packages_PreorderOfLEArgs_decidableLE___autoParam = _init_l_Std_Packages_PreorderOfLEArgs_decidableLE___autoParam();
@@ -18888,6 +18900,46 @@ lean_mark_persistent(l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam);
 l_Std_LinearOrderPackage_ofOrd___auto__1 = _init_l_Std_LinearOrderPackage_ofOrd___auto__1();
 lean_mark_persistent(l_Std_LinearOrderPackage_ofOrd___auto__1);
 return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Init_Data_Order_LemmasExtra(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_FactoriesExtra(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Init_Data_Order_PackageFactories(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Init_Data_Order_LemmasExtra(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_FactoriesExtra(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_Factories(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Bool(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_Lemmas(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Order_PackageFactories(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Order_PackageFactories(builtin)
+;
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Order_PackageFactories(builtin);
 }
 #ifdef __cplusplus
 }
