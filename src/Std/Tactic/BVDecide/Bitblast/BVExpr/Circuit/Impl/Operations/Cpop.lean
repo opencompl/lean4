@@ -77,7 +77,7 @@ def blastextractAndExtend (aig : AIG α) (idx : Nat) (x : AIG.RefVec aig w)
     let acc := acc.append bv
     have hcast : w * (idx + 1) = w * idx + w := by simp [Nat.mul_add]
     have acc := hcast ▸ acc
-    blastextractAndExtend (aigRes) (idx + 1) (x := x) (acc := acc) (by omega)
+    blastextractAndExtend aigRes (idx + 1) (x := x) (acc := acc) (by omega)
   else
     have : idx = w := by omega
     have hcast : w * idx = w * w := by rw [this]
