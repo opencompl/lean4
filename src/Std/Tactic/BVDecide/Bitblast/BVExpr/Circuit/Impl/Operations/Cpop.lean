@@ -30,9 +30,9 @@ variable [Hashable α] [DecidableEq α]
 namespace BVExpr
 namespace bitblast
 
-structure ExtractAndExtendBitTarget (aig : AIG α) (len : Nat) where
+structure ExtractAndExtendBitTarget (aig : AIG α) (w : Nat) where
   start : Nat
-  x : AIG.RefVec aig len
+  x : AIG.RefVec aig w
 
 /-- We extract a single bit in position `start` and extend it to have width `w`-/
 def blastExtractAndExtendBit (aig : AIG α) (target : ExtractAndExtendBitTarget aig w) :
