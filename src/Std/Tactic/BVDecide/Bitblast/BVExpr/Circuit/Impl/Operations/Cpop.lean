@@ -72,8 +72,8 @@ def blastextractAndExtend (aig : AIG α) (idx : Nat) (x : AIG.RefVec aig w)
     let aigRes := res.aig
     let bv := res.vec
     have := extractAndExtendBit_le_size aig x idx
-    let acc := acc.cast (aig2 := aigRes) this
-    let x := x.cast (aig2 := aigRes) this
+    let acc := acc.cast this
+    let x := x.cast this
     let acc := acc.append bv
     have hcast : w * (idx + 1) = w * idx + w := by simp [Nat.mul_add]
     have acc := hcast ▸ acc
@@ -120,8 +120,8 @@ def blastCpopLayer (aig : AIG α) (iterNum : Nat)
     let aig := res.aig
     let op1 : aig.RefVec w := res.vec
     have := AIG.LawfulVecOperator.le_size (f := blastExtract) ..
-    let oldLayer := oldLayer.cast (aig2 := aig) this
-    let newLayer := newLayer.cast (aig2 := aig) this
+    let oldLayer := oldLayer.cast this
+    let newLayer := newLayer.cast this
     -- rhs
     let res := blastExtract aig ⟨oldLayer, (2 * iterNum + 1) * w⟩
     let aig := res.aig
@@ -129,7 +129,7 @@ def blastCpopLayer (aig : AIG α) (iterNum : Nat)
     have := AIG.LawfulVecOperator.le_size (f := blastExtract) ..
     let oldLayer := oldLayer.cast this
     let newLayer := newLayer.cast this
-    let op1 := op1.cast (aig2 := aig) this
+    let op1 := op1.cast this
     -- add
     let res := blastAdd aig ⟨op1, op2⟩
     let aig := res.aig
@@ -228,8 +228,6 @@ def blastCpop (aig : AIG α) (x : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
     let res := blastextractAndExtend aig 0 x initAcc (by omega)
     let aig := res.aig
     let extendedBits := res.vec
-    have := extractAndExtend_le_size
-    let x := x.cast (aig2 := res.aig) (by apply this)
     blastCpopTree aig extendedBits (by omega)
   else if hw' : 0 < w then
       ⟨aig, x⟩
