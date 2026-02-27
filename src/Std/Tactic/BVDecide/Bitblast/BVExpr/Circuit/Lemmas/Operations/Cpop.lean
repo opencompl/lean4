@@ -38,12 +38,12 @@ theorem denote_blastExtractAndExtendBit (aig : AIG α) (xc : AIG.RefVec aig w)
     (x : BitVec w) (start : Nat) (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w),
       ⟦
-        (blastExtractAndExtendBit aig xc start).aig,
-        (blastExtractAndExtendBit aig xc start).vec.get idx hidx,
+        (blastExtractAndExtendBit aig ⟨start, xc⟩).aig,
+        (blastExtractAndExtendBit aig ⟨start, xc⟩).vec.get idx hidx,
         assign
       ⟧ = (BitVec.extractAndExtendBit start w x).getLsbD idx := by
   intros idx hidx
-  generalize hext: blastExtractAndExtendBit aig xc start = res
+  generalize hext : blastExtractAndExtendBit aig ⟨start, xc⟩ = res
   unfold blastExtractAndExtendBit at hext
   dsimp only [Lean.Elab.WF.paramLet] at hext
   rw [← hext]
@@ -58,16 +58,16 @@ theorem denote_blastExtractAndExtendBit (aig : AIG α) (xc : AIG.RefVec aig w)
 theorem blastExtractAndExtendBit_denote_mem_prefix (aig : AIG α) (curr : Nat)
     (xc : RefVec aig w) (hstart : start < aig.decls.size) :
     ⟦
-      (blastExtractAndExtendBit aig xc curr).aig,
-      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply extractAndExtendBit_le_size⟩,
+      (blastExtractAndExtendBit aig ⟨curr, xc⟩).aig,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply AIG.LawfulVecOperator.le_size (f := blastExtractAndExtendBit)⟩,
       assign
     ⟧ = ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
-    apply extractAndExtendBit_decl_eq
+    apply AIG.LawfulVecOperator.decl_eq (f := blastExtractAndExtendBit)
   · intros
-    apply extractAndExtendBit_le_size
+    apply AIG.LawfulVecOperator.le_size (f := blastExtractAndExtendBit)
 
 theorem denote_append_blastExtractAndExtendBit (assign : α → Bool) (aig : AIG α) (currIdx w : Nat) (x : BitVec w)
     (xc : AIG.RefVec aig w) (acc : AIG.RefVec aig (w * currIdx)) (hidx : idx < w * currIdx + w)
@@ -75,8 +75,9 @@ theorem denote_append_blastExtractAndExtendBit (assign : α → Bool) (aig : AIG
                 ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.extractAndExtend w x).getLsbD idx)
               (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx) :
     ⟦
-      (blastExtractAndExtendBit aig xc currIdx).aig,
-      ((acc.cast (by apply extractAndExtendBit_le_size)).append (blastExtractAndExtendBit aig xc currIdx).vec).get idx hidx,
+      (blastExtractAndExtendBit aig ⟨currIdx, xc⟩).aig,
+      ((acc.cast (by apply AIG.LawfulVecOperator.le_size (f := blastExtractAndExtendBit))).append
+        (blastExtractAndExtendBit aig ⟨currIdx, xc⟩).vec).get idx hidx,
       assign
     ⟧ = (BitVec.extractAndExtend w x).getLsbD idx := by
   rw [RefVec.get_append]
@@ -87,8 +88,8 @@ theorem denote_append_blastExtractAndExtendBit (assign : α → Bool) (aig : AIG
     apply acc.hrefs (i := idx)
   · rw [BitVec.getLsbD_extractAndExtend (by omega)]
     have h := Nat.div_eq_of_lt_le (k := currIdx) (m := idx) (n := w)
-              (by rw [Nat.mul_comm]; omega)
-              (by rw [Nat.add_mul, Nat.mul_comm currIdx w]; omega)
+      (by rw [Nat.mul_comm]; omega)
+      (by rw [Nat.add_mul, Nat.mul_comm currIdx w]; omega)
     have h' := Nat.mod_eq_sub_mul_div (k := w) (x := idx)
     rw [h] at h'
     simp only [← h', ← Nat.div_eq_sub_mod_div (m := idx) (n := w), h]
@@ -101,13 +102,13 @@ theorem denote_blastExtractAndExtend (assign : α → Bool) (aig : AIG α) (curr
     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w * w),
       ⟦
-        (blastextractAndExtend aig currIdx xc acc hlt).aig,
-        (blastextractAndExtend aig currIdx xc acc hlt).vec.get idx hidx,
+        (blastExtractAndExtend aig currIdx xc acc hlt).aig,
+        (blastExtractAndExtend aig currIdx xc acc hlt).vec.get idx hidx,
         assign
       ⟧ = (BitVec.extractAndExtend w x).getLsbD idx := by
   intros idx hidx
-  generalize hgen : blastextractAndExtend aig currIdx xc acc hlt = gen
-  unfold blastextractAndExtend at hgen
+  generalize hgen : blastExtractAndExtend aig currIdx xc acc hlt = gen
+  unfold blastExtractAndExtend at hgen
   split at hgen
   · case _ hlt =>
     rw [← hgen]
