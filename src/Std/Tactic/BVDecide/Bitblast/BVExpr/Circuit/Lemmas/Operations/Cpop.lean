@@ -102,12 +102,12 @@ theorem denote_blastExtractAndExtend.go (assign : α → Bool) (aig : AIG α) (c
     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w * w),
       ⟦
-        (blastExtractAndExtend.go (outWidth := w * w) currIdx xc acc (by omega) (by simp)).aig,
-        (blastExtractAndExtend.go (outWidth := w * w) currIdx xc acc (by omega) (by simp)).vec.get idx hidx,
+        (blastExtractAndExtend.go (outWidth := w * w) currIdx xc acc (by omega) (by rfl)).aig,
+        (blastExtractAndExtend.go (outWidth := w * w) currIdx xc acc (by omega) (by rfl)).vec.get idx hidx,
         assign
       ⟧ = (BitVec.extractAndExtend w x).getLsbD idx := by
   intros idx hidx
-  generalize hgen : blastExtractAndExtend.go (outWidth := w * w) currIdx xc acc (by omega) (by simp) = gen
+  generalize hgen : blastExtractAndExtend.go (outWidth := w * w) currIdx xc acc (by omega) (by rfl) = gen
   unfold blastExtractAndExtend.go at hgen
   split at hgen
   · case _ hlt =>
@@ -128,8 +128,8 @@ theorem denote_blastExtractAndExtend (assign : α → Bool) (aig : AIG α) (w : 
     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w * w),
       ⟦
-        (blastExtractAndExtend (outWidth := w * w) aig ⟨xc, by simp⟩).aig,
-        (blastExtractAndExtend (outWidth := w * w) aig ⟨xc, by simp⟩).vec.get idx hidx,
+        (blastExtractAndExtend (outWidth := w * w) aig ⟨xc, by rfl⟩).aig,
+        (blastExtractAndExtend (outWidth := w * w) aig ⟨xc, by rfl⟩).vec.get idx hidx,
         assign
       ⟧ = (BitVec.extractAndExtend w x).getLsbD idx := by
   unfold blastExtractAndExtend
@@ -147,8 +147,8 @@ theorem denote_blastCpopLayer.go (aig : AIG α) (iterNum : Nat)
         (BitVec.cpopLayer (oldLayer := oldLayerBv) 0#(0 * w) (by simp; omega)).getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < (len + 1) / 2 * w),
       ⟦
-        (blastCpopLayer.go iterNum oldLayer newLayer hold' (by simp)).aig,
-        (blastCpopLayer.go iterNum oldLayer newLayer hold' (by simp)).vec.get idx hidx,
+        (blastCpopLayer.go iterNum oldLayer newLayer hold' (by rfl)).aig,
+        (blastCpopLayer.go iterNum oldLayer newLayer hold' (by rfl)).vec.get idx hidx,
         assign
       ⟧ = (BitVec.cpopLayer oldLayerBv 0#(0 * w) (by omega)).getLsbD idx := by
   intros idx hidx

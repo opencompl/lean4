@@ -136,18 +136,18 @@ instance : AIG.LawfulVecOperator α blastExtractAndExtendTarget blastExtractAndE
 
 structure blastCpopLayerTarget (aig : AIG α) (outWidth : Nat) where
   {w len : Nat}
-  x : AIG.RefVec aig (len * w)
+  oldLayer : AIG.RefVec aig (len * w)
   h : outWidth = (len + 1) / 2 * w
   hlen : 0 < len
 
-/-- Given a vector of references belonging to the same AIG `oldParSum`,
-  we create a node to add the `curr`-th couple of elements and push the add node to `newParSum` -/
+/-- Given a vector of references belonging to the same AIG `oldLayer`,
+  we create a node to add the `iterNum`-th couple of elements and push the add node to `newLayer` -/
 def blastCpopLayer (aig : AIG α) (target : blastCpopLayerTarget aig outWidth) :
     AIG.RefVecEntry α outWidth :=
-  let ⟨x, h, hlen⟩ := target
+  let ⟨oldLayer, h, hlen⟩ := target
   have hcastZero : 0 = 0 * _ := by omega
   let initAcc := blastConst aig (w := 0) (val := 0)
-  go 0 x (hcastZero ▸ initAcc)
+  go 0 oldLayer (hcastZero ▸ initAcc)
     (by simp only [Nat.zero_le, Nat.sub_eq_zero_of_le, Nat.mul_zero, hlen]) h
 where
   go {aig : AIG α} {w len : Nat} (iterNum : Nat)
@@ -198,7 +198,7 @@ theorem blastCpopLayer.go_le_size (aig : AIG α) (iterNum: Nat) (oldLayer : AIG.
   unfold go
   dsimp only
   split
-  · simp
+  · simp only [AIG.RefVec.cast_cast]
     <;> (refine Nat.le_trans ?_ (by apply blastCpopLayer.go_le_size); apply AIG.LawfulVecOperator.le_size)
   · simp
 
@@ -236,6 +236,10 @@ structure blastCpopTreeTarget (aig : AIG α) (w : Nat) where
   x : AIG.RefVec aig (len * w)
   h : 0 < len
 
+/--
+  Construct a tree for parallel prefix sum, creating each layer with
+  `blastCpopLayer`.
+-/
 def blastCpopTree (aig : AIG α) (target : blastCpopTreeTarget aig w) :
     AIG.RefVecEntry α w :=
   let ⟨x, h⟩ := target
