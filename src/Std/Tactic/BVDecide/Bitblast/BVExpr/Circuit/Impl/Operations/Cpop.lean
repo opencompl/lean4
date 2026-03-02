@@ -293,7 +293,7 @@ def blastCpop (aig : AIG α) (x : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
     let extendedBits := res.vec
     blastCpopTree aig ⟨extendedBits, by omega⟩
   else if hw' : 0 < w then
-      ⟨aig, x⟩
+    ⟨aig, x⟩
   else
     let zero := blastConst aig (w := w) 0
     ⟨aig, zero⟩
