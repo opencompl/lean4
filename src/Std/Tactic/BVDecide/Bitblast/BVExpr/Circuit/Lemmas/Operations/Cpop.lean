@@ -59,7 +59,8 @@ theorem blastExtractAndExtendBit_denote_mem_prefix (aig : AIG α) (curr : Nat)
     (xc : RefVec aig w) (hstart : start < aig.decls.size) :
     ⟦
       (blastExtractAndExtendBit aig ⟨curr, xc⟩).aig,
-      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply AIG.LawfulVecOperator.le_size (f := blastExtractAndExtendBit)⟩,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart;
+                      apply AIG.LawfulVecOperator.le_size (f := blastExtractAndExtendBit)⟩,
       assign
     ⟧ = ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
@@ -69,8 +70,9 @@ theorem blastExtractAndExtendBit_denote_mem_prefix (aig : AIG α) (curr : Nat)
   · intros
     apply AIG.LawfulVecOperator.le_size (f := blastExtractAndExtendBit)
 
-theorem denote_append_blastExtractAndExtendBit (assign : α → Bool) (aig : AIG α) (currIdx w : Nat) (x : BitVec w)
-    (xc : AIG.RefVec aig w) (acc : AIG.RefVec aig (w * currIdx)) (hidx : idx < w * currIdx + w)
+theorem denote_append_blastExtractAndExtendBit (assign : α → Bool) (aig : AIG α)
+    (currIdx w : Nat) (x : BitVec w) (xc : AIG.RefVec aig w) (acc : AIG.RefVec aig (w * currIdx))
+    (hidx : idx < w * currIdx + w)
     (hacc : ∀ (idx : Nat) (hidx : idx < w * currIdx),
                 ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.extractAndExtend w x).getLsbD idx)
               (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx) :
@@ -152,7 +154,8 @@ theorem denote_blastCpopLayer.go (aig : AIG α) (iterNum : Nat)
         assign
       ⟧ = (BitVec.cpopLayer oldLayerBv 0#(0 * w) (by omega)).getLsbD idx := by
   intros idx hidx
-  generalize hgen : blastCpopLayer.go (outWidth := (len + 1) / 2 * w)  iterNum oldLayer newLayer hold' (by simp) = res
+  generalize hgen : blastCpopLayer.go (outWidth := (len + 1) / 2 * w) iterNum oldLayer newLayer
+    hold' (by rfl) = res
   unfold blastCpopLayer.go at hgen
   split at hgen
   · rw [← hgen]
@@ -217,8 +220,8 @@ theorem denote_blastCpopLayer (aig : AIG α)
             ⟦aig, oldLayer.get idx hidx, assign⟧ = oldLayerBv.getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < (len + 1) / 2 * w),
       ⟦
-        (blastCpopLayer (outWidth := (len + 1) / 2 * w) aig ⟨oldLayer, by simp, by omega⟩).aig,
-        (blastCpopLayer (outWidth := (len + 1) / 2 * w) aig ⟨oldLayer, by simp, by omega⟩).vec.get idx hidx,
+        (blastCpopLayer (outWidth := (len + 1) / 2 * w) aig ⟨oldLayer, by rfl, by omega⟩).aig,
+        (blastCpopLayer (outWidth := (len + 1) / 2 * w) aig ⟨oldLayer, by rfl, by omega⟩).vec.get idx hidx,
         assign
       ⟧ = (BitVec.cpopLayer oldLayerBv 0#(0 * w) (by omega)).getLsbD idx := by
   unfold blastCpopLayer
@@ -232,7 +235,7 @@ theorem blastCpopLayer_denote_mem_prefix.go (aig : AIG α) (iterNum : Nat)  (hst
     (hold' : 2 * (iterNum - 1) < len)
     (oldLayer : AIG.RefVec aig (len * w)) (newLayer : AIG.RefVec aig (iterNum * w)) :
     ⟦
-      (blastCpopLayer.go (outWidth := (len + 1) / 2 * w) iterNum oldLayer newLayer hold' (by simp)).aig,
+      (blastCpopLayer.go (outWidth := (len + 1) / 2 * w) iterNum oldLayer newLayer hold' (by rfl)).aig,
       ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply blastCpopLayer.go_le_size⟩,
       assign
     ⟧ = ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
