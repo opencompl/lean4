@@ -175,6 +175,14 @@ where
     else
       ⟨aig, working⟩
 
+theorem blastSqrt_le_size (aig : AIG α) (input : AIG.RefVec aig w) :
+    aig.decls.size ≤ (blastSqrt aig input).aig.decls.size := by
+  sorry
+
+theorem blastSqrt_decl_eq (aig : AIG α) (input : AIG.RefVec aig w) :
+    ∀ (idx : Nat) h1 h2, (blastSqrt aig input).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+  sorry
+
 instance : AIG.LawfulVecOperator α AIG.RefVec blastSqrt where
   le_size := by
     intros

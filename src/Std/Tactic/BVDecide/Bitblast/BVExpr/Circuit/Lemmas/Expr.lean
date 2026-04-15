@@ -18,6 +18,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reverse
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Clz
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Cpop
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Sqrt
 
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 import Init.ByCases
@@ -223,13 +224,12 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
   · dsimp only at hres
     split at hres
     all_goals
-      sorry
-      -- rw [← hres]
-      -- dsimp only
-      -- apply Cache.Inv_cast
-      -- · apply LawfulVecOperator.isPrefix_aig
-      -- · apply goCache_Inv_of_Inv
-      --   exact hinv
+      rw [← hres]
+      dsimp only
+      apply Cache.Inv_cast
+      · apply LawfulVecOperator.isPrefix_aig
+      · apply goCache_Inv_of_Inv
+        exact hinv
   · rw [← hres]
     dsimp only
     apply Cache.Inv_cast
@@ -442,7 +442,12 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       intro idx hidx
       rw [goCache_denote_eq]
       exact hinv
-    · sorry
+    · rw [← hres]
+      simp only [eval_un, BVUnOp.eval_sqrt]
+      rw [denote_blastSqrt]
+      intro idx hidx
+      rw [goCache_denote_eq]
+      exact hinv
   next h =>
     subst h
     rw [← hres]

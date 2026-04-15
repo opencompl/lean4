@@ -4,13 +4,41 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luisa Cicolini, Siddharth Bhat, Henrik Böving
 -/
 
+module
+
+prelude
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Sub
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Append
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Eq
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ZeroExtend
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Sqrt
+
+import Init.Data.BitVec.Bootstrap
+import Init.Omega
+
+/-!
+This module contains the verification of the bitblaster for `BitVec.cpop`, implemented in
+`Impl.Operations.Cpop`.
+-/
+
+namespace Std.Tactic.BVDecide
+
+open Std.Sat
+open Std.Sat.AIG
+
+variable [Hashable α] [DecidableEq α]
+
+namespace BVExpr
+
+namespace bitblast
 
 @[simp]
-public theorem denote_blastSqrt
-    (aig : AIG α) (xc : AIG.RefVec aig w) (x : BitVec w)
+public theorem denote_blastSqrt (aig : AIG α) (xc : AIG.RefVec aig w) (x : BitVec w)
     (assign : α → Bool)
     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx) :
-
     ∀ (idx : Nat) (hidx : idx < w),
       ⟦
         (blastSqrt aig xc).aig,

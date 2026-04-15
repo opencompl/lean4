@@ -131,7 +131,7 @@ theorem cpop_congr (w : Nat) (x x' : BitVec w) (h : x = x') :
   simp [*]
 
 theorem sqrt_congr (w : Nat) (x x' : BitVec w) (h : x = x') :
-    BitVec.cpop x' = BitVec.cpop x := by
+    BitVec.sqrt x' = BitVec.sqrt x := by
   simp [*]
 
 end BitVec

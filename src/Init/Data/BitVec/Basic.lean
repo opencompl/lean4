@@ -897,6 +897,6 @@ def sqrtAux (i : Nat) (x : BitVec n) (y : BitVec n) : BitVec (n + 1) :=
 /-- Sqrt definition -/
 def sqrt (x : BitVec w) : BitVec w :=
   let r := sqrtAux (w - 1) x 0
-  r.setWidth w
+  r.extractLsb' 1 w
 
 end BitVec

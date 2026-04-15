@@ -686,6 +686,9 @@ example {x : BitVec 8} : x.cpop = (x.reverse).cpop := by bv_decide
 example {x y : BitVec 8} : (x ++ y).cpop = (x.zeroExtend 16).cpop + (y.zeroExtend 16).cpop:= by bv_decide
 example {x y : BitVec 8} : (x ++ y).cpop = (x.cpop + y.cpop).zeroExtend 16 := by bv_decide
 
+-- SQRT
+example : (0#1).sqrt = 0#1 := by bv_decide
+example : (1#1).sqrt = 1#1 := by bv_decide
 
 -- example : (0#64).cpop = 0#64 := by bv_decide
 -- example {x : BitVec 8} : x.cpop = (x.reverse).cpop := by bv_decide

@@ -154,7 +154,7 @@ inductive BVUnOp where
   -/
   | cpop
   /--
-  Square root.
+  Unsigned square root.
   -/
   | sqrt
   deriving Hashable, DecidableEq
