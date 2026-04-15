@@ -175,6 +175,17 @@ where
     else
       ⟨aig, working⟩
 
+instance : AIG.LawfulVecOperator α AIG.RefVec blastSqrt where
+  le_size := by
+    intros
+    unfold blastSqrt
+    sorry
+  decl_eq := by
+    intros
+    unfold blastSqrt
+    sorry
+
+
 end bitblast
 end BVExpr
 
