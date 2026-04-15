@@ -357,7 +357,7 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
         · apply Nat.le_trans <;> assumption
   next op expr =>
     match op with
-    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse | .clz | .cpop | .sqrt=>
+    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse | .clz | .cpop | .sqrt =>
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [goCache_decl_eq]
       have := (goCache aig expr cache).result.property

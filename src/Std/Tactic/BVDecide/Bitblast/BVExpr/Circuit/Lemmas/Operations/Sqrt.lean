@@ -20,8 +20,8 @@ import Init.Data.BitVec.Bootstrap
 import Init.Omega
 
 /-!
-This module contains the verification of the bitblaster for `BitVec.cpop`, implemented in
-`Impl.Operations.Cpop`.
+This module contains the verification of the bitblaster for `BitVec.sqrt`, implemented in
+`Impl.Operations.Sqrt`.
 -/
 
 namespace Std.Tactic.BVDecide
