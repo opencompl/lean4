@@ -885,4 +885,15 @@ def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
 @[suggest_for BitVec.popcount BitVec.popcnt]
 def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
 
+/-
+  def sqrt_iter (i : Nat) (x : BitVec n) (y : BitVec n) : BitVec (n+1) :=
+    let yExtended := y.setWidth (2*n) ||| (1#_ <<< i)
+    let flag := (BitVec.ofBool (yExtended * yExtended ≤ x.setWidth (2*n))).setWidth n <<< i
+    let flag := (BitVec.ofBool (yExtended * yExtended ≤ x.setWidth (2*n))).setWidth n <<< i
+    match i with
+    | 0 => yNew ++ BitVec.ofBool (yNew.setWidth (2*n) * yNew.setWidth (2*n) ≠ x.setWidth (2*n))
+    | j+1 => sqrt_iter j x yNew
+-/
+def sqrt (x : BitVec w) : BitVec w := sorry
+
 end BitVec

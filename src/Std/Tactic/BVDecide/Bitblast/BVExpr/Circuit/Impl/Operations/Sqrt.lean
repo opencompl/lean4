@@ -61,10 +61,9 @@ The implementation is based on the SymmFPU one:
 -/
 
 def blastSqrt (aig : AIG α) (x : AIG.RefVec aig w) :
-    AIG.RefVecEntry α (w - 1) :=
+    AIG.RefVecEntry α w :=
   if h1 : w = 1 then
-    let z := blastConst aig (w := w - 1) (val := 0)
-    ⟨aig, z⟩
+    ⟨aig, x⟩
   else
     /- bwt inputWidth(x.getWidth()); -/
     let inputWidth := w
@@ -87,9 +86,14 @@ def blastSqrt (aig : AIG α) (x : AIG.RefVec aig w) :
     have := AIG.LawfulVecOperator.le_size (f := blastShiftLeft) ..
     let x := x.cast (aig2 := aig) this
     let xcomp := xcomp.cast this
-    go aig xcomp working (outputWidth - 1)
+    let res := go aig xcomp working (outputWidth - 1)
+    let aig := res.aig
+    let sqrt := res.vec
+    let res := blastZeroExtend aig (newWidth := w) ⟨w - 1, sqrt⟩
+    ⟨res.aig, res.vec⟩
 where
-  go (aig : AIG α) (xcomp : AIG.RefVec aig (w + w - 2)) (working : AIG.RefVec aig (w - 1)) (location : Nat) :=
+  go (aig : AIG α) (xcomp : AIG.RefVec aig (w + w - 2)) (working : AIG.RefVec aig (w - 1)) (location : Nat) :
+    AIG.RefVecEntry α (w - 1):=
     if 0 < location then
       /- ubv shift(ubv(outputWidth, location - 1)); -/
       let shift := blastConst aig (w := w - 1) (val := location - 1)

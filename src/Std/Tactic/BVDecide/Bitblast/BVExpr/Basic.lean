@@ -153,6 +153,10 @@ inductive BVUnOp where
   Population count.
   -/
   | cpop
+  /--
+  Square root.
+  -/
+  | sqrt
   deriving Hashable, DecidableEq
 
 namespace BVUnOp
@@ -165,6 +169,7 @@ def toString : BVUnOp → String
   | reverse => "rev"
   | clz => "clz"
   | cpop => "cpop"
+  | sqrt => "sqrt"
 
 instance : ToString BVUnOp := ⟨toString⟩
 
@@ -179,6 +184,7 @@ def eval : BVUnOp → (BitVec w → BitVec w)
   | reverse =>  BitVec.reverse
   | clz => BitVec.clz
   | cpop => BitVec.cpop
+  | sqrt => BitVec.sqrt
 
 @[simp] theorem eval_not : eval .not = ((~~~ ·) : BitVec w → BitVec w) := by rfl
 
@@ -199,6 +205,8 @@ theorem eval_arithShiftRightConst : eval (arithShiftRightConst n) = (BitVec.sshi
 @[simp] theorem eval_clz : eval .clz = (BitVec.clz : BitVec w → BitVec w) := by rfl
 
 @[simp] theorem eval_cpop : eval .cpop = (BitVec.cpop : BitVec w → BitVec w) := by rfl
+
+@[simp] theorem eval_sqrt : eval .sqrt = (BitVec.sqrt : BitVec w → BitVec w) := by rfl
 
 end BVUnOp
 
