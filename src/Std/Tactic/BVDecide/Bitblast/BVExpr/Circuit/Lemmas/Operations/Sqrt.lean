@@ -34,6 +34,41 @@ variable [Hashable α] [DecidableEq α]
 namespace BVExpr
 
 namespace bitblast
+-- theorem denote_blastSqrt.go (xcomp : AIG.RefVec aig (w + w - 2)) (working : AIG.RefVec aig (w - 1)) (location : Nat)
+--     (xcomp' : BitVec (w + w - 2)) (working' : BitVec (w - 1))
+--     (hxcomp : ∀ (idx : Nat) (hidx : idx < w + w - 2), ⟦aig, xcomp.get idx hidx, assign⟧ = xcomp'.getLsbD idx)
+--     (hworking : ∀ (idx : Nat) (hidx : idx < w - 1), ⟦aig, working.get idx hidx, assign⟧ = working'.getLsbD idx) :
+--     ∀ (idx : Nat) (hidx : idx < w),
+--       ⟦
+--         (blastSqrt.go aig xcomp working location).aig,
+--         (blastSqrt.go aig xcomp working location).vec.get idx hidx,
+--         assign
+--       ⟧ = (BitVec.cpopTree bv).getLsbD idx := by
+--   intros idx hidx
+--   generalize hgen : blastSqrt.go l h = res
+--   unfold blastSqrt.go at hgen
+--   split at hgen
+--   · rw [← hgen]
+--     unfold BitVec.cpopTree
+--     simp only [Lean.Elab.WF.paramLet, show ¬len = 0 by omega, reduceDIte, show ¬len = 1 by omega]
+--     apply denote_blastCpopTree.go
+--     apply denote_blastCpopLayer (iterNum := 0)
+--     · simp
+--       omega
+--     · simp [hpar]
+--   · have : len = 1 := by omega
+--     subst this
+--     rw [← hgen, BitVec.cpopTree]
+--     simp only [Lean.Elab.WF.paramLet, Nat.succ_ne_self, reduceDIte, BitVec.getLsbD_cast]
+--     rw [← hpar]
+--     · congr
+--       · simp
+--       · apply eqRec_heq
+--       · apply proof_irrel_heq
+--     · omega
+-- termination_by len
+
+
 
 @[simp]
 public theorem denote_blastSqrt (aig : AIG α) (xc : AIG.RefVec aig w) (x : BitVec w)
@@ -45,4 +80,5 @@ public theorem denote_blastSqrt (aig : AIG α) (xc : AIG.RefVec aig w) (x : BitV
         (blastSqrt aig xc).vec.get idx hidx,
         assign
       ⟧ = (BitVec.sqrt x).getLsbD idx := by
+
   sorry

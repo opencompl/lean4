@@ -2801,4 +2801,18 @@ theorem cpop_eq_cpopRec {x : BitVec w} :
       subst hw
       simp [of_length_zero]
 
+def sqrtAux (xcomp : BitVec (w + w - 2)) (working : BitVec (w - 1)) (location : Nat) (hw : 0 < w) :
+    BitVec (w - 1) :=
+  if 0 < location then
+    let shift := BitVec.ofNat (i := location - 1) (n := w - 1)
+    let shifted := 1#(w - 1) <<< shift
+    let candidate := (working ||| shifted).zeroExtend (w + w - 2)
+    let mul := candidate * candidate
+    let addBit := (BitVec.ofBool (mul.ule xcomp)).zeroExtend (w - 1)
+    let shifted := addBit <<< shift
+
+    sorry
+  else
+    sorry
+
 end BitVec

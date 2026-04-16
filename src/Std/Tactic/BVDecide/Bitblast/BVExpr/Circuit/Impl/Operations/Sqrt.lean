@@ -171,6 +171,10 @@ where
       let working := working.cast this
       let xcomp := xcomp.cast (aig2 := aig) this
       let res := AIG.RefVec.zip aig ⟨working, shifted⟩ AIG.mkOrCached
+      let aig := res.aig
+      let working := res.vec
+      let xcomp := xcomp.cast (aig2 := aig)
+          (by apply AIG.RefVec.zip_le_size _  _ AIG.mkOrCached)
       go aig xcomp working (location - 1)
     else
       ⟨aig, working⟩

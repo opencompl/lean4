@@ -886,17 +886,17 @@ def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
 def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
 
 /-- Sqrt iterative (auxilliary) definition -/
-def sqrtAux (i : Nat) (x : BitVec n) (y : BitVec n) : BitVec (n + 1) :=
+def sqrtRec (i : Nat) (x : BitVec n) (y : BitVec n) : BitVec (n + 1) :=
   let yExtended := y.setWidth (2 * n) ||| (1#_ <<< i)
   let flag := (BitVec.ofBool (yExtended * yExtended ≤ x.setWidth (2 * n))).setWidth n <<< i
   let yNew := y ||| flag
   match i with
   | 0 => yNew ++ BitVec.ofBool (yNew.setWidth (2 * n) * yNew.setWidth (2 * n) ≠ x.setWidth (2 * n))
-  | j + 1 => sqrtAux j x yNew
+  | j + 1 => sqrtRec j x yNew
 
 /-- Sqrt definition -/
 def sqrt (x : BitVec w) : BitVec w :=
-  let r := sqrtAux (w - 1) x 0
+  let r := sqrtRec (w - 1) x 0
   r.extractLsb' 1 w
 
 end BitVec
