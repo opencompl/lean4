@@ -691,7 +691,7 @@ example : (0#1).sqrt = 0#1 := by bv_decide
 example : (1#1).sqrt = 1#1 := by bv_decide
 example : (2#2).sqrt = 1#2 := by bv_decide
 example : (9#4).sqrt = 3#4 := by bv_decide
-example : (10#4).sqrt = 3#4 := by bv_decide
+example : (10#4).sqrt = (13#4).sqrt := by bv_decide
 
 -- example : (0#64).cpop = 0#64 := by bv_decide
 -- example {x : BitVec 8} : x.cpop = (x.reverse).cpop := by bv_decide
