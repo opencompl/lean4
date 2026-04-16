@@ -2810,9 +2810,9 @@ def sqrtAux (xcomp : BitVec (w + w - 2)) (working : BitVec (w - 1)) (location : 
     let mul := candidate * candidate
     let addBit := (BitVec.ofBool (mul.ule xcomp)).zeroExtend (w - 1)
     let shifted := addBit <<< shift
-
-    sorry
+    let working := working ||| shifted
+    sqrtAux xcomp working (location - 1) hw
   else
-    sorry
+    working
 
 end BitVec
