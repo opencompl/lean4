@@ -227,9 +227,27 @@ where
     else
       ⟨aig, working⟩
 
-theorem blastSqrt_le_size (aig : AIG α) (input : AIG.RefVec aig w) :
+theorem blastSqrt.go_le_size {w} (aig : AIG α) (xcomp : AIG.RefVec aig (w + w - 2)) (working : AIG.RefVec aig (w - 1)) (location : Nat) :
+    aig.decls.size ≤ (blastSqrt.go aig xcomp working location).aig.decls.size := by
+  generalize hres : blastSqrt.go aig xcomp working location = res
+  unfold blastSqrt.go at hres
+  split at hres
+  · rw [← hres]
+    simp
+    sorry
+  · rw [← hres]
+    simp
+
+
+theorem blastSqrt_le_size {w} (aig : AIG α) (input : AIG.RefVec aig w) :
     aig.decls.size ≤ (blastSqrt aig input).aig.decls.size := by
-  sorry
+  unfold blastSqrt
+  dsimp only
+  split
+  · sorry
+  · simp
+    apply AIG.LawfulVecOperator.le_size_of_le_aig_size _ _ _
+    sorry
 
 theorem blastSqrt_decl_eq (aig : AIG α) (input : AIG.RefVec aig w) :
     ∀ (idx : Nat) h1 h2, (blastSqrt aig input).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
